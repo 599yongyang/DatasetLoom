@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Projects {
+  id                   String        @id @default(nanoid(12))
+  name                 String
+  description          String
+  globalPrompt         String        @default("")
+  questionPrompt       String        @default("")
+  answerPrompt         String        @default("")
+  labelPrompt          String        @default("")
+  domainTreePrompt     String        @default("")
+  defaultModelConfigId String?
+  createAt             DateTime      @default(now())
+  updateAt             DateTime      @updatedAt
+  Questions            Questions[]
+  Datasets             Datasets[]
+  Chunks               Chunks[]
+  ModelConfig          ModelConfig[]
+  UploadFiles          UploadFiles[]
+  Tags                 Tags[]
+}
+
+model UploadFiles {
+  id        String   @id @default(nanoid())
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  fileName  String
+  fileExt   String
+  path      String
+  size      Int
+  md5       String
+  createAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
+}
+
+model Chunks {
+  id        String      @id @default(nanoid())
+  name      String
+  project   Projects    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  fileId    String
+  fileName  String
+  content   String
+  summary   String
+  size      Int
+  createAt  DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+  Questions Questions[]
+
+  @@index([projectId])
+}
+
+model Tags {
+  id        String   @id @default(nanoid())
+  label     String
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  parentId  String?
+  parent    Tags?    @relation("Tags", fields: [parentId], references: [id])
+  children  Tags[]   @relation("Tags")
+}
+
+model Questions {
+  id        String   @id @default(nanoid())
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  chunk     Chunks   @relation(fields: [chunkId], references: [id])
+  chunkId   String
+  question  String
+  label     String
+  answered  Boolean  @default(false)
+  createAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model Datasets {
+  id            String   @id @default(nanoid())
+  project       Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String
+  questionId    String
+  question      String
+  answer        String
+  chunkName     String
+  chunkContent  String
+  model         String
+  questionLabel String
+  cot           String
+  confirmed     Boolean  @default(false)
+  createAt      DateTime @default(now())
+  updateAt      DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model LlmProviders {
+  id        String      @id
+  name      String
+  apiUrl    String
+  createAt  DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+  LlmModels LlmModels[]
+}
+
+model LlmModels {
+  id         String       @id @default(nanoid())
+  modelId    String
+  modelName  String
+  provider   LlmProviders @relation(fields: [providerId], references: [id])
+  providerId String
+  createAt   DateTime     @default(now())
+  updateAt   DateTime     @updatedAt
+}
+
+model ModelConfig {
+  id           String   @id @default(nanoid())
+  project      Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  providerId   String
+  providerName String
+  endpoint     String
+  apiKey       String
+  modelId      String
+  modelName    String
+  type         String
+  temperature  Float
+  maxTokens    Int
+  topP         Float
+  topK         Float
+  status       Int
+  createAt     DateTime @default(now())
+  updateAt     DateTime @updatedAt
+}
