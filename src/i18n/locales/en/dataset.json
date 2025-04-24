@@ -1,0 +1,30 @@
+{
+    "search": "Search dataset...",
+    "select_item": {
+        "all": "All Dataset",
+        "confirmed": "Confirmed",
+        "unconfirmed": "Unconfirmed"
+    },
+    "info": "{{total}} dataset in total, {{confirmedCount}} confirmed",
+    "export_btn": "Export",
+    "table_columns": {
+        "question": "Question",
+        "model": "Use Model",
+        "createAt": "CreateAt",
+        "cot": "COT",
+        "answer": "Answer",
+        "actions": "Actions"
+    },
+    "detail": {
+        "back_list": "Back List",
+        "delete_btn": "Delete",
+        "reserve_btn": "Reserve",
+        "cancel_btn": "Cancel Confirm",
+        "answer": "Answer",
+        "cot": "COT",
+        "metadata": "Metadata",
+        "model": "Use Model",
+        "createAt": "CreateAt",
+        "chunk": "Chunk"
+    }
+}

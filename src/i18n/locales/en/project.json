@@ -1,0 +1,56 @@
+{
+    "search_info": "Search Project Name...",
+    "no_found": "No Project found.",
+    "search_btn": "Search",
+    "create_btn": "Create New Project",
+    "create_first_btn": "Create First Project",
+    "questions": "Questions",
+    "datasets": "Datasets",
+    "view": "View",
+    "delete": "Delete",
+    "create_time": "CreateAt",
+    "project_dialog": {
+        "title": "Create New Project",
+        "name": "Project Name",
+        "description": "Project Description",
+        "reuse": "Reuse model configuration",
+        "save_btn": "Save",
+        "cancel_btn": "Cancel"
+    },
+    "project_info": {
+        "id": "Project ID",
+        "name": "Project Name",
+        "description": "Project Description",
+        "btn": "Save"
+    },
+    "model_config": {
+        "title": "Model Manage",
+        "add_btn": "Add Model",
+        "lan_model": "Language Model",
+        "vision_model": "Vision Model"
+    },
+    "model_dialog": {
+        "add_title": "Add Model",
+        "edit_title": "Edit Model",
+        "provider": "Provider",
+        "api_url": "API URL",
+        "api_key": "API Key",
+        "model_name": "Model Name",
+        "model_type": "Model Type",
+        "temperature": "Temperature",
+        "temperature_accurate": "Accurate",
+        "temperature_balance": "Balance",
+        "temperature_creative": "Creative",
+        "max_token": "Max Token",
+        "refresh_btn": "Refresh Model",
+        "save_btn": "Save",
+        "cancel_btn": "Cancel"
+    },
+    "prompt_config": {
+        "info": "Define and configure custom prompts within the project to control and enhance the data integration output through manual guidance.",
+        "global": "Global Prompt",
+        "gen_question": "Generate Question Prompt",
+        "gen_answer": "Generate Answer Prompt",
+        "save_btn": "Save"
+    }
+}

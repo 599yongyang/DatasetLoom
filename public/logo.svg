@@ -1,0 +1,18 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <!-- 动态背景 -->
+    <rect width="120" height="120" rx="24" fill="#FFF5EB" />
+
+    <!-- 核心图形（仅调整坐标与尺寸） -->
+    <rect x="53" y="25" width="10" height="70" fill="#3F3D56" />
+    <rect x="28" y="25" width="25" height="10" fill="url(#grad)" />
+    <rect x="28" y="55" width="25" height="10" fill="url(#grad)" />
+    <rect x="28" y="85" width="25" height="10" fill="url(#grad)" />
+    <path d="M63 25 Q83 25 83 55 Q83 85 63 85" fill="none" stroke="url(#grad)" stroke-width="10" />
+
+    <defs>
+        <linearGradient id="grad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#FF7E5F" />
+            <stop offset="100%" stop-color="#FEB47B" />
+        </linearGradient>
+    </defs>
+</svg>

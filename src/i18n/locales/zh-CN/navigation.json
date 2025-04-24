@@ -1,0 +1,15 @@
+{
+    "search_project": "搜索项目...",
+    "no_found": "没有找到相关项目",
+    "quick_create": "创建新项目",
+    "documents": "文档处理",
+    "questions": "问题管理",
+    "datasets": "数据集管理",
+    "settings": "项目设置",
+    "project_info": "基本信息",
+    "model_config": "模型配置",
+    "task_config": "任务配置",
+    "prompt_config": "提示词配置",
+    "dataset_square": "数据集广场",
+    "playground": "模型测试"
+}

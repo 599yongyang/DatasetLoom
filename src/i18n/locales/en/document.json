@@ -1,0 +1,23 @@
+{
+    "file": {
+        "upload_text": "Upload New Documents",
+        "upload_btn": "Select files (supports multiple)",
+        "confirm_upload_btn": "Start uploading",
+        "add_more_btn": "Add more files",
+        "clear_btn": "Clear",
+        "pending_file_count": "{{count}} files selected",
+        "uploaded_file_count": "{{count}} files uploaded",
+        "search": "Search for file name..."
+    },
+    "chunk": {
+        "info": " {{selected}} chunks selected， {{count}} chunks",
+        "gen_btn": "Batch Generation",
+        "character": "{{count}} Character",
+        "question": "{{count}} Questions",
+        "select_item": {
+            "all": "All Chunk",
+            "generated": "Generated",
+            "unGenerated": "unGenerated"
+        }
+    }
+}

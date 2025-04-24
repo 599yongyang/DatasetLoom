@@ -1,0 +1,23 @@
+{
+    "file": {
+        "upload_text": "上传新文献",
+        "upload_btn": "选择文件(支持多个)",
+        "confirm_upload_btn": "开始上传",
+        "add_more_btn": "添加更多文件",
+        "clear_btn": "清空",
+        "pending_file_count": "已选择 {{count}} 个文件",
+        "uploaded_file_count": "已上传 {{count}} 个文件",
+        "search": "搜索文件名..."
+    },
+    "chunk": {
+        "info": "已选择 {{selected}} 个文本块，共 {{count}} 个文本块",
+        "gen_btn": "批量生成问题",
+        "character": "{{count}} 个字符",
+        "question": "{{count}} 个问题",
+        "select_item": {
+            "all": "全部文本块",
+            "generated": "已生成问题",
+            "unGenerated": "未生成问题"
+        }
+    }
+}

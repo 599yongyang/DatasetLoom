@@ -1,0 +1,28 @@
+{
+    "search": "Search for questions or tags",
+    "delete_btn": "Delete selected data",
+    "gen_btn": "Batch Generate Dataset",
+    "select_item": {
+        "all": "All Questions",
+        "answered": "Answered Generated",
+        "unanswered": "Unanswered Generated"
+    },
+    "answer_count": "{{count}} Answers",
+    "table_columns": {
+        "question": "Question",
+        "chunk": "Chunk",
+        "createAt": "CreateAt",
+        "actions": "Actions"
+    },
+    "dialog": {
+        "title": "Question Details",
+        "question": "Question",
+        "chunk": "Chunk",
+        "save_btn": "Save",
+        "cancel_btn": "Cancel"
+    },
+    "delete_title": "Are you sure you want to delete this question？",
+    "toast": {
+        "gen_ing": "Dataset Generating..."
+    }
+}

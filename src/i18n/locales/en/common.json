@@ -1,0 +1,35 @@
+{
+    "select_language": "Select a language",
+    "languages": {
+        "english": "English",
+        "french": "French",
+        "german": "German",
+        "spanish": "Spanish",
+        "portuguese": "Portuguese",
+        "russian": "Russian",
+        "japanese": "Japanese",
+        "korean": "Korean",
+        "chinese": "Chinese"
+    },
+    "themes": {
+        "system": "System",
+        "light": "Light",
+        "dark": "Dark"
+    },
+    "pagination": {
+        "select_row": "{{selected_count}} of {{row_count}} row(s) selected.",
+        "page_count": "Page {{current}} of {{page}}",
+        "page_rows": "Rows per page",
+        "first": "Go to first page",
+        "previous": "Go to previous page",
+        "next": "Go to next page",
+        "last": "Go to last page"
+    },
+    "fonts": {
+        "inter": "Inter",
+        "manrope": "Manrope"
+    },
+    "update": "Update",
+    "search": "search",
+    "documentation": "documentation"
+}

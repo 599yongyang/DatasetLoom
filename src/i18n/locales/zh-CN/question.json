@@ -1,0 +1,28 @@
+{
+    "search": "搜索问题或标签",
+    "delete_btn": "删除所选数据",
+    "gen_btn": "批量构造数据集",
+    "select_item": {
+        "all": "全部问题",
+        "answered": "已生成答案",
+        "unanswered": "未生成答案"
+    },
+    "answer_count": "{{count}} 个答案",
+    "table_columns": {
+        "question": "问题",
+        "chunk": "所属文本块",
+        "createAt": "创建时间",
+        "actions": "操作"
+    },
+    "dialog": {
+        "title": "问题详情",
+        "question": "问题",
+        "chunk": "所属文本块",
+        "save_btn": "保存",
+        "cancel_btn": "取消"
+    },
+    "delete_title": "确认要删除此问题吗？",
+    "toast": {
+        "gen_ing": "数据集生成中..."
+    }
+}

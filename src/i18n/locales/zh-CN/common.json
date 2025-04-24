@@ -1,0 +1,35 @@
+{
+    "select_language": "选择语言",
+    "languages": {
+        "english": "英语",
+        "french": "法语",
+        "german": "德语",
+        "spanish": "西班牙语",
+        "portuguese": "葡萄牙语",
+        "russian": "俄语",
+        "japanese": "日语",
+        "korean": "韩语",
+        "chinese": "中文"
+    },
+    "themes": {
+        "system": "系统",
+        "light": "明亮",
+        "dark": "暗夜"
+    },
+    "pagination": {
+        "select_row": "已选择 {{row_count}} 行中的 {{selected_count}} 行",
+        "page_count": "第 {{current}} 页共 {{page}} 页",
+        "page_rows": "每页行数",
+        "first": "转到第一页",
+        "previous": "转到上一页",
+        "next": "转到下一页",
+        "last": "转到最后一页"
+    },
+    "fonts": {
+        "inter": "Inter",
+        "manrope": "Manrope"
+    },
+    "update": "更新",
+    "documentation": "文档",
+    "search": "搜索"
+}

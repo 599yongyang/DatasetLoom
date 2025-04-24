@@ -1,0 +1,30 @@
+{
+    "search": "搜索数据集...",
+    "select_item": {
+        "all": "全部",
+        "confirmed": "已确认",
+        "unconfirmed": "待确认"
+    },
+    "info": "共 {{total}} 个数据集，已确认 {{confirmedCount}} 个",
+    "export_btn": "导出数据集",
+    "table_columns": {
+        "question": "问题",
+        "model": "使用模型",
+        "createAt": "创建时间",
+        "cot": "思维链",
+        "answer": "回答",
+        "actions": "操作"
+    },
+    "detail": {
+        "back_list": "返回列表",
+        "delete_btn": "删除",
+        "reserve_btn": "确认保留",
+        "cancel_btn": "取消确认",
+        "answer": "回答",
+        "cot": "思维链",
+        "metadata": "元数据",
+        "model": "使用模型",
+        "createAt": "创建时间",
+        "chunk": "文本块"
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "search_project": "Search Project...",
+    "no_found": "No Project found.",
+    "quick_create": "Create New Project",
+    "documents": "Documents",
+    "questions": "Questions",
+    "datasets": "Datasets",
+    "settings": "Settings",
+    "project_info": "Project Info",
+    "model_config": "Model Config",
+    "task_config": "Task Config",
+    "prompt_config": "Prompt Config",
+    "dataset_square": "Datasets Square",
+    "playground": "Playground"
+}

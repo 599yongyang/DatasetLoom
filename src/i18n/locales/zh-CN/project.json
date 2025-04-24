@@ -1,0 +1,56 @@
+{
+    "search_info": "搜索项目名称...",
+    "no_found": "没有找到相关项目",
+    "search_btn": "搜索",
+    "create_btn": "创建新项目",
+    "create_first_btn": "创建第一个项目",
+    "questions": "问题",
+    "datasets": "数据集",
+    "view": "查看详情",
+    "delete": "删除",
+    "create_time": "创建时间",
+    "project_dialog": {
+        "title": "创建新项目",
+        "name": "项目名称",
+        "description": "项目描述",
+        "reuse": "复用模型配置",
+        "save_btn": "保存",
+        "cancel_btn": "取消"
+    },
+    "project_info": {
+        "id": "项目标识",
+        "name": "项目名称",
+        "description": "项目描述",
+        "btn": "保存"
+    },
+    "model_config": {
+        "title": "模型管理",
+        "add_btn": "添加模型",
+        "lan_model": "语言模型",
+        "vision_model": "视觉模型"
+    },
+    "model_dialog": {
+        "add_title": "添加模型",
+        "edit_title": "修改模型",
+        "provider": "提供商",
+        "api_url": "接口地址",
+        "api_key": "API 密钥",
+        "model_name": "模型名称",
+        "model_type": "模型类型",
+        "temperature": "模型温度",
+        "temperature_accurate": "精确",
+        "temperature_balance": "平衡",
+        "temperature_creative": "创意",
+        "max_token": "最大生成 Token 数",
+        "refresh_btn": "刷新模型列表",
+        "save_btn": "保存",
+        "cancel_btn": "取消"
+    },
+    "prompt_config": {
+        "info": "配置项目中使用的各类自定义提示词，可用于人工干预数据集成的生成效果。",
+        "global": "全局提示词",
+        "gen_question": "生成问题提示词",
+        "gen_answer": "生成答案提示词",
+        "save_btn": "保存"
+    }
+}
