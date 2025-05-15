@@ -5,7 +5,7 @@ import fs, { createReadStream } from 'fs';
 import path from 'path';
 import type { UIMessage } from 'ai';
 
-export async function getFileMD5(filePath: string) {
+export async function getFileMD5(filePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const hash = createHash('md5');
         const stream = createReadStream(filePath);

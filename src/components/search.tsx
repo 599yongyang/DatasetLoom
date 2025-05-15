@@ -84,6 +84,32 @@ export function Search({ ...props }: ButtonProps & DialogProps) {
                 <CommandInput placeholder="Type a command or search..." />
                 <CommandList>
                     <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandGroup heading="Language">
+                        {languages.map(language => (
+                            <CommandItem
+                                key={language.value}
+                                value={language.value}
+                                onSelect={() => runCommand(() => changeLanguage(language.value))}
+                            >
+                                {language.icon} {language.label}
+                            </CommandItem>
+                        ))}
+                    </CommandGroup>
+                    <CommandSeparator />
+                    <CommandGroup heading="Theme">
+                        <CommandItem onSelect={() => runCommand(() => setTheme('light'))}>
+                            <SunIcon className="mr-2 size-4" />
+                            {t('themes.light')}
+                        </CommandItem>
+                        <CommandItem onSelect={() => runCommand(() => setTheme('dark'))}>
+                            <MoonIcon className="mr-2 size-4" />
+                            {t('themes.dark')}
+                        </CommandItem>
+                        <CommandItem onSelect={() => runCommand(() => setTheme('system'))}>
+                            <LaptopIcon className="mr-2 size-4" />
+                            {t('themes.system')}
+                        </CommandItem>
+                    </CommandGroup>
                     <CommandGroup heading="Links">
                         <CommandItem
                             value={''}
@@ -103,32 +129,6 @@ export function Search({ ...props }: ButtonProps & DialogProps) {
                             <CircleHelp className="mr-2 size-4" />
                             Document
                         </CommandItem>
-                    </CommandGroup>
-                    <CommandSeparator />
-                    <CommandGroup heading="Theme">
-                        <CommandItem onSelect={() => runCommand(() => setTheme('light'))}>
-                            <SunIcon className="mr-2 size-4" />
-                            {t('themes.light')}
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => setTheme('dark'))}>
-                            <MoonIcon className="mr-2 size-4" />
-                            {t('themes.dark')}
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => setTheme('system'))}>
-                            <LaptopIcon className="mr-2 size-4" />
-                            {t('themes.system')}
-                        </CommandItem>
-                    </CommandGroup>
-                    <CommandGroup heading="Language">
-                        {languages.map(language => (
-                            <CommandItem
-                                key={language.value}
-                                value={language.value}
-                                onSelect={() => runCommand(() => changeLanguage(language.value))}
-                            >
-                                {language.icon} {language.label}
-                            </CommandItem>
-                        ))}
                     </CommandGroup>
                 </CommandList>
             </CommandDialog>

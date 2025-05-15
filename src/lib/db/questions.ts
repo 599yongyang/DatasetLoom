@@ -205,17 +205,9 @@ export async function getQuestionsCount(projectId: string) {
  * @param chunkId
  * @returns {Promise<Array>} - 保存后的问题列表
  */
-export async function saveQuestions(projectId: string, questions: Questions[], chunkId?: string) {
+export async function saveQuestions(questions: Questions[]) {
     try {
-        let data = questions.map(item => {
-            return {
-                projectId,
-                chunkId: chunkId ? chunkId : item.chunkId,
-                question: item.question,
-                label: item.label
-            };
-        });
-        return await db.questions.createMany({ data: data });
+        return await db.questions.createMany({ data: questions });
     } catch (error) {
         console.error('Failed to create questions in database');
         throw error;

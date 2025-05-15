@@ -1,13 +1,24 @@
 {
-    "file": {
-        "upload_text": "上传新文献",
-        "upload_btn": "选择文件(支持多个)",
+    "search": "搜索文件名...",
+    "file_ext": "文件类型",
+    "file_ext_all": "所有类型",
+    "delete_btn": "删除所选文件",
+    "chunk_btn": "分块所选文件",
+    "upload_btn": "上传文件",
+    "delete_title": "确认要删除此文件吗?",
+    "table_columns": {
+        "file_name": "文件名称",
+        "file_ext": "文件类型",
+        "createAt": "上传时间",
+        "size": "文件大小",
+        "actions": "操作"
+    },
+    "upload_dialog": {
+        "prompt": "拖放或单击浏览",
+        "limitation": "所有文件 ∙ 最多{{maxFiles}}个 最大 {{maxSize}}",
+        "rm_all_btn": "删除所有文件",
         "confirm_upload_btn": "开始上传",
-        "add_more_btn": "添加更多文件",
-        "clear_btn": "清空",
-        "pending_file_count": "已选择 {{count}} 个文件",
-        "uploaded_file_count": "已上传 {{count}} 个文件",
-        "search": "搜索文件名..."
+        "cancel_btn": "取消"
     },
     "chunk": {
         "info": "已选择 {{selected}} 个文本块，共 {{count}} 个文本块",

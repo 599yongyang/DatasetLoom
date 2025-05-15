@@ -1,5 +1,6 @@
 export interface QuestionPromptOptions {
     text: string;
+    tags: string;
     number?: number;
     globalPrompt?: string;
     questionPrompt?: string;

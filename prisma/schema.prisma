@@ -23,11 +23,10 @@ model Projects {
   Datasets             Datasets[]
   Chunks               Chunks[]
   ModelConfig          ModelConfig[]
-  UploadFiles          UploadFiles[]
-  Tags                 Tags[]
+  Documents            Documents[]
 }
 
-model UploadFiles {
+model Documents {
   id        String   @id @default(nanoid())
   project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
@@ -41,37 +40,58 @@ model UploadFiles {
 }
 
 model Chunks {
-  id        String      @id @default(nanoid())
-  name      String
-  project   Projects    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
-  fileId    String
-  fileName  String
-  content   String
-  summary   String
-  size      Int
-  createAt  DateTime    @default(now())
-  updateAt  DateTime    @updatedAt
-  Questions Questions[]
+  id            String          @id @default(nanoid())
+  name          String
+  project       Projects        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String
+  fileId        String
+  fileName      String
+  content       String
+  summary       String
+  size          Int
+  createAt      DateTime        @default(now())
+  updateAt      DateTime        @updatedAt
+  Questions     Questions[]
+  ChunkMetadata ChunkMetadata? // 使用单数形式，问号表示可选
+  ChunkEntities ChunkEntities[]
 
   @@index([projectId])
 }
 
-model Tags {
-  id        String   @id @default(nanoid())
-  label     String
-  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
-  parentId  String?
-  parent    Tags?    @relation("Tags", fields: [parentId], references: [id])
-  children  Tags[]   @relation("Tags")
+model ChunkMetadata {
+  id        String  @id @default(nanoid())
+  chunk     Chunks  @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  chunkId   String  @unique // 确保一对一关系的关键
+  domain    String
+  subDomain String?
+  summary   String
+  tags      String
+  language  String
+}
+
+// graph(chunk_entities,chunkRelations)
+
+model ChunkEntities {
+  id               String @id @default(nanoid())
+  chunk            Chunks @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  chunkId          String
+  type             String
+  value            String
+  normalized_value String
+}
+
+model ChunkRelations {
+  id             String @id @default(nanoid())
+  sourceEntityId String
+  targetEntityId String
+  relationType   String
 }
 
 model Questions {
   id        String   @id @default(nanoid())
   project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
-  chunk     Chunks   @relation(fields: [chunkId], references: [id])
+  chunk     Chunks   @relation(fields: [chunkId], references: [id], onDelete: Cascade)
   chunkId   String
   question  String
   label     String

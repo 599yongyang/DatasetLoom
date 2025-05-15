@@ -1,5 +1,6 @@
-import { createDataStreamResponse, generateText, type LanguageModel, streamText, type UIMessage } from 'ai';
+import { createDataStreamResponse, generateText, type LanguageModel, Output, streamText, type UIMessage } from 'ai';
 import { processMessages } from '@/lib/utils/file';
+import { Schema, z } from 'zod';
 
 // 定义配置类型
 export interface Config {
@@ -42,18 +43,24 @@ class BaseClient {
     /**
      * 普通输出聊天方法
      */
-    async chat(messages: UIMessage[], options: ChatOptions = {}) {
-        // const lastMessage = messages[messages.length - 1];
-        // const prompt = typeof lastMessage?.content === 'string' ? lastMessage.content : '';
+    async chat(messages: UIMessage[], options: ChatOptions = {}, schema?: Schema) {
         const model = this._getModel();
-        console.log(model, 'model');
-        return await generateText({
+        const generateOptions = {
             model,
             messages,
             temperature: options.temperature ?? this.modelConfig.temperature,
             topP: options.top_p ?? this.modelConfig.top_p,
-            maxTokens: options.max_tokens ?? this.modelConfig.max_tokens
-        });
+            maxTokens: options.max_tokens ?? this.modelConfig.max_tokens,
+            ...(schema
+                ? {
+                      experimental_output: Output.object({
+                          schema: schema
+                      })
+                  }
+                : {})
+        };
+
+        return await generateText(generateOptions);
     }
 
     /**

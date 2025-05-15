@@ -1,19 +1,41 @@
 import useSWR from 'swr';
-import { fetcherPost } from '@/lib/utils';
+import { buildURL, fetcherPost } from '@/lib/utils';
 import type { ChunksVO } from '@/schema/chunks';
+import { useMemo } from 'react';
 
 interface Response {
     data: ChunksVO[];
+    total: number;
 }
 
-export function useChunks(projectId: string, selectedFiles: string[], status: string) {
-    const key = `/api/project/${projectId}/chunks`;
-    const body = { array: selectedFiles, filter: status };
+type UseChunksParams = {
+    projectId: string;
+    pageIndex: number;
+    pageSize: number;
+    fileIds: string[];
+    status: string;
+};
 
-    const { data, error, mutate } = useSWR<Response>([key, body], ([url, postBody]) => fetcherPost(url, postBody));
+export function useChunks(params: UseChunksParams) {
+    const url = useMemo(() => {
+        if (!params.projectId) return null;
+        const paramsObj = {
+            page: params.pageIndex + 1,
+            size: params.pageSize
+        };
+        return buildURL(`/api/project/${params.projectId}/chunks`, paramsObj);
+    }, [params]);
+
+    const body = { array: params.fileIds, status: params.status };
+
+    const { data, error, mutate } = useSWR<Response>([url, body], ([url, postBody]) => fetcherPost(url, postBody), {
+        keepPreviousData: true, // 切换分页时保持旧数据展示
+        revalidateOnFocus: true
+    });
 
     return {
-        chunks: data?.data || ([] as ChunksVO[]),
+        chunks: data?.data || [],
+        total: data?.total || 0,
         isLoading: !error && !data,
         isError: !!error,
         refresh: () => mutate()

@@ -1,155 +1,149 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent } from '@/components/ui/card';
-import { Copy } from 'lucide-react';
+import { SquareSplitVertical, Trash2, Wand } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { ChunkList } from '@/components/documents/chunk-list';
-import type { Chunks, UploadFiles } from '@prisma/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
-import { useChunks } from '@/hooks/query/use-chunks';
-import { useFiles } from '@/hooks/query/use-files';
-import { FileSection } from '@/components/documents/file-section';
-import { useGenerateQuestion } from '@/hooks/use-generate-question';
-import { Loading } from '@/components/loading';
+import { Input } from '@/components/ui/input';
+import { DataTable } from '@/components/data-table/data-table';
+import { useDocumentsTableColumns } from '@/components/documents/table-columns';
+import { useDocuments } from '@/hooks/query/use-documents';
+import { UploadFile } from '@/components/documents/upload-file';
+import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
+import { toast } from 'sonner';
+import axios from 'axios';
 
-type SelectedChunk = {
-    id: string;
-    name: string;
-};
+const fileType = [
+    {
+        value: 'pdf',
+        label: 'PDF'
+    },
+    {
+        value: 'txt',
+        label: 'TXT'
+    },
+    {
+        value: 'doc',
+        label: 'DOC'
+    },
+    {
+        value: 'md',
+        label: 'MD'
+    },
+    {
+        value: 'epub',
+        label: 'EPUB'
+    }
+];
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('document');
-    const { generateMultipleQuestion } = useGenerateQuestion();
 
-    const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
-    const [selectedChunks, setSelectedChunks] = useState<SelectedChunk[]>([]);
-    const [fileInput, setFileInput] = useState('');
-    const [status, setStatus] = useState('all');
+    const [fileName, setFileName] = useState('');
+    const [fileExt, setFileExt] = useState('');
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 10
+    });
+    const {
+        data,
+        total,
+        refresh: refreshFiles
+    } = useDocuments({
+        projectId,
+        pageIndex: pagination.pageIndex,
+        pageSize: pagination.pageSize,
+        fileName,
+        fileExt: fileExt === 'all' ? '' : fileExt
+    });
+    const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
+    const [rowSelection, setRowSelection] = useState({});
+    const columns = useDocumentsTableColumns({ mutateDocuments: refreshFiles });
 
-    const { uploadedFiles, total, refresh: refreshFiles } = useFiles(projectId);
-
-    const filteredFiles = useMemo(() => {
-        if (!uploadedFiles) return [];
-        return uploadedFiles.filter((file: UploadFiles) =>
-            file.fileName.toLowerCase().includes(fileInput.toLowerCase())
+    const handleBatchDeleteDocuments = () => {
+        toast.promise(
+            axios.delete(`/api/project/${projectId}/documents`, {
+                data: { documentIds: Object.keys(rowSelection) }
+            }),
+            {
+                loading: '数据删除中',
+                success: _ => {
+                    void refreshFiles();
+                    return '删除成功';
+                },
+                error: error => {
+                    return error.response?.data?.message || '删除失败';
+                }
+            }
         );
-    }, [uploadedFiles, fileInput]);
-
-    const { chunks, isLoading, refresh } = useChunks(projectId, selectedFiles, status);
-
-    useEffect(() => {
-        if (selectedFiles.length > 0) {
-            refresh();
-        }
-    }, [selectedFiles]);
-
-    // 全选/取消全选
-    const toggleAll = () => {
-        setSelectedChunks(prev =>
-            prev.length === chunks.length
-                ? []
-                : chunks.map((chunk: Chunks) => {
-                      return { id: chunk.id, name: chunk.name };
-                  })
-        );
-    };
-
-    const handleGenerateQuestion = async () => {
-        await generateMultipleQuestion(projectId, selectedChunks);
-        await refresh();
-        setSelectedChunks([]);
     };
 
     return (
-        <div className="container mx-auto py-8 px-4">
-            <FileSection
-                filteredFiles={filteredFiles}
-                total={total}
-                selectedFiles={selectedFiles}
-                setSelectedFiles={setSelectedFiles}
-                setFileInput={setFileInput}
-                fileInput={fileInput}
-                refreshFiles={refreshFiles}
+        <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="sticky top-0 z-10 bg-background/80 s flex items-center justify-between gap-2">
+                <div className={'flex gap-2 w-1/2'}>
+                    <Input
+                        className="w-1/3"
+                        value={fileName}
+                        onChange={e => {
+                            setFileName(e.target.value);
+                            setPagination({ ...pagination, pageIndex: 0 });
+                        }}
+                        placeholder={t('search')}
+                    />
+                    <Select
+                        value={fileExt}
+                        onValueChange={value => {
+                            setFileExt(value);
+                            setPagination({ ...pagination, pageIndex: 0 });
+                        }}
+                    >
+                        <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder={t('file_ext')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">{t('file_ext_all')}</SelectItem>
+                            {fileType.map(item => (
+                                <SelectItem key={item.value} value={item.value}>
+                                    {item.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <UploadFile refreshFiles={refreshFiles} />
+                </div>
+                <div className={'flex items-center gap-2'}>
+                    <Button
+                        variant="outline"
+                        disabled={Object.keys(rowSelection).length == 0}
+                        onClick={handleBatchDeleteDocuments}
+                        className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
+                    >
+                        <Trash2 size={30} />
+                        <span className="hidden lg:inline ">{t('delete_btn')}</span>
+                    </Button>
+                    {/*<Button*/}
+                    {/*    variant="outline"*/}
+                    {/*    disabled={Object.keys(rowSelection).length == 0}*/}
+                    {/*    className={'hover:cursor-pointer'}*/}
+                    {/*>*/}
+                    {/*    <SquareSplitVertical size={30}/>*/}
+                    {/*    <span className="hidden lg:inline ">{t('chunk_btn')}</span>*/}
+                    {/*</Button>*/}
+                </div>
+            </div>
+            <DataTable
+                columns={columns}
+                data={data}
+                pageCount={pageCount}
+                pagination={pagination}
+                setPagination={setPagination}
+                rowSelection={rowSelection}
+                setRowSelection={setRowSelection}
             />
-
-            {/* Tabs Section */}
-            <Tabs defaultValue="smart-split" className="w-full">
-                {/*<div className="border-b mb-6">*/}
-                {/*    <TabsList className="bg-transparent h-12">*/}
-                {/*        <TabsTrigger*/}
-                {/*            value="smart-split"*/}
-                {/*            className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4"*/}
-                {/*        >*/}
-                {/*            智能分割*/}
-                {/*        </TabsTrigger>*/}
-                {/*        <TabsTrigger*/}
-                {/*            value="domain-analysis"*/}
-                {/*            className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none rounded-none h-12 px-4"*/}
-                {/*        >*/}
-                {/*            领域分析*/}
-                {/*        </TabsTrigger>*/}
-                {/*    </TabsList>*/}
-                {/*</div>*/}
-
-                <TabsContent value="smart-split" className="mt-0 space-y-6">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="flex items-center pl-2 gap-2">
-                            <Checkbox id="select-all" onCheckedChange={toggleAll} />
-                            <label htmlFor="select-all" className="text-sm font-medium">
-                                {t('chunk.info', { count: chunks.length, selected: selectedChunks.length })}
-                            </label>
-                        </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Select value={status} onValueChange={setStatus}>
-                                <SelectTrigger className="w-[150px]">
-                                    <SelectValue placeholder="状态" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">{t('chunk.select_item.all')}</SelectItem>
-                                    <SelectItem value="generated">{t('chunk.select_item.generated')}</SelectItem>
-                                    <SelectItem value="ungenerated">{t('chunk.select_item.unGenerated')}</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Button
-                                variant="outline"
-                                onClick={handleGenerateQuestion}
-                                className="flex items-center gap-2 w-full sm:w-auto"
-                            >
-                                <Copy className="h-4 w-4" />
-                                {t('chunk.gen_btn')}
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Text Blocks */}
-
-                    {isLoading ? (
-                        <Loading />
-                    ) : (
-                        <ChunkList
-                            chunks={chunks}
-                            projectId={projectId}
-                            getChunks={refresh}
-                            selectedChunks={selectedChunks}
-                            onSelectedChange={setSelectedChunks}
-                        />
-                    )}
-                </TabsContent>
-
-                <TabsContent value="domain-analysis">
-                    <Card>
-                        <CardContent className="flex items-center justify-center h-40">
-                            <p className="text-muted-foreground">领域分析内容将显示在这里</p>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
         </div>
     );
 }

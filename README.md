@@ -24,15 +24,14 @@
 
 ## 🖼️ 截图（示例）
 
-![项目截图](screenshot.png)
-<img src="./public/screenshot/home.png">
-<img src="./public/screenshot/project-list.png">
-<img src="./public/screenshot/documents.png">
-<img src="./public/screenshot/questions.png">
-<img src="./public/screenshot/datasets.png">
-<img src="./public/screenshot/dataset.png">
-<img src="./public/screenshot/project-info.png">
-<img src="./public/screenshot/model-config.png">
+![主页截图](/public/screenshot/home.png)
+![项目列表截图](/public/screenshot/project-list.png)
+![文献列表截图](/public/screenshot/documents.png)
+![问题列表截图](/public/screenshot/questions.png)
+![数据集列表截图](/public/screenshot/datasets.png)
+![数据集详情截图](/public/screenshot/dataset.png)
+![项目信息截图](/public/screenshot/project-info.png)
+![模型列表截图](/public/screenshot/model-config.png)
 
 ---
 

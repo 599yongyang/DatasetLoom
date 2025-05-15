@@ -6,18 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Edit, Eye, FileQuestion, Trash2 } from 'lucide-react';
 import type { ChunksVO } from '@/schema/chunks';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { ChunkDialog } from '@/components/chunk-dialog';
+import { ChunkDialog } from '@/components/chunks/chunk-dialog';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useGenerateQuestion } from '@/hooks/use-generate-question';
+import { useAtomValue } from 'jotai/index';
+import { selectedModelInfoAtom } from '@/atoms';
 
 export function ChunkList({
     chunks,
     getChunks,
-    projectId,
-    selectedChunks,
-    onSelectedChange
+    projectId
 }: {
     chunks: ChunksVO[];
     getChunks: () => void;
@@ -26,16 +26,16 @@ export function ChunkList({
     onSelectedChange: (chunks: { id: string; name: string }[]) => void;
 }) {
     // 切换选中状态
-    const toggleChunk = (chunk: ChunksVO) => {
-        onSelectedChange(
-            selectedChunks.some(c => c.id === chunk.id)
-                ? selectedChunks.filter(c => c.id !== chunk.id)
-                : [...selectedChunks, { id: chunk.id, name: chunk.name }]
-        );
-    };
-
-    // 检查某个 chunk 是否被选中
-    const isChecked = (chunkId: string) => selectedChunks.some(item => item.id === chunkId);
+    // const toggleChunk = (chunk: ChunksVO) => {
+    //     onSelectedChange(
+    //         selectedChunks.some(c => c.id === chunk.id)
+    //             ? selectedChunks.filter(c => c.id !== chunk.id)
+    //             : [...selectedChunks, { id: chunk.id, name: chunk.name }]
+    //     );
+    // };
+    //
+    // // 检查某个 chunk 是否被选中
+    // const isChecked = (chunkId: string) => selectedChunks.some(item => item.id === chunkId);
 
     const { generateSingleQuestion } = useGenerateQuestion();
 
@@ -62,11 +62,11 @@ export function ChunkList({
                     <CardHeader className="px-3.5">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                                <Checkbox
-                                    id={`chunk-${chunk.id}`}
-                                    checked={isChecked(chunk.id)}
-                                    onCheckedChange={() => toggleChunk(chunk)}
-                                />
+                                {/*<Checkbox*/}
+                                {/*    id={`chunk-${chunk.id}`}*/}
+                                {/*    checked={isChecked(chunk.id)}*/}
+                                {/*    onCheckedChange={() => toggleChunk(chunk)}*/}
+                                {/*/>*/}
                                 <label htmlFor="block-1" className="font-medium text-primary">
                                     {chunk.name}
                                 </label>

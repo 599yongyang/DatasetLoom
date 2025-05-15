@@ -8,7 +8,8 @@ import { DEFAULT_MODEL_SETTINGS } from '@/constants/model';
 import OllamaClient from './providers/ollama'; // 导入 OllamaClient
 import OpenAIClient from './providers/openai'; // 导入 OpenAIClient
 import ZhiPuClient from './providers/zhipu'; // 导入 ZhiPuClient
-import OpenRouterClient from './providers/openrouter'; // 导入 OpenRouterClient
+import OpenRouterClient from './providers/openrouter';
+import { Schema } from 'zod'; // 导入 OpenRouterClient
 
 /* eslint-disable @typescript-eslint/no-explicit-any @typescript-eslint/no-unsafe-assignment */
 
@@ -117,12 +118,13 @@ class LLMClient {
      * 生成对话响应
      * @param prompt - 用户输入的提示词或对话历史
      * @param options - 可选参数
+     * @param schema - 模型响应的 zod 验证器
      * @returns 返回模型响应
      */
-    async chat(prompt: string | Message[], options: Partial<Config> = {}): Promise<LLMResponse> {
+    async chat(prompt: string | Message[], options: Partial<Config> = {}, schema?: Schema): Promise<LLMResponse> {
         const messages = Array.isArray(prompt) ? prompt : [{ role: 'user', content: prompt }];
         const mergedOptions = { ...this.config, ...options };
-        return this._callClientMethod('chat', messages, mergedOptions);
+        return this._callClientMethod('chat', messages, mergedOptions, schema);
     }
 
     /**
@@ -141,10 +143,11 @@ class LLMClient {
      * 获取模型响应
      * @param prompt - 用户输入的提示词或对话历史
      * @param options - 可选参数
+     * @param schema - 模型响应的 zod 验证器
      * @returns 返回模型生成的文本
      */
-    async getResponse(prompt: string | Message[], options: Partial<Config> = {}) {
-        const llmRes = await this.chat(prompt, options);
+    async getResponse(prompt: string | Message[], options: Partial<Config> = {}, schema?: Schema) {
+        const llmRes = await this.chat(prompt, options, schema);
         return llmRes.text ?? llmRes.response?.messages ?? '';
     }
 

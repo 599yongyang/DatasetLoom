@@ -3,7 +3,7 @@ import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@
 import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { RefreshCw, Key, Globe, Tag, Thermometer, Hash, ChevronsUpDown, Check } from 'lucide-react';
+import { RefreshCw, Key, Globe, Tag, Thermometer, Hash, ChevronsUpDown, Check, ChevronDownIcon } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import axios, { AxiosError } from 'axios';
 import { useParams, useRouter } from 'next/navigation';
@@ -85,66 +85,47 @@ export function ModelDialog({
             });
     };
 
-    //获取最新模型列表
+    // 获取远程模型列表
     async function getNewModels() {
         try {
-            if (!modelData || !modelData.endpoint) {
-                return null;
-            }
-            let url = modelData.endpoint.replace(/\/$/, ''); // 去除末尾的斜杠
-            const providerId = modelData.providerId;
-            console.log(providerId, 'getNewModels providerId');
-            url += providerId === 'ollama' ? '/tags' : '/models';
-            const res = await axios.get(url, {
-                headers: {
-                    Authorization: `Bearer ${modelData.apiKey}`
-                }
-            });
-            if (providerId === 'ollama') {
-                // @ts-ignore
-                return res.data.models.map(item => ({
-                    modelId: item.model,
-                    modelName: item.name,
-                    providerId
-                }));
-            } else {
-                // @ts-ignore
-                return res.data.data.map(item => ({
-                    modelId: item.id,
-                    modelName: item.id,
-                    providerId
-                }));
-            }
-        } catch (err: unknown) {
-            if (err instanceof AxiosError) {
-                if (err.response && err.response.status === 401) {
-                    toast.error('API Key 错误，请检查后重试');
-                } else {
-                    toast.error('刷新模型列表失败');
-                }
-            } else {
-                console.error('Unknown error:', err);
-            }
-            return null;
+            const response = await axios.post('/api/llm/remote-models', modelData);
+            console.log('获取的模型列表:', response.data);
+            return response.data;
+        } catch (error: any) {
+            const message = error.response?.data?.message || '获取模型失败，请检查配置';
+            toast.error(message);
+            console.error('获取模型失败:', error);
+            return [];
         }
     }
 
-    //同步模型列表
+    // 同步模型列表到后端
     const refreshProviderModels = async () => {
-        let data = await getNewModels();
-        if (!data) return;
-        if (data.length > 0) {
+        try {
+            const data = await getNewModels();
+
+            if (!data || data.length === 0) {
+                toast.info('没有新的模型需要刷新');
+                return;
+            }
+
             setModelList(data);
             toast.success('刷新模型成功');
-            const newModelsData = await axios.post('/api/llm/model', {
+
+            const syncResponse = await axios.post('/api/llm/model', {
                 newModels: data,
                 providerId: selectedProvider.id
             });
-            if (newModelsData.status === 200) {
+
+            if (syncResponse.status === 200) {
                 toast.success('同步模型成功');
+            } else {
+                toast.warning('模型同步未返回成功状态码');
             }
-        } else {
-            toast.info('没有新的模型需要刷新');
+        } catch (error: any) {
+            const message = error.message || '同步模型失败';
+            toast.error(message);
+            console.error('同步模型失败:', error);
         }
     };
     // 保存模型

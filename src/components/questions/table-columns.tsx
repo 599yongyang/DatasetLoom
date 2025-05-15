@@ -66,7 +66,24 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             enableHiding: false
         },
         {
-            accessorKey: 'questionLabel',
+            accessorKey: 'label',
+            header: t('table_columns.label'),
+            cell: ({ row }) => (
+                <div className={'flex flex-wrap gap-2'}>
+                    {row.original.label
+                        ?.split(',')
+                        ?.filter((tag: string) => tag.trim()) // 过滤掉空字符串
+                        ?.map((tag: string) => (
+                            <Badge key={tag.trim()} variant="outline" className="text-muted-foreground ">
+                                {tag.trim()}
+                            </Badge>
+                        ))}
+                </div>
+            ),
+            enableHiding: false
+        },
+        {
+            accessorKey: 'chunk',
             header: t('table_columns.chunk'),
             cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground">

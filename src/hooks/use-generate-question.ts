@@ -4,6 +4,7 @@ import axios, { type CancelTokenSource } from 'axios';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/atoms';
 import { i18n } from '@/i18n';
+import { isEmptyObject } from '@/lib/utils';
 
 type SelectedChunk = {
     id: string;
@@ -15,11 +16,10 @@ export function useGenerateQuestion() {
 
     const generateSingleQuestion = useCallback(
         async ({ projectId, chunkId, chunkName }: { projectId: string; chunkId: string; chunkName: string }) => {
-            if (!model) {
-                toast.error('没有找到模型');
-                return null;
+            if (isEmptyObject(model) || model.id === null) {
+                toast.error('请选择模型');
+                return;
             }
-
             // 创建取消令牌源
             const source = axios.CancelToken.source();
 

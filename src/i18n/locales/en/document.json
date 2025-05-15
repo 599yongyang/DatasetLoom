@@ -1,13 +1,24 @@
 {
-    "file": {
-        "upload_text": "Upload New Documents",
-        "upload_btn": "Select files (supports multiple)",
-        "confirm_upload_btn": "Start uploading",
-        "add_more_btn": "Add more files",
-        "clear_btn": "Clear",
-        "pending_file_count": "{{count}} files selected",
-        "uploaded_file_count": "{{count}} files uploaded",
-        "search": "Search for file name..."
+    "search": "Search for file name...",
+    "file_ext": "File Type",
+    "file_ext_all": "All",
+    "delete_btn": "Delete selected data",
+    "chunk_btn": "Chunk selected data",
+    "upload_btn": "Upload files",
+    "delete_title": "Are you sure you want to delete this file ?",
+    "table_columns": {
+        "file_name": "file Name",
+        "file_ext": "file Type",
+        "createAt": "CreateAt",
+        "size": "Size",
+        "actions": "Actions"
+    },
+    "upload_dialog": {
+        "prompt": "Drag & drop or click to browse",
+        "limitation": "All files ∙ Max {{maxFiles}} files Up to {{maxSize}}",
+        "rm_all_btn": "Remove all files",
+        "cancel_btn": "Cancel",
+        "confirm_upload_btn": "Start uploading"
     },
     "chunk": {
         "info": " {{selected}} chunks selected， {{count}} chunks",

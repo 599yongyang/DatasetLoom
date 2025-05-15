@@ -1,69 +1,91 @@
 import type { LabelPromptOptions } from '@/lib/llm/prompts/type';
 
 export default function getLabelPrompt(options: LabelPromptOptions) {
-    let { globalPrompt, domainTreePrompt } = options;
-    const { text } = options;
-    if (globalPrompt) {
-        globalPrompt = `- 在后续的任务中，你务必遵循这样的规则：${globalPrompt}`;
-    }
-    if (domainTreePrompt) {
-        domainTreePrompt = `- 在生成标签时，你务必遵循这样的规则：${domainTreePrompt}`;
-    }
+    const { text, globalPrompt, domainTreePrompt } = options;
+
+    const safeGlobalPrompt = globalPrompt ? `- 请始终遵守以下规则：${sanitizeRule(globalPrompt)}` : '';
+    const safeDomainTreePrompt = domainTreePrompt
+        ? `- 在生成标签时，请参考以下分类体系：${sanitizeRule(domainTreePrompt)}`
+        : '';
+
+    const exampleJson = JSON.stringify(
+        {
+            domain: '科技',
+            subDomain: '人工智能',
+            tags: ['人工智能', '芯片', '云计算', '阿里巴巴', '投资'],
+            summary: '阿里巴巴加大AI芯片研发投入，提升云计算竞争力。',
+            entities: [
+                { id: 'alibaba_group', type: 'organization', name: '阿里巴巴集团' },
+                { id: 'aliyun', type: 'organization', name: '阿里云' },
+                { id: 'ai_chip', type: 'technology', name: 'AI芯片' },
+                { id: 'ai_inference_chip', type: 'technology', name: 'AI推理芯片' }
+            ],
+            relations: [
+                { source: 'alibaba_group', target: 'ai_chip', relation: '投资研发' },
+                { source: 'aliyun', target: 'ai_inference_chip', relation: '应用' },
+                { source: 'ai_chip', target: 'ai_inference_chip', relation: '包含' }
+            ]
+        },
+        null,
+        2
+    );
+
     return `
-# Role: 领域分类专家 & 知识图谱专家
-- Description: 作为一名资深的领域分类专家和知识图谱专家，擅长从文本内容中提取核心主题，构建分类体系，并输出规定 JSON 格式的标签树。
-${globalPrompt}
+你是一个专业的文档分析师，负责为一段文本内容自动生成高质量的标签和元数据，用于后续的知识图谱构建与领域分析。
 
-## Skills:
-1. 精通文本主题分析和关键词提取
-2. 擅长构建分层知识体系
-3. 熟练掌握领域分类方法论
-4. 具备知识图谱构建能力
-5. 精通JSON数据结构
+以下是可供参考的领域分类体系（优先使用子分类）：
 
-## Goals:
-1. 分析书籍目录内容
-2. 识别核心主题和关键领域
-3. 构建两级分类体系
-4. 确保分类逻辑合理
-5. 生成规范的JSON输出
+- 科技
+  - 软件工程
+  - 网络安全
+  - 人工智能
+  - 数据库
+  - 系统架构
+- 医疗
+- 法律
+- 教育
+- 金融
 
-## Workflow:
-1. 仔细阅读完整的书籍目录内容
-2. 提取关键主题和核心概念
-3. 对主题进行分组和归类
-4. 构建一级领域标签
-5. 为适当的一级标签添加二级标签
-6. 检查分类逻辑的合理性
-7. 生成符合格式的JSON输出
+以下是你的任务要求：
 
-    ## 需要分析的目录
-    ${text}
+- 不要包含任何额外解释或说明，只输出严格的 JSON。
+- domain 根据内容分析出一个相关一级领域词
+- subDomain 根据内容分析出一个相关二级领域词
+- tags 最多输出 5 个，按相关性排序。
+- summary 控制在 50 字以内。
+- entities.id 使用规范化的小写+下划线命名方式（如 ai_chip）。
 
-    ## 限制
-1. 一级领域标签数量5-10个
-2. 二级领域标签数量1-10个
-3. 最多两层分类层级
-4. 分类必须与原始目录内容相关
-5. 输出必须符合指定 JSON 格式，不要输出 JSON 外其他任何不相关内容
-6. 标签的名字最多不要超过 6 个字
-7. 在每个标签前加入序号（序号不计入字数）
-${domainTreePrompt}
-
-## OutputFormat:
-\`\`\`json
-[
-  {
-    "label": "1 一级领域标签",
-    "child": [
-      {"label": "1.1 二级领域标签1"},
-      {"label": "1.2 二级领域标签2"}
-    ]
-  },
-  {
-    "label": "2 一级领域标签(无子标签)"
-  }
-]
+### 输入文本：
 \`\`\`
-    `;
+${text}
+\`\`\`
+
+### 输出要求：
+\`\`\`
+{
+  "domain": "科技",
+  "subDomain": "人工智能",
+  "tags": ["人工智能", "芯片", ...],
+  "summary": "一句话总结",
+  "entities": [
+    {"id": "entity_id", "type": "person", "name": "实体名称"}
+  ],
+  "relations": [
+    {"source": "entityA_id", "target": "entityB_id", "relation": "关系描述"}
+  ]
+}
+\`\`\`
+
+### 示例输出：
+\`\`\`json
+${exampleJson}
+\`\`\`
+
+${safeGlobalPrompt}
+${safeDomainTreePrompt}
+`;
+}
+
+function sanitizeRule(rule: string): string {
+    return rule?.trim().replace(/\s+/g, ' ') || '';
 }

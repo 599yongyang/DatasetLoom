@@ -8,5 +8,6 @@ export type ChunksVO = Prisma.ChunksGetPayload<{
                 question: true;
             };
         };
+        ChunkMetadata: true;
     };
 }>;

@@ -7,7 +7,8 @@ import {
     Brain,
     ListTodo,
     SquareTerminal,
-    BotMessageSquare
+    BotMessageSquare,
+    SquareSplitVertical
 } from 'lucide-react';
 
 import type { IMenu } from '@/schema/menu';
@@ -18,6 +19,11 @@ export const getMenuConfig = (projectId: string): IMenu[] =>
             title: 'documents',
             icon: FileText,
             to: `/project/${projectId}/documents`
+        },
+        {
+            title: 'chunks',
+            icon: SquareSplitVertical,
+            to: `/project/${projectId}/chunks`
         },
         {
             title: 'questions',

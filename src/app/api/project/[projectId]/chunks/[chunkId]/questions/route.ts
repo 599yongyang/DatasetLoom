@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/llm/core/index';
 import { getQuestionPrompt } from '@/lib/llm/prompts/question';
 import { getQuestionEnPrompt } from '@/lib/llm/prompts/questionEn';
-import getAddLabelPrompt from '@/lib/llm/prompts/addLabel';
-import getAddLabelEnPrompt from '@/lib/llm/prompts/addLabelEn';
 import { getQuestionsForChunk, saveQuestions } from '@/lib/db/questions';
 import { extractJsonFromLLMOutput } from '@/lib/llm/common/util';
 import { getTaskConfig, getProject } from '@/lib/db/projects';
 import { getChunkById } from '@/lib/db/chunks';
+import { type Questions } from '@prisma/client';
+import { questionsSchema } from '@/lib/llm/prompts/schema';
 
 type Params = Promise<{ projectId: string; chunkId: string }>;
 
@@ -36,54 +36,45 @@ export async function POST(request: Request, props: { params: Params }) {
             getProject(projectId)
         ]);
 
-        if (!chunk) {
-            return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
-        }
-        if (!project) {
+        if (!chunk || !project) {
             return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
         }
 
         // 获取项目 task-config 信息
         const { globalPrompt, questionPrompt } = project;
-
         // 创建LLM客户端
         const llmClient = new LLMClient(model);
-        // 生成问题的数量，如果未指定，则根据文本长度自动计算
-        const questionNumber = number || Math.floor(chunk.content.length / 300);
-
         // 根据语言选择相应的提示词函数
         const promptFunc = language === 'en' ? getQuestionEnPrompt : getQuestionPrompt;
         const prompt = promptFunc({
             text: chunk.content,
-            number: questionNumber,
+            tags: chunk.ChunkMetadata?.tags || '',
             globalPrompt,
             questionPrompt
         });
-        const response = await llmClient.getResponse(prompt);
+        const response = await llmClient.getResponse(prompt, {}, questionsSchema);
 
         // 从LLM输出中提取JSON格式的问题列表
-        const originalQuestions = extractJsonFromLLMOutput(response);
-        const questions = originalQuestions;
+        let questions = extractJsonFromLLMOutput(response);
 
         if (!questions || !Array.isArray(questions)) {
             return NextResponse.json({ error: 'Failed to generate questions' }, { status: 500 });
         }
-
-        // 先获取标签，确保 tags 在后续逻辑中可用
-        // const tags = await getTags(projectId);
-        // 根据语言选择标签提示词函数
-        const labelPromptFunc = language === 'en' ? getAddLabelEnPrompt : getAddLabelPrompt;
-        const labelPrompt = labelPromptFunc('', JSON.stringify(questions));
-
-        const labelResponse = await llmClient.getResponse(labelPrompt);
-        const labelQuestions = extractJsonFromLLMOutput(labelResponse);
+        questions = questions.map(question => {
+            return {
+                question: question.question,
+                label: question.label.join(','),
+                projectId,
+                chunkId
+            };
+        });
         // 保存问题到数据库
-        await saveQuestions(projectId, labelQuestions, chunkId);
+        await saveQuestions(questions);
         // 返回生成的问题
         return NextResponse.json({
             chunkId,
-            labelQuestions,
-            total: labelQuestions.length
+            questions,
+            total: questions.length
         });
     } catch (error) {
         return NextResponse.json(
