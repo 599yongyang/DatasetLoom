@@ -14,21 +14,21 @@ export function SiteHeader() {
             <header className="flex h-14 w-full shrink-0 items-center justify-between border-b bg-background/80 px-2 backdrop-blur-sm sm:h-16 sm:px-4">
                 <div className="flex items-center gap-2">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                        <Image src="/logo.svg" width={200} height={200} alt="Picture of the author" />
+                        <Image src="/logo.svg" width={200} height={200} alt="logo" />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-semibold">Easy Dataset</span>
-                        <span className="truncate text-xs">一个强大的 LLM 数据集生成工具</span>
+                        <span className="truncate font-semibold">Dataset Loom</span>
+                        <span className="truncate text-xs">一款高效的大型语言模型数据构建工具</span>
                     </div>
                 </div>
                 <div className="ml-auto flex flex-1 items-center justify-end space-x-2 px-2 sm:px-4 md:max-w-96 lg:max-w-lg">
                     <LanguageSwitch />
-                    <Link href="https://github.com/ConardLi/easy-dataset" target="_blank">
+                    <Link href="https://github.com/599yongyang/DatasetLoom" target="_blank">
                         <Button variant="ghost" size="icon">
                             <Icons.gitHub className="size-5" />
                         </Button>
                     </Link>
-                    <Link href="https://github.com/ConardLi/easy-dataset" target="_blank">
+                    <Link href="https://github.com/599yongyang/DatasetLoom" target="_blank">
                         <Button variant="ghost" size="icon">
                             <CircleHelp className="size-5" />
                         </Button>

@@ -49,7 +49,7 @@ export async function POST(request: Request, props: { params: Params }) {
 
         // 创建数据集配置
         const config: DatasetConfig = {
-            [`[Easy Dataset] [${projectId}] Alpaca`]: {
+            [`[Dataset Loom] [${projectId}] Alpaca`]: {
                 file_name: 'alpaca.json',
                 columns: {
                     prompt: 'instruction',
@@ -58,7 +58,7 @@ export async function POST(request: Request, props: { params: Params }) {
                     system: 'system'
                 }
             },
-            [`[Easy Dataset] [${projectId}] ShareGPT`]: {
+            [`[Dataset Loom] [${projectId}] ShareGPT`]: {
                 file_name: 'sharegpt.json',
                 formatting: 'sharegpt',
                 columns: {

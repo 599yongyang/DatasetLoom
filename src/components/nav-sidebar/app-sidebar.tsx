@@ -24,7 +24,7 @@ import { selectedProjectAtom } from '@/atoms';
 const navSecondary = [
     {
         title: 'Feedback',
-        url: 'https://github.com/ConardLi/easy-dataset/issues',
+        url: 'https://github.com/599yongyang/DatasetLoom/issues',
         icon: Send,
         external: true
     }
@@ -48,8 +48,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                     <Image src="/logo.svg" width={200} height={200} alt="Picture of the author" />
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">Easy Dataset</span>
-                                    <span className="truncate text-xs">一个强大的 LLM 数据集生成工具</span>
+                                    <span className="truncate font-semibold">Dataset Loom</span>
+                                    <span className="truncate text-xs">一款高效的大型语言模型数据构建工具</span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>

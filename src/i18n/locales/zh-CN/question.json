@@ -10,6 +10,7 @@
     "answer_count": "{{count}} 个答案",
     "table_columns": {
         "question": "问题",
+        "label": "标签",
         "chunk": "所属文本块",
         "createAt": "创建时间",
         "actions": "操作"

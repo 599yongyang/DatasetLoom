@@ -52,15 +52,21 @@ export async function POST(request: Request, props: { params: Params }) {
             globalPrompt,
             questionPrompt
         });
-        const response = await llmClient.getResponse(prompt, {}, questionsSchema);
-
-        // 从LLM输出中提取JSON格式的问题列表
-        let questions = extractJsonFromLLMOutput(response);
-
+        let response = await llmClient.getResponse(prompt, {}, questionsSchema);
+        let data = JSON.parse(response);
+        let questions = [];
+        if (typeof data === 'object') {
+            questions.push(data);
+        } else {
+            questions = data;
+        }
         if (!questions || !Array.isArray(questions)) {
+            console.error('Error generating questions:', response);
             return NextResponse.json({ error: 'Failed to generate questions' }, { status: 500 });
         }
+        console.log(questions, 'questions');
         questions = questions.map(question => {
+            console.log(question.label, 'question');
             return {
                 question: question.question,
                 label: question.label.join(','),
@@ -68,8 +74,9 @@ export async function POST(request: Request, props: { params: Params }) {
                 chunkId
             };
         });
+        console.log(questions, 'questions');
         // 保存问题到数据库
-        await saveQuestions(questions);
+        await saveQuestions(questions as Questions[]);
         // 返回生成的问题
         return NextResponse.json({
             chunkId,

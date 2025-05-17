@@ -7,8 +7,8 @@ import I18nProviderWrapper from '@/components/I18nProviderWrapper';
 import HotkeysProviderWrapper from '@/components/HotkeysProviderWrapper';
 
 export const metadata: Metadata = {
-    title: 'Easy Dataset',
-    description: '一个强大的 LLM 数据集生成工具',
+    title: 'Dataset Loom',
+    description: '一款高效的大型语言模型数据构建工具',
     icons: [{ rel: 'icon', url: '/logo.ico' }]
 };
 

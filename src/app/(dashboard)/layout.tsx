@@ -26,12 +26,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                         <div className="ml-auto flex flex-1 items-center space-x-2 px-2 sm:px-4 md:max-w-100 lg:max-w-xl">
                             <ModelSelect type={'head'} />
                             <Search />
-                            <Link href="https://github.com/ConardLi/easy-dataset" target="_blank">
+                            <Link href="https://github.com/599yongyang/DatasetLoom" target="_blank">
                                 <Button variant="ghost" size="icon">
                                     <Icons.gitHub className="size-5" />
                                 </Button>
                             </Link>
-                            <Link href="https://github.com/ConardLi/easy-dataset" target="_blank">
+                            <Link href="https://github.com/599yongyang/DatasetLoom" target="_blank">
                                 <Button variant="ghost" size="icon">
                                     <CircleHelp className="size-5" />
                                 </Button>

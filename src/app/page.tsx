@@ -69,10 +69,10 @@ export default function Page() {
                             className="relative flex flex-col gap-4 items-center justify-center px-4"
                         >
                             <div className="text-3xl md:text-7xl font-bold dark:text-white text-center">
-                                Easy Dataset
+                                Dataset Loom
                             </div>
                             <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
-                                一个强大的 LLM 数据集生成工具
+                                一款高效的大型语言模型数据构建工具
                             </div>
                             <Button type="submit" className={'cursor-pointer'} onClick={() => setOpen(true)}>
                                 {t('create_first_btn')}
