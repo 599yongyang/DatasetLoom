@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { deleteChunkById, getChunkById, updateChunkById } from '@/lib/db/chunks';
+import { deleteChunkByIds, getChunkById, updateChunkById } from '@/lib/db/chunks';
 import type { Chunks } from '@prisma/client';
 
 type Params = Promise<{ projectId: string; chunkId: string }>;
@@ -41,7 +41,7 @@ export async function DELETE(request: Request, props: { params: Params }) {
         if (!chunkId) {
             return NextResponse.json({ error: 'Text block ID cannot be empty' }, { status: 400 });
         }
-        await deleteChunkById(chunkId);
+        await deleteChunkByIds([chunkId]);
 
         return NextResponse.json({ message: 'Text block deleted successfully' });
     } catch (error) {

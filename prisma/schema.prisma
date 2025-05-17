@@ -24,6 +24,7 @@ model Projects {
   Chunks               Chunks[]
   ModelConfig          ModelConfig[]
   Documents            Documents[]
+  WorkFlow             WorkFlow[]
 }
 
 model Documents {
@@ -52,7 +53,7 @@ model Chunks {
   createAt      DateTime        @default(now())
   updateAt      DateTime        @updatedAt
   Questions     Questions[]
-  ChunkMetadata ChunkMetadata? // 使用单数形式，问号表示可选
+  ChunkMetadata ChunkMetadata?
   ChunkEntities ChunkEntities[]
 
   @@index([projectId])
@@ -61,7 +62,7 @@ model Chunks {
 model ChunkMetadata {
   id        String  @id @default(nanoid())
   chunk     Chunks  @relation(fields: [chunkId], references: [id], onDelete: Cascade)
-  chunkId   String  @unique // 确保一对一关系的关键
+  chunkId   String  @unique
   domain    String
   subDomain String?
   summary   String
@@ -158,4 +159,24 @@ model ModelConfig {
   status       Int
   createAt     DateTime @default(now())
   updateAt     DateTime @updatedAt
+}
+
+model WorkFlow {
+  id             String    @id @default(nanoid())
+  project        Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      String
+  name           String
+  description    String?
+  edges          String
+  nodes          String
+  status         Int       @default(0) // 0待执行 1执行成功 -1执行失败 2等待中 3执行中
+  isScheduled    Boolean   @default(false)
+  cronExpression String?
+  timezone       String?
+  lastRunAt      DateTime?
+  nextRunAt      DateTime?
+  failedAttempts Int       @default(0)
+  maxRetries     Int       @default(3)
+  createAt       DateTime  @default(now())
+  updateAt       DateTime  @updatedAt
 }

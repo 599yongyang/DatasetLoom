@@ -10,17 +10,20 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ProviderIcon } from '@lobehub/icons';
 import axios from 'axios';
 import { type ModelConfig } from '@prisma/client';
+import { datasetWorkFlowAtom, questionsWorkFlowAtom } from '@/atoms/workflow';
 
-export function ModelSelect() {
+export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'workflow-dataset' }) {
     let { projectId } = useParams();
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const modelConfigList = useAtomValue(modelConfigListAtom);
     const [selectedModelInfo, setSelectedModelInfo] = useAtom(selectedModelInfoAtom);
+    const setQuestionsWorkFlow = useSetAtom(questionsWorkFlowAtom);
+    const setDatasetWorkFlow = useSetAtom(datasetWorkFlowAtom);
     const [value, setValue] = useState('');
     const [search, setSearch] = useState('');
     const [modelName, setModelName] = useState('');
@@ -35,8 +38,22 @@ export function ModelSelect() {
     };
 
     useEffect(() => {
-        if (value) {
-            updateDefaultModel(value);
+        if (value && type === 'head') {
+            void updateDefaultModel(value);
+        } else if (value && type === 'workflow-question') {
+            let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === value);
+            if (modelConfig) {
+                const { modelName, id: modelConfigId } = modelConfig;
+                setQuestionsWorkFlow(prev => ({ ...prev, modelName, modelConfigId }));
+                setModelName(modelName);
+            }
+        } else if (value && type === 'workflow-dataset') {
+            let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === value);
+            if (modelConfig) {
+                const { modelName, id: modelConfigId } = modelConfig;
+                setDatasetWorkFlow(prev => ({ ...prev, modelName, modelConfigId }));
+                setModelName(modelName);
+            }
         }
     }, [value]);
 

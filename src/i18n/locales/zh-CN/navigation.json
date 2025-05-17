@@ -12,5 +12,6 @@
     "task_config": "任务配置",
     "prompt_config": "提示词配置",
     "dataset_square": "数据集广场",
-    "playground": "模型测试"
+    "playground": "模型测试",
+    "workflow": "工作流(beta)"
 }

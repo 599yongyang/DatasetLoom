@@ -152,7 +152,7 @@ export async function getChunksPagination(
         ]);
         return { data, total };
     } catch (error) {
-        console.error('Failed to get Documents by pagination in database');
+        console.error('Failed to get chunks by pagination in database');
         throw error;
     }
 }

@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
 import { useDocumentsTableColumns } from '@/components/documents/table-columns';
 import { useDocuments } from '@/hooks/query/use-documents';
-import { UploadFile } from '@/components/documents/upload-file';
+import { UploadDialog } from '@/components/documents/upload-dialog';
 import { ChunkList } from '@/components/chunks/chunk-list';
 import { useChunks } from '@/hooks/query/use-chunks';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';

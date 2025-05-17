@@ -12,5 +12,6 @@
     "task_config": "Task Config",
     "prompt_config": "Prompt Config",
     "dataset_square": "Datasets Square",
-    "playground": "Playground"
+    "playground": "Playground",
+    "workflow": "Workflow(beta)"
 }

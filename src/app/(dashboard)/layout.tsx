@@ -24,7 +24,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                             <NavBreadcrumb className="hidden sm:flex" />
                         </div>
                         <div className="ml-auto flex flex-1 items-center space-x-2 px-2 sm:px-4 md:max-w-100 lg:max-w-xl">
-                            <ModelSelect />
+                            <ModelSelect type={'head'} />
                             <Search />
                             <Link href="https://github.com/ConardLi/easy-dataset" target="_blank">
                                 <Button variant="ghost" size="icon">

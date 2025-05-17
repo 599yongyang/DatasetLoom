@@ -8,7 +8,9 @@ import {
     updateQuestion
 } from '@/lib/db/questions';
 import type { Questions } from '@prisma/client';
+
 type Params = Promise<{ projectId: string }>;
+
 // 获取项目的所有问题
 export async function GET(request: Request, props: { params: Params }) {
     try {
@@ -80,7 +82,7 @@ export async function POST(request: Request, props: { params: Params }) {
             }
         ] as Questions[];
         // 保存更新后的数据
-        let data = await saveQuestions(projectId, questions);
+        let data = await saveQuestions(questions);
 
         // 返回成功响应
         return NextResponse.json(data);

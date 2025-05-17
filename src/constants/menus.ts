@@ -8,7 +8,8 @@ import {
     ListTodo,
     SquareTerminal,
     BotMessageSquare,
-    SquareSplitVertical
+    SquareSplitVertical,
+    Workflow
 } from 'lucide-react';
 
 import type { IMenu } from '@/schema/menu';
@@ -66,5 +67,10 @@ export const getMenuConfig = (projectId: string): IMenu[] =>
             title: 'playground',
             icon: BotMessageSquare,
             to: `/project/${projectId}/playground`
+        },
+        {
+            title: 'workflow',
+            icon: Workflow,
+            to: `/project/${projectId}/workflow`
         }
     ] as const;
