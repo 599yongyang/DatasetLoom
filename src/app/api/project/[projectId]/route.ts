@@ -25,10 +25,15 @@ export async function PUT(request: Request, props: { params: Params }) {
         const { projectId } = params;
         const projectData = await request.json();
 
+        const project = await getProject(projectId);
+        if (!project) {
+            return Response.json({ error: '项目不存在' }, { status: 404 });
+        }
+
         const updatedProject = await updateProject(projectId, projectData);
 
         if (!updatedProject) {
-            return Response.json({ error: '项目不存在' }, { status: 404 });
+            return Response.json({ error: '项目更新失败' }, { status: 500 });
         }
 
         return Response.json(updatedProject);

@@ -16,7 +16,7 @@ import { useChunks } from '@/hooks/query/use-chunks';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { ChunkDialog } from '@/components/chunks/chunk-dialog';
+import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useGenerateQuestion } from '@/hooks/use-generate-question';
@@ -166,11 +166,11 @@ export default function Page() {
                             </p>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-1 border-t max-h-4">
-                            <ChunkDialog title={chunk.name} chunkContent={chunk.content}>
+                            <ChunkContentDialog title={chunk.name} chunkContent={chunk.content}>
                                 <Button variant="ghost" size="icon">
                                     <Eye />
                                 </Button>
-                            </ChunkDialog>
+                            </ChunkContentDialog>
                             <Button
                                 variant="ghost"
                                 size="icon"

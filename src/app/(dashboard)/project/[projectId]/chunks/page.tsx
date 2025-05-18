@@ -16,7 +16,7 @@ import { useChunks } from '@/hooks/query/use-chunks';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { ChunkDialog } from '@/components/chunks/chunk-dialog';
+import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useGenerateQuestion } from '@/hooks/use-generate-question';
@@ -85,7 +85,7 @@ export default function Page() {
 
     return (
         <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="sticky top-0 z-10 bg-background/80 s flex items-center justify-between gap-2">
+            <div className="bg-background/80 s flex items-center justify-between gap-2">
                 <div className={'flex gap-2 w-1/2'}>
                     <Input
                         className="w-1/3"

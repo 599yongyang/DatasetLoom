@@ -14,7 +14,8 @@ import { type Documents } from '@prisma/client';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { useGenerateQuestion } from '@/hooks/use-generate-question';
 import type { ChunksVO } from '@/schema/chunks';
-import { ChunkDialog } from '@/components/chunks/chunk-dialog';
+import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
+import { ChunkInfoDialog } from '@/components/chunks/chunk-info-dialog';
 
 export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
     const { t } = useTranslation('document');
@@ -122,11 +123,11 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-2">
-                        <ChunkDialog title={row.original.name} chunkContent={row.original.content}>
+                        <ChunkContentDialog title={row.original.name} chunkContent={row.original.content}>
                             <Button variant="ghost" size="icon">
                                 <Eye />
                             </Button>
-                        </ChunkDialog>
+                        </ChunkContentDialog>
                         <Button
                             variant="ghost"
                             size="icon"
@@ -134,9 +135,8 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                         >
                             <FileQuestion />
                         </Button>
-                        <Button variant="ghost" size="icon">
-                            <Edit />
-                        </Button>
+                        <ChunkInfoDialog item={row.original} refresh={mutateChunks} />
+
                         <ConfirmAlert
                             title={`确认要删除【${row.original.name}】此文本块嘛？`}
                             message={'此操作不可逆，请谨慎操作！'}

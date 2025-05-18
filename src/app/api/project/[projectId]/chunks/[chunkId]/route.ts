@@ -53,8 +53,8 @@ export async function DELETE(request: Request, props: { params: Params }) {
     }
 }
 
-// 编辑文本块内容
-export async function PATCH(request: Request, props: { params: Params }) {
+// 编辑文本块
+export async function PUT(request: Request, props: { params: Params }) {
     try {
         const params = await props.params;
         const { projectId, chunkId } = params;
@@ -70,13 +70,9 @@ export async function PATCH(request: Request, props: { params: Params }) {
 
         // 解析请求体获取新内容
         const requestData = await request.json();
-        const { content } = requestData;
+        const { id, name, content, tags } = requestData;
 
-        if (!content) {
-            return NextResponse.json({ error: '内容不能为空' }, { status: 400 });
-        }
-
-        let res = await updateChunkById(chunkId, { content } as Chunks);
+        let res = await updateChunkById(chunkId, { name, content } as Chunks, tags);
         return NextResponse.json(res);
     } catch (error) {
         console.error('编辑文本块失败:', error);

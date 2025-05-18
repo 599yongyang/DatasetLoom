@@ -16,6 +16,9 @@ export async function GET(request: Request, props: { params: Params }) {
             return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
         }
         let project = await getProject(projectId);
+        if (!project) {
+            return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
+        }
         let modelConfigList = await getModelConfigByProjectId(projectId);
         if (!modelConfigList || modelConfigList.length === 0) {
             let insertModelConfigList: ModelConfig[] = [];

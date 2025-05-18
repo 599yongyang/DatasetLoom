@@ -19,6 +19,7 @@ import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { type Tag, TagInput } from 'emblor';
 
 const formSchema = z.object({
     id: z.string(),
@@ -49,12 +50,20 @@ export function QuestionDialog({
         }
     });
 
+    const [tags, setTags] = useState<Tag[]>(
+        item.label.split(',').map(tag => ({
+            id: tag,
+            text: tag
+        }))
+    );
+    const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
+
     function onSubmit(values: z.infer<typeof formSchema>) {
         const url = `/api/project/${projectId}/questions`;
-
+        values.label = tags.map(tag => tag.text).join(',');
         const request = values.id ? axios.put(url, values) : axios.post(url, values);
         toast.promise(request, {
-            loading: '创建中',
+            loading: '保存中',
             success: data => {
                 setOpen(false);
                 getQuestions();
@@ -103,19 +112,38 @@ export function QuestionDialog({
                                     </FormItem>
                                 )}
                             />
-                            {/*<FormField*/}
-                            {/*    control={form.control}*/}
-                            {/*    name="label"*/}
-                            {/*    render={({field}) => (*/}
-                            {/*        <FormItem>*/}
-                            {/*            <FormLabel>领域标签</FormLabel>*/}
-                            {/*            <FormControl>*/}
-                            {/*                <Textarea {...field}/>*/}
-                            {/*            </FormControl>*/}
-                            {/*            <FormMessage/>*/}
-                            {/*        </FormItem>*/}
-                            {/*    )}*/}
-                            {/*/>*/}
+                            <FormField
+                                control={form.control}
+                                name="label"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>领域标签</FormLabel>
+                                        <FormControl>
+                                            <TagInput
+                                                tags={tags}
+                                                setTags={newTags => {
+                                                    setTags(newTags);
+                                                }}
+                                                {...field}
+                                                placeholder="Add a tag"
+                                                styleClasses={{
+                                                    inlineTagsContainer:
+                                                        'border-input rounded-md bg-background shadow-xs transition-[color,box-shadow] focus-within:border-ring outline-none focus-within:ring-[3px] focus-within:ring-ring/50 p-1 gap-1',
+                                                    input: 'w-full min-w-[80px] shadow-none px-2 h-7',
+                                                    tag: {
+                                                        body: 'h-7 relative bg-background border border-input hover:bg-background rounded-md font-medium text-xs ps-2 pe-7',
+                                                        closeButton:
+                                                            'absolute -inset-y-px -end-px p-0 rounded-e-md flex size-7 transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] text-muted-foreground/80 hover:text-foreground'
+                                                    }
+                                                }}
+                                                activeTagIndex={activeTagIndex}
+                                                setActiveTagIndex={setActiveTagIndex}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <div className={'flex items-center justify-between space-x-2'}>
                                 <AlertDialogCancel asChild>
                                     <Button variant="outline">{t('dialog.cancel_btn')}</Button>

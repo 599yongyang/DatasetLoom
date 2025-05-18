@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Edit, Eye, FileQuestion, Trash2 } from 'lucide-react';
 import type { ChunksVO } from '@/schema/chunks';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { ChunkDialog } from '@/components/chunks/chunk-dialog';
+import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -109,11 +109,11 @@ export function ChunkList({
                         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{chunk.content}</p>
                     </CardContent>
                     <CardFooter className="flex justify-end gap-1 border-t max-h-4">
-                        <ChunkDialog title={chunk.name} chunkContent={chunk.content}>
+                        <ChunkContentDialog title={chunk.name} chunkContent={chunk.content}>
                             <Button variant="ghost" size="icon">
                                 <Eye />
                             </Button>
-                        </ChunkDialog>
+                        </ChunkContentDialog>
                         <Button
                             variant="ghost"
                             size="icon"

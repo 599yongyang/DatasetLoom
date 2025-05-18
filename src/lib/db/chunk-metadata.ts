@@ -6,7 +6,7 @@ export async function insertChunkMetadata(chunks: ChunkMetadata[]) {
     try {
         return await db.chunkMetadata.createMany({ data: chunks });
     } catch (error) {
-        console.error('Failed to create chunks in database');
+        console.error('Failed to create chunkMetadata in database');
         throw error;
     }
 }

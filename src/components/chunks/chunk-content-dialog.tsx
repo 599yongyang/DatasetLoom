@@ -12,7 +12,7 @@ import {
 import { type ReactNode } from 'react';
 import { Markdown } from '@/components/playground/markdown';
 
-export function ChunkDialog({
+export function ChunkContentDialog({
     title,
     chunkContent,
     children

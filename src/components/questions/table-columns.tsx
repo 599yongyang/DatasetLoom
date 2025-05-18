@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { QuestionDialog } from '@/components/questions/question-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Wand, Eye } from 'lucide-react';
+import { Wand, SquarePen } from 'lucide-react';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -104,7 +104,7 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
                     <div className="flex flex-1 justify-center gap-2">
                         <QuestionDialog item={row.original} getQuestions={mutateQuestions}>
                             <Button variant="ghost" size="icon" aria-label="View">
-                                <Eye size={30} />
+                                <SquarePen size={30} />
                             </Button>
                         </QuestionDialog>
                         <Button

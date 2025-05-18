@@ -166,9 +166,25 @@ export async function deleteChunkByIds(chunkId: string[]) {
     }
 }
 
-export async function updateChunkById(chunkId: string, chunkData: Chunks) {
+export async function updateChunkById(chunkId: string, chunkData: Chunks, tags?: string) {
     try {
-        return await db.chunks.update({ where: { id: chunkId }, data: chunkData });
+        // 只有在 tags 存在时才更新 metadata
+        const updateOperations: any = [
+            db.chunks.update({
+                where: { id: chunkId },
+                data: chunkData
+            })
+        ];
+        if (tags) {
+            updateOperations.push(
+                db.chunkMetadata.update({
+                    where: { chunkId },
+                    data: { tags }
+                })
+            );
+        }
+        // 执行事务
+        return await db.$transaction(updateOperations);
     } catch (error) {
         console.error('Failed to update chunks by id in database');
         throw error;
