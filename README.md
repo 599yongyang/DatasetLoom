@@ -1,3 +1,5 @@
+![DatasetLoom](/public/full-logo.svg)
+
 # DatasetLoom
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=TypeScript&logoColor=white)

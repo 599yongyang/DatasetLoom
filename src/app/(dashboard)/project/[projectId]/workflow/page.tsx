@@ -6,13 +6,18 @@ import { useParams, useRouter } from 'next/navigation';
 import type { ColumnDef } from '@tanstack/react-table';
 import { type WorkFlow } from '@prisma/client';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Eye, FilterIcon, Plus } from 'lucide-react';
+import { Edit, Eye, FileClock, FilterIcon, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
 import { nanoid } from 'nanoid';
 import { workflowStatusOptions } from '@/lib/data-dictionary';
 import SaveDialog from '@/components/workflow/save-dialog';
+import StepLog from '@/components/workflow/step-log';
+import { ConfirmAlert } from '@/components/confirm-alert';
+import { toast } from 'sonner';
+import axios from 'axios';
+import { format } from 'date-fns';
 
 export default function Page() {
     const { projectId } = useParams<{ projectId: string }>();
@@ -31,37 +36,44 @@ export default function Page() {
 
     const [open, setOpen] = useState(false);
     const [workflowData, setWorkflowData] = useState({} as WorkFlow);
+    const [workflowId, setWorkflowId] = useState('');
+    const [openLog, setOpenLog] = useState(false);
+
+    const deleteWorkflow = async (id: string) => {
+        toast.promise(axios.delete(`/api/project/${projectId}/workflow/${id}`), {
+            loading: '删除中...',
+            success: () => {
+                refresh();
+                return '删除成功';
+            },
+            error: e => e.response?.data?.message || '删除失败'
+        });
+    };
 
     const columns: ColumnDef<WorkFlow>[] = [
         {
             accessorKey: 'name',
-            header: () => <div className="text-foreground  pl-2 w-32 px-0 text-left">名称</div>,
-            cell: ({ row }) => <div className="text-foreground pl-2 w-32 px-0 text-left">{row.original.name}</div>,
-            enableHiding: false,
-            size: 200
+            header: () => <div className={'w-50'}>名称</div>,
+            cell: ({ row }) => <div className={'w-fit'}>{row.original.name}</div>
         },
         {
             accessorKey: 'description',
-            header: () => <div className="text-foreground  pl-2 w-32 px-0 text-left">描述</div>,
-            cell: ({ row }) => (
-                <div className="text-foreground pl-2 w-32 px-0 text-left">{row.original.description}</div>
-            ),
-            enableHiding: false,
-            size: 200
+            header: () => <div className="text-foreground  pl-2 w-50 px-0 text-left">描述</div>,
+            cell: ({ row }) => <div className="text-foreground pl-2 w-2 px-0 text-left">{row.original.description}</div>
         },
         {
             accessorKey: 'status',
-            header: '状态',
+            header: () => <div className="text-center w-20">状态</div>,
             cell: ({ row }) => {
                 const statusOption = workflowStatusOptions.find(option => option.value === row.original.status);
 
                 if (!statusOption) return <div>未知状态</div>;
 
-                const { icon: Icon, label } = statusOption;
+                const { icon: Icon, label, iconClassName } = statusOption;
 
                 return (
-                    <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
-                        <Icon className="w-4 h-4" />
+                    <Badge variant="outline" className="flex gap-1 px-1.5 w-20 text-muted-foreground [&_svg]:size-3">
+                        <Icon className={iconClassName} />
                         <span>{label}</span>
                     </Badge>
                 );
@@ -69,16 +81,35 @@ export default function Page() {
             enableHiding: false
         },
         {
+            accessorKey: 'runAt',
+            header: '运行时间',
+            cell: ({ row }) => (
+                <div className="w-20">{row.original.runAt ? format(row.original.runAt, 'yyyy-MM-dd HH:mm') : '无'}</div>
+            ),
+            enableHiding: false
+        },
+        {
             accessorKey: 'createAt',
             header: '编辑时间',
-            cell: ({ row }) => <div className="w-32">{new Date(row.original.updateAt).toLocaleString('zh-CN')}</div>,
+            cell: ({ row }) => <div className="w-20">{new Date(row.original.updateAt).toLocaleString('zh-CN')}</div>,
             enableHiding: false
         },
         {
             id: 'actions',
-            header: () => <div>操作</div>,
+            header: () => <div className="text-center w-20">操作</div>,
             cell: ({ row }) => (
-                <div className={'flex flex-1'}>
+                <div className={'flex flex-1 w-32'}>
+                    <Button
+                        variant="ghost"
+                        className={'hover:cursor-pointer'}
+                        size="icon"
+                        onClick={() => {
+                            setWorkflowId(row.original.id);
+                            setOpenLog(true);
+                        }}
+                    >
+                        <FileClock size={30} />
+                    </Button>
                     <Button
                         variant="ghost"
                         className={'hover:cursor-pointer'}
@@ -99,6 +130,11 @@ export default function Page() {
                     >
                         <Edit size={30} />
                     </Button>
+                    <ConfirmAlert
+                        title={'确认要删除此工作流吗？'}
+                        message={row.original.name}
+                        onConfirm={() => deleteWorkflow(row.original.id)}
+                    />
                 </div>
             ),
             enableHiding: false,
@@ -129,7 +165,8 @@ export default function Page() {
                 pagination={pagination}
                 setPagination={setPagination}
             />
-            <SaveDialog open={open} setOpen={setOpen} formData={workflowData} setFormData={setWorkflowData} />
+            <SaveDialog open={open} setOpen={setOpen} formData={workflowData} refresh={refresh} />
+            <StepLog openLog={openLog} setOpenLog={setOpenLog} workflowId={workflowId} projectId={projectId} />
         </div>
     );
 }

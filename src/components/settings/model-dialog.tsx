@@ -288,7 +288,7 @@ export function ModelDialog({
                                                         )
                                                         .map(modelConfig => (
                                                             <CommandItem
-                                                                key={modelConfig.id}
+                                                                key={modelConfig.id + modelConfig.modelId}
                                                                 value={modelConfig.modelId}
                                                                 onSelect={currentId => {
                                                                     handleChange('modelId', currentId);

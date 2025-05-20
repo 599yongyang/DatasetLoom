@@ -32,6 +32,7 @@ import { initialEdges, initialNodes } from '@/constants/workflow';
 import { useWorkflowById } from '@/hooks/query/use-workflow';
 import { type WorkFlow } from '@prisma/client';
 import SaveDialog from '@/components/workflow/save-dialog';
+import { selectedModelInfoAtom } from '@/atoms';
 
 // 节点类型注册
 const nodeTypes: NodeTypes = {
@@ -57,12 +58,14 @@ export default function Workflow() {
     const [isRunning, setIsRunning] = useState(false);
     const onConnect = useCallback((params: any) => setEdges(eds => addEdge(params, eds)), [setEdges]);
 
+    const [selectedModelInfo, setSelectedModelInfo] = useAtom(selectedModelInfoAtom);
+
     const [document, setDocument] = useAtom(documentWorkFlowAtom);
     const [chunkConfig, setChunkConfig] = useAtom(chunkWorkFlowAtom);
     const [questionConfig, setQuestionConfig] = useAtom(questionsWorkFlowAtom);
     const [datasetConfig, setDatasetConfig] = useAtom(datasetWorkFlowAtom);
 
-    const [fromData, setFromData] = useState({} as WorkFlow);
+    const [fromData, setFromData] = useState(workflow ?? ({} as WorkFlow));
     const [open, setOpen] = useState(false);
 
     const nodeTypeHandlers: NodeTypeHandler[] = [
@@ -79,6 +82,7 @@ export default function Workflow() {
         }
 
         try {
+            setFromData(workflow);
             const parsedNodes: Node[] = JSON.parse(workflow.nodes);
             nodeTypeHandlers.forEach(({ type, setter }) => {
                 const node = parsedNodes.find((n: Node) => n.type === type);
@@ -112,13 +116,16 @@ export default function Workflow() {
                     return node;
             }
         });
-        setFromData({
-            name: 'ces',
-            id: workflowId,
-            projectId,
-            nodes: JSON.stringify(nodeData),
-            edges: JSON.stringify(edges)
-        } as WorkFlow);
+        setFromData(
+            workflow ??
+                ({
+                    name: '',
+                    id: workflowId,
+                    projectId,
+                    nodes: JSON.stringify(nodeData),
+                    edges: JSON.stringify(edges)
+                } as WorkFlow)
+        );
         setOpen(true);
     };
 
@@ -127,6 +134,12 @@ export default function Workflow() {
         setEdges(initialEdges);
         setDocument({ data: [] });
         setChunkConfig(defaultChunkConfig);
+        if (selectedModelInfo) {
+            defaultQuestionsConfig.modelConfigId = selectedModelInfo.id;
+            defaultQuestionsConfig.modelName = selectedModelInfo.modelName;
+            defaultDatasetConfig.modelName = selectedModelInfo.modelName;
+            defaultDatasetConfig.modelConfigId = selectedModelInfo.id;
+        }
         setQuestionConfig(defaultQuestionsConfig);
         setDatasetConfig(defaultDatasetConfig);
     };
@@ -148,12 +161,12 @@ export default function Workflow() {
 
                 <Panel position="top-right">
                     <div className="flex gap-2">
-                        <Button onClick={runWorkflow} disabled={isRunning}>
-                            {isRunning ? '执行中...' : '测试工作流'}
-                        </Button>
+                        {/*<Button onClick={runWorkflow} disabled={isRunning}>*/}
+                        {/*    {isRunning ? '执行中...' : '测试工作流'}*/}
+                        {/*</Button>*/}
                         <Button onClick={handleReset}>重置</Button>
                         <Button onClick={handleSave}>保存</Button>
-                        <SaveDialog open={open} setOpen={setOpen} formData={fromData} setFormData={setFromData} />
+                        <SaveDialog open={open} setOpen={setOpen} formData={fromData} />
                     </div>
                 </Panel>
             </ReactFlow>

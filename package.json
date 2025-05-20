@@ -72,6 +72,7 @@
         "ai": "^4.3.13",
         "archiver": "^7.0.1",
         "axios": "^1.8.4",
+        "bullmq": "^5.52.2",
         "class-variance-authority": "^0.7.1",
         "classnames": "^2.5.1",
         "clsx": "^2.1.1",
@@ -97,6 +98,7 @@
         "ollama-ai-provider": "^1.2.0",
         "pdf-parse": "^1.1.1",
         "react": "^18.2.0",
+        "react-day-picker": "^8.10.1",
         "react-doc-viewer": "^0.1.14",
         "react-dom": "^18.2.0",
         "react-hook-form": "^7.56.1",
@@ -119,6 +121,7 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3.3.1",
         "@tailwindcss/postcss": "^4.0.15",
+        "@types/bull": "^4.10.4",
         "@types/node": "^20.17.30",
         "@types/react": "^18.2.0",
         "@types/react-dom": "^18.2.0",

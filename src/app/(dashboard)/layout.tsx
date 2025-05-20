@@ -10,7 +10,7 @@ import { NavBreadcrumb } from '@/components/nav-sidebar/nav-breadcrumb';
 import { Search } from '@/components/search';
 import { ThemeSwitcher } from '@/components/theme/theme-switcher';
 import { ModelSelect } from '@/components/model-select';
-
+import '@/lib/queue/worker-init';
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <SidebarProvider>

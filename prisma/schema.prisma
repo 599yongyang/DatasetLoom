@@ -162,21 +162,37 @@ model ModelConfig {
 }
 
 model WorkFlow {
-  id             String    @id @default(nanoid())
-  project        Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id             String         @id @default(nanoid())
+  project        Projects       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId      String
   name           String
   description    String?
   edges          String
   nodes          String
-  status         Int       @default(0) // 0待执行 1执行成功 -1执行失败 2等待中 3执行中
-  isScheduled    Boolean   @default(false)
+  status         Int            @default(0) // 0等待中 1运行中 2执行完成 3执行失败
+  isScheduled    Boolean        @default(false)
   cronExpression String?
-  timezone       String?
-  lastRunAt      DateTime?
-  nextRunAt      DateTime?
-  failedAttempts Int       @default(0)
-  maxRetries     Int       @default(3)
-  createAt       DateTime  @default(now())
-  updateAt       DateTime  @updatedAt
+  runAt          DateTime?
+  failedAttempts Int            @default(0)
+  maxRetries     Int            @default(3)
+  createdAt      DateTime       @default(now())
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  updateAt       DateTime       @updatedAt
+  steps          WorkflowStep[]
+}
+
+model WorkflowStep {
+  id         String    @id @default(nanoid())
+  workflow   WorkFlow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  workflowId String
+  name       String
+  status     Int       @default(0) // 0等待中 1运行中 2执行完成 3执行失败
+  sort       Int
+  input      String?
+  output     String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+  retryCount Int       @default(0)
+  logs       String?
 }

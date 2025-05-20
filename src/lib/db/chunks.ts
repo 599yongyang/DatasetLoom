@@ -22,7 +22,7 @@ export async function getChunkById(chunkId: string) {
 
 export async function getChunkByIds(chunkIds: string[]) {
     try {
-        return await db.chunks.findMany({ where: { id: { in: chunkIds } } });
+        return await db.chunks.findMany({ where: { id: { in: chunkIds } }, include: { ChunkMetadata: true } });
     } catch (error) {
         console.error('Failed to get chunks by id in database');
         throw error;

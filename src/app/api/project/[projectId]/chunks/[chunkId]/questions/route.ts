@@ -3,11 +3,11 @@ import LLMClient from '@/lib/llm/core/index';
 import { getQuestionPrompt } from '@/lib/llm/prompts/question';
 import { getQuestionEnPrompt } from '@/lib/llm/prompts/questionEn';
 import { getQuestionsForChunk, saveQuestions } from '@/lib/db/questions';
-import { extractJsonFromLLMOutput } from '@/lib/llm/common/util';
 import { getTaskConfig, getProject } from '@/lib/db/projects';
 import { getChunkById } from '@/lib/db/chunks';
 import { type Questions } from '@prisma/client';
 import { questionsSchema } from '@/lib/llm/prompts/schema';
+import { doubleCheckModelOutput } from '@/lib/llm/common/util';
 
 type Params = Promise<{ projectId: string; chunkId: string }>;
 
@@ -52,29 +52,19 @@ export async function POST(request: Request, props: { params: Params }) {
             globalPrompt,
             questionPrompt
         });
-        let response = await llmClient.getResponse(prompt, {}, questionsSchema);
-        let data = JSON.parse(response);
-        let questions = [];
-        if (typeof data === 'object') {
-            questions.push(data);
-        } else {
-            questions = data;
-        }
-        if (!questions || !Array.isArray(questions)) {
-            console.error('Error generating questions:', response);
-            return NextResponse.json({ error: 'Failed to generate questions' }, { status: 500 });
-        }
-        console.log(questions, 'questions');
-        questions = questions.map(question => {
-            console.log(question.label, 'question');
+
+        const response = await llmClient.getResponse(prompt);
+        console.log('LLM Output:', response);
+        const llmOutput = await doubleCheckModelOutput(response, questionsSchema);
+        console.log('LLM Output after double check:', llmOutput);
+        const questions = llmOutput.map(question => {
             return {
                 question: question.question,
                 label: question.label.join(','),
                 projectId,
                 chunkId
-            };
+            } as Questions;
         });
-        console.log(questions, 'questions');
         // 保存问题到数据库
         await saveQuestions(questions as Questions[]);
         // 返回生成的问题

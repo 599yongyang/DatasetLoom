@@ -9,7 +9,7 @@ type UseWorkflowsParams = {
     pageSize: number;
 };
 
-interface DatasetListResponse {
+interface WorkFlowListResponse {
     data: WorkFlow[];
     total: number;
 }
@@ -26,7 +26,7 @@ export function useWorkflows(params: UseWorkflowsParams) {
         return buildURL(`/api/project/${params.projectId}/workflow`, paramsObj);
     }, [params]);
 
-    const { data, error, mutate } = useSWR<DatasetListResponse>(url, fetcher, {
+    const { data, error, mutate } = useSWR<WorkFlowListResponse>(url, fetcher, {
         keepPreviousData: true, // 切换分页时保持旧数据展示
         revalidateOnFocus: true
     });
@@ -41,10 +41,7 @@ export function useWorkflows(params: UseWorkflowsParams) {
 }
 
 export function useWorkflowById({ projectId, workflowId }: { projectId: string; workflowId: string }) {
-    const { data, error, isLoading, mutate } = useSWR<WorkFlow>(
-        `/api/project/${projectId}/workflow/${workflowId}`,
-        fetcher
-    );
+    const { data, error, isLoading, mutate } = useSWR(`/api/project/${projectId}/workflow/${workflowId}`, fetcher);
 
     return {
         workflow: data,

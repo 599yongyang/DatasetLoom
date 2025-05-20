@@ -34,6 +34,7 @@ export default function Page() {
         const filteredProjects = projects.filter(project => project.name.toLowerCase().includes(name.toLowerCase()));
         setFilteredProjects(filteredProjects);
     }, [name]);
+
     return (
         <div>
             <SiteHeader />

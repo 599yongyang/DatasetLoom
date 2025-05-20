@@ -32,7 +32,7 @@ export const chunkWorkFlowAtom = atom<ChunkStrategy>({} as ChunkStrategy);
 interface QuestionsWorkFlow {
     type: 'default' | 'custom';
     modelName: string;
-    modelConfigId?: string;
+    modelConfigId: string;
     temperature?: number;
     maxTokens?: number;
     topP?: number;
@@ -43,7 +43,8 @@ interface QuestionsWorkFlow {
 
 export const defaultQuestionsConfig: QuestionsWorkFlow = {
     type: 'default',
-    modelName: 'gpt-3.5-turbo',
+    modelName: '',
+    modelConfigId: '',
     temperature: 0.7,
     maxTokens: 8192,
     questionCountType: 'auto',
@@ -66,6 +67,7 @@ interface DatasetWorkFlow {
 export const defaultDatasetConfig: DatasetWorkFlow = {
     type: 'default',
     modelName: 'gpt-3.5-turbo',
+    modelConfigId: '',
     temperature: 0.7,
     maxTokens: 8192
 };
@@ -74,6 +76,7 @@ export const defaultDatasetConfig: DatasetWorkFlow = {
 export const datasetWorkFlowAtom = atom<DatasetWorkFlow>({
     type: 'default',
     modelName: 'gpt-3.5-turbo',
+    modelConfigId: '',
     temperature: 0.7,
     maxTokens: 8192
 });

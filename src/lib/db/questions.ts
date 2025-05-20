@@ -107,22 +107,22 @@ export async function getQuestionsIds(projectId: string, answered: boolean | und
     }
 }
 
-export async function getQuestionsByTagName(projectId: string, tagName: string) {
+export async function getQuestionsByIds(projectId: string, ids: string[]) {
     try {
         return await db.questions.findMany({
             where: {
                 projectId,
-                label: tagName
+                id: {
+                    in: ids
+                }
             },
             include: {
                 chunk: {
                     select: {
+                        content: true,
                         name: true
                     }
                 }
-            },
-            orderBy: {
-                createAt: 'desc'
             }
         });
     } catch (error) {

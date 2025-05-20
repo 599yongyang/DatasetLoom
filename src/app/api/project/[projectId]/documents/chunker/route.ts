@@ -10,6 +10,7 @@ import LLMClient from '@/lib/llm/core';
 import { insertChunkMetadata } from '@/lib/db/chunk-metadata';
 import { nanoid } from 'nanoid';
 import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
+import { doubleCheckModelOutput } from '@/lib/llm/common/util';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -64,7 +65,7 @@ export async function POST(request: Request, props: { params: Params }) {
     return NextResponse.json({ success: true, count: chunkRes.length });
 }
 
-async function processChunks(chunkRes: Chunks[], language: string, model: object) {
+export async function processChunks(chunkRes: Chunks[], language: string, model: object) {
     const llmClient = new LLMClient(model);
     const batchSize = 5; // 控制并发数量
 
@@ -75,31 +76,17 @@ async function processChunks(chunkRes: Chunks[], language: string, model: object
             try {
                 const promptFunc = getLabelPrompt;
                 const prompt = promptFunc({ text: chunk.content });
-                const response = await llmClient.getResponse(prompt, {}, documentAnalysisSchema);
-                console.log(response, '分析文本块');
-                let data;
-                try {
-                    const jsonStr = extractJsonFromResponse(response);
-                    if (!jsonStr) {
-                        console.warn(`No JSON found in response for chunk ${chunk.id}`);
-                        return null;
-                    }
-                    data = JSON.parse(jsonStr);
-                } catch (parseError) {
-                    console.error(`JSON parse error for chunk ${chunk.id}:`, parseError);
-                    throw new Error(`Invalid JSON response for chunk ${chunk.id}`);
-                }
-
+                const response = await llmClient.getResponse(prompt);
+                const llmOutput = await doubleCheckModelOutput(response, documentAnalysisSchema);
                 const metadata = {
                     id: nanoid(),
                     chunkId: chunk.id,
-                    domain: data.domain,
-                    subDomain: data.subDomain,
-                    summary: data.summary,
-                    tags: Array.isArray(data.tags) ? data.tags.join(',') : '',
+                    domain: llmOutput.domain,
+                    subDomain: llmOutput.subDomain,
+                    summary: llmOutput.summary,
+                    tags: Array.isArray(llmOutput.tags) ? llmOutput.tags.join(',') : '',
                     language: language
                 };
-
                 await insertChunkMetadata([metadata]);
                 return metadata;
             } catch (error) {
@@ -119,16 +106,4 @@ async function processChunks(chunkRes: Chunks[], language: string, model: object
             }
         });
     }
-}
-
-function extractJsonFromResponse(text: string): string | null {
-    // 匹配以 ```json 开始、``` 结尾的内容
-    const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
-    if (jsonMatch && jsonMatch[1]) {
-        return jsonMatch[1];
-    }
-
-    // 如果没有找到代码块，尝试匹配第一个合法的 JSON 对象
-    const fallbackMatch = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-    return fallbackMatch ? fallbackMatch[0] : null;
 }

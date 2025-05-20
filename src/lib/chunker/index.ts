@@ -55,7 +55,7 @@ export async function chunker(filePath: string, strategy: string, options: Chunk
     };
     const docs = await loader(filePath, strategy);
     if (strategy === 'page') {
-        console.log(docs, docs.length, `aaa loaded`);
+        console.log(docs, docs.length, `loaded`);
         return docs;
     }
     const allContent = docs.map(doc => doc.pageContent).join();
