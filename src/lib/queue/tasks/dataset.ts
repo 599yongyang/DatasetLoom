@@ -39,15 +39,15 @@ export async function datasetTask(params: TaskParams): Promise<TaskResult> {
                 question: question.question
             });
             // 调用大模型生成答案
-            const { answer, cot } = await llmClient.getResponseWithCOT(prompt);
+            const { text, reasoning } = await llmClient.chat(prompt, 'textAndReasoning');
             // 创建新的数据集项
             const datasets = {
                 id: nanoid(12),
                 projectId: projectId,
                 question: question.question,
-                answer: answer,
+                answer: text,
                 model: model.modelName,
-                cot: cot,
+                cot: reasoning,
                 questionLabel: question.label || null,
                 chunkName: question.chunk.name,
                 chunkContent: question.chunk.content,

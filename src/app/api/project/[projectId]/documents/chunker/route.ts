@@ -10,7 +10,7 @@ import LLMClient from '@/lib/llm/core';
 import { insertChunkMetadata } from '@/lib/db/chunk-metadata';
 import { nanoid } from 'nanoid';
 import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
-import { doubleCheckModelOutput } from '@/lib/llm/common/util';
+import { doubleCheckModelOutput } from '@/lib/utils';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -76,7 +76,7 @@ export async function processChunks(chunkRes: Chunks[], language: string, model:
             try {
                 const promptFunc = getLabelPrompt;
                 const prompt = promptFunc({ text: chunk.content });
-                const response = await llmClient.getResponse(prompt);
+                const response = await llmClient.chat(prompt);
                 const llmOutput = await doubleCheckModelOutput(response, documentAnalysisSchema);
                 const metadata = {
                     id: nanoid(),

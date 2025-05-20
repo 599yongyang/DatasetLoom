@@ -54,7 +54,7 @@ export async function POST(request: Request, props: { params: Params }) {
         // 调用LLM API
         let response = '';
         try {
-            response = await llmClient.getResponse(formattedMessages);
+            response = await llmClient.chat(formattedMessages);
         } catch (error) {
             console.error('Failed to call LLM API:', error);
             return NextResponse.json(

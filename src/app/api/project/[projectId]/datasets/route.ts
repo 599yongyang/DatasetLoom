@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createDataset, getDatasetsByPagination, updateDataset } from '@/lib/db/datasets';
-import { getQuestionById, updateQuestion } from '@/lib/db/questions';
+import { createDataset, getDatasetsByPagination } from '@/lib/db/datasets';
+import { getQuestionById } from '@/lib/db/questions';
 import { getChunkById } from '@/lib/db/chunks';
 import { getProject } from '@/lib/db/projects';
 import LLMClient from '@/lib/llm/core';
 import getAnswerPrompt from '@/lib/llm/prompts/answer';
 import getAnswerEnPrompt from '@/lib/llm/prompts/answerEn';
 import { nanoid } from 'nanoid';
-import type { Datasets, Questions } from '@prisma/client';
-import getOptimizeCotEnPrompt from '@/lib/llm/prompts/optimizeCotEn';
-import getOptimizeCotPrompt from '@/lib/llm/prompts/optimizeCot';
+import type { Datasets } from '@prisma/client';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -59,7 +57,7 @@ export async function POST(request: Request, props: { params: Params }) {
         });
 
         // 调用大模型生成答案
-        const { answer, cot } = await llmClient.getResponseWithCOT(prompt);
+        const { text, reasoning } = await llmClient.chat(prompt, 'textAndReasoning');
 
         const datasetId = nanoid(12);
 
@@ -68,9 +66,9 @@ export async function POST(request: Request, props: { params: Params }) {
             id: datasetId,
             projectId: projectId,
             question: question.question,
-            answer: answer,
+            answer: text,
             model: model.modelName,
-            cot: '',
+            cot: reasoning,
             questionLabel: question.label || null
         };
 
@@ -80,21 +78,9 @@ export async function POST(request: Request, props: { params: Params }) {
             datasets.chunkContent = chunkData.content;
             datasets.questionId = question.id;
         }
-
         let dataset = await createDataset(datasets as Datasets);
-        if (cot) {
-            // 为了性能考虑，这里异步优化
-            optimizeCot(question.question, answer, cot, language, llmClient, datasetId);
-        }
-        if (dataset) {
-            await updateQuestion({ id: questionId, answered: true } as Questions);
-        }
         console.log(datasets.length, 'Successfully generated dataset', question.question);
-
-        return NextResponse.json({
-            success: true,
-            dataset
-        });
+        return NextResponse.json({ success: true, dataset });
     } catch (error) {
         console.error('Failed to generate dataset:', error);
         return NextResponse.json(
@@ -104,23 +90,6 @@ export async function POST(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
-
-async function optimizeCot(
-    originalQuestion: string,
-    answer: string,
-    originalCot: string,
-    language: string,
-    llmClient: LLMClient,
-    id: string
-) {
-    const prompt =
-        language === 'en'
-            ? getOptimizeCotEnPrompt({ originalQuestion, answer, originalCot })
-            : getOptimizeCotPrompt({ originalQuestion, answer, originalCot });
-    const { answer: optimizedAnswer } = await llmClient.getResponseWithCOT(prompt);
-    await updateDataset({ id, cot: optimizedAnswer.replace('优化后的思维链', '') } as Datasets);
-    console.log(originalQuestion, id, 'Successfully optimized thought process');
 }
 
 /**

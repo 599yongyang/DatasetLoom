@@ -3,13 +3,14 @@
  * 支持多种模型提供商：OpenAI、Ollama、智谱AI等
  * 支持普通输出和流式输出
  */
-import { extractThinkChain, extractAnswer } from '@/lib/llm/common/util';
 import { DEFAULT_MODEL_SETTINGS } from '@/constants/model';
 import OllamaClient from './providers/ollama'; // 导入 OllamaClient
 import OpenAIClient from './providers/openai'; // 导入 OpenAIClient
 import ZhiPuClient from './providers/zhipu'; // 导入 ZhiPuClient
 import OpenRouterClient from './providers/openrouter';
-import { Schema } from 'zod'; // 导入 OpenRouterClient
+import { Schema } from 'zod';
+import DeepSeekClient from '@/lib/llm/core/providers/deepseek';
+import OpenAICompatibleClient from '@/lib/llm/core/providers/openai-compatible'; // 导入 OpenRouterClient
 
 /* eslint-disable @typescript-eslint/no-explicit-any @typescript-eslint/no-unsafe-assignment */
 
@@ -31,12 +32,6 @@ interface Message {
     content: string;
 }
 
-// 定义模型响应接口
-interface LLMResponse {
-    text?: string;
-    response?: { messages: string };
-}
-
 class LLMClient {
     private config: Required<Config>;
     private client: any;
@@ -47,7 +42,7 @@ class LLMClient {
      */
     constructor(config: Config = {}) {
         this.config = {
-            providerId: config.providerId?.toLowerCase() ?? 'openai',
+            providerId: config.providerId?.toLowerCase() ?? 'openai-compatible',
             endpoint: this._handleEndpoint(config.providerId, config.endpoint) ?? '',
             apiKey: config.apiKey ?? '',
             modelId: config.modelId ?? '',
@@ -89,13 +84,13 @@ class LLMClient {
         const clientMap: Record<string, any> = {
             ollama: OllamaClient,
             openai: OpenAIClient,
-            siliconflow: OpenAIClient,
-            deepseek: OpenAIClient,
+            siliconflow: OpenAICompatibleClient,
+            deepseek: DeepSeekClient,
             zhipu: ZhiPuClient,
             openrouter: OpenRouterClient
         };
 
-        const ClientClass = clientMap[provider.toLowerCase()] ?? OpenAIClient;
+        const ClientClass = clientMap[provider.toLowerCase()] ?? OpenAICompatibleClient;
         return new ClientClass(config);
     }
 
@@ -117,14 +112,34 @@ class LLMClient {
     /**
      * 生成对话响应
      * @param prompt - 用户输入的提示词或对话历史
+     * @param responseType - 响应数据返回类型
      * @param options - 可选参数
      * @param schema - 模型响应的 zod 验证器
      * @returns 返回模型响应
      */
-    async chat(prompt: string | Message[], options: Partial<Config> = {}, schema?: Schema): Promise<LLMResponse> {
+    async chat(
+        prompt: string | Message[],
+        responseType: string | 'all' | 'text' | 'textAndReasoning' = 'text',
+        options: Partial<Config> = {},
+        schema?: Schema
+    ) {
         const messages = Array.isArray(prompt) ? prompt : [{ role: 'user', content: prompt }];
         const mergedOptions = { ...this.config, ...options };
-        return this._callClientMethod('chat', messages, mergedOptions, schema);
+        const response = await this._callClientMethod('chat', messages, mergedOptions, schema);
+        // 根据 responseType 返回不同格式
+        switch (responseType) {
+            case 'all':
+                return response;
+            case 'text':
+                return response.text;
+            case 'textAndReasoning':
+                return {
+                    text: response.text,
+                    reasoning: response.reasoning
+                };
+            default:
+                return response;
+        }
     }
 
     /**
@@ -133,56 +148,10 @@ class LLMClient {
      * @param options - 可选参数
      * @returns 返回可读流
      */
-    async chatStream(prompt: string | Message[], options: Partial<Config> = {}): Promise<any> {
+    async chatStream(prompt: string | Message[], options: Partial<Config> = {}) {
         const messages = Array.isArray(prompt) ? prompt : [{ role: 'user', content: prompt }];
         const mergedOptions = { ...this.config, ...options };
         return this._callClientMethod('chatStream', messages, mergedOptions);
-    }
-
-    /**
-     * 获取模型响应
-     * @param prompt - 用户输入的提示词或对话历史
-     * @param options - 可选参数
-     * @param schema - 模型响应的 zod 验证器
-     * @returns 返回模型生成的文本
-     */
-    async getResponse(prompt: string | Message[], options: Partial<Config> = {}, schema?: Schema) {
-        const llmRes = await this.chat(prompt, options, schema);
-        return llmRes.text ?? llmRes.response?.messages ?? '';
-    }
-
-    /**
-     * 获取带思维链（COT）的模型响应
-     * @param prompt - 用户输入的提示词或对话历史
-     * @param options - 可选参数
-     * @returns 返回答案和思维链
-     */
-    async getResponseWithCOT(
-        prompt: string | Message[],
-        options: Partial<Config> = {}
-    ): Promise<{
-        answer: string;
-        cot: string;
-    }> {
-        const llmRes = await this.chat(prompt, options);
-        console.log(llmRes, 'llmRes');
-        const rawAnswer = llmRes.text ?? llmRes.response?.messages ?? '';
-
-        // 提取思维链和答案
-        let answer = rawAnswer;
-        let cot = '';
-        if (rawAnswer.startsWith('<think>') ?? rawAnswer.startsWith('<thinking>')) {
-            cot = extractThinkChain(rawAnswer);
-            answer = extractAnswer(rawAnswer);
-        } else {
-            cot = rawAnswer;
-        }
-
-        // 清理多余的换行符
-        answer = answer.replace(/^\n+/, '');
-        cot = cot.replace(/\n+$/, '');
-
-        return { answer, cot };
     }
 }
 

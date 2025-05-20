@@ -1,6 +1,6 @@
 import { createDataStreamResponse, generateText, type LanguageModel, Output, streamText, type UIMessage } from 'ai';
 import { processMessages } from '@/lib/utils/file';
-import { Schema, z } from 'zod';
+import { Schema } from 'zod';
 
 // 定义配置类型
 export interface Config {

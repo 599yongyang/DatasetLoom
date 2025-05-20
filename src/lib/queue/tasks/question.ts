@@ -2,7 +2,7 @@ import type { TaskParams, TaskResult } from '@/lib/queue';
 import type { Chunks, Questions } from '@prisma/client';
 import { getQuestionPrompt } from '@/lib/llm/prompts/question';
 import { questionsSchema } from '@/lib/llm/prompts/schema';
-import { doubleCheckModelOutput } from '@/lib/llm/common/util';
+import { doubleCheckModelOutput } from '@/lib/utils';
 import { saveQuestions } from '@/lib/db/questions';
 import LLMClient from '@/lib/llm/core';
 import { getModelConfigById } from '@/lib/db/model-config';
@@ -38,7 +38,7 @@ export async function questionTask(params: TaskParams): Promise<TaskResult> {
                 tags: chunk.ChunkMetadata?.tags || '',
                 number: step.data.questionCountType === 'auto' ? undefined : (step.data.questionCount as number)
             });
-            const response = await llmClient.getResponse(prompt);
+            const response = await llmClient.chat(prompt);
             const llmOutput = await doubleCheckModelOutput(response, questionsSchema);
             const questions = llmOutput.map(question => {
                 return {

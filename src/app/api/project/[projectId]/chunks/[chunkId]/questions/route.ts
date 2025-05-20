@@ -7,7 +7,7 @@ import { getTaskConfig, getProject } from '@/lib/db/projects';
 import { getChunkById } from '@/lib/db/chunks';
 import { type Questions } from '@prisma/client';
 import { questionsSchema } from '@/lib/llm/prompts/schema';
-import { doubleCheckModelOutput } from '@/lib/llm/common/util';
+import { doubleCheckModelOutput } from '@/lib/utils';
 
 type Params = Promise<{ projectId: string; chunkId: string }>;
 
@@ -53,7 +53,7 @@ export async function POST(request: Request, props: { params: Params }) {
             questionPrompt
         });
 
-        const response = await llmClient.getResponse(prompt);
+        const response = await llmClient.chat(prompt);
         console.log('LLM Output:', response);
         const llmOutput = await doubleCheckModelOutput(response, questionsSchema);
         console.log('LLM Output after double check:', llmOutput);
