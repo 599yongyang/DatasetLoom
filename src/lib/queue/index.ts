@@ -13,6 +13,7 @@ import {
 } from '@/lib/dag';
 import { questionTask } from '@/lib/queue/tasks/question';
 import { datasetTask } from '@/lib/queue/tasks/dataset';
+import Redis from 'ioredis';
 
 interface RedisConfig {
     host: string;
@@ -20,6 +21,20 @@ interface RedisConfig {
     password?: string;
     db?: number;
     tls?: Record<string, unknown>;
+}
+
+export async function checkRedisConnection() {
+    const client = new Redis(getRedisConfig());
+    try {
+        const pong = await client.ping();
+        console.log('✅ Redis 连接正常:', pong);
+        return pong === 'PONG';
+    } catch (error) {
+        console.error('❌ Redis 连接异常');
+        return false;
+    } finally {
+        await client.quit(); // 关闭连接
+    }
 }
 
 function getRedisConfig(): RedisConfig {
@@ -50,30 +65,53 @@ export interface TaskParams {
 }
 
 class QueueService {
+    private static instance: QueueService;
     private workflowQueue: Queue;
+    private worker: Worker | null = null;
 
-    constructor() {
+    private constructor() {
         this.workflowQueue = new Queue('workflow', { connection: getRedisConfig() });
     }
 
-    async createWorker() {
-        const worker = new Worker('workflow', this.processWorkflow.bind(this), {
+    public static getInstance(): QueueService {
+        if (!QueueService.instance) {
+            QueueService.instance = new QueueService();
+        }
+        return QueueService.instance;
+    }
+
+    public async initializeWorker() {
+        if (this.worker) {
+            console.warn('Worker already initialized');
+            return;
+        }
+
+        this.worker = new Worker('workflow', this.processWorkflow.bind(this), {
             connection: getRedisConfig(),
             concurrency: 5
         });
 
-        worker.on('completed', job => {
-            console.log(`Job completed: ${job.id}`);
-        });
+        this.worker
+            .on('ready', () => console.log('✅ Worker is ready'))
+            .on('completed', job => console.log(`✅ Job completed: ${job.id}`))
+            .on('failed', (job, err) => console.error(`❌ Job failed: ${job?.id}`, err))
+            .on('error', err => console.error('❌ Worker error:', err))
+            .on('closed', () => {
+                console.log('🛑 Worker closed');
+                this.worker = null;
+            });
 
-        worker.on('failed', (job, err) => {
-            console.error(`Job failed: ${job?.id}`, err);
-        });
-
-        return worker;
+        console.log('🚀 Workflow worker initialized');
     }
 
-    async scheduleWorkflow(workflowId: string, projectId: string) {
+    public async closeWorker() {
+        if (this.worker) {
+            await this.worker.close();
+            this.worker = null;
+        }
+    }
+
+    public async scheduleWorkflow(workflowId: string, projectId: string) {
         const workflow = await db.workFlow.findUnique({
             where: { id: workflowId }
         });
@@ -260,5 +298,5 @@ class QueueService {
     }
 }
 
-const queueService = new QueueService();
+const queueService = QueueService.getInstance();
 export default queueService;

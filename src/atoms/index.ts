@@ -3,6 +3,8 @@ import { atom } from 'jotai';
 import type { ProjectsWithCounts } from '@/schema/project';
 import type { ModelConfig } from '@prisma/client';
 
+export const workStateAtom = atomWithStorage<string>('workState', 'wait');
+
 export const navOpenItemsAtom = atomWithStorage<Record<string, boolean>>('nav-open-items', {});
 
 export const projectListAtom = atom<ProjectsWithCounts[]>([]);

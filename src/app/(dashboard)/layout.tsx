@@ -1,3 +1,4 @@
+'use client';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/nav-sidebar/app-sidebar';
 import { Separator } from '@/components/ui/separator';
@@ -10,8 +11,32 @@ import { NavBreadcrumb } from '@/components/nav-sidebar/nav-breadcrumb';
 import { Search } from '@/components/search';
 import { ThemeSwitcher } from '@/components/theme/theme-switcher';
 import { ModelSelect } from '@/components/model-select';
-import '@/lib/queue/worker-init';
+import { useAtom } from 'jotai';
+import { workStateAtom } from '@/atoms';
+import { useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'sonner';
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+    const [workState, setWorkState] = useAtom(workStateAtom);
+    useEffect(() => {
+        const workerState = async () => {
+            if (workState === 'wait') {
+                try {
+                    const res = await axios.get('/api/worker');
+                    if (res.status === 200) {
+                        setWorkState('success');
+                    }
+                } catch (error) {
+                    // toast.error('工作流功能需要正常运行Redis服务，请检查Redis服务是否已启动')
+                    setWorkState('error');
+                    console.error('Failed to fetch worker state:', error);
+                }
+            }
+        };
+        void workerState();
+    }, []);
+
     return (
         <SidebarProvider>
             <AppSidebar />
