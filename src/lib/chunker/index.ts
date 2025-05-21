@@ -55,7 +55,7 @@ export async function chunker(filePath: string, strategy: string, options: Chunk
     };
     const docs = await loader(filePath, strategy);
     if (strategy === 'page') {
-        console.log(docs, docs.length, `loaded`);
+        console.log(docs.length, `loaded`);
         return docs;
     }
     const allContent = docs.map(doc => doc.pageContent).join();
@@ -64,7 +64,7 @@ export async function chunker(filePath: string, strategy: string, options: Chunk
     const chunkerFn = chunkerMap[ext] || defaultChunker;
     // 执行分块
     const chunks = await chunkerFn(allContent, resolvedOptions);
-    console.log(chunks, chunks.length, `${ext.toUpperCase()} chunked`);
+    console.log(chunks.length, `${ext.toUpperCase()} chunked`);
     return chunks;
 }
 

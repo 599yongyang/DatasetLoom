@@ -11,6 +11,7 @@ import { insertChunkMetadata } from '@/lib/db/chunk-metadata';
 import { nanoid } from 'nanoid';
 import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
 import { doubleCheckModelOutput } from '@/lib/utils';
+import { insertChunkGraph } from '@/lib/db/chunk-graph';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -88,6 +89,10 @@ export async function processChunks(chunkRes: Chunks[], language: string, model:
                     language: language
                 };
                 await insertChunkMetadata([metadata]);
+                console.log(llmOutput, 'llmOutput');
+                if (llmOutput.entities && llmOutput.relations) {
+                    await insertChunkGraph(chunk.id, llmOutput.entities, llmOutput.relations);
+                }
                 return metadata;
             } catch (error) {
                 console.error(

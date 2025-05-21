@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { buildURL, fetcherPost } from '@/lib/utils';
+import { buildURL, fetcher, fetcherPost } from '@/lib/utils';
 import type { ChunksVO } from '@/schema/chunks';
 import { useMemo } from 'react';
 
@@ -39,5 +39,18 @@ export function useChunks(params: UseChunksParams) {
         isLoading: !error && !data,
         isError: !!error,
         refresh: () => mutate()
+    };
+}
+
+export function useGetChunkById({ projectId, chunkId }: { projectId: string; chunkId: string }) {
+    if (!chunkId) {
+        return { chunk: null };
+    }
+    const { data, error, isLoading, mutate } = useSWR(`/api/project/${projectId}/chunks/${chunkId}`, fetcher);
+    return {
+        chunk: data,
+        isLoading: !error && !data,
+        isError: !!error,
+        refresh: mutate
     };
 }

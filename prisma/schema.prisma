@@ -79,6 +79,8 @@ model ChunkEntities {
   type             String
   value            String
   normalized_value String
+
+  @@unique([chunkId, type, normalized_value])
 }
 
 model ChunkRelations {
@@ -86,6 +88,9 @@ model ChunkRelations {
   sourceEntityId String
   targetEntityId String
   relationType   String
+
+  @@index([sourceEntityId])
+  @@index([targetEntityId])
 }
 
 model Questions {

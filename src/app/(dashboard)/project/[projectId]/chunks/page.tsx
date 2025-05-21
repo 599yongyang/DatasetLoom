@@ -2,24 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit, Eye, FileQuestion, SquareSplitVertical, Trash2, Wand } from 'lucide-react';
+import { FileQuestion, Trash2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
-import { DataTable } from '@/components/data-table/data-table';
-import { useDocumentsTableColumns } from '@/components/documents/table-columns';
-import { useDocuments } from '@/hooks/query/use-documents';
-import { UploadDialog } from '@/components/documents/upload-dialog';
-import { ChunkList } from '@/components/chunks/chunk-list';
 import { useChunks } from '@/hooks/query/use-chunks';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
-import { ConfirmAlert } from '@/components/confirm-alert';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useGenerateQuestion } from '@/hooks/use-generate-question';
 import axios from 'axios';
 import { toast } from 'sonner';
 import type { ChunksVO } from '@/schema/chunks';

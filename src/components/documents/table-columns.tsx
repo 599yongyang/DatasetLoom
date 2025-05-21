@@ -2,21 +2,20 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, SquareSplitVertical } from 'lucide-react';
+import { Waypoints } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useParams } from 'next/navigation';
-import { useGenerateDataset } from '@/hooks/use-generate-dataset';
+import { useParams, useRouter } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import { type Documents } from '@prisma/client';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 
 export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments: () => void }) {
+    const router = useRouter();
     const { t } = useTranslation('document');
     const { projectId }: { projectId: string } = useParams();
-    const { generateSingleDataset } = useGenerateDataset();
     const deleteDocument = (fileId: string) => {
         toast.promise(
             axios.delete(`/api/project/${projectId}/documents`, {
@@ -91,13 +90,18 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
             cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-2">
-                        {/*<Button variant="ghost" className={"hover:cursor-pointer"}*/}
-                        {/*        size="icon"*/}
-                        {/*        aria-label="View">*/}
-                        {/*    <Eye size={30}/>*/}
-                        {/*</Button>*/}
-
                         <ChunkStrategyDialog fileIds={[row.original.id]} fileExt={row.original.fileExt} />
+                        <Button
+                            variant="ghost"
+                            className={'hover:cursor-pointer'}
+                            size="icon"
+                            onClick={() => {
+                                router.push(`/project/${projectId}/graph?kid=${row.original.id}`);
+                            }}
+                            aria-label="View"
+                        >
+                            <Waypoints size={30} />
+                        </Button>
                         <ConfirmAlert
                             title={t('delete_title')}
                             message={row.original.fileName}

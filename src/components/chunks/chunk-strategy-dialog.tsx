@@ -1,6 +1,5 @@
 import {
     AlertDialog,
-    AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogFooter,
@@ -30,15 +29,21 @@ const items = [
 export function ChunkStrategyDialog({
     children,
     fileIds,
-    fileExt
+    fileExt,
+    open: controlledOpen,
+    onOpenChange
 }: {
     children?: ReactNode;
     fileIds: string[];
     fileExt: string;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }) {
     const { projectId } = useParams();
     const model = useAtomValue(selectedModelInfoAtom);
-    const [open, setOpen] = useState(false);
+    const [localOpen, setLocalOpen] = useState(false);
+    const isOpen = controlledOpen !== undefined ? controlledOpen : localOpen;
+    const setIsOpen = onOpenChange || setLocalOpen;
     const [formData, setFormData] = useState({
         fileIds: fileIds,
         strategy: 'auto',
@@ -58,12 +63,13 @@ export function ChunkStrategyDialog({
             .post(`/api/project/${projectId}/documents/chunker`, {
                 ...formData,
                 model,
+                fileIds,
                 language: i18n.language
             })
             .then(res => {
                 if (res.data.success) {
                     toast.success('分块成功');
-                    setOpen(false);
+                    setIsOpen(false);
                 } else {
                     toast.error('分块失败');
                 }
@@ -74,7 +80,7 @@ export function ChunkStrategyDialog({
     };
 
     return (
-        <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
             <AlertDialogTrigger asChild>
                 {children || (
                     <Button variant="ghost" size="icon" className={'hover:cursor-pointer'}>

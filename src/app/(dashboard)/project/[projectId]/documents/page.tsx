@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SquareSplitVertical, Trash2, Wand } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { SquareSplitVertical, Trash2, Waypoints } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
@@ -41,7 +41,7 @@ const fileType = [
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('document');
-
+    const router = useRouter();
     const [fileName, setFileName] = useState('');
     const [fileExt, setFileExt] = useState('');
     const [pagination, setPagination] = useState({
@@ -62,7 +62,8 @@ export default function Page() {
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
     const columns = useDocumentsTableColumns({ mutateDocuments: refreshFiles });
-
+    const [fileIds, setFileIds] = useState<string[]>([]);
+    const [open, setOpen] = useState(false);
     const handleBatchDeleteDocuments = () => {
         toast.promise(
             axios.delete(`/api/project/${projectId}/documents`, {
@@ -114,8 +115,32 @@ export default function Page() {
                         </SelectContent>
                     </Select>
                     <UploadDialog refreshFiles={refreshFiles} />
+                    <Button
+                        variant="outline"
+                        className={'hover:cursor-pointer'}
+                        onClick={() => router.push(`/project/${projectId}/graph`)}
+                    >
+                        <Waypoints size={30} />
+                        <span className="hidden lg:inline ">查看图谱</span>
+                    </Button>
                 </div>
                 <div className={'flex items-center gap-2'}>
+                    <ChunkStrategyDialog fileIds={fileIds} fileExt={''} open={open} onOpenChange={setOpen}>
+                        <Button
+                            variant="outline"
+                            disabled={Object.keys(rowSelection).length == 0}
+                            className={'hover:cursor-pointer'}
+                            onClick={() => {
+                                setFileIds(Object.keys(rowSelection));
+                                console.log(Object.keys(rowSelection));
+                                setOpen(true);
+                            }}
+                        >
+                            <SquareSplitVertical size={30} />
+                            <span className="hidden lg:inline ">{t('chunk_btn')}</span>
+                        </Button>
+                    </ChunkStrategyDialog>
+
                     <Button
                         variant="outline"
                         disabled={Object.keys(rowSelection).length == 0}
@@ -125,14 +150,6 @@ export default function Page() {
                         <Trash2 size={30} />
                         <span className="hidden lg:inline ">{t('delete_btn')}</span>
                     </Button>
-                    {/*<Button*/}
-                    {/*    variant="outline"*/}
-                    {/*    disabled={Object.keys(rowSelection).length == 0}*/}
-                    {/*    className={'hover:cursor-pointer'}*/}
-                    {/*>*/}
-                    {/*    <SquareSplitVertical size={30}/>*/}
-                    {/*    <span className="hidden lg:inline ">{t('chunk_btn')}</span>*/}
-                    {/*</Button>*/}
                 </div>
             </div>
             <DataTable

@@ -32,7 +32,7 @@ export async function questionTask(params: TaskParams): Promise<TaskResult> {
         const model = await getModelConfigById(step.data.modelConfigId as string);
         const llmClient = new LLMClient({ ...model, ...step.data });
         let questionList: Questions[] = [];
-        for (const chunk of chunks.slice(0, 2)) {
+        for (const chunk of chunks) {
             const prompt = getQuestionPrompt({
                 text: chunk.content,
                 tags: chunk.ChunkMetadata?.tags || '',

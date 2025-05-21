@@ -13,7 +13,10 @@ export async function saveChunks(chunks: Chunks[]) {
 
 export async function getChunkById(chunkId: string) {
     try {
-        return await db.chunks.findUnique({ where: { id: chunkId }, include: { ChunkMetadata: true } });
+        return await db.chunks.findUnique({
+            where: { id: chunkId },
+            include: { ChunkMetadata: true, ChunkEntities: true }
+        });
     } catch (error) {
         console.error('Failed to get chunks by id in database');
         throw error;

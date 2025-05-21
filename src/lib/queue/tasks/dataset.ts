@@ -32,7 +32,7 @@ export async function datasetTask(params: TaskParams): Promise<TaskResult> {
         });
         const questionList = await getQuestionsByIds(projectId, ids);
         const datasetList = [];
-        for (const question of questionList.slice(0, 2)) {
+        for (const question of questionList) {
             // 生成答案的提示词
             const prompt = getAnswerPrompt({
                 text: question.chunk.content,
