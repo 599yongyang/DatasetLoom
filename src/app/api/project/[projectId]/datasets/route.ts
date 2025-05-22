@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 import { createDataset, getDatasetsByPagination } from '@/lib/db/datasets';
-import { getQuestionById } from '@/lib/db/questions';
+import { getQuestionById, updateQuestion } from '@/lib/db/questions';
 import { getChunkById } from '@/lib/db/chunks';
 import { getProject } from '@/lib/db/projects';
 import LLMClient from '@/lib/llm/core';
 import getAnswerPrompt from '@/lib/llm/prompts/answer';
 import getAnswerEnPrompt from '@/lib/llm/prompts/answerEn';
 import { nanoid } from 'nanoid';
-import type { Datasets } from '@prisma/client';
+import type { Datasets, Questions } from '@prisma/client';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -67,7 +67,7 @@ export async function POST(request: Request, props: { params: Params }) {
             question: question.question,
             answer: text,
             model: model.modelName,
-            cot: reasoning,
+            cot: reasoning ?? '',
             questionLabel: question.label || null
         };
 
@@ -78,6 +78,7 @@ export async function POST(request: Request, props: { params: Params }) {
             datasets.questionId = question.id;
         }
         let dataset = await createDataset(datasets as Datasets);
+        await updateQuestion({ id: questionId, answered: true } as Questions);
         console.log(datasets.length, 'Successfully generated dataset', question.question);
         return NextResponse.json({ success: true, dataset });
     } catch (error) {

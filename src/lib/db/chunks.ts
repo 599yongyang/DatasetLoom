@@ -97,7 +97,7 @@ export async function getChunksPagination(
     projectId: string,
     page = 1,
     pageSize = 10,
-    filter?: string,
+    status?: string,
     fileIds?: string[]
 ) {
     try {
@@ -113,11 +113,11 @@ export async function getChunksPagination(
         } = {
             projectId
         };
-        if (filter === 'generated') {
+        if (status === 'generated') {
             whereClause.Questions = {
                 some: {}
             };
-        } else if (filter === 'ungenerated') {
+        } else if (status === 'ungenerated') {
             whereClause.Questions = {
                 none: {}
             };
@@ -218,8 +218,10 @@ export async function mergeChunks(sourceId: string, targetId: string) {
             // 更新目标 chunk 内容
             const updatedTarget = await tx.chunks.update({
                 where: { id: targetId },
-                data: { content: mergedContent }
+                data: { content: mergedContent, size: mergedContent.length }
             });
+
+            await tx.questions.updateMany({ where: { chunkId: sourceId }, data: { chunkId: targetId } });
 
             // 删除 source chunk
             await tx.chunks.delete({ where: { id: sourceId } });

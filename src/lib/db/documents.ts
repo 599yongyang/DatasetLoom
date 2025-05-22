@@ -1,6 +1,4 @@
 'use server';
-import fs from 'fs';
-import path from 'path';
 import { db } from '@/server/db';
 import type { Documents } from '@prisma/client';
 

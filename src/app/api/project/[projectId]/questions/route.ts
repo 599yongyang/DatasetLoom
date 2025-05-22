@@ -25,16 +25,6 @@ export async function GET(request: Request, props: { params: Params }) {
         let answered = undefined;
         if (status === 'answered') answered = true;
         if (status === 'unanswered') answered = false;
-        let selectedAll = searchParams.get('selectedAll');
-        if (selectedAll) {
-            let data = await getQuestionsIds(projectId, answered, searchParams.get('input') ?? '');
-            return NextResponse.json(data);
-        }
-        let all = searchParams.get('all');
-        if (all) {
-            let data = await getAllQuestionsByProjectId(projectId);
-            return NextResponse.json(data);
-        }
         // 获取问题列表
         const questions = await getQuestions(
             projectId,

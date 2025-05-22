@@ -11,6 +11,7 @@
     "table_columns": {
         "question": "Question",
         "chunk": "Chunk",
+        "label": "Tags",
         "createAt": "CreateAt",
         "actions": "Actions"
     },

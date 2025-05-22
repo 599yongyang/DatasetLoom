@@ -12,7 +12,7 @@ export async function POST(request: Request, props: { params: Promise<{ projectI
         if (!projectId) {
             return NextResponse.json({ error: 'Project ID cannot be empty' }, { status: 400 });
         }
-        const { array, filter }: { array: string[]; filter: string } = await request.json();
+        const { array, status }: { array: string[]; status: string } = await request.json();
         if (array && !Array.isArray(array)) {
             return NextResponse.json({ error: 'Invalid array parameter' }, { status: 400 });
         }
@@ -21,7 +21,7 @@ export async function POST(request: Request, props: { params: Promise<{ projectI
             projectId,
             parseInt(searchParams.get('page') ?? '1'),
             parseInt(searchParams.get('size') ?? '10'),
-            filter,
+            status,
             array
         );
 

@@ -12,6 +12,7 @@ declare module 'i18next' {
             question: typeof resources.zh.question;
             dataset: typeof resources.zh.dataset;
             document: typeof resources.zh.document;
+            chunk: typeof resources.zh.chunk;
         };
     }
 }

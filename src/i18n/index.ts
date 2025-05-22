@@ -8,6 +8,7 @@ import project from './locales/en/project.json';
 import question from './locales/en/question.json';
 import dataset from './locales/en/dataset.json';
 import document from './locales/en/document.json';
+import chunk from './locales/en/chunk.json';
 
 import commonZh from './locales/zh-CN/common.json';
 import navigationZh from './locales/zh-CN/navigation.json';
@@ -15,6 +16,7 @@ import projectZh from './locales/zh-CN/project.json';
 import questionZh from './locales/zh-CN/question.json';
 import datasetZh from './locales/zh-CN/dataset.json';
 import documentZh from './locales/zh-CN/document.json';
+import chunkZh from './locales/zh-CN/chunk.json';
 
 const enResources = {
     common,
@@ -22,7 +24,8 @@ const enResources = {
     project,
     question,
     dataset,
-    document
+    document,
+    chunk
 };
 const zhResources = {
     common: commonZh,
@@ -30,7 +33,8 @@ const zhResources = {
     project: projectZh,
     question: questionZh,
     dataset: datasetZh,
-    document: documentZh
+    document: documentZh,
+    chunk: chunkZh
 };
 
 const resources = {
@@ -51,7 +55,7 @@ export const languages = [
     }
 ] as const;
 
-export const ns = ['common', 'navigation', 'project', 'question', 'dataset', 'document'] as const;
+export const ns = ['common', 'navigation', 'project', 'question', 'dataset', 'document', 'chunk'] as const;
 
 i18n.use(LanguageDetector)
     .use(initReactI18next)

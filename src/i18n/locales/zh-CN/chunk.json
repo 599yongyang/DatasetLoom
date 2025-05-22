@@ -1,0 +1,23 @@
+{
+    "search": "搜索文本块名称或内容...",
+    "info": "已选择 {{selected}} 个文本块，共 {{count}} 个文本块",
+    "batch_delete_btn": "删除所选文本块",
+    "gen_btn": "为所选文本块生成问题",
+    "character": "{{count}} 个字符",
+    "question": "{{count}} 个问题",
+    "select_item": {
+        "all": "全部文本块",
+        "generated": "已生成问题",
+        "unGenerated": "未生成问题"
+    },
+    "table_columns": {
+        "name": "文本块名称",
+        "content": "文件类型",
+        "domain": "所属领域",
+        "tag": "标签",
+        "fileName": "所属文件",
+        "createAt": "上传时间",
+        "size": "文件大小",
+        "actions": "操作"
+    }
+}

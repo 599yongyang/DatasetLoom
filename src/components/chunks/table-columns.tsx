@@ -2,23 +2,19 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDownIcon, ChevronUpIcon, Edit, Eye, FileQuestion, SquareSplitVertical, Trash2 } from 'lucide-react';
+import { Eye, FileQuestion, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
-import { useGenerateDataset } from '@/hooks/use-generate-dataset';
-import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/confirm-alert';
-import { type Documents } from '@prisma/client';
-import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { useGenerateQuestion } from '@/hooks/use-generate-question';
 import type { ChunksVO } from '@/schema/chunks';
 import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
 import { ChunkInfoDialog } from '@/components/chunks/chunk-info-dialog';
 
 export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('chunk');
     const { projectId }: { projectId: string } = useParams();
     const { generateSingleQuestion } = useGenerateQuestion();
 
@@ -64,14 +60,23 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             enableHiding: false
         },
         {
-            accessorKey: 'fileName',
-            header: '文本块名称',
-            cell: ({ row }) => <div className="text-foreground w-fit px-0 text-left">{row.original.name}</div>,
+            accessorKey: 'name',
+            header: t('table_columns.name'),
+            cell: ({ row }) => (
+                <div className="text-foreground w-fit px-0 text-left">
+                    {row.original.name}
+                    {row.original.Questions.length > 0 && (
+                        <Badge variant="secondary" className="flex gap-1 px-1.5 bg-green-300  [&_svg]:size-3">
+                            {row.original.Questions.length} 个问题
+                        </Badge>
+                    )}
+                </div>
+            ),
             enableHiding: false
         },
         {
             accessorKey: 'content',
-            header: '文本块内容',
+            header: t('table_columns.content'),
             cell: ({ row }) => (
                 <div className="text-foreground w-100 truncate px-0 text-left">{row.original.content}</div>
             ),
@@ -79,7 +84,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
         },
         {
             accessorKey: 'domain',
-            header: '所属领域',
+            header: t('table_columns.domain'),
             cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground">
                     {row.original.ChunkMetadata?.domain} / {row.original.ChunkMetadata?.subDomain}
@@ -88,7 +93,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
         },
         {
             accessorKey: 'tag',
-            header: '标签',
+            header: t('table_columns.tag'),
             cell: ({ row }) => (
                 <div className={'flex flex-wrap gap-2'}>
                     {row.original.ChunkMetadata?.tags
@@ -103,20 +108,15 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             )
         },
         {
-            accessorKey: 'fileExt',
-            header: '所属文件',
+            accessorKey: 'fileName',
+            header: t('table_columns.fileName'),
             cell: ({ row }) => <div>{row.original.fileName}</div>
         },
         {
             accessorKey: 'size',
-            header: '字符长度',
+            header: t('table_columns.size'),
             cell: ({ row }) => <div>{row.original.size}</div>
         },
-        // {
-        //     accessorKey: 'createAt',
-        //     header: "分块时间",
-        //     cell: ({row}) => <div className="w-32">{new Date(row.original.createAt).toLocaleString('zh-CN')}</div>
-        // },
         {
             id: 'actions',
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,

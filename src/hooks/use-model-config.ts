@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useSetAtom } from 'jotai';
-import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
+import { modelConfigListAtom, selectedModelInfoAtom, selectedProjectAtom } from '@/atoms';
 import { type ModelConfig } from '@prisma/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -9,8 +9,12 @@ import { toast } from 'sonner';
 export const useModelConfig = (projectId: string) => {
     const setModelConfigList = useSetAtom(modelConfigListAtom);
     const setSelectedModelInfo = useSetAtom(selectedModelInfoAtom);
+    const setSelectedProject = useSetAtom(selectedProjectAtom);
+
     const router = useRouter();
     useEffect(() => {
+        if (!projectId) return;
+        setSelectedProject(projectId);
         axios
             .get(`/api/project/${projectId}/model-config`)
             .then(res => {

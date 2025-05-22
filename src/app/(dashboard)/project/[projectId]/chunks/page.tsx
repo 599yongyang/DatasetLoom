@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FileQuestion, Trash2 } from 'lucide-react';
+import { Copy, FileQuestion, Trash2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import type { ChunksVO } from '@/schema/chunks';
 import { useChunksTableColumns } from '@/components/chunks/table-columns';
 import { DraggableMergeDataTable } from '@/components/data-table/draggable-merge-data-table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type SelectedChunk = {
     id: string;
@@ -19,10 +20,11 @@ type SelectedChunk = {
 };
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('chunk');
 
     const [fileName, setFileName] = useState('');
     const [fileExt, setFileExt] = useState('');
+    const [status, setStatus] = useState('all');
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -32,8 +34,13 @@ export default function Page() {
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
         fileIds: [],
-        status: ''
+        status: status
     });
+
+    useEffect(() => {
+        setPagination({ ...pagination, pageIndex: 0 });
+    }, [status, fileName]);
+
     const [selectedChunks, setSelectedChunks] = useState<SelectedChunk[]>([]);
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
@@ -83,6 +90,18 @@ export default function Page() {
                         }}
                         placeholder={t('search')}
                     />
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <Select value={status} onValueChange={setStatus}>
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="状态" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">{t('select_item.all')}</SelectItem>
+                                <SelectItem value="generated">{t('select_item.generated')}</SelectItem>
+                                <SelectItem value="ungenerated">{t('select_item.unGenerated')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
                 <div className={'flex items-center gap-2'}>
                     <Button
@@ -92,7 +111,7 @@ export default function Page() {
                         className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
                     >
                         <Trash2 size={30} />
-                        <span className="hidden lg:inline ">删除所选文本块</span>
+                        <span className="hidden lg:inline ">{t('batch_delete_btn')}</span>
                     </Button>
 
                     <Button
@@ -101,7 +120,7 @@ export default function Page() {
                         disabled={Object.keys(rowSelection).length == 0}
                     >
                         <FileQuestion size={30} />
-                        <span className="hidden lg:inline ">为所选文本块生成问题</span>
+                        <span className="hidden lg:inline ">{t('gen_btn')}</span>
                     </Button>
                 </div>
             </div>

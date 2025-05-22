@@ -1,0 +1,23 @@
+{
+    "search": "Search for chunk name or content...",
+    "info": " {{selected}} chunks selected， {{count}} chunks",
+    "batch_delete_btn": "Delete Selected Data",
+    "gen_btn": "Batch Generation",
+    "character": "{{count}} Character",
+    "question": "{{count}} Questions",
+    "select_item": {
+        "all": "All Chunk",
+        "generated": "Generated",
+        "unGenerated": "unGenerated"
+    },
+    "table_columns": {
+        "name": "Name",
+        "content": "Content",
+        "domain": "Domain",
+        "tag": "Tags",
+        "fileName": "FileName",
+        "createAt": "CreateAt",
+        "size": "Size",
+        "actions": "Actions"
+    }
+}
