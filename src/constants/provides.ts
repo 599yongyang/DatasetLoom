@@ -5,21 +5,6 @@ export const DEFAULT_PROVIDERS = [
         apiUrl: 'http://127.0.0.1:11434/api'
     },
     {
-        id: 'openai',
-        name: 'OpenAI',
-        apiUrl: 'https://api.openai.com/v1/'
-    },
-    {
-        id: 'siliconcloud',
-        name: '硅基流动',
-        apiUrl: 'https://api.ap.siliconflow.com/v1/'
-    },
-    {
-        id: 'deepseek',
-        name: 'DeepSeek',
-        apiUrl: 'https://api.deepseek.com/v1/'
-    },
-    {
         id: 'vllm',
         name: 'VLLM',
         apiUrl: 'http://localhost:8000'
@@ -28,6 +13,36 @@ export const DEFAULT_PROVIDERS = [
         id: 'lmstudio',
         name: 'LmStudio',
         apiUrl: 'http://localhost:1234/v1'
+    },
+    {
+        id: 'openAICompatible',
+        name: 'OpenAI 兼容协议',
+        apiUrl: ''
+    },
+    {
+        id: 'deepseek',
+        name: 'DeepSeek',
+        apiUrl: 'https://api.deepseek.com/v1/'
+    },
+    {
+        id: 'openai',
+        name: 'OpenAI',
+        apiUrl: 'https://api.openai.com/v1/'
+    },
+    {
+        id: 'google',
+        name: 'Google AI',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/'
+    },
+    {
+        id: 'anthropic',
+        name: 'Anthropic',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/'
+    },
+    {
+        id: 'siliconcloud',
+        name: '硅基流动',
+        apiUrl: 'https://api.ap.siliconflow.com/v1/'
     },
     {
         id: 'zhipu',

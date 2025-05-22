@@ -7,10 +7,12 @@ import { DEFAULT_MODEL_SETTINGS } from '@/constants/model';
 import OllamaClient from './providers/ollama'; // 导入 OllamaClient
 import OpenAIClient from './providers/openai'; // 导入 OpenAIClient
 import ZhiPuClient from './providers/zhipu'; // 导入 ZhiPuClient
-import OpenRouterClient from './providers/openrouter';
+import OpenRouterClient from './providers/openrouter'; // 导入 OpenRouterClient
 import { Schema } from 'zod';
 import DeepSeekClient from '@/lib/llm/core/providers/deepseek';
-import OpenAICompatibleClient from '@/lib/llm/core/providers/openai-compatible'; // 导入 OpenRouterClient
+import OpenAICompatibleClient from '@/lib/llm/core/providers/openai-compatible';
+import GoogleClient from '@/lib/llm/core/providers/google';
+import AnthropicClient from '@/lib/llm/core/providers/anthropic';
 
 /* eslint-disable @typescript-eslint/no-explicit-any @typescript-eslint/no-unsafe-assignment */
 
@@ -81,17 +83,24 @@ class LLMClient {
      * @returns 返回对应的客户端实例
      */
     private _createClient(provider: string, config: Required<Config>): any {
-        const clientMap: Record<string, any> = {
-            ollama: OllamaClient,
-            openai: OpenAIClient,
-            siliconflow: OpenAICompatibleClient,
-            deepseek: DeepSeekClient,
-            zhipu: ZhiPuClient,
-            openrouter: OpenRouterClient
-        };
-
-        const ClientClass = clientMap[provider.toLowerCase()] ?? OpenAICompatibleClient;
-        return new ClientClass(config);
+        switch (provider.toLowerCase()) {
+            case 'ollama':
+                return new OllamaClient(config);
+            case 'openai':
+                return new OpenAIClient(config);
+            case 'google':
+                return new GoogleClient(config);
+            case 'anthropic':
+                return new AnthropicClient(config);
+            case 'deepseek':
+                return new DeepSeekClient(config);
+            case 'zhipu':
+                return new ZhiPuClient(config);
+            case 'openrouter':
+                return new OpenRouterClient(config);
+            default:
+                return new OpenAICompatibleClient(config);
+        }
     }
 
     /**

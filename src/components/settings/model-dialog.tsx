@@ -134,6 +134,10 @@ export function ModelDialog({
             toast.warning('请选择模型');
             return;
         }
+        if (!modelData.endpoint) {
+            toast.warning('请输入接口地址');
+            return;
+        }
         axios
             .post(`/api/project/${projectId}/model-config`, modelData)
             .then(response => {
