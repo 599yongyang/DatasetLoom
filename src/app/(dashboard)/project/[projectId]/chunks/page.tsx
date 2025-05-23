@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, FileQuestion, Trash2 } from 'lucide-react';
+import { FileQuestion, Trash2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
@@ -13,23 +13,20 @@ import type { ChunksVO } from '@/schema/chunks';
 import { useChunksTableColumns } from '@/components/chunks/table-columns';
 import { DraggableMergeDataTable } from '@/components/data-table/draggable-merge-data-table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
+import type { SelectedChunk } from '@/hooks/use-generate-question';
 
-type SelectedChunk = {
-    id: string;
-    name: string;
-};
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('chunk');
 
     const [fileName, setFileName] = useState('');
-    const [fileExt, setFileExt] = useState('');
     const [status, setStatus] = useState('all');
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
     });
-    const { chunks, total, isLoading, refresh } = useChunks({
+    const { chunks, total, refresh } = useChunks({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -44,6 +41,7 @@ export default function Page() {
     const [selectedChunks, setSelectedChunks] = useState<SelectedChunk[]>([]);
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
+    const [open, setOpen] = useState(false);
     const columns = useChunksTableColumns({ mutateChunks: refresh });
 
     const handleMergeChunks = async (activeRow: ChunksVO, overRow: ChunksVO) => {
@@ -75,6 +73,23 @@ export default function Page() {
                 }
             }
         );
+    };
+
+    useEffect(() => {
+        if (Object.keys(rowSelection).length > 0) {
+            setSelectedChunks(
+                Object.keys(rowSelection).map(id => {
+                    const chunk = chunks.find(chunk => chunk.id === id);
+                    return {
+                        id: chunk?.id || '',
+                        name: chunk?.name || ''
+                    };
+                })
+            );
+        }
+    }, [rowSelection]);
+    const handelGenerateQuestions = async () => {
+        setOpen(true);
     };
 
     return (
@@ -118,13 +133,13 @@ export default function Page() {
                         variant="outline"
                         className={'hover:cursor-pointer'}
                         disabled={Object.keys(rowSelection).length == 0}
+                        onClick={handelGenerateQuestions}
                     >
                         <FileQuestion size={30} />
                         <span className="hidden lg:inline ">{t('gen_btn')}</span>
                     </Button>
                 </div>
             </div>
-            {/*<ChunkList chunks={chunks} getChunks={refresh} projectId={projectId}/>*/}
             <DraggableMergeDataTable
                 columns={columns}
                 data={chunks}
@@ -135,6 +150,15 @@ export default function Page() {
                 setRowSelection={setRowSelection}
                 onMerge={handleMergeChunks}
             />
+            {open && (
+                <QuestionStrategyDialog
+                    type={'multiple'}
+                    open={open}
+                    setOpen={setOpen}
+                    chunks={selectedChunks}
+                    mutateChunks={refresh}
+                />
+            )}
         </div>
     );
 }

@@ -3,9 +3,12 @@ import type { Datasets, Questions } from '@prisma/client';
 import { getQuestionsByIds } from '@/lib/db/questions';
 import LLMClient from '@/lib/llm/core';
 import { getModelConfigById } from '@/lib/db/model-config';
-import getAnswerPrompt from '@/lib/llm/prompts/answer';
+import { getAnswerPrompt } from '@/lib/llm/prompts/answer';
 import { nanoid } from 'nanoid';
 import { createDataset } from '@/lib/db/datasets';
+import { doubleCheckModelOutput } from '@/lib/utils';
+import { answerSchema } from '@/lib/llm/prompts/schema';
+import { getChunkById } from '@/lib/db/chunks';
 
 export async function datasetTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, projectId } = params;
@@ -33,24 +36,36 @@ export async function datasetTask(params: TaskParams): Promise<TaskResult> {
         const questionList = await getQuestionsByIds(projectId, ids);
         const datasetList = [];
         for (const question of questionList) {
+            // 获取文本块内容
+            const chunk = await getChunkById(question.chunkId);
+            let allTags: string[] = [];
+            if (chunk) {
+                const qTags = question.label?.split(',') ?? [];
+                const cTags = chunk.ChunkMetadata?.tags?.split(',') ?? [];
+                allTags = [...new Set([...qTags, ...cTags])]; // 合并并去重
+            }
+
             // 生成答案的提示词
             const prompt = getAnswerPrompt({
-                text: question.chunk.content,
+                context: question.chunk.content,
                 question: question.question
             });
             // 调用大模型生成答案
             const { text, reasoning } = await llmClient.chat(prompt, 'textAndReasoning');
+            const llmOutput = await doubleCheckModelOutput(text, answerSchema);
             // 创建新的数据集项
             const datasets = {
                 id: nanoid(12),
                 projectId: projectId,
                 question: question.question,
-                answer: text,
+                answer: llmOutput.answer,
                 model: model.modelName,
-                cot: reasoning,
-                questionLabel: question.label || null,
-                chunkName: question.chunk.name,
-                chunkContent: question.chunk.content,
+                cot: reasoning ?? '',
+                referenceLabel: allTags.join(',') || '',
+                evidence: JSON.stringify(llmOutput.evidence),
+                confidence: llmOutput.confidence,
+                chunkName: chunk ? chunk.name : question.chunk.name,
+                chunkContent: chunk ? chunk.content : question.chunk.content,
                 questionId: question.id
             };
 

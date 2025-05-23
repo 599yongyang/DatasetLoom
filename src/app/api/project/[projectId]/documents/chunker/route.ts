@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getProject } from '@/lib/db/projects';
 import { getDocumentByIds } from '@/lib/db/documents';
 import { chunker } from '@/lib/chunker';
 import path from 'path';
@@ -12,6 +11,7 @@ import { nanoid } from 'nanoid';
 import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { insertChunkGraph } from '@/lib/db/chunk-graph';
+import { validateProjectId } from '@/lib/utils/api-validator';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -20,17 +20,10 @@ export async function POST(request: Request, props: { params: Params }) {
     const params = await props.params;
     const { projectId } = params;
 
-    // 验证项目ID
-    if (!projectId) {
-        console.log('The project ID cannot be empty, returning 400 error');
-        return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-    }
+    const validationResult = await validateProjectId(projectId);
 
-    // 获取项目信息
-    const project = await getProject(projectId);
-    if (!project) {
-        console.log('The project does not exist, returning 404 error');
-        return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
+    if (!validationResult.success) {
+        return validationResult.response;
     }
 
     const body = await request.json();
@@ -58,15 +51,22 @@ export async function POST(request: Request, props: { params: Params }) {
 
     //保存chunk
     let chunkRes = await saveChunks(chunkList as Chunks[]);
+    const { globalPrompt, domainTreePrompt } = validationResult.data;
     //将chunk给大模型打标签
     queueMicrotask(() => {
-        processChunks(chunkRes, language, model).catch(console.error);
+        processChunks(chunkRes, model, language, globalPrompt, domainTreePrompt).catch(console.error);
     });
 
     return NextResponse.json({ success: true, count: chunkRes.length });
 }
 
-export async function processChunks(chunkRes: Chunks[], language: string, model: object) {
+export async function processChunks(
+    chunkRes: Chunks[],
+    model: object,
+    language: 'zh' | 'en',
+    globalPrompt?: string,
+    domainTreePrompt?: string
+) {
     const llmClient = new LLMClient(model);
     const batchSize = 5; // 控制并发数量
 
@@ -75,8 +75,7 @@ export async function processChunks(chunkRes: Chunks[], language: string, model:
 
         const promises = batch.map(async chunk => {
             try {
-                const promptFunc = getLabelPrompt;
-                const prompt = promptFunc({ text: chunk.content });
+                const prompt = getLabelPrompt({ text: chunk.content, language, globalPrompt, domainTreePrompt });
                 const response = await llmClient.chat(prompt);
                 const llmOutput = await doubleCheckModelOutput(response, documentAnalysisSchema);
                 const metadata = {

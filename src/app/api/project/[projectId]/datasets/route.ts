@@ -4,10 +4,11 @@ import { getQuestionById, updateQuestion } from '@/lib/db/questions';
 import { getChunkById } from '@/lib/db/chunks';
 import { getProject } from '@/lib/db/projects';
 import LLMClient from '@/lib/llm/core';
-import getAnswerPrompt from '@/lib/llm/prompts/answer';
-import getAnswerEnPrompt from '@/lib/llm/prompts/answerEn';
+import { getAnswerPrompt } from '@/lib/llm/prompts/answer';
 import { nanoid } from 'nanoid';
 import type { Datasets, Questions } from '@prisma/client';
+import { doubleCheckModelOutput } from '@/lib/utils';
+import { answerSchema } from '@/lib/llm/prompts/schema';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -18,7 +19,7 @@ export async function POST(request: Request, props: { params: Params }) {
     try {
         const params = await props.params;
         const { projectId } = params;
-        const { questionId, model, language } = await request.json();
+        const { questionId, model, language, datasetStrategyParams } = await request.json();
         // 验证参数
         if (!projectId || !questionId || !model) {
             return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
@@ -46,40 +47,47 @@ export async function POST(request: Request, props: { params: Params }) {
         // 创建LLM客户端
         const llmClient = new LLMClient(model);
 
-        const promptFuc = language === 'en' ? getAnswerEnPrompt : getAnswerPrompt;
+        const qTags = question.label?.split(',') ?? [];
+        const cTags = chunk.ChunkMetadata?.tags?.split(',') ?? [];
+        const allTags = [...new Set([...qTags, ...cTags])]; // 合并并去重
 
+        const citation = Boolean(Number(datasetStrategyParams.citation));
         // 生成答案的提示词
-        const prompt = promptFuc({
-            text: chunk.content,
+        const prompt = getAnswerPrompt({
+            context: chunk.content,
             question: question.question,
+            detailLevel: datasetStrategyParams.detailLevel,
+            citation,
+            answerStyle: datasetStrategyParams.answerStyle,
+            tags: allTags,
+            language,
             globalPrompt,
             answerPrompt
         });
 
         // 调用大模型生成答案
         const { text, reasoning } = await llmClient.chat(prompt, 'textAndReasoning');
+        const llmOutput = await doubleCheckModelOutput(text, answerSchema);
+        console.log(llmOutput, 'llmOutput');
         const datasetId = nanoid(12);
 
         // 创建新的数据集项
-        const datasets: { [key: string]: any } = {
+        const datasets = {
             id: datasetId,
             projectId: projectId,
             question: question.question,
-            answer: text,
+            answer: llmOutput.answer,
             model: model.modelName,
             cot: reasoning ?? '',
-            questionLabel: question.label || null
+            referenceLabel: allTags.join(',') || '',
+            evidence: citation ? JSON.stringify(llmOutput.evidence) : '',
+            confidence: llmOutput.confidence,
+            chunkName: chunk.name,
+            chunkContent: chunk.content,
+            questionId: question.id
         };
-
-        let chunkData = await getChunkById(question.chunkId);
-        if (chunkData) {
-            datasets.chunkName = chunkData.name;
-            datasets.chunkContent = chunkData.content;
-            datasets.questionId = question.id;
-        }
         let dataset = await createDataset(datasets as Datasets);
         await updateQuestion({ id: questionId, answered: true } as Questions);
-        console.log(datasets.length, 'Successfully generated dataset', question.question);
         return NextResponse.json({ success: true, dataset });
     } catch (error) {
         console.error('Failed to generate dataset:', error);

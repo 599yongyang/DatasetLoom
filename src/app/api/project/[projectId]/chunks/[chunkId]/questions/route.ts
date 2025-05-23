@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/llm/core/index';
 import { getQuestionPrompt } from '@/lib/llm/prompts/question';
-import { getQuestionEnPrompt } from '@/lib/llm/prompts/questionEn';
 import { getQuestionsForChunk, saveQuestions } from '@/lib/db/questions';
-import { getTaskConfig, getProject } from '@/lib/db/projects';
+import { getProject } from '@/lib/db/projects';
 import { getChunkById } from '@/lib/db/chunks';
 import { type Questions } from '@prisma/client';
 import { questionsSchema } from '@/lib/llm/prompts/schema';
@@ -23,36 +22,42 @@ export async function POST(request: Request, props: { params: Params }) {
         }
 
         // 获取请求体
-        const { model, language, number } = await request.json();
+        const { model, language, questionStrategy } = await request.json();
 
         if (!model) {
             return NextResponse.json({ error: 'Model cannot be empty' }, { status: 400 });
         }
 
         // 并行获取文本块内容和项目配置
-        const [chunk, taskConfig, project] = await Promise.all([
-            getChunkById(chunkId),
-            getTaskConfig(projectId),
-            getProject(projectId)
-        ]);
+        const [chunk, project] = await Promise.all([getChunkById(chunkId), getProject(projectId)]);
 
         if (!chunk || !project) {
             return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
         }
 
-        // 获取项目 task-config 信息
+        // 获取项目 提示词配置 信息
         const { globalPrompt, questionPrompt } = project;
+
         // 创建LLM客户端
-        const llmClient = new LLMClient(model);
-        // 根据语言选择相应的提示词函数
-        const promptFunc = language === 'en' ? getQuestionEnPrompt : getQuestionPrompt;
-        const prompt = promptFunc({
+        const llmClient = new LLMClient({
+            ...model,
+            temperature: questionStrategy.temperature,
+            maxTokens: questionStrategy.maxTokens
+        });
+
+        // 获取问题生成提示词
+        const prompt = getQuestionPrompt({
             text: chunk.content,
             tags: chunk.ChunkMetadata?.tags || '',
+            number:
+                questionStrategy.questionCountType === 'custom' ? Number(questionStrategy.questionCount) : undefined,
+            difficulty: questionStrategy.difficulty,
+            audience: questionStrategy.audience,
+            genre: questionStrategy.genre,
+            language: language,
             globalPrompt,
             questionPrompt
         });
-
         const response = await llmClient.chat(prompt);
         console.log('LLM Output:', response);
         const llmOutput = await doubleCheckModelOutput(response, questionsSchema);

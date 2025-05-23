@@ -6,16 +6,36 @@ import { selectedModelInfoAtom } from '@/atoms';
 import { i18n } from '@/i18n';
 import { isEmptyObject } from '@/lib/utils';
 
-type SelectedChunk = {
+export type SelectedChunk = {
     id: string;
     name: string;
 };
+
+export interface QuestionStrategyParams {
+    questionCountType: string;
+    questionCount: number;
+    difficulty: string;
+    genre: string;
+    audience: string;
+    temperature: number;
+    maxTokens: number;
+}
 
 export function useGenerateQuestion() {
     const model = useAtomValue(selectedModelInfoAtom);
 
     const generateSingleQuestion = useCallback(
-        async ({ projectId, chunkId, chunkName }: { projectId: string; chunkId: string; chunkName: string }) => {
+        async ({
+            projectId,
+            chunkId,
+            chunkName,
+            questionStrategy
+        }: {
+            projectId: string;
+            chunkId: string;
+            chunkName: string;
+            questionStrategy: QuestionStrategyParams;
+        }) => {
             if (isEmptyObject(model) || model.id === null) {
                 toast.error('请选择模型');
                 return;
@@ -42,7 +62,8 @@ export function useGenerateQuestion() {
                     `/api/project/${projectId}/chunks/${chunkId}/questions`,
                     {
                         model,
-                        language: i18n.language
+                        language: i18n.language,
+                        questionStrategy
                     },
                     {
                         cancelToken: source.token
@@ -64,7 +85,7 @@ export function useGenerateQuestion() {
     );
 
     const generateMultipleQuestion = useCallback(
-        async (projectId: string, chunks: SelectedChunk[]) => {
+        async (projectId: string, chunks: SelectedChunk[], questionStrategy: QuestionStrategyParams) => {
             let completed = 0;
             const total = chunks.length;
 
@@ -95,7 +116,8 @@ export function useGenerateQuestion() {
                         `/api/project/${projectId}/chunks/${chunk.id}/questions`,
                         {
                             model,
-                            language: i18n.language
+                            language: i18n.language,
+                            questionStrategy
                         },
                         {
                             cancelToken: source.token

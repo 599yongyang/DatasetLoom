@@ -2,7 +2,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, HardDrive, Save, ScrollText, Sparkles, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, HardDrive, Quote, Save, ScrollText, Sparkles, Tag, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Loading } from '@/components/loading';
 import { useTranslation } from 'react-i18next';
 import { useDatasetsId } from '@/hooks/query/use-datasets';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function Page() {
     const router = useRouter();
@@ -96,7 +97,7 @@ export default function Page() {
 
     return (
         <div className="@container/main mx-auto py-3 max-w-6xl">
-            <div className=" flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6">
                 <Button
                     variant="ghost"
                     onClick={() => router.push(`/project/${projectId}/datasets`)}
@@ -132,7 +133,7 @@ export default function Page() {
 
             <Progress value={(confirmedCount / total) * 100} className="mb-6" />
 
-            <Card>
+            <Card className={'overflow-y-auto h-[75vh]'}>
                 <CardHeader>
                     {/*<p className="text-lg p-4">问题</p>*/}
                     <h2 className="text-xl pl-2 font-semibold">{dataset.question}</h2>
@@ -158,20 +159,61 @@ export default function Page() {
                         onChange={e => handleChange('cot', e.target.value)}
                         className="max-h-[400px] whitespace-pre-wrap"
                     />
+
+                    {dataset.evidence ? (
+                        <>
+                            <div className={'flex gap-2 items-center p-4 '}>
+                                <span>引用内容</span>
+                                <Quote className="h-4 w-4" />
+                            </div>
+                            <Table>
+                                <TableHeader className="bg-transparent">
+                                    <TableRow className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
+                                        <TableHead>来源位置</TableHead>
+                                        <TableHead>依据内容</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="[&_td:first-child]:rounded-l-lg [&_td:last-child]:rounded-r-lg">
+                                    {JSON.parse(dataset.evidence).map((item: { location: string; text: string }) => (
+                                        <TableRow
+                                            key={item.location}
+                                            className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r"
+                                        >
+                                            <TableCell>{item.location}</TableCell>
+                                            <TableCell>{item.text}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </>
+                    ) : null}
+
+                    <div className={'flex gap-2 items-center p-4 '}>
+                        <span>参考标签</span>
+                        <Tag className="h-4 w-4" />
+                    </div>
+                    <div className={' flex p-2 gap-3'}>
+                        {dataset.referenceLabel &&
+                            dataset.referenceLabel.split(',').map(tag => (
+                                <Badge className={'text-sm'} variant="outline">
+                                    {tag}
+                                </Badge>
+                            ))}
+                    </div>
+
                     <div className={'flex gap-2 items-center p-4 '}>
                         <span>{t('detail.metadata')}</span>
                         <HardDrive className="h-4 w-4" />
                     </div>
                     <div className={' flex p-2 gap-3'}>
                         <Badge className={'text-sm'} variant="outline">
+                            {t('detail.chunk')}: {dataset.chunkName}
+                        </Badge>
+                        <Badge className={'text-sm'} variant="outline">
                             {t('detail.model')}: {dataset.model}
                         </Badge>
-                        {/*<Badge className={"text-sm"} variant="outline">标签: {dataset.questionLabel}</Badge>*/}
                         <Badge className={'text-sm'} variant="outline">
                             {t('detail.createAt')}: {new Date(dataset.createAt).toLocaleString('zh-CN')}
-                        </Badge>
-                        <Badge className={'text-sm'} variant="outline">
-                            {t('detail.chunk')}: {dataset.chunkName}
                         </Badge>
                     </div>
                 </CardContent>

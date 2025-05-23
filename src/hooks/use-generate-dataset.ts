@@ -7,6 +7,14 @@ import { selectedModelInfoAtom } from '@/atoms';
 import type { Questions } from '@prisma/client';
 import { useTranslation } from 'react-i18next';
 
+export interface DatasetStrategyParams {
+    detailLevel: string;
+    answerStyle: string;
+    citation: string;
+    temperature: number;
+    maxTokens: number;
+}
+
 export function useGenerateDataset() {
     const model = useAtomValue(selectedModelInfoAtom);
     const { t } = useTranslation('question');
@@ -14,11 +22,13 @@ export function useGenerateDataset() {
         async ({
             projectId,
             questionId,
-            questionInfo
+            questionInfo,
+            datasetStrategyParams
         }: {
             projectId: string;
             questionId: string;
             questionInfo: string;
+            datasetStrategyParams: DatasetStrategyParams;
         }) => {
             if (!model) {
                 toast.error('没有找到模型');
@@ -48,7 +58,8 @@ export function useGenerateDataset() {
                     {
                         questionId,
                         model,
-                        language: i18n.language
+                        language: i18n.language,
+                        datasetStrategyParams
                     },
                     {
                         cancelToken: source.token
@@ -70,7 +81,7 @@ export function useGenerateDataset() {
     );
 
     const generateMultipleDataset = useCallback(
-        async (projectId: string, questions: Questions[]) => {
+        async (projectId: string, questions: Questions[], datasetStrategyParams: DatasetStrategyParams) => {
             let completed = 0;
             const total = questions.length;
 
@@ -102,7 +113,8 @@ export function useGenerateDataset() {
                         {
                             questionId: question.id,
                             model,
-                            language: i18n.language
+                            language: i18n.language,
+                            datasetStrategyParams
                         },
                         {
                             cancelToken: source.token

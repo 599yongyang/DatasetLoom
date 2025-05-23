@@ -1,12 +1,15 @@
 import type { LabelPromptOptions } from '@/lib/llm/prompts/type';
+import { languageMap } from '@/constants/prompt';
 
 export default function getLabelPrompt(options: LabelPromptOptions) {
-    const { text, globalPrompt, domainTreePrompt } = options;
+    const { text, language = 'zh', globalPrompt, domainTreePrompt } = options;
 
     const safeGlobalPrompt = globalPrompt ? `- 请始终遵守以下规则：${sanitizeRule(globalPrompt)}` : '';
     const safeDomainTreePrompt = domainTreePrompt
         ? `- 在生成标签时，请参考以下分类体系：${sanitizeRule(domainTreePrompt)}`
         : '';
+
+    const outputLanguage = languageMap[language] || '中文';
 
     const exampleJson = JSON.stringify(
         {
@@ -31,34 +34,21 @@ export default function getLabelPrompt(options: LabelPromptOptions) {
     );
 
     return `
-你是一个专业的文档分析师，负责为一段文本内容自动生成高质量的标签和元数据，用于后续的知识图谱构建与领域分析。
+# 角色使命
+你是一个专业的文档分析师，擅长从复杂文本中提取关键信息，并生成可用于知识图谱构建的结构化元数据。
 
-以下是可供参考的领域分类体系（优先使用子分类）：
+## 输入说明
+- 文本长度：${text.length} 字符
+- 输出语言：${outputLanguage}
 
-- 科技
-  - 软件工程
-  - 网络安全
-  - 人工智能
-  - 数据库
-  - 系统架构
-- 医疗
-- 法律
-- 教育
-- 金融
+## 核心任务
+请根据以下文本内容，生成结构化标签与元数据，要求：
+- 领域（domain）根据内容分析出一个相关一级领域词
+- 子领域（subDomain）根据内容分析出一个相关二级领域词
+- 标签（tags）最多5个，按相关性排序
+- 实体（entities）需命名规范化（如 ai_chip）
+- 关系（relations）需符合逻辑
 
-以下是你的任务要求：
-
-- 不要包含任何额外解释或说明，只输出严格的 JSON。
-- domain 根据内容分析出一个相关一级领域词
-- subDomain 根据内容分析出一个相关二级领域词
-- tags 最多输出 5 个，按相关性排序。
-- summary 控制在 50 字以内。
-- entities.id 使用规范化的小写+下划线命名方式（如 ai_chip）。
-
-### 输入文本：
-\`\`\`
-${text}
-\`\`\`
 
 ### 输出要求：
 \`\`\`
@@ -76,13 +66,41 @@ ${text}
 }
 \`\`\`
 
+
+## 处理流程
+1. 【文本解析】识别核心实体、关键词、概念关系
+2. 【标签生成】基于信息密度选择最佳标签
+3. 【结构化输出】确保符合 JSON Schema 要求
+
+## 分类体系参考
+- 科技
+  - 软件工程
+  - 网络安全
+  - 人工智能
+  - 数据库
+  - 系统架构
+- 医疗
+- 法律
+- 教育
+- 金融
+
+## 其他规则
+${safeGlobalPrompt}
+${safeDomainTreePrompt}
+
+### 待处理文本
+\`\`\`
+${text}
+\`\`\`
+
+## 输出要求
+请以严格的 JSON 格式返回结果，不要输出任何其他内容
+
 ### 示例输出：
 \`\`\`json
 ${exampleJson}
 \`\`\`
 
-${safeGlobalPrompt}
-${safeDomainTreePrompt}
 `;
 }
 

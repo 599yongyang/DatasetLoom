@@ -13,6 +13,7 @@ import type { Questions } from '@prisma/client';
 import { useQuestionTableColumns } from '@/components/questions/table-columns';
 import useQuestions from '@/hooks/query/use-questions';
 import { useGenerateDataset } from '@/hooks/use-generate-dataset';
+import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
 
 export default function Page() {
     let { projectId }: { projectId: string } = useParams();
@@ -40,7 +41,8 @@ export default function Page() {
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
     const columns = useQuestionTableColumns({ mutateQuestions });
-
+    const [open, setOpen] = useState(false);
+    const [questionList, setQuestionList] = useState<Questions[]>([]);
     /**
      * 批量删除问题
      */
@@ -71,8 +73,8 @@ export default function Page() {
             return;
         }
         const questionList = questions.filter((question: Questions) => Object.keys(rowSelection).includes(question.id));
-        await generateMultipleDataset(projectId, questionList);
-        await mutateQuestions();
+        setQuestionList(questionList);
+        setOpen(true);
     };
 
     return (
@@ -140,6 +142,14 @@ export default function Page() {
                 setPagination={setPagination}
                 rowSelection={rowSelection}
                 setRowSelection={setRowSelection}
+            />
+
+            <DatasetStrategyDialog
+                type={'multiple'}
+                open={open}
+                setOpen={setOpen}
+                questions={questionList}
+                mutateQuestions={mutateQuestions}
             />
         </div>
     );

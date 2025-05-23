@@ -27,3 +27,14 @@ const questionSchema = z.object({
 });
 
 export const questionsSchema = z.array(questionSchema);
+
+const evidenceSchema = z.object({
+    text: z.string(),
+    location: z.string()
+});
+
+export const answerSchema = z.object({
+    answer: z.string(),
+    evidence: z.array(evidenceSchema),
+    confidence: z.number().min(0).max(1) // 置信度应在 0~1 之间
+});

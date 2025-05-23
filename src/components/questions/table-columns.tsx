@@ -10,12 +10,12 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
-import { useGenerateDataset } from '@/hooks/use-generate-dataset';
+import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
+import React, { useState } from 'react';
 
 export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: () => void }) {
     const { t } = useTranslation('question');
     const { projectId }: { projectId: string } = useParams();
-    const { generateSingleDataset } = useGenerateDataset();
     const deleteQuestion = (questionId: string) => {
         toast.promise(axios.delete(`/api/project/${projectId}/questions/${questionId}`), {
             loading: '删除中...',
@@ -25,11 +25,6 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             },
             error: e => e.response?.data?.message || '删除失败'
         });
-    };
-
-    const handleGenerateDataset = async (questionId: string, questionInfo: string) => {
-        await generateSingleDataset({ projectId, questionId, questionInfo });
-        mutateQuestions();
     };
 
     const columns: ColumnDef<QuestionsDTO>[] = [
@@ -100,6 +95,7 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             id: 'actions',
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,
             cell: ({ row }) => {
+                const [open, setOpen] = useState(false);
                 return (
                     <div className="flex flex-1 justify-center gap-2">
                         <QuestionDialog item={row.original} getQuestions={mutateQuestions}>
@@ -107,13 +103,20 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
                                 <SquarePen size={30} />
                             </Button>
                         </QuestionDialog>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleGenerateDataset(row.original.id, row.original.question)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
                             <Wand size={30} />
                         </Button>
+
+                        {open && (
+                            <DatasetStrategyDialog
+                                type={'single'}
+                                questions={[row.original]}
+                                open={open}
+                                setOpen={setOpen}
+                                mutateQuestions={mutateQuestions}
+                            />
+                        )}
+
                         <ConfirmAlert
                             title={t('delete_title')}
                             message={row.original.question}

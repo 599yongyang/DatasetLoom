@@ -109,20 +109,22 @@ model Questions {
 }
 
 model Datasets {
-  id            String   @id @default(nanoid())
-  project       Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId     String
-  questionId    String
-  question      String
-  answer        String
-  chunkName     String
-  chunkContent  String
-  model         String
-  questionLabel String
-  cot           String
-  confirmed     Boolean  @default(false)
-  createAt      DateTime @default(now())
-  updateAt      DateTime @updatedAt
+  id             String   @id @default(nanoid())
+  project        Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      String
+  questionId     String
+  question       String
+  answer         String
+  chunkName      String
+  chunkContent   String
+  model          String
+  referenceLabel String
+  evidence       String
+  cot            String
+  confidence     Float
+  confirmed      Boolean  @default(false)
+  createAt       DateTime @default(now())
+  updateAt       DateTime @updatedAt
 
   @@index([projectId])
 }

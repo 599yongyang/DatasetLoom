@@ -18,7 +18,7 @@ import { getMenuConfig } from '@/constants/menus';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { NavDocuments } from '@/components/nav-sidebar/nav-documents';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { selectedProjectAtom } from '@/atoms';
 
 const navSecondary = [
@@ -32,8 +32,11 @@ const navSecondary = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     let { projectId }: { projectId: string } = useParams();
-    if (!projectId) {
-        projectId = useAtomValue(selectedProjectAtom);
+    const [localProjectId, setLocalProjectId] = useAtom(selectedProjectAtom);
+    if (projectId !== 'undefined' && projectId !== undefined) {
+        setLocalProjectId(projectId);
+    } else {
+        projectId = localProjectId;
     }
 
     const menuItems = getMenuConfig(projectId);

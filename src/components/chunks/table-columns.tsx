@@ -8,20 +8,16 @@ import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
 import { ConfirmAlert } from '@/components/confirm-alert';
-import { useGenerateQuestion } from '@/hooks/use-generate-question';
 import type { ChunksVO } from '@/schema/chunks';
 import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
 import { ChunkInfoDialog } from '@/components/chunks/chunk-info-dialog';
+import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
+import React, { useState } from 'react';
 
 export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
     const { t } = useTranslation('chunk');
     const { projectId }: { projectId: string } = useParams();
-    const { generateSingleQuestion } = useGenerateQuestion();
 
-    const handleGenerateQuestion = async (chunkId: string, chunkName: string) => {
-        await generateSingleQuestion({ projectId, chunkId, chunkName });
-        mutateChunks();
-    };
     const handleDeleteChunk = async (chunkId: string) => {
         try {
             const response = await axios.delete(`/api/project/${projectId}/chunks/${chunkId}`);
@@ -121,6 +117,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             id: 'actions',
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,
             cell: ({ row }) => {
+                const [open, setOpen] = useState(false);
                 return (
                     <div className="flex flex-1 justify-center gap-2">
                         <ChunkContentDialog title={row.original.name} chunkContent={row.original.content}>
@@ -128,13 +125,20 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                                 <Eye />
                             </Button>
                         </ChunkContentDialog>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleGenerateQuestion(row.original.id, row.original.name)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
                             <FileQuestion />
                         </Button>
+
+                        {open && (
+                            <QuestionStrategyDialog
+                                type={'single'}
+                                open={open}
+                                setOpen={setOpen}
+                                chunks={[{ id: row.original.id, name: row.original.name }]}
+                                mutateChunks={mutateChunks}
+                            />
+                        )}
+
                         <ChunkInfoDialog item={row.original} refresh={mutateChunks} />
 
                         <ConfirmAlert

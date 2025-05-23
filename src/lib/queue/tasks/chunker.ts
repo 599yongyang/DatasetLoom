@@ -62,7 +62,7 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
             });
 
             if (model) {
-                await processChunks(chunkRes, 'zh', model).catch(console.error);
+                await processChunks(chunkRes, model, 'zh').catch(console.error);
             } else {
                 throw new Error('Model not found');
             }

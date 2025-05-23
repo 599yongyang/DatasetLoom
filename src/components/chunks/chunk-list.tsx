@@ -51,10 +51,6 @@ export function ChunkList({
         }
     };
 
-    const handleGenerateQuestion = async (chunkId: string, chunkName: string) => {
-        await generateSingleQuestion({ projectId, chunkId, chunkName });
-        getChunks();
-    };
     return (
         <div className="space-y-4">
             {chunks.map(chunk => (
@@ -114,11 +110,7 @@ export function ChunkList({
                                 <Eye />
                             </Button>
                         </ChunkContentDialog>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleGenerateQuestion(chunk.id, chunk.name)}
-                        >
+                        <Button variant="ghost" size="icon">
                             <FileQuestion />
                         </Button>
                         <Button variant="ghost" size="icon">

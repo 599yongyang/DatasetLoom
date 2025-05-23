@@ -1,52 +1,69 @@
 import type { QuestionPromptOptions } from '@/lib/llm/prompts/type';
+import { difficultyMap, languageMap, styleMap } from '@/constants/prompt';
 
 /**
- * 生成用于问题提取的系统 Prompt 模板
- * @param options 配置选项
+ * 生成用于问题生成的系统 Prompt 模板
  */
 export function getQuestionPrompt(options: QuestionPromptOptions): string {
-    let { globalPrompt, questionPrompt } = options;
-    const { text, tags, number = Math.floor(text.length / 240) } = options;
+    const {
+        text,
+        tags,
+        number = calculateOptimalQuestionCount(text),
+        difficulty = 'medium',
+        audience = 'general',
+        genre = 'neutral',
+        language = 'zh',
+        globalPrompt,
+        questionPrompt
+    } = options;
 
+    const currentStyle = styleMap[genre] || genre;
     // 清洗用户输入规则
-    if (globalPrompt) {
-        globalPrompt = `- 在后续的任务中，你务必遵循这样的规则：${globalPrompt}`;
-    }
-    if (questionPrompt) {
-        questionPrompt = `- 在生成问题时，你务必遵循这样的规则：${questionPrompt}`;
-    }
+    const sanitizedGlobalPrompt = globalPrompt ? `\n## 全局规则\n${globalPrompt}` : '';
+    const sanitizedQuestionPrompt = questionPrompt ? `\n## 问题生成专项规则\n${questionPrompt}` : '';
 
+    const outputLanguage = languageMap[language] || '中文';
     return `
 # 角色使命
-你是一位专业的文档分析师和知识工程专家，擅长从复杂文本中提取关键信息，并生成可用于问答系统、知识图谱构建或训练数据生成的结构化问题与标签。
+你是一位资深的知识工程专家和内容重构专家，擅长从复杂文本中提取关键信息，并根据指定风格和受众生成多样化的问题。你的输出语言必须为 ${outputLanguage}。${sanitizedGlobalPrompt}
 
 ## 输入说明
-- 文本内容长度：${text.length} 字符
-- 当前 chunk 的原始标签：${tags || '无'}
+- 文本长度: ${text.length} 字符
+- 原始标签: [${tags || '无'}]
+- 预期问题数: ${number}
+- 难度级别: ${difficulty} (${difficultyMap[difficulty]?.depth})
+- 问题类型比例: ${difficultyMap[difficulty]?.ratio} (事实:推理:开放)
+- 风格要求: ${currentStyle}
+- 受众类型: ${audience}
 
 ## 核心任务
-请根据以下文本内容，生成不少于 ${number} 个具有实际意义的问题，并为每个问题打上最相关的标签。
+1. 对输入文本进行风格-受众适配的重构（保持信息完整）
+2. 在重构文本基础上生成不少于 ${number} 个高质量问题
+${sanitizedQuestionPrompt}
 
-## 约束条件（重要！）
-- 问题必须基于文本内容直接生成
-- 每个问题必须绑定一组与之强相关的标签
-- 标签必须与原始标签有语义关联（不得随意编造）
-- 不得出现“作者、章节、表格、文献”等无关问题
-- 问题应覆盖文本的不同方面
-- 禁止生成重复或高度相似的问题
-- 输出必须严格符合指定 JSON Schema
+## 问题生成原则
+- 【信息密度优先】选择概念密集段落生成问题
+- 【认知层级分布】按指定比例生成:
+   - 事实性问题 (Who/What/When/Where)
+   - 推理性问题 (Why/How)
+   - 开放性/应用性问题
+- 【上下文感知】长文本中保持逻辑连贯
 
-## 处理流程
-1. 【文本解析】识别核心实体、关键词、概念关系
-2. 【问题生成】基于信息密度选择最佳提问点
-3. 【标签匹配】为每个问题推荐最相关的标签
-4. 【质量检查】确保问题与答案都在原文中能找到依据
+## 标签系统规则
+- 必须继承原始标签
+- 可添加最多2个新标签（需符合领域术语）
+- 推荐采用"领域-子领域-特性"三级标签体系
 
-## 输出要求
-请以严格的 JSON 数组格式返回结果，数组中每个对象包含两个字段：
-- "question": 问题描述
-- "label": 与该问题相关的标签数组（最多3个）
+### 过滤机制
+1. 排除以下问题类型:
+   - 文本中无明确答案的
+   - 涉及元信息(如"本章节")
+   - 答案过于明显或琐碎的
+2. 语义去重:
+   - 使用嵌入向量确保问题相似度<0.7
+   - 相同概念不同问法视为有效
 
+## 输出规范
 \`\`\`json
 [
   {
@@ -65,14 +82,20 @@ export function getQuestionPrompt(options: QuestionPromptOptions): string {
 ${text}
 \`\`\`
 
-## 限制
-- 必须按照规定的 JSON 格式输出，不要输出任何其他不相关内容
-- 生成不少于 ${number} 个高质量问题
-- 问题不得涉及“文章、报告、图表”等内容
-- 每个问题至少绑定 1 个、最多 3 个相关标签
-- 标签必须与原始标签有语义关联
-
-${globalPrompt}
-${questionPrompt}
+## 最终指令
+请严格按以下步骤执行：
+1. 分析文本内容，识别关键信息点
+2. 按照指定风格和受众重构文本
+3. 生成候选问题池（约 ${number * 2} 个）
+4. 进行质量过滤和语义去重
+5. 输出最优 ${number} 个问题
+6. 确保 100% 符合 JSON Schema
 `;
+}
+
+// 计算最佳问题数量
+function calculateOptimalQuestionCount(text: string): number {
+    const baseCount = Math.floor(text.length / 240);
+    const conceptDensity = (text.match(/\b[A-Z][a-z]+[A-Z][a-z]+\b/g) || []).length;
+    return Math.min(20, Math.max(3, baseCount + Math.floor(conceptDensity / 2)));
 }

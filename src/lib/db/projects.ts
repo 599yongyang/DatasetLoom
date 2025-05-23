@@ -110,15 +110,3 @@ export async function deleteProject(projectId: string) {
         return false;
     }
 }
-
-// 获取任务配置
-export async function getTaskConfig(projectId: string) {
-    // const projectRoot = await getProjectRoot();
-    // const projectPath = path.join(projectRoot, projectId);
-    // const taskConfigPath = path.join(projectPath, 'task-config.json');
-    // const taskData = await readJsonFile(taskConfigPath);
-    // if (!taskData) {
-    //     return DEFAULT_SETTINGS;
-    // }
-    // return taskData;
-}
