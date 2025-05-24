@@ -12,6 +12,7 @@ import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { insertChunkGraph } from '@/lib/db/chunk-graph';
 import { validateProjectId } from '@/lib/utils/api-validator';
+import type { Language } from '@/lib/llm/prompts/type';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -63,7 +64,7 @@ export async function POST(request: Request, props: { params: Params }) {
 export async function processChunks(
     chunkRes: Chunks[],
     model: object,
-    language: 'zh' | 'en',
+    language: Language,
     globalPrompt?: string,
     domainTreePrompt?: string
 ) {

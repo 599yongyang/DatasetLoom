@@ -1,3 +1,5 @@
+export type Language = 'zh' | 'en';
+
 export interface QuestionPromptOptions {
     text: string;
     tags: string;
@@ -5,18 +7,22 @@ export interface QuestionPromptOptions {
     difficulty?: string | 'easy' | 'medium' | 'hard';
     audience?: string;
     genre?: string;
-    language?: 'zh' | 'en';
+    language?: Language;
     globalPrompt?: string;
     questionPrompt?: string;
 }
 
+export type DetailLevel = 'concise' | 'normal' | 'detailed';
+
+export type AnswerStyle = 'direct' | 'reasoning' | 'stepwise' | 'explanatory';
+
 export interface AnswerPromptOptions {
     context: string; // 文本块内容
     question: string; // 待回答的问题
-    language?: 'zh' | 'en'; // 输出语言
-    detailLevel?: 'concise' | 'normal' | 'detailed'; // 详细程度
+    language?: Language; // 输出语言
+    detailLevel?: DetailLevel; // 详细程度
     citation?: boolean; // 是否需要引用原文
-    answerStyle?: 'direct' | 'reasoning' | 'stepwise' | 'explanatory'; // 答案风格
+    answerStyle?: AnswerStyle; // 答案风格
     tags?: string[]; // 标签体系辅助理解
     globalPrompt?: string;
     answerPrompt?: string;
@@ -24,7 +30,7 @@ export interface AnswerPromptOptions {
 
 export interface LabelPromptOptions {
     text: string;
-    language?: 'zh' | 'en';
+    language?: Language;
     globalPrompt?: string;
     domainTreePrompt?: string;
 }

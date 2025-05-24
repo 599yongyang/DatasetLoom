@@ -21,18 +21,17 @@ import {
     chunkWorkFlowAtom,
     datasetWorkFlowAtom,
     defaultChunkConfig,
-    defaultDatasetConfig,
-    defaultQuestionsConfig,
     documentWorkFlowAtom,
     questionsWorkFlowAtom
 } from '@/atoms/workflow';
-import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { initialEdges, initialNodes } from '@/constants/workflow';
 import { useWorkflowById } from '@/hooks/query/use-workflow';
 import { type WorkFlow } from '@prisma/client';
 import SaveDialog from '@/components/workflow/save-dialog';
 import { selectedModelInfoAtom } from '@/atoms';
+import { defaultQuestionsStrategyConfig } from '@/types/question';
+import { defaultDatasetStrategyConfig } from '@/types/dataset';
 
 // 节点类型注册
 const nodeTypes: NodeTypes = {
@@ -135,13 +134,13 @@ export default function Workflow() {
         setDocument({ data: [] });
         setChunkConfig(defaultChunkConfig);
         if (selectedModelInfo) {
-            defaultQuestionsConfig.modelConfigId = selectedModelInfo.id;
-            defaultQuestionsConfig.modelName = selectedModelInfo.modelName;
-            defaultDatasetConfig.modelName = selectedModelInfo.modelName;
-            defaultDatasetConfig.modelConfigId = selectedModelInfo.id;
+            defaultQuestionsStrategyConfig.modelConfigId = selectedModelInfo.id;
+            defaultQuestionsStrategyConfig.modelName = selectedModelInfo.modelName;
+            defaultDatasetStrategyConfig.modelName = selectedModelInfo.modelName;
+            defaultDatasetStrategyConfig.modelConfigId = selectedModelInfo.id;
         }
-        setQuestionConfig(defaultQuestionsConfig);
-        setDatasetConfig(defaultDatasetConfig);
+        setQuestionConfig(defaultQuestionsStrategyConfig);
+        setDatasetConfig(defaultDatasetStrategyConfig);
     };
 
     return (

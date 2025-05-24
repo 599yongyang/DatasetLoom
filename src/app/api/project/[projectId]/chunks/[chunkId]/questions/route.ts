@@ -7,6 +7,9 @@ import { getChunkById } from '@/lib/db/chunks';
 import { type Questions } from '@prisma/client';
 import { questionsSchema } from '@/lib/llm/prompts/schema';
 import { doubleCheckModelOutput } from '@/lib/utils';
+import type { QuestionStrategyParams } from '@/types/question';
+import { getModelConfigById } from '@/lib/db/model-config';
+import type { Language } from '@/lib/llm/prompts/type';
 
 type Params = Promise<{ projectId: string; chunkId: string }>;
 
@@ -22,14 +25,18 @@ export async function POST(request: Request, props: { params: Params }) {
         }
 
         // 获取请求体
-        const { model, language, questionStrategy } = await request.json();
+        const questionStrategy: QuestionStrategyParams = await request.json();
 
-        if (!model) {
+        if (!questionStrategy.modelConfigId) {
             return NextResponse.json({ error: 'Model cannot be empty' }, { status: 400 });
         }
 
         // 并行获取文本块内容和项目配置
-        const [chunk, project] = await Promise.all([getChunkById(chunkId), getProject(projectId)]);
+        const [chunk, project, model] = await Promise.all([
+            getChunkById(chunkId),
+            getProject(projectId),
+            getModelConfigById(questionStrategy.modelConfigId)
+        ]);
 
         if (!chunk || !project) {
             return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
@@ -54,7 +61,7 @@ export async function POST(request: Request, props: { params: Params }) {
             difficulty: questionStrategy.difficulty,
             audience: questionStrategy.audience,
             genre: questionStrategy.genre,
-            language: language,
+            language: questionStrategy.language as Language,
             globalPrompt,
             questionPrompt
         });

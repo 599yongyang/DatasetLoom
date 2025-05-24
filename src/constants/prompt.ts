@@ -21,7 +21,7 @@ export const languageMap: Record<string, string> = {
 };
 
 // 答案风格映射
-export const answerStyleMap = {
+export const answerStyleMap: Record<string, string> = {
     direct: '直接给出问题的核心答案',
     reasoning: '提供完整的推理过程和依据',
     stepwise: '以分步形式逐步解答',
@@ -29,7 +29,7 @@ export const answerStyleMap = {
 };
 
 // 答案详细程度描述
-export const detailRuleMap = {
+export const detailRuleMap: Record<string, string> = {
     concise: '1-2句话，只包含核心答案',
     normal: '3-5句话，包含主要证据与结论',
     detailed: '完整段落，包含背景、证据、推理与结论'

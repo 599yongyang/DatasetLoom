@@ -9,6 +9,9 @@ import { nanoid } from 'nanoid';
 import type { Datasets, Questions } from '@prisma/client';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { answerSchema } from '@/lib/llm/prompts/schema';
+import type { DatasetStrategyParams } from '@/types/dataset';
+import { getModelConfigById } from '@/lib/db/model-config';
+import type { AnswerStyle, DetailLevel, Language } from '@/lib/llm/prompts/type';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -19,9 +22,15 @@ export async function POST(request: Request, props: { params: Params }) {
     try {
         const params = await props.params;
         const { projectId } = params;
-        const { questionId, model, language, datasetStrategyParams } = await request.json();
+        const {
+            questionId,
+            datasetStrategyParams
+        }: {
+            questionId: string;
+            datasetStrategyParams: DatasetStrategyParams;
+        } = await request.json();
         // 验证参数
-        if (!projectId || !questionId || !model) {
+        if (!projectId || !questionId || !datasetStrategyParams.modelConfigId) {
             return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
         }
 
@@ -37,6 +46,12 @@ export async function POST(request: Request, props: { params: Params }) {
             return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
         }
 
+        // 获取文本块内容
+        const model = await getModelConfigById(datasetStrategyParams.modelConfigId);
+        if (!model) {
+            return NextResponse.json({ error: 'Model Config not found' }, { status: 404 });
+        }
+
         // 获取项目配置
         const project = await getProject(projectId);
         if (!project) {
@@ -45,22 +60,26 @@ export async function POST(request: Request, props: { params: Params }) {
         const { globalPrompt, answerPrompt } = project;
 
         // 创建LLM客户端
-        const llmClient = new LLMClient(model);
+        const llmClient = new LLMClient({
+            ...model,
+            temperature: datasetStrategyParams.temperature,
+            maxTokens: datasetStrategyParams.maxTokens
+        });
 
         const qTags = question.label?.split(',') ?? [];
         const cTags = chunk.ChunkMetadata?.tags?.split(',') ?? [];
         const allTags = [...new Set([...qTags, ...cTags])]; // 合并并去重
 
-        const citation = Boolean(Number(datasetStrategyParams.citation));
+        const citation = datasetStrategyParams.citation;
         // 生成答案的提示词
         const prompt = getAnswerPrompt({
             context: chunk.content,
             question: question.question,
-            detailLevel: datasetStrategyParams.detailLevel,
+            detailLevel: datasetStrategyParams.detailLevel as DetailLevel,
             citation,
-            answerStyle: datasetStrategyParams.answerStyle,
+            answerStyle: datasetStrategyParams.answerStyle as AnswerStyle,
             tags: allTags,
-            language,
+            language: datasetStrategyParams.language as Language,
             globalPrompt,
             answerPrompt
         });

@@ -43,15 +43,15 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
         } else if (value && type === 'workflow-question') {
             let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === value);
             if (modelConfig) {
-                const { modelName, id: modelConfigId } = modelConfig;
-                setQuestionsWorkFlow(prev => ({ ...prev, modelName, modelConfigId }));
+                const { modelName, id: modelConfigId, temperature, maxTokens } = modelConfig;
+                setQuestionsWorkFlow(prev => ({ ...prev, modelName, modelConfigId, temperature, maxTokens }));
                 setModelName(modelName);
             }
         } else if (value && type === 'workflow-dataset') {
             let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === value);
             if (modelConfig) {
-                const { modelName, id: modelConfigId } = modelConfig;
-                setDatasetWorkFlow(prev => ({ ...prev, modelName, modelConfigId }));
+                const { modelName, id: modelConfigId, temperature, maxTokens } = modelConfig;
+                setDatasetWorkFlow(prev => ({ ...prev, modelName, modelConfigId, temperature, maxTokens }));
                 setModelName(modelName);
             }
         }
@@ -67,7 +67,7 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={open} className="w-[350px] justify-between">
+                <Button variant="outline" role="combobox" aria-expanded={open} className=" w-full justify-between">
                     {value ? (
                         <div className="flex items-center gap-2">
                             <ProviderIcon
