@@ -13,7 +13,7 @@
 [//]: # '![GitHub Stars](https://img.shields.io/github/stars/599yongyang/DatasetLoom?style=social )'
 [//]: # '![Last Commit](https://img.shields.io/github/last-commit/599yongyang/DatasetLoom )'
 
-> 一个面向大语言模型（LLM）训练数据集生成的可视化工具。
+> 一个面向大语言模型（LLM）的智能数据集构建工具。
 
 DatasetLoom 是一个基于 [Easy Dataset](https://github.com/ConardLi/easy-dataset) 的全面重构项目，采用现代前端技术栈（TypeScript、Next.js
 15、shadcn/ui）重新实现，并进行了大量功能优化与架构升级。
@@ -30,33 +30,25 @@ DatasetLoom 致力于帮助开发者和研究人员快速构建高质量的结�
 
 ## 📸 截图（示例）
 
-| 主页界面                                 | 项目列表                                             |
-| ---------------------------------------- | ---------------------------------------------------- |
-| ![主页截图](/public/screenshot/home.png) | ![项目列表截图](/public/screenshot/project-list.png) |
-
-| 文档列表                                              | 文档chunker                                        |
-| ----------------------------------------------------- | -------------------------------------------------- |
-| ![文献列表截图](/public/screenshot/document-list.png) | ![文档chunker截图](/public/screenshot/chunker.png) |
-
-| 分块列表                                           | 分块合并                                            |
-| -------------------------------------------------- | --------------------------------------------------- |
-| ![分块列表截图](/public/screenshot/chunk-list.png) | ![分块合并截图](/public/screenshot/chunk-merge.png) |
-
-| 问题列表                                              | 数据集列表                                           |
-| ----------------------------------------------------- | ---------------------------------------------------- |
-| ![问题列表截图](/public/screenshot/question-list.png) | ![分块合并截图](/public/screenshot/dataset-list.png) |
-
-| 数据集详情                                             | 数据集导出                                               |
-| ------------------------------------------------------ | -------------------------------------------------------- |
-| ![数据集详情截图](/public/screenshot/dataset-info.png) | ![数据集导出截图](/public/screenshot/dataset-export.png) |
-
-| 工作流配置                                         | 工作流节点配置                                                |
-| -------------------------------------------------- | ------------------------------------------------------------- |
-| ![工作流配置截图](/public/screenshot/workflow.png) | ![工作流节点配置截图](/public/screenshot/workflow-config.png) |
-
-| 提示词配置                                               | 模型配置                                             |
-| -------------------------------------------------------- | ---------------------------------------------------- |
-| ![提示词配置截图](/public/screenshot/project-prompt.png) | ![模型列表截图](/public/screenshot/model-config.png) |
+| 主页                                                          | 项目列表                                                   |
+| ------------------------------------------------------------- | ---------------------------------------------------------- |
+| ![主页截图](/public/screenshot/home.png)                      | ![项目列表截图](/public/screenshot/project-list.png)       |
+| 知识库                                                        | Chunker策略                                                |
+| ![知识库截图](/public/screenshot/document-list.png)           | ![chunker策略截图](public/screenshot/document-chunker.png) |
+| 分块列表                                                      | 分块合并                                                   |
+| ![分块列表截图](public/screenshot/chunk-list.png)             | ![分块合并截图](public/screenshot/chunk-merge.png)         |
+| 生成问题策略                                                  | 问题列表                                                   |
+| ![生成问题策略截图](/public/screenshot/question-strategy.png) | ![问题列表截图](/public/screenshot/question-list.png)      |
+| 生成数据集策略                                                | 数据集列表                                                 |
+| ![生成数据集策略截图](public/screenshot/dataset-strategy.png) | ![数据集列表截图](public/screenshot/dataset-list.png)      |
+| 数据集详情                                                    | 数据集导出                                                 |
+| ![数据集详情截图](public/screenshot/dataset-info.png)         | ![数据集导出截图](public/screenshot/dataset-export.png)    |
+| 项目详情                                                      | 模型配置                                                   |
+| ![项目详情截图](public/screenshot/project-info.png)           | ![模型配置截图](public/screenshot/model-config.png)        |
+| 项目提示词                                                    | 工作流列表                                                 |
+| ![项目提示词截图](public/screenshot/project-prompt.png)       | ![工作流列表截图](public/screenshot/workflow-list.png)     |
+| 工作流详情                                                    | 工作流执行                                                 |
+| ![工作流详情截图](public/screenshot/workflow-info.png)        | ![工作流执行截图](public/screenshot/workflow-log.png)      |
 
 ---
 

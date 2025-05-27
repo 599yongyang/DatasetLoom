@@ -279,7 +279,7 @@ export default function Page() {
                 setOpen={setOpenModel}
                 provider={selectedProvider}
                 model={model}
-                refresh={refreshModelConfig}
+                refresh={getProvidersList}
             />
             <ProviderDialog open={openProvider} setOpen={setOpenProvider} refresh={getProvidersList} />
         </div>
