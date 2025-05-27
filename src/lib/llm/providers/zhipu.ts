@@ -1,6 +1,7 @@
 import { createZhipu, type ZhipuProvider } from 'zhipu-ai-provider';
-import BaseClient, { type Config } from './base';
 import type { LanguageModel } from 'ai';
+import { BaseClient } from './base';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 /**
  * 智谱AI 客户端类
@@ -13,13 +14,13 @@ class ZhiPuClient extends BaseClient {
      * 构造函数
      * @param config - 配置信息
      */
-    constructor(config: Config) {
+    constructor(config: ModelConfigWithProvider) {
         super(config);
 
         // 初始化智谱AI实例
         this.zhipu = createZhipu({
-            baseURL: config.endpoint ?? 'https://api.zhipu.ai', // 默认智谱AI API 地址
-            apiKey: config.apiKey ?? '' // 确保 apiKey 必须提供
+            baseURL: config.provider.apiUrl ?? 'https://api.zhipu.ai', // 默认智谱AI API 地址
+            apiKey: config.provider.apiKey ?? '' // 确保 apiKey 必须提供
         });
     }
 
@@ -28,7 +29,7 @@ class ZhiPuClient extends BaseClient {
      * 返回指定模型的语言模型实例
      */
     protected _getModel(): LanguageModel {
-        return this.zhipu(this.modelId);
+        return this.zhipu(this.config.modelId);
     }
 }
 

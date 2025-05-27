@@ -51,7 +51,7 @@ export async function datasetTask(params: TaskParams): Promise<TaskResult> {
                 question: question.question
             });
             // 调用大模型生成答案
-            const { text, reasoning } = await llmClient.chat(prompt, 'textAndReasoning');
+            const { text, reasoning } = await llmClient.chat(prompt);
             const llmOutput = await doubleCheckModelOutput(text, answerSchema);
             // 创建新的数据集项
             const datasets = {

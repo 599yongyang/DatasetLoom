@@ -151,7 +151,7 @@ export function NavMain({ items }: { items: IMenu[] }) {
                     ))}
                 </SidebarMenu>
             </SidebarGroup>
-            <ProjectDialog open={open} onOpenChange={setOpen} />
+            <ProjectDialog open={open} setOpen={setOpen} />
         </>
     );
 }

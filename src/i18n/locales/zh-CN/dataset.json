@@ -10,7 +10,7 @@
     "table_columns": {
         "question": "问题",
         "model": "使用模型",
-        "createAt": "创建时间",
+        "createdAt": "创建时间",
         "cot": "思维链",
         "answer": "回答",
         "actions": "操作"
@@ -24,7 +24,7 @@
         "cot": "思维链",
         "metadata": "元数据",
         "model": "使用模型",
-        "createAt": "创建时间",
+        "createdAt": "创建时间",
         "chunk": "文本块"
     }
 }

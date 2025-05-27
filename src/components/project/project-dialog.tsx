@@ -1,24 +1,22 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import type { DialogProps } from '@radix-ui/react-dialog';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { projectListAtom } from '@/atoms';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { useAtom } from 'jotai/index';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import * as React from 'react';
+import { useGetProjects } from '@/hooks/query/use-project';
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -28,10 +26,10 @@ const formSchema = z.object({
     copyId: z.string()
 });
 
-export function ProjectDialog({ ...props }: DialogProps) {
+export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
     const router = useRouter();
     const { t } = useTranslation('project');
-    const [projectList, setProjectList] = useAtom(projectListAtom);
+    const { projects: projectList, refresh } = useGetProjects();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -40,16 +38,16 @@ export function ProjectDialog({ ...props }: DialogProps) {
             copyId: ''
         }
     });
-    const [open, setOpen] = useState(false);
+    const [selectOpen, setSelectOpen] = useState(false);
     const [filter, setFilter] = React.useState('');
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         toast.promise(axios.post('/api/project', values), {
             loading: '创建项目中',
             success: data => {
-                setProjectList(data.data.data);
                 router.push(`/project/${data.data.id}/settings/model-config`);
-                props.onOpenChange?.(false);
+                setOpen(false);
+                refresh(data.data.data);
                 return '创建成功';
             },
             error: error => {
@@ -59,7 +57,7 @@ export function ProjectDialog({ ...props }: DialogProps) {
     }
 
     return (
-        <Dialog {...props}>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{t('project_dialog.title')}</DialogTitle>
@@ -100,12 +98,12 @@ export function ProjectDialog({ ...props }: DialogProps) {
                                     <FormItem>
                                         <FormLabel>{t('project_dialog.reuse')}</FormLabel>
                                         <FormControl>
-                                            <Popover open={open} onOpenChange={setOpen}>
+                                            <Popover open={selectOpen} onOpenChange={setSelectOpen}>
                                                 <PopoverTrigger asChild>
                                                     <Button
                                                         variant="outline"
                                                         role="combobox"
-                                                        aria-expanded={open}
+                                                        aria-expanded={selectOpen}
                                                         className="w-full justify-between"
                                                         size={'sm'}
                                                     >
@@ -144,7 +142,7 @@ export function ProjectDialog({ ...props }: DialogProps) {
                                                                                 } else {
                                                                                     field.onChange(project.id);
                                                                                 }
-                                                                                setOpen(false);
+                                                                                setSelectOpen(false);
                                                                             }}
                                                                         >
                                                                             {project.name}

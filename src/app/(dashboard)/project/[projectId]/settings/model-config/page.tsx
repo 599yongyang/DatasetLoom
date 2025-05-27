@@ -1,178 +1,287 @@
 'use client';
-import { useParams } from 'next/navigation';
-import { ProviderIcon } from '@lobehub/icons';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, Check, Edit, Languages, Plus, ScanEye, Trash2 } from 'lucide-react';
+
 import { useEffect, useState } from 'react';
+import { Search, Plus, Key, Globe, Edit, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Label } from '@/components/ui/label';
+import * as React from 'react';
 import axios from 'axios';
-import type { ModelConfig } from '@prisma/client';
-import { ModelDialog } from '@/components/settings/model-dialog';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import type { LlmProviders, ModelConfig } from '@prisma/client';
+import { ModelIcon, ModelTag, ProviderIcon } from '@lobehub/icons';
+import { useParams } from 'next/navigation';
+import { DEFAULT_PROVIDERS } from '@/constants/provides';
 import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai';
-import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
+import PasswordInput from '@/components/ui/password-input';
+import { ModelDialog } from '@/components/settings/model-dialog';
+import { useGetModelConfig, useModelConfigSelect } from '@/hooks/query/use-llm';
+import { nanoid } from 'nanoid';
+import { ConfirmAlert } from '@/components/confirm-alert';
+import { ProviderDialog } from '@/components/settings/provider-dialog';
 
 export default function Page() {
-    let { projectId } = useParams();
-    const { t } = useTranslation('project');
-    const [models, setModels] = useState<ModelConfig[]>([]);
-    const [open, setOpen] = useState(false);
-    const [modelConfigList, setModelConfigList] = useAtom(modelConfigListAtom);
-    const [selectedModelInfo, setSelectedModelInfo] = useAtom(selectedModelInfoAtom);
-    const getModels = async () => {
-        const res = await axios.get(`/api/project/${projectId}/model-config`);
-        setModels(res.data.data);
-        const list = res.data.data.filter((item: ModelConfig) => {
-            const isOllama = item.providerName.toLowerCase() === 'ollama';
-            const hasRequiredFields = item.modelName && item.endpoint;
+    const { projectId }: { projectId: string } = useParams();
 
-            if (!hasRequiredFields) return false;
+    const [selectedProvider, setSelectedProvider] = useState<LlmProviders>({} as LlmProviders);
+    const [providerList, setProviderList] = useState<LlmProviders[]>([]);
+    const [isChange, setIsChange] = useState(false);
+    const [openModel, setOpenModel] = useState<boolean>(false);
+    const [openProvider, setOpenProvider] = useState(false);
+    const [model, setModel] = useState<ModelConfig>({} as ModelConfig);
 
-            if (!isOllama) {
-                return Boolean(item.apiKey);
-            }
-            return true;
+    const { data: modelConfig, refresh: refreshModelConfig } = useGetModelConfig(projectId, selectedProvider.id);
+    const { refresh } = useModelConfigSelect(projectId);
+    const getProvidersList = () => {
+        axios.get(`/api/project/${projectId}/providers`).then(response => {
+            const allProviders = [...DEFAULT_PROVIDERS, ...response.data];
+            const uniqueProvidersMap = new Map();
+            allProviders.forEach(provider => {
+                uniqueProvidersMap.set(provider.name, provider);
+            });
+
+            const uniqueProviders = Array.from(uniqueProvidersMap.values()).sort((a, b) => {
+                if (!a.updatedAt) return 1;
+                if (!b.updatedAt) return -1;
+                return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+            });
+
+            setProviderList(uniqueProviders);
+            setSelectedProvider(uniqueProviders[0]);
         });
-        setModelConfigList(list);
     };
-    const [currentModel, setCurrentModel] = useState<ModelConfig>({} as ModelConfig);
-    const showEdit = (model: ModelConfig) => {
-        setCurrentModel(model);
-        setOpen(true);
-    };
-
     const deleteModel = (modeId: string) => {
         axios
             .delete(`/api/project/${projectId}/model-config/${modeId}`)
             .then(response => {
-                const data = modelConfigList.filter(item => item.id !== modeId);
-                setModelConfigList(data);
-                if (data.length > 0) {
-                    setSelectedModelInfo(data[0] as ModelConfig);
-                } else {
-                    setSelectedModelInfo({} as ModelConfig);
-                }
-
                 toast.success('删除成功');
-                getModels();
+                void refreshModelConfig();
+                void refresh();
             })
             .catch(error => {
                 toast.error('删除失败');
             });
     };
-
+    const handelChangeProvider = (provider: LlmProviders) => {
+        setSelectedProvider(provider);
+        setIsChange(false);
+    };
     useEffect(() => {
-        getModels();
+        getProvidersList();
     }, []);
 
+    const handleChange = (field: string, value: string) => {
+        setSelectedProvider(prev => ({ ...prev, [field]: value }));
+        setIsChange(true);
+    };
+
+    const handleSave = async () => {
+        const isDefaultProvider = DEFAULT_PROVIDERS.find(provider => provider.id === selectedProvider.id);
+        if (isDefaultProvider) {
+            selectedProvider.id = nanoid();
+        }
+        axios
+            .post(`/api/project/${projectId}/providers`, { provider: selectedProvider })
+            .then(res => {
+                toast.success('保存成功');
+                getProvidersList();
+                setIsChange(false);
+            })
+            .catch(error => {
+                toast.error('保存失败');
+            });
+    };
+
+    const handleModelStatusChange = (status: boolean, modelId: string) => {
+        axios
+            .put(`/api/project/${projectId}/model-config/${modelId}`, { status })
+            .then(res => {
+                toast.success('切换成功');
+                void refreshModelConfig();
+                void refresh();
+            })
+            .catch(error => {
+                toast.error('切换失败');
+                console.log(error);
+            });
+    };
+
     return (
-        <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="container mx-auto py-2 px-3 max-w-6xl">
-                <div className="flex justify-between items-center mb-8">
-                    <h1>{t('model_config.title')}</h1>
-                    <Button onClick={() => setOpen(true)}>
-                        <Plus className="h-4 w-4 mr-1" />
-                        {t('model_config.add_btn')}
-                    </Button>
+        <div className="@container/main flex  gap-2">
+            <div className="w-66  border-r  ">
+                <div className="p-4">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input placeholder="搜索服务商..." className="pl-10 pr-10" />
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                            onClick={() => setOpenProvider(true)}
+                        >
+                            <Plus className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
 
-                <div className="space-y-4">
-                    {models.map(model => (
-                        <div
-                            key={model.id}
-                            className="overflow-hidden shadow-sm p-3 rounded-lg hover:shadow-md transition-all duration-300 group"
-                        >
-                            <div className="p-0">
-                                <div className="flex items-center justify-between p-2">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-lg flex items-center justify-center">
-                                            <ProviderIcon
-                                                key={model.providerId}
-                                                provider={model.providerId}
-                                                size={40}
-                                                type={'color'}
-                                            />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                                                {model.modelName}
-                                            </h3>
-                                            <p className="text-muted-foreground text-sm">{model.providerName}</p>
-                                        </div>
+                <ScrollArea className="h-[calc(88vh-80px)]">
+                    <div className="px-2">
+                        {providerList.map(provider => (
+                            <div
+                                key={provider.id}
+                                className={`flex items-center justify-between p-2.5 mx-2 mb-1 rounded-lg cursor-pointer transition-colors ${
+                                    selectedProvider.id === provider.id
+                                        ? 'bg-gray-300  border-blue-200 dark:bg-gray-500'
+                                        : 'hover:bg-gray-50 dark:hover:bg-gray-500'
+                                }`}
+                                onClick={() => handelChangeProvider(provider)}
+                            >
+                                <div className="flex items-center space-x-3">
+                                    <ProviderIcon key={provider.icon} provider={provider.icon} size={22} />
+                                    <span className="text-sm font-medium text-gray-700">{provider.name}</span>
+                                </div>
+                                {/*<Switch/>*/}
+                            </div>
+                        ))}
+                    </div>
+                </ScrollArea>
+            </div>
+
+            <ScrollArea className="h-[88vh] flex-1">
+                <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                            <ProviderIcon key={selectedProvider.icon} provider={selectedProvider.icon} size={30} />
+                            <h1 className="text-2xl font-bold text-gray-900">{selectedProvider.name}</h1>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                            {/*<Switch/>*/}
+                            {isChange && (
+                                <Button size={'sm'} onClick={handleSave}>
+                                    保存
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                    <Separator />
+                    <div className="pt-4 pb-6 space-y-4 relative z-10">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2 mb-1.5">
+                                <Key className="h-4 w-4 text-muted-foreground" />
+                                <Label htmlFor="apiKey" className="font-medium text-base">
+                                    API Key
+                                </Label>
+                            </div>
+                            <div style={{ position: 'relative' }}>
+                                <PasswordInput
+                                    value={selectedProvider?.apiKey ?? ''}
+                                    onChange={value => handleChange('apiKey', value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2 mb-1.5">
+                                <Globe className="h-4 w-4 text-muted-foreground" />
+                                <Label className="font-medium text-base">API 地址</Label>
+                            </div>
+                            <div className="relative">
+                                <Input
+                                    value={selectedProvider.apiUrl ?? ''}
+                                    onChange={e => handleChange('apiUrl', e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6 mt-3">
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-lg flex-1 flex justify-items-center items-center">
+                                        <div>模型列表</div>
+                                        {/*<div className="relative ml-2">*/}
+                                        {/*    <Search*/}
+                                        {/*        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"/>*/}
+                                        {/*    <Input placeholder="搜索模型" className="pl-10 w-48 h-8"/>*/}
+                                        {/*</div>*/}
+                                    </CardTitle>
+
+                                    <div className="flex items-center space-x-2">
+                                        <Button
+                                            size="sm"
+                                            onClick={() => {
+                                                setOpenModel(true);
+                                                setModel({} as ModelConfig);
+                                            }}
+                                        >
+                                            添加模型
+                                        </Button>
                                     </div>
-
-                                    <div className="flex items-center gap-3">
-                                        {(model.apiKey && model.endpoint) ||
-                                        (model.providerId === 'ollama' && model.endpoint && model.modelName) ? (
-                                            <Badge
-                                                variant="outline"
-                                                className="gap-1 px-3 py-1 bg-green-50 text-green-600 border-green-200 font-normal"
-                                            >
-                                                <Check className="h-3.5 w-3.5" />
-                                                {model.endpoint}
-                                            </Badge>
-                                        ) : (
-                                            <Badge
-                                                variant="outline"
-                                                className="gap-1 px-3 py-1 bg-amber-50 text-amber-600 border-amber-200 font-normal"
-                                            >
-                                                <AlertCircle className="h-3.5 w-3.5" />
-                                                {model.endpoint}
-                                                {(() => {
-                                                    const fields = [];
-                                                    if (!model.modelName) fields.push(t('model'));
-                                                    if (!model.apiKey && model.providerId !== 'ollama')
-                                                        fields.push(t('api_key'));
-                                                    if (fields.length === 0) return null;
-                                                    return <span>未配置 {fields.join('、')}</span>;
-                                                })()}
-                                            </Badge>
-                                        )}
-
-                                        {model.type === 'text' ? (
-                                            <Button variant="outline" className="font-normal">
-                                                <Languages />
-                                                {t('model_config.lan_model')}
-                                            </Button>
-                                        ) : (
-                                            <Button variant="outline" className="font-normal">
-                                                <ScanEye />
-                                                {t('model_config.vision_model')}
-                                            </Button>
-                                        )}
-                                        <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => showEdit(model)}
-                                                className="h-9 w-9 rounded-full text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                                            >
-                                                <Edit className="h-4 w-4" />
-                                            </Button>
-
-                                            <ConfirmAlert
-                                                title={'确定要删除此模型配置吗？'}
-                                                onConfirm={() => deleteModel(model.id)}
-                                            >
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-2">
+                                    {modelConfig?.map(model => (
+                                        <div
+                                            key={model.id}
+                                            className="flex items-center justify-between p-2.5 border rounded-lg"
+                                        >
+                                            <div className="flex items-center space-x-3">
+                                                <ModelIcon model={model.modelId} type={'color'} size={22} />
+                                                <div>
+                                                    <h4 className="font-medium text-gray-900">{model.modelName}</h4>
+                                                    <p className="text-sm text-gray-500">{model.modelId}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center space-x-3">
+                                                <Switch
+                                                    checked={model.status}
+                                                    onCheckedChange={checked =>
+                                                        handleModelStatusChange(checked, model.id)
+                                                    }
+                                                />
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-9 w-9 rounded-full text-destructive hover:bg-red-50"
+                                                    onClick={() => {
+                                                        setOpenModel(true);
+                                                        setModel(model);
+                                                    }}
                                                 >
-                                                    <Trash2 className="h-4 w-4" />
+                                                    <Edit />
                                                 </Button>
-                                            </ConfirmAlert>
+                                                <ConfirmAlert
+                                                    title={'确定要删除此模型配置吗？'}
+                                                    onConfirm={() => deleteModel(model.id)}
+                                                >
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className={`text-red-500 hover:cursor-pointer hover:text-red-500`}
+                                                    >
+                                                        <Trash2 />
+                                                    </Button>
+                                                </ConfirmAlert>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ))}
                                 </div>
-                            </div>
-                        </div>
-                    ))}
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
-            </div>
-            <ModelDialog open={open} getModels={getModels} setOpen={setOpen} model={currentModel} />
+            </ScrollArea>
+            <ModelDialog
+                open={openModel}
+                setOpen={setOpenModel}
+                provider={selectedProvider}
+                model={model}
+                refresh={refreshModelConfig}
+            />
+            <ProviderDialog open={openProvider} setOpen={setOpenProvider} refresh={getProvidersList} />
         </div>
     );
 }

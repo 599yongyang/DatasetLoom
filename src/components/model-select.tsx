@@ -7,14 +7,14 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { ProviderIcon } from '@lobehub/icons';
+import { ModelIcon } from '@lobehub/icons';
 import axios from 'axios';
-import { type ModelConfig } from '@prisma/client';
 import { datasetWorkFlowAtom, questionsWorkFlowAtom } from '@/atoms/workflow';
+import { useModelConfigSelect } from '@/hooks/query/use-llm';
 
 export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'workflow-dataset' }) {
     let { projectId } = useParams();
@@ -27,19 +27,22 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
     const [value, setValue] = useState('');
     const [search, setSearch] = useState('');
     const [modelName, setModelName] = useState('');
-    const updateDefaultModel = async (id: string) => {
-        if (!projectId) return;
-        const res = await axios.put(`/api/project/${projectId}`, { defaultModelConfigId: id });
-        if (res.status === 200) {
-            let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === id);
-            setSelectedModelInfo(modelConfig as ModelConfig);
-            console.log('更新成功');
-        }
+    const { refresh } = useModelConfigSelect(projectId as string);
+    const handleModelDefaultChange = (modelId: string) => {
+        axios
+            .patch(`/api/project/${projectId}/model-config/${modelId}`)
+            .then(res => {
+                console.log('设置默认模型成功');
+                void refresh();
+            })
+            .catch(error => {
+                console.log(error, '设置默认模型失败');
+            });
     };
 
     useEffect(() => {
         if (value && type === 'head') {
-            void updateDefaultModel(value);
+            void handleModelDefaultChange(value);
         } else if (value && type === 'workflow-question') {
             let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === value);
             if (modelConfig) {
@@ -68,14 +71,14 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" aria-expanded={open} className=" w-full justify-between">
-                    {value ? (
+                    {modelConfigList.find(modelConfig => modelConfig.id === value) ? (
                         <div className="flex items-center gap-2">
-                            <ProviderIcon
-                                provider={modelConfigList.find(modelConfig => modelConfig.id === value)?.providerId}
+                            <ModelIcon
+                                model={modelConfigList.find(modelConfig => modelConfig.id === value)?.modelId}
                                 size={20}
                                 type="color"
                             />
-                            {modelName}
+                            {modelConfigList.find(modelConfig => modelConfig.id === value)?.modelName}
                         </div>
                     ) : (
                         '选择模型'
@@ -102,7 +105,7 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
                                 .filter(modelConfig =>
                                     modelConfig.modelName.toLowerCase().includes(search.toLowerCase())
                                 )
-                                .map(modelConfig => (
+                                .map((modelConfig: any) => (
                                     <CommandItem
                                         key={modelConfig.id}
                                         value={modelConfig.id} // 这里保持使用id作为value
@@ -113,12 +116,8 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
                                     >
                                         <div className="flex items-center justify-between w-full">
                                             <div className="flex items-center gap-2">
-                                                <ProviderIcon
-                                                    provider={modelConfig.providerId}
-                                                    size={20}
-                                                    type="color"
-                                                />
-                                                {modelConfig.modelName}
+                                                <ModelIcon model={modelConfig.modelId} size={20} type="color" />
+                                                {modelConfig.modelName} | {modelConfig.provider.name}
                                             </div>
                                             <Check
                                                 className={cn(

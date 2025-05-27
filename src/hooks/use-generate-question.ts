@@ -65,9 +65,8 @@ export function useGenerateQuestion() {
         questionStrategy.language = i18n.language;
 
         const url = `/api/project/${projectId}/chunks/${chunkId}/questions`;
-        const data = { questionStrategy };
 
-        return baseGenerateQuestion(url, data, source, chunkName);
+        return baseGenerateQuestion(url, questionStrategy, source, chunkName);
     };
 
     const generateMultipleQuestion = async (

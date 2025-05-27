@@ -2,38 +2,20 @@
 import { ProjectCards } from '@/components/project/project-cards';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as React from 'react';
 import { SiteHeader } from '@/components/site-header';
-import type { ProjectsWithCounts } from '@/schema/project';
-import { useSetAtom } from 'jotai';
-import { projectListAtom } from '@/atoms';
 import { ProjectDialog } from '@/components/project/project-dialog';
 import { useTranslation } from 'react-i18next';
 import { AuroraBackground } from '@/components/ui/aurora-background';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { useGetProjects } from '@/hooks/query/use-project';
 
 export default function Page() {
-    const [projects, setProjects] = useState<ProjectsWithCounts[]>([]);
-    const [filteredProjects, setFilteredProjects] = useState<ProjectsWithCounts[]>([]);
-    const setProjectList = useSetAtom(projectListAtom);
+    const { t } = useTranslation('project');
+    const { projects, refresh } = useGetProjects();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
-    const { t } = useTranslation('project');
-    const getProjects = async () => {
-        const res = await axios.get<ProjectsWithCounts[]>(`/api/project`);
-        setProjects(res.data);
-        setFilteredProjects(res.data);
-        setProjectList(res.data);
-    };
-    useEffect(() => {
-        getProjects();
-    }, []);
-    useEffect(() => {
-        const filteredProjects = projects.filter(project => project.name.toLowerCase().includes(name.toLowerCase()));
-        setFilteredProjects(filteredProjects);
-    }, [name]);
 
     return (
         <div>
@@ -53,7 +35,12 @@ export default function Page() {
                         </Button>
                     </div>
                     <div className="@container/main flex flex-1 flex-col gap-2">
-                        <ProjectCards projects={filteredProjects} getProjects={getProjects} />
+                        <ProjectCards
+                            projects={projects.filter(project =>
+                                project.name.toLowerCase().includes(name.toLowerCase())
+                            )}
+                            getProjects={refresh}
+                        />
                     </div>
                 </>
             ) : (
@@ -73,7 +60,7 @@ export default function Page() {
                                 Dataset Loom
                             </div>
                             <div className="font-extralight text-base md:text-4xl dark:text-neutral-200 py-4">
-                                一款高效的大型语言模型数据构建工具
+                                面向大模型的智能数据集构建工具
                             </div>
                             <Button type="submit" className={'cursor-pointer'} onClick={() => setOpen(true)}>
                                 {t('create_first_btn')}
@@ -82,8 +69,7 @@ export default function Page() {
                     </AuroraBackground>
                 </div>
             )}
-
-            <ProjectDialog open={open} onOpenChange={setOpen} />
+            {open && <ProjectDialog open={open} setOpen={setOpen} />}
         </div>
     );
 }

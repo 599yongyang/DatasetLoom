@@ -50,7 +50,7 @@ export default function Page() {
         const res = await axios.delete(`/api/project/${projectId}/datasets/${id}`);
         if (res.status === 200) {
             toast.success('删除成功');
-            mutateDatasets();
+            void mutateDatasets();
         } else {
             toast.error('删除失败，请重试');
         }
@@ -109,9 +109,9 @@ export default function Page() {
             enableHiding: false
         },
         {
-            accessorKey: 'createAt',
-            header: t('table_columns.createAt'),
-            cell: ({ row }) => <div className="w-32">{new Date(row.original.createAt).toLocaleString('zh-CN')}</div>
+            accessorKey: 'createdAt',
+            header: t('table_columns.createdAt'),
+            cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
         },
         {
             accessorKey: 'model',

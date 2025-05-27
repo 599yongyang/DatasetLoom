@@ -10,6 +10,7 @@ import { doubleCheckModelOutput } from '@/lib/utils';
 import type { QuestionStrategyParams } from '@/types/question';
 import { getModelConfigById } from '@/lib/db/model-config';
 import type { Language } from '@/lib/llm/prompts/type';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 type Params = Promise<{ projectId: string; chunkId: string }>;
 
@@ -26,7 +27,7 @@ export async function POST(request: Request, props: { params: Params }) {
 
         // 获取请求体
         const questionStrategy: QuestionStrategyParams = await request.json();
-
+        console.log('questionStrategy:', questionStrategy, questionStrategy.modelConfigId);
         if (!questionStrategy.modelConfigId) {
             return NextResponse.json({ error: 'Model cannot be empty' }, { status: 400 });
         }
@@ -50,7 +51,7 @@ export async function POST(request: Request, props: { params: Params }) {
             ...model,
             temperature: questionStrategy.temperature,
             maxTokens: questionStrategy.maxTokens
-        });
+        } as ModelConfigWithProvider);
 
         // 获取问题生成提示词
         const prompt = getQuestionPrompt({
@@ -65,9 +66,9 @@ export async function POST(request: Request, props: { params: Params }) {
             globalPrompt,
             questionPrompt
         });
-        const response = await llmClient.chat(prompt);
-        console.log('LLM Output:', response);
-        const llmOutput = await doubleCheckModelOutput(response, questionsSchema);
+        const { text } = await llmClient.chat(prompt);
+        console.log('LLM Output:', text);
+        const llmOutput = await doubleCheckModelOutput(text, questionsSchema);
         console.log('LLM Output after double check:', llmOutput);
         const questions = llmOutput.map(question => {
             return {

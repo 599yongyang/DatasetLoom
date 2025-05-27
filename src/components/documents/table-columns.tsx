@@ -80,9 +80,9 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
             )
         },
         {
-            accessorKey: 'createAt',
-            header: t('table_columns.createAt'),
-            cell: ({ row }) => <div className="w-32">{new Date(row.original.createAt).toLocaleString('zh-CN')}</div>
+            accessorKey: 'createdAt',
+            header: t('table_columns.createdAt'),
+            cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
         },
         {
             id: 'actions',

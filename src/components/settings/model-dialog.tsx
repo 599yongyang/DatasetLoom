@@ -1,82 +1,49 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { RefreshCw, Key, Globe, Tag, Thermometer, Hash, ChevronsUpDown, Check, ChevronDownIcon } from 'lucide-react';
+import { RefreshCw, Thermometer, Hash, ChevronsUpDown, Check } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import axios, { AxiosError } from 'axios';
-import { useParams, useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useParams } from 'next/navigation';
 import { Slider } from '@/components/ui/slider';
-import { SelectIcon } from '@radix-ui/react-select';
 import type { LlmModels, LlmProviders, ModelConfig } from '@prisma/client';
-import { ProviderIcon } from '@lobehub/icons';
+import { ModelIcon } from '@lobehub/icons';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { useAtom } from 'jotai/index';
-import { selectedModelInfoAtom } from '@/atoms';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
+import { DEFAULT_MODEL_SETTINGS } from '@/constants/model';
+import { useModelConfigSelect } from '@/hooks/query/use-llm';
 
 export function ModelDialog({
     open,
-    getModels,
     setOpen,
-    model
+    provider,
+    model,
+    refresh
 }: {
     open: boolean;
-    getModels: () => void;
     setOpen: (open: boolean) => void;
+    provider: LlmProviders;
     model?: ModelConfig;
+    refresh: () => void;
 }) {
-    const { projectId } = useParams();
+    const { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('project');
-    const [providerList, setProviderList] = useState<LlmProviders[]>([]);
     const [modelList, setModelList] = useState<LlmModels[]>([]);
     const [modelData, setModelData] = useState<ModelConfig>({} as ModelConfig);
-    const [selectedModelInfo, setSelectedModelInfo] = useAtom(selectedModelInfoAtom);
     const [value, setValue] = useState('');
     const [search, setSearch] = useState('');
     const [modelOpen, setModelOpen] = useState(false);
-    // 使用 useEffect 监听 model 的变化
-    useEffect(() => {
-        if (model?.id) {
-            setModelData({ ...model });
-            getProviderModels(model.providerId);
-        } else {
-            setModelData({
-                providerId: 'ollama',
-                providerName: 'Ollama',
-                endpoint: 'http://127.0.0.1:11434/api',
-                apiKey: '',
-                modelId: '',
-                modelName: '',
-                type: 'text',
-                temperature: 0.7,
-                maxTokens: 8192,
-                topK: 0,
-                topP: 0,
-                status: 1
-            } as ModelConfig);
-            getProviderModels('ollama');
-        }
-    }, [model]);
-
     const [selectedProvider, setSelectedProvider] = useState<LlmProviders>({} as LlmProviders);
-
-    // 获取提供商列表
-    const getProvidersList = () => {
-        axios.get('/api/llm/providers').then(response => {
-            console.log('获取的模型列表:', response.data);
-            setProviderList(response.data);
-        });
-    };
-
-    const getProviderModels = (providerId: string) => {
+    const { refresh: refreshModelSelect } = useModelConfigSelect(projectId);
+    const getProviderModels = () => {
         axios
-            .get(`/api/llm/model?providerId=${providerId}`)
+            .get(`/api/llm/model?providerName=${provider.name}`)
             .then(response => {
                 setModelList(response.data);
             })
@@ -88,14 +55,19 @@ export function ModelDialog({
     // 获取远程模型列表
     async function getNewModels() {
         try {
-            const response = await axios.post('/api/llm/remote-models', modelData);
+            const response = await axios.post('/api/llm/remote-models', {
+                providerName: provider.name,
+                interfaceType: provider.interfaceType,
+                apiUrl: provider.apiUrl,
+                apiKey: provider.apiKey
+            });
             console.log('获取的模型列表:', response.data);
             return response.data;
         } catch (error: any) {
-            const message = error.response?.data?.message || '获取模型失败，请检查配置';
+            const message = error.response?.data?.message || '刷新失败，请检查Api地址与密钥配置是否正确';
             toast.error(message);
             console.error('获取模型失败:', error);
-            return [];
+            return -1;
         }
     }
 
@@ -103,9 +75,8 @@ export function ModelDialog({
     const refreshProviderModels = async () => {
         try {
             const data = await getNewModels();
-
-            if (!data || data.length === 0) {
-                toast.info('没有新的模型需要刷新');
+            console.log('同步的模型列表:', data);
+            if (typeof data === 'number') {
                 return;
             }
 
@@ -116,11 +87,8 @@ export function ModelDialog({
                 newModels: data,
                 providerId: selectedProvider.id
             });
-
             if (syncResponse.status === 200) {
-                toast.success('同步模型成功');
-            } else {
-                toast.warning('模型同步未返回成功状态码');
+                console.log('同步模型成功');
             }
         } catch (error: any) {
             const message = error.message || '同步模型失败';
@@ -134,16 +102,16 @@ export function ModelDialog({
             toast.warning('请选择模型');
             return;
         }
-        if (!modelData.endpoint) {
-            toast.warning('请输入接口地址');
-            return;
-        }
         axios
-            .post(`/api/project/${projectId}/model-config`, modelData)
+            .post(`/api/project/${projectId}/model-config`, {
+                ...modelData,
+                providerId: provider.id,
+                projectId
+            })
             .then(response => {
-                setSelectedModelInfo(response.data);
+                refresh();
+                void refreshModelSelect();
                 toast.success('保存成功');
-                getModels();
                 setOpen(false);
             })
             .catch(error => {
@@ -153,28 +121,26 @@ export function ModelDialog({
     };
 
     useEffect(() => {
-        getProvidersList();
-    }, []);
+        if (model?.id) {
+            setModelData({ ...model });
+        } else {
+            setModelData({
+                type: 'text',
+                maxTokens: DEFAULT_MODEL_SETTINGS.maxTokens,
+                temperature: DEFAULT_MODEL_SETTINGS.temperature
+            } as ModelConfig);
+        }
+        getProviderModels();
+    }, [provider, model]);
 
-    const handleChange = (field: string, value: string | number) => {
-        setModelData(prev => ({ ...prev, [field]: value }));
-        if (field === 'modelId') {
-            const model = modelList.find(model => model.modelId === value);
-            if (model) {
-                setModelData(prev => ({ ...prev, modelName: model.modelName }));
-            }
+    const handleSelectChange = (modelId: string) => {
+        const model = modelList.find(model => model.modelId === modelId);
+        if (model) {
+            setModelData(prev => ({ ...prev, modelName: model.modelName, modelId }));
         }
     };
-
-    const onChangeProvider = (newValue: string) => {
-        const provider = providerList.find(item => item.id === newValue);
-        if (provider) {
-            setSelectedProvider(provider);
-            handleChange('endpoint', provider.apiUrl);
-            handleChange('providerName', provider.name);
-        }
-        handleChange('providerId', newValue);
-        getProviderModels(newValue);
+    const handleChange = (field: string, value: string | number) => {
+        setModelData(prev => ({ ...prev, [field]: value }));
     };
 
     return (
@@ -184,75 +150,9 @@ export function ModelDialog({
                     <DialogTitle>{model?.id ? t('model_dialog.edit_title') : t('model_dialog.add_title')}</DialogTitle>
                 </DialogHeader>
                 <div className="pt-2 pb-6 space-y-4 relative z-10">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2 mb-1.5">
-                            <Globe className="h-4 w-4 text-muted-foreground" />
-                            <Label htmlFor="provider" className="font-medium text-base">
-                                {t('model_dialog.provider')}
-                            </Label>
-                        </div>
-                        <div className="relative">
-                            <Select value={modelData.providerId} onValueChange={value => onChangeProvider(value)}>
-                                <SelectTrigger className=" w-full">
-                                    <SelectValue placeholder="选择模型提供商" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {providerList.map(item => (
-                                        <SelectItem key={item.id} className={'h-10 text-sm'} value={item.id}>
-                                            <SelectIcon>
-                                                <ProviderIcon
-                                                    key={item.id}
-                                                    provider={item.id}
-                                                    size={40}
-                                                    type={'color'}
-                                                />
-                                            </SelectIcon>
-                                            {item.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2 mb-1.5">
-                            <Globe className="h-4 w-4 text-muted-foreground" />
-                            <Label htmlFor="endpoint" className="font-medium text-base">
-                                {t('model_dialog.api_url')}
-                            </Label>
-                        </div>
-                        <div className="relative">
-                            <Input
-                                id="endpoint"
-                                value={modelData.endpoint}
-                                onChange={e => handleChange('endpoint', e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2 mb-1.5">
-                            <Key className="h-4 w-4 text-muted-foreground" />
-                            <Label htmlFor="apiKey" className="font-medium text-base">
-                                {t('model_dialog.api_key')}
-                            </Label>
-                        </div>
-                        <div className="relative">
-                            <Input
-                                id="apiKey"
-                                type="password"
-                                value={modelData.apiKey}
-                                onChange={e => handleChange('apiKey', e.target.value)}
-                                placeholder="sk-••••••••••••••••••••••••"
-                            />
-                        </div>
-                    </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-7 gap-2 ">
                         <div className="space-y-2 md:col-span-5">
                             <div className="flex items-center gap-2 mb-1.5">
-                                <Tag className="h-4 w-4 text-muted-foreground" />
                                 <Label htmlFor="modelId" className="font-medium text-base">
                                     {t('model_dialog.model_name')}
                                 </Label>
@@ -267,7 +167,10 @@ export function ModelDialog({
                                             className="w-[380px] justify-between"
                                         >
                                             {modelData.modelId ? (
-                                                <div className="flex items-center gap-2">{modelData.modelName}</div>
+                                                <div className="flex items-center gap-2">
+                                                    <ModelIcon model={modelData.modelId} type={'color'} size={20} />
+                                                    {modelData.modelId}
+                                                </div>
                                             ) : (
                                                 '选择模型'
                                             )}
@@ -295,17 +198,16 @@ export function ModelDialog({
                                                                 key={modelConfig.id + modelConfig.modelId}
                                                                 value={modelConfig.modelId}
                                                                 onSelect={currentId => {
-                                                                    handleChange('modelId', currentId);
-                                                                    handleChange('modelName', modelConfig.modelName);
+                                                                    handleSelectChange(currentId);
                                                                     setModelOpen(false);
                                                                 }}
                                                             >
                                                                 <div className="flex items-center justify-between w-full">
                                                                     <div className="flex items-center gap-2">
-                                                                        <ProviderIcon
-                                                                            provider={modelConfig.providerId}
+                                                                        <ModelIcon
+                                                                            model={modelConfig.modelId}
+                                                                            type={'color'}
                                                                             size={20}
-                                                                            type="color"
                                                                         />
                                                                         {modelConfig.modelName}
                                                                     </div>
@@ -338,7 +240,20 @@ export function ModelDialog({
 
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 mb-1.5">
-                            <Tag className="h-4 w-4 text-muted-foreground" />
+                            <Label className="font-medium text-base">模型 ID</Label>
+                            <Label className="text-xs text-muted-foreground">服务商调用模型时的唯一标识</Label>
+                        </div>
+                        <Input value={modelData.modelId} onChange={e => handleChange('modelId', e.target.value)} />
+                    </div>
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                            <Label className="font-medium text-base">模型名称</Label>
+                        </div>
+                        <Input value={modelData.modelName} onChange={e => handleChange('modelName', e.target.value)} />
+                    </div>
+
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 mb-1.5">
                             <Label htmlFor="type" className="font-medium text-base">
                                 {t('model_dialog.model_type')}
                             </Label>
@@ -401,6 +316,7 @@ export function ModelDialog({
                                     <span>1K</span>
                                     <span>8K</span>
                                     <span>16K</span>
+                                    <span>24K</span>
                                     <span>32K</span>
                                 </div>
                             </div>
@@ -412,7 +328,6 @@ export function ModelDialog({
                         {t('model_dialog.cancel_btn')}
                     </Button>
                     <Button className="font-medium" onClick={() => handleSaveModel()}>
-                        {' '}
                         {t('model_dialog.save_btn')}
                     </Button>
                 </div>

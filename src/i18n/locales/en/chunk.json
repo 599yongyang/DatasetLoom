@@ -16,7 +16,7 @@
         "domain": "Domain",
         "tag": "Tags",
         "fileName": "FileName",
-        "createAt": "CreateAt",
+        "createdAt": "CreatedAt",
         "size": "Size",
         "actions": "Actions"
     }

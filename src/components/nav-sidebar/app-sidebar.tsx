@@ -34,7 +34,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     let { projectId }: { projectId: string } = useParams();
     const [localProjectId, setLocalProjectId] = useAtom(selectedProjectAtom);
     if (projectId !== 'undefined' && projectId !== undefined) {
-        setLocalProjectId(projectId);
+        setTimeout(() => {
+            setLocalProjectId(projectId);
+        }, 0);
     } else {
         projectId = localProjectId;
     }
@@ -52,7 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 </div>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-semibold">Dataset Loom</span>
-                                    <span className="truncate text-xs">一款高效的大型语言模型数据构建工具</span>
+                                    <span className="truncate text-xs">面向大模型的智能数据集构建工具</span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>

@@ -12,13 +12,11 @@ import { toast } from 'sonner';
 import type { Questions } from '@prisma/client';
 import { useQuestionTableColumns } from '@/components/questions/table-columns';
 import useQuestions from '@/hooks/query/use-questions';
-import { useGenerateDataset } from '@/hooks/use-generate-dataset';
 import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
 
 export default function Page() {
     let { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('question');
-    const { generateMultipleDataset } = useGenerateDataset();
 
     const [searchQuery, setSearchQuery] = useState('');
     const [answerFilter, setAnswerFilter] = useState('all');

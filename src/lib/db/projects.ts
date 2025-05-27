@@ -58,12 +58,13 @@ export async function getProjects(name: string) {
                 _count: {
                     select: {
                         Datasets: true,
-                        Questions: true
+                        Questions: true,
+                        ModelConfig: true
                     }
                 }
             },
             orderBy: {
-                createAt: 'desc'
+                createdAt: 'desc'
             }
         });
     } catch (error) {

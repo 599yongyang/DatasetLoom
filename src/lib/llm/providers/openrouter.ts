@@ -1,6 +1,7 @@
 import { createOpenRouter, type OpenRouterProvider } from '@openrouter/ai-sdk-provider';
-import BaseClient, { type Config } from './base';
 import type { LanguageModel } from 'ai';
+import { BaseClient } from './base';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 /**
  * OpenRouter 客户端类
@@ -13,13 +14,13 @@ class OpenRouterClient extends BaseClient {
      * 构造函数
      * @param config - 配置信息
      */
-    constructor(config: Config) {
+    constructor(config: ModelConfigWithProvider) {
         super(config);
 
         // 初始化 OpenRouter 实例
         this.openrouter = createOpenRouter({
-            baseURL: config.endpoint ?? 'https://api.openrouter.ai', // 默认 OpenRouter API 地址
-            apiKey: config.apiKey ?? '' // 确保 apiKey 必须提供
+            baseURL: config.provider.apiKey ?? 'https://api.openrouter.ai', // 默认 OpenRouter API 地址
+            apiKey: config.provider.apiKey ?? '' // 确保 apiKey 必须提供
         });
     }
 
@@ -28,7 +29,7 @@ class OpenRouterClient extends BaseClient {
      * 返回指定模型的语言模型实例
      */
     protected _getModel(): LanguageModel {
-        return this.openrouter(this.modelId);
+        return this.openrouter(this.config.modelId);
     }
 }
 

@@ -20,7 +20,7 @@ export async function getDocumentsPagination(
             db.documents.findMany({
                 where: whereClause,
                 orderBy: {
-                    createAt: 'desc'
+                    createdAt: 'desc'
                 },
                 skip: (page - 1) * pageSize,
                 take: pageSize

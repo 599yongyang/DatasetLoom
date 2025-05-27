@@ -28,7 +28,7 @@ export async function getDatasetsByPagination(
             db.datasets.findMany({
                 where: whereClause,
                 orderBy: {
-                    createAt: 'desc'
+                    createdAt: 'desc'
                 },
                 skip: (page - 1) * pageSize,
                 take: pageSize
@@ -62,7 +62,7 @@ export async function getDatasets(projectId: string, confirmed: boolean | undefi
                 cot: true
             },
             orderBy: {
-                createAt: 'desc'
+                createdAt: 'desc'
             }
         });
     } catch (error) {
@@ -84,7 +84,7 @@ export async function getDatasetsIds(projectId: string, confirmed: boolean | und
                 id: true
             },
             orderBy: {
-                createAt: 'desc'
+                createdAt: 'desc'
             }
         });
     } catch (error) {
@@ -211,13 +211,13 @@ export async function getNavigationItems(projectId: string, datasetId: string, o
     }
     if (operateType === 'prev') {
         return await db.datasets.findFirst({
-            where: { createAt: { gt: currentItem.createAt }, projectId },
-            orderBy: { createAt: 'asc' }
+            where: { createdAt: { gt: currentItem.createdAt }, projectId },
+            orderBy: { createdAt: 'asc' }
         });
     } else {
         return await db.datasets.findFirst({
-            where: { createAt: { lt: currentItem.createAt }, projectId },
-            orderBy: { createAt: 'desc' }
+            where: { createdAt: { lt: currentItem.createdAt }, projectId },
+            orderBy: { createdAt: 'desc' }
         });
     }
 }

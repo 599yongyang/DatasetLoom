@@ -10,7 +10,7 @@
     "table_columns": {
         "question": "Question",
         "model": "Use Model",
-        "createAt": "CreateAt",
+        "createdAt": "CreatedAt",
         "cot": "COT",
         "answer": "Answer",
         "actions": "Actions"
@@ -24,7 +24,7 @@
         "cot": "COT",
         "metadata": "Metadata",
         "model": "Use Model",
-        "createAt": "CreateAt",
+        "createdAt": "CreatedAt",
         "chunk": "Chunk"
     }
 }

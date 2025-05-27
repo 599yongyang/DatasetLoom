@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/llm/core/index';
+import { getModelConfigById } from '@/lib/db/model-config';
 
 /**
  * 流式输出的聊天接口
@@ -17,9 +18,12 @@ export async function POST(request: Request, props: { params: Params }) {
         if (!model || !messages) {
             return NextResponse.json({ error: 'Missing necessary parameters' }, { status: 400 });
         }
-
+        let modelConfig = await getModelConfigById(model.id);
+        if (!modelConfig) {
+            return NextResponse.json({ error: 'Model config not found' }, { status: 400 });
+        }
         // 创建 LLM 客户端
-        const llmClient = new LLMClient(model);
+        const llmClient = new LLMClient(modelConfig);
         try {
             // 调用流式 API
             const stream = await llmClient.chatStream(messages);

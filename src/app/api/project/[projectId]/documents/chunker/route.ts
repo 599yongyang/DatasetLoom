@@ -5,7 +5,6 @@ import path from 'path';
 import { saveChunks } from '@/lib/db/chunks';
 import { type Chunks } from '@prisma/client';
 import getLabelPrompt from '@/lib/llm/prompts/label';
-import LLMClient from '@/lib/llm/core';
 import { insertChunkMetadata } from '@/lib/db/chunk-metadata';
 import { nanoid } from 'nanoid';
 import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
@@ -13,6 +12,9 @@ import { doubleCheckModelOutput } from '@/lib/utils';
 import { insertChunkGraph } from '@/lib/db/chunk-graph';
 import { validateProjectId } from '@/lib/utils/api-validator';
 import type { Language } from '@/lib/llm/prompts/type';
+import { getModelConfigById } from '@/lib/db/model-config';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
+import LLMClient from '@/lib/llm/core';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -28,8 +30,11 @@ export async function POST(request: Request, props: { params: Params }) {
     }
 
     const body = await request.json();
-    const { fileIds, strategy, separators, chunkSize, chunkOverlap, model, language } = body;
-
+    const { fileIds, strategy, separators, chunkSize, chunkOverlap, modelConfigId, language } = body;
+    const model = await getModelConfigById(modelConfigId);
+    if (!model) {
+        return NextResponse.json({ error: 'Model not fount' }, { status: 400 });
+    }
     const docs = await getDocumentByIds(fileIds);
 
     //将文件内容进行分块
@@ -63,7 +68,7 @@ export async function POST(request: Request, props: { params: Params }) {
 
 export async function processChunks(
     chunkRes: Chunks[],
-    model: object,
+    model: ModelConfigWithProvider,
     language: Language,
     globalPrompt?: string,
     domainTreePrompt?: string
@@ -77,8 +82,8 @@ export async function processChunks(
         const promises = batch.map(async chunk => {
             try {
                 const prompt = getLabelPrompt({ text: chunk.content, language, globalPrompt, domainTreePrompt });
-                const response = await llmClient.chat(prompt);
-                const llmOutput = await doubleCheckModelOutput(response, documentAnalysisSchema);
+                const { text } = await llmClient.chat(prompt);
+                const llmOutput = await doubleCheckModelOutput(text, documentAnalysisSchema);
                 const metadata = {
                     id: nanoid(),
                     chunkId: chunk.id,
@@ -89,7 +94,6 @@ export async function processChunks(
                     language: language
                 };
                 await insertChunkMetadata([metadata]);
-                console.log(llmOutput, 'llmOutput');
                 if (llmOutput.entities && llmOutput.relations) {
                     await insertChunkGraph(chunk.id, llmOutput.entities, llmOutput.relations);
                 }

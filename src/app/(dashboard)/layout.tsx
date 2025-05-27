@@ -15,7 +15,6 @@ import { useAtom } from 'jotai';
 import { workStateAtom } from '@/atoms';
 import { useEffect } from 'react';
 import axios from 'axios';
-import { toast } from 'sonner';
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     const [workState, setWorkState] = useAtom(workStateAtom);

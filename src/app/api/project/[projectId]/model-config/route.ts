@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createInitModelConfig, getModelConfigByProjectId, saveModelConfig } from '@/lib/db/model-config';
+import { getModelConfig, saveModelConfig } from '@/lib/db/model-config';
 import { getProject } from '@/lib/db/projects';
-import { DEFAULT_MODEL_SETTINGS, MODEL_PROVIDERS } from '@/constants/model';
-import type { ModelConfig } from '@prisma/client';
+import { getLlmProviderIds, saveLlmProvider } from '@/lib/db/llm-providers';
+import { DEFAULT_PROVIDERS } from '@/constants/provides';
+import { nanoid } from 'nanoid';
+import type { LlmProviders } from '@prisma/client';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -11,6 +13,8 @@ export async function GET(request: Request, props: { params: Params }) {
     try {
         const params = await props.params;
         const { projectId } = params;
+        const url = new URL(request.url);
+        const searchParams = url.searchParams;
         // 验证项目 ID
         if (!projectId) {
             return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
@@ -19,31 +23,21 @@ export async function GET(request: Request, props: { params: Params }) {
         if (!project) {
             return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
         }
-        let modelConfigList = await getModelConfigByProjectId(projectId);
-        if (!modelConfigList || modelConfigList.length === 0) {
-            let insertModelConfigList: ModelConfig[] = [];
-            MODEL_PROVIDERS.forEach(item => {
-                let data = {
-                    projectId: projectId,
-                    providerId: item.id,
-                    providerName: item.name,
-                    endpoint: item.defaultEndpoint,
-                    apiKey: '',
-                    modelId: item.defaultModels.length > 0 ? item.defaultModels[0] : '',
-                    modelName: item.defaultModels.length > 0 ? item.defaultModels[0] : '',
-                    type: 'text',
-                    temperature: DEFAULT_MODEL_SETTINGS.temperature,
-                    maxTokens: DEFAULT_MODEL_SETTINGS.maxTokens,
-                    topK: 0,
-                    topP: 0,
-                    status: 1
-                };
-                insertModelConfigList.push(data as ModelConfig);
-            });
-            modelConfigList = (await createInitModelConfig(insertModelConfigList)) as ModelConfig[];
+        let providerIds: string[] = [];
+        const providerId = searchParams.get('providerId');
+        if (providerId) {
+            providerIds.push(providerId);
+        } else {
+            providerIds = await getLlmProviderIds(projectId);
+        }
+        const status = searchParams.get('status');
+        let whereStatus = undefined;
+        if (status) {
+            whereStatus = Boolean(status);
         }
 
-        return NextResponse.json({ data: modelConfigList, defaultModelConfigId: project?.defaultModelConfigId });
+        let modelConfigList = await getModelConfig(providerIds, whereStatus);
+        return NextResponse.json(modelConfigList);
     } catch (error) {
         console.error('Error obtaining model configuration:', error);
         return NextResponse.json({ error: 'Failed to obtain model configuration' }, { status: 500 });
@@ -67,8 +61,25 @@ export async function POST(request: Request, props: { params: Params }) {
         if (!modelConfig) {
             return NextResponse.json({ error: 'The model configuration cannot be empty ' }, { status: 400 });
         }
+        const isDefaultProvider = DEFAULT_PROVIDERS.find(provider => provider.id === modelConfig.providerId);
+
+        if (isDefaultProvider) {
+            const providerId = nanoid();
+            await saveLlmProvider({
+                id: providerId,
+                name: isDefaultProvider.name,
+                projectId,
+                apiUrl: isDefaultProvider.apiUrl,
+                apiKey: '',
+                interfaceType: isDefaultProvider.interfaceType,
+                icon: isDefaultProvider.icon
+            } as LlmProviders);
+            modelConfig.providerId = providerId;
+        }
+
         modelConfig.projectId = projectId;
-        const res = await saveModelConfig(modelConfig);
+        const { provider, ...rest } = modelConfig;
+        const res = await saveModelConfig(rest);
 
         return NextResponse.json(res);
     } catch (error) {

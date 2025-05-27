@@ -62,7 +62,7 @@ export function ChunkStrategyDialog({
         axios
             .post(`/api/project/${projectId}/documents/chunker`, {
                 ...formData,
-                model,
+                modelConfigId: model.id,
                 fileIds,
                 language: i18n.language
             })

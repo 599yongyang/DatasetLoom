@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.custom-password-input::-webkit-credentials-auto-fill-button,
+.custom-password-input::-webkit-inner-spin-button,
+.custom-password-input[type='password']::-ms-reveal,
+.custom-password-input[type='password']::-ms-clear {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 @theme {
     --font-sans:
         var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
@@ -136,6 +144,7 @@
     * {
         @apply border-border outline-ring/50;
     }
+
     body {
         @apply bg-background text-foreground;
     }

@@ -1,5 +1,5 @@
 import { createProject, getProjects, isExistByName } from '@/lib/db/projects';
-import { createInitModelConfig, getModelConfigByProjectId } from '@/lib/db/model-config';
+import { copyModelConfig } from '@/lib/db/model-config';
 
 export async function POST(request: Request) {
     try {
@@ -17,19 +17,10 @@ export async function POST(request: Request) {
         const newProject = await createProject({ name: projectData.name, description: projectData.description });
         // 如果指定了要复用的项目配置
         if (projectData.copyId) {
-            let data = await getModelConfigByProjectId(projectData.copyId);
-            if (data.length > 0) {
-                let newData = data.map(item => {
-                    return {
-                        ...item,
-                        projectId: newProject.id
-                    };
-                });
-                await createInitModelConfig(newData);
-            }
+            await copyModelConfig(newProject.id, projectData.copyId);
         }
         const data = await getProjects('');
-        return Response.json({ data, id: newProject.id }, { status: 201 });
+        return Response.json({ data, id: newProject.id }, { status: 200 });
     } catch (error: unknown) {
         console.error('创建项目出错:', error);
         if (error instanceof Error) {

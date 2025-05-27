@@ -1,6 +1,7 @@
 import { createOpenAICompatible, type OpenAICompatibleProvider } from '@ai-sdk/openai-compatible';
-import BaseClient, { type Config } from './base';
 import type { LanguageModel } from 'ai';
+import { BaseClient } from '@/lib/llm/providers/base';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 /**
  * OpenAI兼容包 客户端类
@@ -13,14 +14,14 @@ class OpenAICompatibleClient extends BaseClient {
      * 构造函数
      * @param config - 配置信息
      */
-    constructor(config: Config) {
+    constructor(config: ModelConfigWithProvider) {
         super(config);
 
         // 初始化实例
         this.openAICompatible = createOpenAICompatible({
-            baseURL: config.endpoint ?? 'https://api.example.com/v1', // 默认API 地址
+            baseURL: config.provider.apiUrl ?? 'https://api.example.com/v1', // 默认API 地址
             name: 'openAICompatible',
-            apiKey: config.apiKey ?? '' // 确保 apiKey 必须提供
+            apiKey: config.provider.apiKey ?? '' // 确保 apiKey 必须提供
         });
     }
 
@@ -29,7 +30,7 @@ class OpenAICompatibleClient extends BaseClient {
      * 返回指定模型的语言模型实例
      */
     protected _getModel(): LanguageModel {
-        return this.openAICompatible(this.modelId);
+        return this.openAICompatible(this.config.modelId);
     }
 }
 

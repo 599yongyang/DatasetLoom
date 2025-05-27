@@ -7,14 +7,13 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useAtom, useSetAtom } from 'jotai';
-import { projectListAtom, selectedProjectAtom } from '@/atoms';
+import { useAtom } from 'jotai';
+import { selectedProjectAtom } from '@/atoms';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
-import axios from 'axios';
-import type { ProjectsWithCounts } from '@/schema/project';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { useModelConfig } from '@/hooks/use-model-config';
+import { useModelConfigSelect } from '@/hooks/query/use-llm';
+import { useEffect } from 'react';
+import { useGetProjects } from '@/hooks/query/use-project';
 
 export function ProjectSelect() {
     const { projectId } = useParams<{ projectId: string }>();
@@ -24,12 +23,16 @@ export function ProjectSelect() {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState(projectId);
     const [filter, setFilter] = React.useState(''); // 搜索关键词状态
-    const [projectList, setProjectList] = useAtom(projectListAtom);
-    const setSelectedProject = useSetAtom(selectedProjectAtom);
-    const getProjects = async () => {
-        const res = await axios.get<ProjectsWithCounts[]>('/api/project');
-        setProjectList(res.data);
-    };
+    const [selectedProject, setSelectedProject] = useAtom(selectedProjectAtom);
+    useModelConfigSelect(value);
+    const { projects } = useGetProjects();
+
+    useEffect(() => {
+        if (projectId !== selectedProject) {
+            setSelectedProject(projectId);
+            setValue(projectId);
+        }
+    }, [projectId]);
 
     const handleSelectChange = (selectedProjectId: string) => {
         // 如果点击的是当前已选中的项目，则不进行任何操作
@@ -68,14 +71,6 @@ export function ProjectSelect() {
         router.push(`/${segments.join('/')}`);
     };
 
-    useModelConfig(projectId as string);
-
-    useEffect(() => {
-        if (projectList.length === 0) {
-            getProjects();
-        }
-    }, []);
-
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -86,7 +81,7 @@ export function ProjectSelect() {
                     className="w-[200px] justify-between"
                     size={'sm'}
                 >
-                    {value ? projectList.find(project => project.id === value)?.name : t('search_project')}
+                    {value ? projects.find(project => project.id === value)?.name : t('search_project')}
                     <ChevronsUpDown className="opacity-50" />
                 </Button>
             </PopoverTrigger>
@@ -102,7 +97,7 @@ export function ProjectSelect() {
                     <CommandList>
                         <CommandEmpty>{t('no_found')}</CommandEmpty>
                         <CommandGroup>
-                            {projectList
+                            {projects
                                 .filter(project => project.name.toLowerCase().includes(filter.toLowerCase()))
                                 .map(project => (
                                     <CommandItem key={project.id} value={project.id} onSelect={handleSelectChange}>

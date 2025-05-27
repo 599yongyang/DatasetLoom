@@ -13,7 +13,6 @@ import { ConfirmAlert } from '@/components/confirm-alert';
 export function ProjectCards({ projects, getProjects }: { projects: ProjectsWithCounts[]; getProjects: () => void }) {
     const { t } = useTranslation('project');
     const router = useRouter();
-
     const deleteProject = (id: string) => {
         toast.promise(axios.delete(`/api/project/${id}`), {
             success: () => {
@@ -25,8 +24,8 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
             }
         });
     };
-    const handleView = (id: string, modelConfigId: string | null) => {
-        if (modelConfigId) {
+    const handleView = (id: string, modelCount: number) => {
+        if (modelCount > 0) {
             router.push(`/project/${id}/documents`);
         } else {
             router.push(`/project/${id}/settings/model-config`);
@@ -56,14 +55,14 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
                     </CardHeader>
                     <CardFooter className="flex justify-between">
                         <div className="text-sm">
-                            {t('create_time')}：{new Date(project.createAt).toLocaleString('zh-CN')}
+                            {t('create_time')}：{new Date(project.createdAt).toLocaleString('zh-CN')}
                         </div>
                         <div className={'flex gap-2'}>
                             <Button
                                 size={'sm'}
                                 className="hover:cursor-pointer"
                                 variant="outline"
-                                onClick={() => handleView(project.id, project.defaultModelConfigId)}
+                                onClick={() => handleView(project.id, project._count.ModelConfig)}
                             >
                                 {t('view')}
                             </Button>

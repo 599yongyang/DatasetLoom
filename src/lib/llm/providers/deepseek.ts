@@ -1,6 +1,7 @@
 import { createDeepSeek, type DeepSeekProvider } from '@ai-sdk/deepseek';
-import BaseClient, { type Config } from './base';
 import type { LanguageModel } from 'ai';
+import { BaseClient } from '@/lib/llm/providers/base';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 /**
  * DeepSeek AI 客户端类
@@ -13,13 +14,13 @@ class DeepSeekClient extends BaseClient {
      * 构造函数
      * @param config - 配置信息
      */
-    constructor(config: Config) {
+    constructor(config: ModelConfigWithProvider) {
         super(config);
 
         // 初始化实例
         this.deepseek = createDeepSeek({
-            baseURL: config.endpoint ?? 'https://api.deepseek.com/v1', // 默认API 地址
-            apiKey: config.apiKey ?? '' // 确保 apiKey 必须提供
+            baseURL: config.provider.apiUrl ?? 'https://api.deepseek.com/v1', // 默认API 地址
+            apiKey: config.provider.apiKey ?? '' // 确保 apiKey 必须提供
         });
     }
 
@@ -28,7 +29,7 @@ class DeepSeekClient extends BaseClient {
      * 返回指定模型的语言模型实例
      */
     protected _getModel(): LanguageModel {
-        return this.deepseek(this.modelId);
+        return this.deepseek(this.config.modelId);
     }
 }
 

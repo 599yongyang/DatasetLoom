@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/llm/core/index';
+import type { UIMessage } from 'ai';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -54,7 +55,8 @@ export async function POST(request: Request, props: { params: Params }) {
         // 调用LLM API
         let response = '';
         try {
-            response = await llmClient.chat(formattedMessages);
+            const { text } = await llmClient.chat(formattedMessages as UIMessage[]);
+            response = text;
         } catch (error) {
             console.error('Failed to call LLM API:', error);
             return NextResponse.json(

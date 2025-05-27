@@ -9,7 +9,7 @@
     "table_columns": {
         "file_name": "文件名称",
         "file_ext": "文件类型",
-        "createAt": "上传时间",
+        "createdAt": "上传时间",
         "size": "文件大小",
         "actions": "操作"
     },

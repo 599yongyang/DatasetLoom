@@ -8,7 +8,7 @@
     "datasets": "Datasets",
     "view": "View",
     "delete": "Delete",
-    "create_time": "CreateAt",
+    "create_time": "CreatedAt",
     "project_dialog": {
         "title": "Create New Project",
         "name": "Project Name",

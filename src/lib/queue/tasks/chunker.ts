@@ -5,6 +5,7 @@ import path from 'path';
 import { saveChunks } from '@/lib/db/chunks';
 import { processChunks } from '@/app/api/project/[projectId]/documents/chunker/route';
 import { db } from '@/server/db';
+import { getDefaultModelConfig, getModelConfigById } from '@/lib/db/model-config';
 
 export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, workflowId, projectId } = params;
@@ -55,20 +56,14 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
         const project = await db.projects.findUnique({
             where: { id: projectId }
         });
+        const model = await getDefaultModelConfig(projectId);
 
-        if (project && project.defaultModelConfigId) {
-            const model = await db.modelConfig.findUnique({
-                where: { id: project.defaultModelConfigId }
-            });
-
-            if (model) {
-                await processChunks(chunkRes, model, 'zh').catch(console.error);
-            } else {
-                throw new Error('Model not found');
-            }
+        if (model) {
+            await processChunks(chunkRes, model, 'zh').catch(console.error);
         } else {
-            throw new Error('Project or model not found');
+            throw new Error('Model not found');
         }
+
         return {
             success: true,
             data: chunkRes,

@@ -9,10 +9,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import axios from 'axios';
-import { useAtom } from 'jotai/index';
-import { projectListAtom } from '@/atoms';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
 
 const formSchema = z.object({
     id: z.string(),
@@ -25,7 +23,6 @@ const formSchema = z.object({
 export default function Page() {
     let { projectId } = useParams();
     const { t } = useTranslation('project');
-    const [projectList, setProjectList] = useAtom(projectListAtom);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -34,29 +31,29 @@ export default function Page() {
             description: ''
         }
     });
+    const getProjectInfo = () => {
+        axios
+            .get(`/api/project/${projectId}`)
+            .then(res => {
+                form.reset(res.data);
+            })
+            .catch(error => {
+                toast.error('获取项目信息失败');
+            });
+    };
+
+    useEffect(() => {
+        getProjectInfo();
+    }, []);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         toast.promise(axios.put(`/api/project/${values.id}`, values), {
-            success: res => {
-                setProjectList(
-                    projectList.map(project => (project.id === values.id ? { ...project, ...values } : project))
-                );
-                return '保存成功';
-            },
+            success: '保存成功',
             error: error => {
                 return error.response?.data?.error || '保存失败';
             }
         });
     }
-
-    useEffect(() => {
-        const project = projectList.find(project => project.id === projectId);
-        if (project) {
-            form.setValue('id', project.id);
-            form.setValue('name', project.name);
-            form.setValue('description', project.description);
-        }
-    }, []);
 
     return (
         <div className="@container/main flex flex-1 p-10 flex-col gap-2">

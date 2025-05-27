@@ -213,7 +213,7 @@ export default function Page() {
                             {t('detail.model')}: {dataset.model}
                         </Badge>
                         <Badge className={'text-sm'} variant="outline">
-                            {t('detail.createAt')}: {new Date(dataset.createAt).toLocaleString('zh-CN')}
+                            {t('detail.createdAt')}: {new Date(dataset.createdAt).toLocaleString('zh-CN')}
                         </Badge>
                     </div>
                 </CardContent>

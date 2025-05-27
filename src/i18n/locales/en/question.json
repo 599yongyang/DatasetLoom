@@ -12,7 +12,7 @@
         "question": "Question",
         "chunk": "Chunk",
         "label": "Tags",
-        "createAt": "CreateAt",
+        "createdAt": "CreatedAt",
         "actions": "Actions"
     },
     "dialog": {

@@ -29,7 +29,7 @@ export async function getQuestions(
             db.questions.findMany({
                 where: whereClause,
                 orderBy: {
-                    createAt: 'desc'
+                    createdAt: 'desc'
                 },
                 include: {
                     chunk: {
@@ -76,7 +76,7 @@ export async function getAllQuestionsByProjectId(projectId: string) {
                 }
             },
             orderBy: {
-                createAt: 'desc'
+                createdAt: 'desc'
             }
         });
     } catch (error) {
@@ -98,7 +98,7 @@ export async function getQuestionsIds(projectId: string, answered: boolean | und
                 id: true
             },
             orderBy: {
-                createAt: 'desc'
+                createdAt: 'desc'
             }
         });
     } catch (error) {

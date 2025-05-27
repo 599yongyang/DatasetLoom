@@ -9,7 +9,7 @@
     "table_columns": {
         "file_name": "file Name",
         "file_ext": "file Type",
-        "createAt": "CreateAt",
+        "createdAt": "CreatedAt",
         "size": "Size",
         "actions": "Actions"
     },

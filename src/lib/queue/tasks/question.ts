@@ -8,6 +8,7 @@ import LLMClient from '@/lib/llm/core';
 import { getModelConfigById } from '@/lib/db/model-config';
 import { nanoid } from 'nanoid';
 import { getChunkByIds } from '@/lib/db/chunks';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 export async function questionTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, projectId } = params;
@@ -30,7 +31,7 @@ export async function questionTask(params: TaskParams): Promise<TaskResult> {
         const chunks = await getChunkByIds(chunkerIds);
 
         const model = await getModelConfigById(step.data.modelConfigId as string);
-        const llmClient = new LLMClient({ ...model, ...step.data });
+        const llmClient = new LLMClient({ ...model, ...step.data } as ModelConfigWithProvider);
         let questionList: Questions[] = [];
         for (const chunk of chunks) {
             const prompt = getQuestionPrompt({
@@ -38,8 +39,8 @@ export async function questionTask(params: TaskParams): Promise<TaskResult> {
                 tags: chunk.ChunkMetadata?.tags || '',
                 number: step.data.questionCountType === 'auto' ? undefined : (step.data.questionCount as number)
             });
-            const response = await llmClient.chat(prompt);
-            const llmOutput = await doubleCheckModelOutput(response, questionsSchema);
+            const { text } = await llmClient.chat(prompt);
+            const llmOutput = await doubleCheckModelOutput(text, questionsSchema);
             const questions = llmOutput.map(question => {
                 return {
                     question: question.question,

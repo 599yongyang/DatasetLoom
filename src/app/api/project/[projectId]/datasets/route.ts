@@ -85,11 +85,9 @@ export async function POST(request: Request, props: { params: Params }) {
         });
 
         // 调用大模型生成答案
-        const { text, reasoning } = await llmClient.chat(prompt, 'textAndReasoning');
+        const { text, reasoning } = await llmClient.chat(prompt);
         const llmOutput = await doubleCheckModelOutput(text, answerSchema);
-        console.log(llmOutput, 'llmOutput');
         const datasetId = nanoid(12);
-
         // 创建新的数据集项
         const datasets = {
             id: datasetId,

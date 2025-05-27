@@ -5,14 +5,15 @@ import axios, { AxiosError } from 'axios';
 interface ModelItem {
     modelId: string;
     modelName: string;
-    providerId: string;
+    providerName: string;
 }
 
 // 请求体接口
 interface RequestBody {
-    endpoint: string;
-    providerId: string;
+    apiUrl: string;
+    providerName: string;
     apiKey?: string;
+    interfaceType: string;
 }
 
 export async function POST(request: Request) {
@@ -20,16 +21,16 @@ export async function POST(request: Request) {
         const body = await request.json();
 
         // 类型校验
-        const { endpoint, providerId, apiKey } = body as RequestBody;
+        const { apiUrl, providerName, interfaceType, apiKey } = body as RequestBody;
 
-        if (!endpoint || !providerId) {
+        if (!apiUrl || !interfaceType) {
             return NextResponse.json({ error: 'Missing required fields: endpoint, providerId' }, { status: 400 });
         }
 
-        let url = endpoint.replace(/\/$/, '');
+        let url = apiUrl.replace(/\/$/, '');
 
         // 构建 URL 路径
-        url += providerId === 'ollama' ? '/tags' : '/models';
+        url += interfaceType === 'ollama' ? '/tags' : '/models';
 
         let data: ModelItem[] = [];
 
@@ -38,18 +39,18 @@ export async function POST(request: Request) {
 
         const res = await axios.get(url, { headers });
 
-        if (providerId === 'ollama') {
+        if (interfaceType === 'ollama') {
             data = res.data.models.map((item: any) => ({
                 modelId: item.model,
                 modelName: item.name,
-                providerId
+                providerName
             }));
         } else {
             data =
                 res.data.data?.map((item: any) => ({
                     modelId: item.id,
                     modelName: item.id,
-                    providerId
+                    providerName
                 })) || [];
         }
 

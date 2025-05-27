@@ -144,7 +144,7 @@ export async function getChunksPagination(
                     }
                 },
                 orderBy: {
-                    createAt: 'desc'
+                    createdAt: 'desc'
                 },
                 skip: (page - 1) * pageSize,
                 take: pageSize

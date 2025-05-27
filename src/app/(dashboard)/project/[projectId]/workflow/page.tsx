@@ -89,9 +89,9 @@ export default function Page() {
             enableHiding: false
         },
         {
-            accessorKey: 'createAt',
+            accessorKey: 'createdAt',
             header: '编辑时间',
-            cell: ({ row }) => <div className="w-20">{new Date(row.original.updateAt).toLocaleString('zh-CN')}</div>,
+            cell: ({ row }) => <div className="w-20">{new Date(row.original.updatedAt).toLocaleString('zh-CN')}</div>,
             enableHiding: false
         },
         {

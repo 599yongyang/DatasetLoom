@@ -8,23 +8,23 @@ datasource db {
 }
 
 model Projects {
-  id                   String        @id @default(nanoid(12))
-  name                 String
-  description          String
-  globalPrompt         String        @default("")
-  questionPrompt       String        @default("")
-  answerPrompt         String        @default("")
-  labelPrompt          String        @default("")
-  domainTreePrompt     String        @default("")
-  defaultModelConfigId String?
-  createAt             DateTime      @default(now())
-  updateAt             DateTime      @updatedAt
-  Questions            Questions[]
-  Datasets             Datasets[]
-  Chunks               Chunks[]
-  ModelConfig          ModelConfig[]
-  Documents            Documents[]
-  WorkFlow             WorkFlow[]
+  id               String         @id @default(nanoid(12))
+  name             String
+  description      String
+  globalPrompt     String         @default("")
+  questionPrompt   String         @default("")
+  answerPrompt     String         @default("")
+  labelPrompt      String         @default("")
+  domainTreePrompt String         @default("")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  Questions        Questions[]
+  Datasets         Datasets[]
+  Chunks           Chunks[]
+  ModelConfig      ModelConfig[]
+  Documents        Documents[]
+  WorkFlow         WorkFlow[]
+  LlmProviders     LlmProviders[]
 }
 
 model Documents {
@@ -36,8 +36,8 @@ model Documents {
   path      String
   size      Int
   md5       String
-  createAt  DateTime @default(now())
-  updateAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Chunks {
@@ -50,8 +50,8 @@ model Chunks {
   content       String
   summary       String
   size          Int
-  createAt      DateTime        @default(now())
-  updateAt      DateTime        @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   Questions     Questions[]
   ChunkMetadata ChunkMetadata?
   ChunkEntities ChunkEntities[]
@@ -102,8 +102,8 @@ model Questions {
   question  String
   label     String
   answered  Boolean  @default(false)
-  createAt  DateTime @default(now())
-  updateAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
 }
@@ -123,49 +123,52 @@ model Datasets {
   cot            String
   confidence     Float
   confirmed      Boolean  @default(false)
-  createAt       DateTime @default(now())
-  updateAt       DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([projectId])
 }
 
 model LlmProviders {
-  id        String      @id
-  name      String
-  apiUrl    String
-  createAt  DateTime    @default(now())
-  updateAt  DateTime    @updatedAt
-  LlmModels LlmModels[]
+  id            String        @id
+  project       Projects      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId     String
+  name          String
+  apiUrl        String
+  apiKey        String
+  interfaceType String
+  icon          String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  ModelConfig   ModelConfig[]
 }
 
 model LlmModels {
-  id         String       @id @default(nanoid())
-  modelId    String
-  modelName  String
-  provider   LlmProviders @relation(fields: [providerId], references: [id])
-  providerId String
-  createAt   DateTime     @default(now())
-  updateAt   DateTime     @updatedAt
+  id           String   @id @default(nanoid())
+  modelId      String
+  modelName    String
+  providerName String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model ModelConfig {
-  id           String   @id @default(nanoid())
-  project      Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId    String
-  providerId   String
-  providerName String
-  endpoint     String
-  apiKey       String
-  modelId      String
-  modelName    String
-  type         String
-  temperature  Float
-  maxTokens    Int
-  topP         Float
-  topK         Float
-  status       Int
-  createAt     DateTime @default(now())
-  updateAt     DateTime @updatedAt
+  id          String       @id @default(nanoid())
+  provider    LlmProviders @relation(fields: [providerId], references: [id])
+  providerId  String
+  modelId     String
+  modelName   String
+  type        String
+  temperature Float
+  maxTokens   Int
+  topP        Float?
+  topK        Float?
+  status      Boolean      @default(true)
+  isDefault   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Project     Projects?    @relation(fields: [projectId], references: [id])
+  projectId   String?
 }
 
 model WorkFlow {
@@ -185,7 +188,7 @@ model WorkFlow {
   createdAt      DateTime       @default(now())
   startedAt      DateTime?
   finishedAt     DateTime?
-  updateAt       DateTime       @updatedAt
+  updatedAt      DateTime       @updatedAt
   steps          WorkflowStep[]
 }
 

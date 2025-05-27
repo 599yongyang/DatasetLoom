@@ -6,6 +6,7 @@ export type ProjectsWithCounts = Prisma.ProjectsGetPayload<{
             select: {
                 Datasets: true;
                 Questions: true;
+                ModelConfig: true;
             };
         };
     };

@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
-import { createLlmModels, getLlmModelsByProviderId } from '@/lib/db/llm-models'; // 导入db实例
+import { createLlmModels, getLlmModelsByProviderName } from '@/lib/db/llm-models'; // 导入db实例
 
 // 获取LLM模型
 export async function GET(request: Request) {
     try {
         const url = new URL(request.url);
         const searchParams = url.searchParams;
-        let providerId = searchParams.get('providerId');
-        if (!providerId) {
+        let providerName = searchParams.get('providerName');
+        if (!providerName) {
             return NextResponse.json({ error: '参数错误' }, { status: 400 });
         }
-        const models = await getLlmModelsByProviderId(providerId);
+        const models = await getLlmModelsByProviderName(providerName);
         if (!models) {
             return NextResponse.json({ error: 'LLM provider not found' }, { status: 404 });
         }
@@ -24,11 +24,10 @@ export async function GET(request: Request) {
 //同步最新模型列表
 export async function POST(request: Request) {
     try {
-        const { newModels, providerId } = await request.json();
-        const models = await getLlmModelsByProviderId(providerId);
+        const { newModels, providerName } = await request.json();
+        const models = await getLlmModelsByProviderName(providerName);
         const existingModelIds = models.map(model => model.modelId);
-        // @ts-ignore
-        const diffModels = newModels.filter(item => !existingModelIds.includes(item.modelId));
+        const diffModels = newModels.filter((item: any) => !existingModelIds.includes(item.modelId));
         if (diffModels.length > 0) {
             return NextResponse.json(await createLlmModels(diffModels));
         } else {

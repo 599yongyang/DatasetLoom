@@ -1,6 +1,7 @@
 import { createAnthropic, type AnthropicProvider } from '@ai-sdk/anthropic';
-import BaseClient, { type Config } from './base';
 import type { LanguageModel } from 'ai';
+import { BaseClient } from './base';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 /**
  * Anthropic AI 客户端类
@@ -13,13 +14,13 @@ class AnthropicClient extends BaseClient {
      * 构造函数
      * @param config - 配置信息
      */
-    constructor(config: Config) {
+    constructor(config: ModelConfigWithProvider) {
         super(config);
 
         // 初始化实例
         this.anthropic = createAnthropic({
-            baseURL: config.endpoint ?? 'https://api.anthropic.com/v1', // 默认API 地址
-            apiKey: config.apiKey ?? '' // 确保 apiKey 必须提供
+            baseURL: config.provider.apiUrl ?? 'https://api.anthropic.com/v1', // 默认API 地址
+            apiKey: config.provider.apiKey ?? '' // 确保 apiKey 必须提供
         });
     }
 
@@ -28,7 +29,7 @@ class AnthropicClient extends BaseClient {
      * 返回指定模型的语言模型实例
      */
     protected _getModel(): LanguageModel {
-        return this.anthropic(this.modelId);
+        return this.anthropic(this.config.modelId);
     }
 }
 
