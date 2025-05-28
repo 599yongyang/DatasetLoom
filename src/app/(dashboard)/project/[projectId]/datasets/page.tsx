@@ -18,6 +18,8 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { ExportDataDialog } from '@/components/dataset/export-data-dialog';
 import { useDatasets } from '@/hooks/query/use-datasets';
+import { ModelTag } from '@lobehub/icons';
+import * as React from 'react';
 
 export default function Page() {
     const router = useRouter();
@@ -109,34 +111,19 @@ export default function Page() {
             enableHiding: false
         },
         {
-            accessorKey: 'createdAt',
-            header: t('table_columns.createdAt'),
-            cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
-        },
-        {
-            accessorKey: 'model',
-            header: t('table_columns.model'),
+            accessorKey: 'answer',
+            header: t('table_columns.answer'),
             cell: ({ row }) => (
-                <div className="w-50">
-                    <Badge variant="outline" className="text-muted-foreground px-1.5">
-                        {row.original.model}
-                    </Badge>
+                <div className="w-100 truncate">
+                    <HoverCard>
+                        <HoverCardTrigger className={'w-4 truncate'}>{row.original.answer}</HoverCardTrigger>
+                        <HoverCardContent className={'max-h-52 overflow-auto'}>{row.original.answer}</HoverCardContent>
+                    </HoverCard>
                 </div>
             )
         },
-        // {
-        //     accessorKey: "questionLabel",
-        //     header: "领域标签",
-        //     cell: ({row}) => (
-        //         <div className="w-32">
-        //             <Badge variant="outline" className="text-muted-foreground px-1.5">
-        //                 {row.original.questionLabel}
-        //             </Badge>
-        //         </div>
-        //     ),
-        // },
         {
-            accessorKey: 'status',
+            accessorKey: 'cot',
             header: t('table_columns.cot'),
             cell: ({ row }) => (
                 <>
@@ -149,16 +136,18 @@ export default function Page() {
             )
         },
         {
-            accessorKey: 'answer',
-            header: t('table_columns.answer'),
+            accessorKey: 'model',
+            header: t('table_columns.model'),
             cell: ({ row }) => (
-                <div className="w-40 truncate">
-                    <HoverCard>
-                        <HoverCardTrigger className={'w-4 truncate'}>{row.original.answer}</HoverCardTrigger>
-                        <HoverCardContent className={'max-h-52 overflow-auto'}>{row.original.answer}</HoverCardContent>
-                    </HoverCard>
+                <div>
+                    <ModelTag model={row.original.model} type="color" />
                 </div>
             )
+        },
+        {
+            accessorKey: 'createdAt',
+            header: t('table_columns.createdAt'),
+            cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
         },
         {
             id: 'actions',

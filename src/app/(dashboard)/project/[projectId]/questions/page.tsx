@@ -7,12 +7,12 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Trash2, Wand } from 'lucide-react';
-import { DataTable } from '@/components/data-table/data-table';
 import { toast } from 'sonner';
 import type { Questions } from '@prisma/client';
 import { useQuestionTableColumns } from '@/components/questions/table-columns';
 import useQuestions from '@/hooks/query/use-questions';
 import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
+import { DataTable } from '@/components/questions/data-table';
 
 export default function Page() {
     let { projectId }: { projectId: string } = useParams();
@@ -133,15 +133,15 @@ export default function Page() {
                 </div>
             </div>
             <DataTable
-                columns={columns}
                 data={questions}
                 pageCount={pageCount}
                 pagination={pagination}
                 setPagination={setPagination}
                 rowSelection={rowSelection}
                 setRowSelection={setRowSelection}
+                columns={columns}
+                refresh={mutateQuestions}
             />
-
             <DatasetStrategyDialog
                 type={'multiple'}
                 open={open}

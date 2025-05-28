@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { QuestionDialog } from '@/components/questions/question-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Wand, SquarePen } from 'lucide-react';
+import { Wand, SquarePen, ChevronUpIcon, ChevronDownIcon, ChevronRight, Drama } from 'lucide-react';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
 import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
 import React, { useState } from 'react';
+import { PreferencePairDialog } from '@/components/preference-pair/preference-pair-dialog';
 
 export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: () => void }) {
     const { t } = useTranslation('question');
@@ -28,6 +29,32 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
     };
 
     const columns: ColumnDef<QuestionsDTO>[] = [
+        {
+            id: 'expander',
+            header: () => null,
+            cell: ({ row }) => {
+                return row.getCanExpand() ? (
+                    <Button
+                        {...{
+                            className: 'size-7 -mr-4 shadow-none text-muted-foreground',
+                            onClick: row.getToggleExpandedHandler(),
+                            'aria-expanded': row.getIsExpanded(),
+                            'aria-label': row.getIsExpanded()
+                                ? `Collapse details for ${row.original.label}`
+                                : `Expand details for ${row.original.label}`,
+                            size: 'icon',
+                            variant: 'ghost'
+                        }}
+                    >
+                        {row.getIsExpanded() ? (
+                            <ChevronDownIcon className="opacity-60" size={16} aria-hidden="true" />
+                        ) : (
+                            <ChevronRight className="opacity-60" size={16} aria-hidden="true" />
+                        )}
+                    </Button>
+                ) : undefined;
+            }
+        },
         {
             id: 'select',
             header: ({ table }) => (
@@ -96,6 +123,7 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,
             cell: ({ row }) => {
                 const [open, setOpen] = useState(false);
+                const [ppOpen, setPpOpen] = useState(false);
                 return (
                     <div className="flex flex-1 justify-center gap-2">
                         <QuestionDialog item={row.original} getQuestions={mutateQuestions}>
@@ -116,7 +144,14 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
                                 mutateQuestions={mutateQuestions}
                             />
                         )}
-
+                        {row.original.Datasets.length > 1 && (
+                            <Button variant="ghost" size="icon" onClick={() => setPpOpen(true)}>
+                                <Drama size={30} />
+                            </Button>
+                        )}
+                        {ppOpen && (
+                            <PreferencePairDialog questionId={row.original.id} open={ppOpen} setOpen={setPpOpen} />
+                        )}
                         <ConfirmAlert
                             title={t('delete_title')}
                             message={row.original.question}

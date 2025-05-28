@@ -171,6 +171,32 @@ export async function updateDataset(dataset: Datasets) {
     }
 }
 
+export async function updateDatasetPrimaryAnswer(datasetId: string, questionId: string) {
+    console.log('updateDatasetPrimaryAnswer', datasetId, questionId);
+    try {
+        return await db.$transaction([
+            db.datasets.updateMany({
+                where: { questionId },
+                data: {
+                    isPrimaryAnswer: false
+                }
+            }),
+            db.datasets.update({
+                where: {
+                    id: datasetId,
+                    questionId
+                },
+                data: {
+                    isPrimaryAnswer: true
+                }
+            })
+        ]);
+    } catch (error) {
+        console.error('Failed to update primary answer in database');
+        throw new Error('Failed to set primary answer');
+    }
+}
+
 export async function deleteDataset(datasetId: string) {
     try {
         return await db.datasets.delete({

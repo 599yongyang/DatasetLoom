@@ -98,11 +98,7 @@ export default function Page() {
     return (
         <div className="@container/main mx-auto py-3 max-w-6xl">
             <div className="flex items-center justify-between mb-6">
-                <Button
-                    variant="ghost"
-                    onClick={() => router.push(`/project/${projectId}/datasets`)}
-                    className="flex items-center gap-2 bg-gray-100"
-                >
+                <Button variant="ghost" onClick={() => router.back()} className="flex items-center gap-2 bg-gray-100">
                     <ChevronLeft className="h-4 w-4" />
                     <span>{t('detail.back_list')}</span>
                 </Button>

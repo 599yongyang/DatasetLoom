@@ -37,7 +37,8 @@ export async function getQuestions(
                             name: true,
                             content: true
                         }
-                    }
+                    },
+                    Datasets: true
                 },
                 skip: (page - 1) * pageSize,
                 take: pageSize

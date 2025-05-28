@@ -8,13 +8,6 @@ export type QuestionsDTO = Prisma.QuestionsGetPayload<{
                 content: true;
             };
         };
+        Datasets: true;
     };
-}> & {
-    datasetCount: number;
-};
-
-// 定义返回类型
-export interface QuestionsVO {
-    data: Array<QuestionsDTO>;
-    total: number;
-}
+}>;
