@@ -196,6 +196,7 @@ export function QuestionStrategyForm({
                                     <span>1K</span>
                                     <span>8K</span>
                                     <span>16K</span>
+                                    <span>24K</span>
                                     <span>32K</span>
                                 </div>
                             </div>

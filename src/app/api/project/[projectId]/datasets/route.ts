@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createDataset, getDatasetsByPagination } from '@/lib/db/datasets';
+import { createDataset, getDatasetsByPagination, getDatasetsCount } from '@/lib/db/datasets';
 import { getQuestionById, updateQuestion } from '@/lib/db/questions';
 import { getChunkById } from '@/lib/db/chunks';
 import { getProject } from '@/lib/db/projects';
@@ -87,6 +87,7 @@ export async function POST(request: Request, props: { params: Params }) {
         // 调用大模型生成答案
         const { text, reasoning } = await llmClient.chat(prompt);
         const llmOutput = await doubleCheckModelOutput(text, answerSchema);
+        const count = await getDatasetsCount(question.id);
         const datasetId = nanoid(12);
         // 创建新的数据集项
         const datasets = {
@@ -101,7 +102,8 @@ export async function POST(request: Request, props: { params: Params }) {
             confidence: llmOutput.confidence,
             chunkName: chunk.name,
             chunkContent: chunk.content,
-            questionId: question.id
+            questionId: question.id,
+            isPrimaryAnswer: count <= 0
         };
         let dataset = await createDataset(datasets as Datasets);
         await updateQuestion({ id: questionId, answered: true } as Questions);
@@ -135,14 +137,18 @@ export async function GET(request: Request, props: { params: Params }) {
         const searchParams = url.searchParams;
         const page = parseInt(searchParams.get('page') ?? '1');
         const size = parseInt(searchParams.get('size') ?? '10');
-        const status = searchParams.get('status');
         const input = searchParams.get('input') ?? '';
-
-        // 根据状态参数设置 confirmed 值
-        const confirmed = status === 'confirmed' ? true : status === 'unconfirmed' ? false : undefined;
+        const type = searchParams.get('type') ?? '';
+        const status = searchParams.get('confirmed') ?? 'all';
+        let confirmed: boolean | undefined = undefined;
+        if (status === 'confirmed') {
+            confirmed = true;
+        } else if (status === 'unconfirmed') {
+            confirmed = false;
+        }
 
         // 调用数据获取函数
-        const datasets = await getDatasetsByPagination(projectId, page, size, confirmed, input);
+        const datasets = await getDatasetsByPagination(projectId, page, size, input, type, confirmed);
 
         // 返回成功响应
         return NextResponse.json(datasets);

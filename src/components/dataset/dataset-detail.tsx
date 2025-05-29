@@ -1,0 +1,290 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Star, ThumbsUp, ThumbsDown, Tag, Brain, Quote, FileText } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Markdown } from '@/components/playground/markdown';
+import { Textarea } from '@/components/ui/textarea';
+import { ModelTag } from '@lobehub/icons';
+import type { Datasets, PreferencePair } from '@prisma/client';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
+export default function DatasetDetail({
+    datasets,
+    datasetId,
+    pp,
+    refresh
+}: {
+    datasets: Datasets[];
+    datasetId: string;
+    pp: PreferencePair;
+    refresh: () => void;
+}) {
+    const [activeAnswerId, setActiveAnswerId] = useState(datasetId);
+    const [activeAnswer, setActiveAnswer] = useState(datasets[0]);
+    useEffect(() => {
+        setActiveAnswerId(datasetId);
+    }, [datasetId]);
+
+    useEffect(() => {
+        if (!datasets || datasets.length === 0) return;
+        const foundAnswer = datasets.find(d => d.id === activeAnswerId) || datasets[0];
+        setActiveAnswer(foundAnswer);
+    }, [activeAnswerId, datasets]);
+    return (
+        <>
+            {/* 答案部分 */}
+            <div className="mb-8">
+                {datasets.length > 1 ? (
+                    <Tabs
+                        value={activeAnswerId}
+                        onValueChange={value => setActiveAnswerId(value)}
+                        className="space-y-4 mt-3"
+                    >
+                        <TabsList className=" p-1 rounded-lg">
+                            {datasets.map((dataset, index) => (
+                                <TabsTrigger
+                                    key={dataset.id}
+                                    value={dataset.id.toString()}
+                                    className="flex items-center gap-1 px-4 py-2 rounded-md transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                                >
+                                    答案 {String.fromCharCode(65 + index)}
+                                    {dataset.isPrimaryAnswer && <Star className="w-3 h-3 text-black " />}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                        <TabsContent value={activeAnswerId}>
+                            <AnswerCard
+                                count={datasets.length}
+                                refresh={refresh}
+                                activeAnswer={activeAnswer as Datasets}
+                                pp={pp}
+                            />
+                        </TabsContent>
+                    </Tabs>
+                ) : (
+                    <div className={'mt-3'}>
+                        <AnswerCard count={1} refresh={refresh} activeAnswer={activeAnswer as Datasets} pp={pp} />
+                    </div>
+                )}
+            </div>
+            <Accordion type="multiple" defaultValue={['cot', 'label', 'evidence']} className="w-full">
+                {/*思维链*/}
+                <AccordionItem value={'cot'} className="py-2">
+                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Brain className="w-5 h-5 text-indigo-600" />
+                            <span>思维链</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground ps-7 pb-2">
+                        {activeAnswer?.cot || '无'}
+                    </AccordionContent>
+                </AccordionItem>
+
+                {/*参考标签*/}
+                <AccordionItem value={'label'} className="py-2">
+                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Tag className="w-5 h-5 text-blue-600" />
+                            <span>参考标签</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground ps-7 pb-2">
+                        <div className="flex flex-wrap gap-2">
+                            {activeAnswer?.referenceLabel
+                                .split(',')
+                                .map((label, index) => <Badge key={index}>{label}</Badge>)}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+
+                {/*引用内容*/}
+                <AccordionItem value={'evidence'} className="py-2">
+                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Quote className="h-4 w-4" />
+                            <span>引用内容</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground ps-7 pb-2">
+                        <Table>
+                            <TableHeader className="bg-transparent">
+                                <TableRow className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
+                                    <TableHead>来源位置</TableHead>
+                                    <TableHead>依据内容</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody className="[&_td:first-child]:rounded-l-lg [&_td:last-child]:rounded-r-lg">
+                                {activeAnswer?.evidence &&
+                                    JSON.parse(activeAnswer.evidence).map(
+                                        (item: { location: string; text: string }) => (
+                                            <TableRow
+                                                key={item.location}
+                                                className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r"
+                                            >
+                                                <TableCell>{item.location}</TableCell>
+                                                <TableCell>{item.text}</TableCell>
+                                            </TableRow>
+                                        )
+                                    )}
+                            </TableBody>
+                        </Table>
+                    </AccordionContent>
+                </AccordionItem>
+
+                {/*文本块*/}
+                <AccordionItem value={'4'} className="py-2">
+                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <FileText className="w-5 h-5 text-teal-600" />
+                            <span>文本块</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground ps-7 pb-2">
+                        {activeAnswer?.chunkContent && <Markdown>{activeAnswer.chunkContent}</Markdown>}
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </>
+    );
+}
+
+function AnswerCard({
+    activeAnswer,
+    pp,
+    count,
+    refresh
+}: {
+    activeAnswer: Datasets;
+    pp: PreferencePair;
+    count: number;
+    refresh: () => void;
+}) {
+    const router = useRouter();
+    const getPreferenceBadge = (id: string) => {
+        if (!pp) return null;
+        if (id === pp.datasetChosenId) {
+            return (
+                <Badge className="bg-green-500 hover:bg-green-600">
+                    <ThumbsUp className="w-3 h-3 mr-1" /> 偏好
+                </Badge>
+            );
+        } else if (id === pp.datasetRejectId) {
+            return (
+                <Badge variant="destructive">
+                    <ThumbsDown className="w-3 h-3 mr-1" /> 拒绝
+                </Badge>
+            );
+        }
+        return null;
+    };
+
+    const handlePP = async (type: 'chosen' | 'rejected') => {
+        if (!activeAnswer) {
+            toast.error('当前答案为空，无法操作');
+            return;
+        }
+
+        const { projectId, questionId, question, id: answerId, answer } = activeAnswer;
+
+        // 初始化 pp 对象
+        const newPP = {
+            id: pp?.id ?? '',
+            projectId,
+            questionId,
+            prompt: question,
+            chosen: pp?.chosen ?? '',
+            rejected: pp?.rejected ?? '',
+            datasetChosenId: pp?.datasetChosenId ?? '',
+            datasetRejectId: pp?.datasetRejectId ?? ''
+        } as PreferencePair;
+
+        // 设置对应字段
+        if (type === 'chosen') {
+            newPP.chosen = answer;
+            newPP.datasetChosenId = answerId;
+        } else if (type === 'rejected') {
+            newPP.rejected = answer;
+            newPP.datasetRejectId = answerId;
+        }
+
+        try {
+            await axios.post(`/api/project/${projectId}/preference-pair`, newPP);
+            toast.success('设置成功');
+            refresh();
+        } catch (error) {
+            console.error('设置失败:', error);
+            toast.error('设置失败，请重试');
+        }
+    };
+
+    const handlePrimaryAnswer = () => {
+        axios
+            .put(`/api/project/${activeAnswer.projectId}/datasets/primary-answer`, {
+                datasetId: activeAnswer.id,
+                questionId: activeAnswer.questionId
+            })
+            .then(res => {
+                toast.success('设置成功');
+                refresh();
+            })
+            .catch(error => {
+                toast.error('设置失败');
+            });
+    };
+
+    return (
+        <div className="border rounded-lg shadow-sm  overflow-hidden">
+            <div className="p-4 ">
+                <Textarea value={activeAnswer.answer} readOnly className="w-full h-32 resize-none   focus:ring-0" />
+            </div>
+            <div className="flex flex-wrap justify-between items-center p-4 gap-2">
+                <div className="flex flex-wrap gap-2">
+                    {activeAnswer.isPrimaryAnswer && (
+                        <Badge>
+                            <Star className="w-3 h-3 mr-1" /> 主答案
+                        </Badge>
+                    )}
+                    {getPreferenceBadge(activeAnswer.id)}
+                    <ModelTag model={activeAnswer.model} type={'color'} />
+                    <p className="text-gray-500 text-sm">置信度: {activeAnswer.confidence * 100}%</p>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                    {count > 1 && !activeAnswer.isPrimaryAnswer && (
+                        <Button variant="outline" size="sm" onClick={handlePrimaryAnswer} className="gap-1">
+                            <Star className="w-4 h-4" /> 设置为主答案
+                        </Button>
+                    )}
+
+                    {pp?.datasetChosenId !== activeAnswer.id && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePP('chosen')}
+                            className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                        >
+                            <ThumbsUp className="w-4 h-4" /> 标为偏好
+                        </Button>
+                    )}
+                    {pp?.datasetRejectId !== activeAnswer.id && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePP('rejected')}
+                            className="gap-1 text-red-700 border-red-300 hover:bg-red-50"
+                        >
+                            <ThumbsDown className="w-4 h-4" /> 标为拒绝
+                        </Button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}

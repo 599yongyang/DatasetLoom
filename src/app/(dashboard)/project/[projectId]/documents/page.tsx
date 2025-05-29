@@ -132,7 +132,6 @@ export default function Page() {
                             className={'hover:cursor-pointer'}
                             onClick={() => {
                                 setFileIds(Object.keys(rowSelection));
-                                console.log(Object.keys(rowSelection));
                                 setOpen(true);
                             }}
                         >

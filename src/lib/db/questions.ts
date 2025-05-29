@@ -48,16 +48,7 @@ export async function getQuestions(
             })
         ]);
 
-        // 批量查询 datasetCount
-        const datasetCounts = await getDatasetCountsForQuestions(data.map(item => item.id));
-
-        // 合并 datasetCount 到问题项中
-        const questionsWithDatasetCount = data.map((item, index) => ({
-            ...item,
-            datasetCount: datasetCounts[index]
-        }));
-
-        return { data: questionsWithDatasetCount, total };
+        return { data, total };
     } catch (error) {
         console.error('Failed to get questions by projectId in database');
         throw error;
@@ -132,37 +123,6 @@ export async function getQuestionsByIds(projectId: string, ids: string[]) {
     }
 }
 
-/**
- * 批量获取问题的 datasetCount
- * @param {Array<string>} questionIds - 问题ID列表
- * @returns {Promise<Array<number>>} - 每个问题的 datasetCount 列表
- */
-async function getDatasetCountsForQuestions(questionIds: string[]) {
-    const datasetCounts = await db.datasets.groupBy({
-        by: ['questionId'],
-        _count: {
-            questionId: true
-        },
-        where: {
-            questionId: {
-                in: questionIds
-            }
-        }
-    });
-
-    // 将结果转换为 questionId 到 datasetCount 的映射
-    const datasetCountMap: Record<string, number> = datasetCounts.reduce(
-        (map, item) => {
-            map[item.questionId] = item._count.questionId;
-            return map;
-        },
-        {} as Record<string, number>
-    );
-
-    // 返回与 questionIds 顺序对应的 datasetCount 列表
-    return questionIds.map(id => datasetCountMap[id] || 0);
-}
-
 export async function getQuestionById(id: string) {
     try {
         return await db.questions.findUnique({
@@ -186,16 +146,53 @@ export async function isExistByQuestion(question: string) {
     }
 }
 
-export async function getQuestionsCount(projectId: string) {
+export async function getQuestionWithDatasetById(id: string) {
     try {
-        return await db.questions.count({
-            where: {
-                projectId
+        return await db.questions.findUnique({
+            where: { id },
+            include: {
+                Datasets: true,
+                PreferencePair: true
             }
         });
     } catch (error) {
-        console.error('Failed to get questions count in database');
+        console.error('Failed to get questions by name in database');
         throw error;
+    }
+}
+
+export async function getNavigationItems(projectId: string, questionId: string, operateType: 'prev' | 'next') {
+    const currentItem = await db.questions.findUnique({
+        where: { id: questionId },
+        select: { id: true, createdAt: true }
+    });
+
+    if (!currentItem) {
+        throw new Error('当前记录不存在');
+    }
+
+    const { createdAt, id } = currentItem;
+
+    if (operateType === 'next') {
+        return db.questions.findFirst({
+            where: {
+                projectId,
+                Datasets: { some: {} },
+                OR: [{ createdAt: { gt: createdAt } }, { createdAt: createdAt, id: { gt: id } }]
+            },
+            include: { Datasets: true, PreferencePair: true },
+            orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
+        });
+    } else {
+        return db.questions.findFirst({
+            where: {
+                projectId,
+                Datasets: { some: {} },
+                OR: [{ createdAt: { lt: createdAt } }, { createdAt: createdAt, id: { lt: id } }]
+            },
+            include: { Datasets: true, PreferencePair: true },
+            orderBy: [{ createdAt: 'desc' }, { id: 'desc' }]
+        });
     }
 }
 
@@ -224,14 +221,44 @@ export async function updateQuestion(question: Questions) {
     }
 }
 
+export async function getQuestionsCount(projectId: string) {
+    try {
+        // 获取总数：有 Datasets 的问题
+        const total = await db.questions.count({
+            where: {
+                projectId,
+                Datasets: { some: {} }
+            }
+        });
+
+        // 获取已确认的数量
+        const confirmedCount = await db.questions.count({
+            where: {
+                projectId,
+                confirmed: true,
+                Datasets: { some: {} }
+            }
+        });
+
+        return { total, confirmedCount };
+    } catch (error) {
+        console.error('Failed to get questions count in database', error);
+        throw error;
+    }
+}
+
 /**
  * 获取指定文本块的问题
  * @param {string} projectId - 项目ID
  * @param {string} chunkId - 文本块ID
- * @returns {Promise<Array>} - 问题列表
  */
 export async function getQuestionsForChunk(projectId: string, chunkId: string) {
-    return await db.questions.findMany({ where: { projectId, chunkId } });
+    try {
+        return await db.questions.findMany({ where: { projectId, chunkId } });
+    } catch (error) {
+        console.error('Failed to get questions in database');
+        throw error;
+    }
 }
 
 /**
@@ -240,7 +267,6 @@ export async function getQuestionsForChunk(projectId: string, chunkId: string) {
  */
 export async function deleteQuestion(questionId: string) {
     try {
-        console.log(questionId);
         return await db.questions.delete({
             where: {
                 id: questionId

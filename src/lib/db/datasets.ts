@@ -8,42 +8,87 @@ import type { Datasets } from '@prisma/client';
  * @param projectId 项目id
  * @param page
  * @param pageSize
- * @param confirmed
  * @param input
+ * @param type
+ * @param confirmed
  */
 export async function getDatasetsByPagination(
     projectId: string,
     page = 1,
     pageSize = 10,
-    confirmed: boolean | undefined,
-    input: string
+    input: string = '',
+    type: string = '',
+    confirmed: boolean | undefined
 ) {
     try {
-        const whereClause = {
-            projectId,
-            ...(confirmed !== undefined && { confirmed: confirmed }),
-            question: { contains: input }
-        };
-        const [data, total, confirmedCount] = await Promise.all([
-            db.datasets.findMany({
-                where: whereClause,
-                orderBy: {
-                    createdAt: 'desc'
-                },
-                skip: (page - 1) * pageSize,
-                take: pageSize
-            }),
-            db.datasets.count({
-                where: whereClause
-            }),
-            db.datasets.count({
-                where: { ...whereClause, confirmed: true }
-            })
-        ]);
+        if (type === 'pp') {
+            const whereClause: any = {
+                projectId,
+                prompt: { contains: input },
+                question: {
+                    confirmed: confirmed
+                }
+            };
 
-        return { data, total, confirmedCount };
+            if (confirmed) {
+                whereClause.questions = { confirmed };
+            }
+            const [data, total] = await Promise.all([
+                db.preferencePair.findMany({
+                    where: whereClause,
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    skip: (page - 1) * pageSize,
+                    take: pageSize
+                }),
+                db.preferencePair.count({
+                    where: whereClause
+                })
+            ]);
+
+            return {
+                data,
+                total,
+                currentPage: page,
+                totalPages: Math.ceil(total / pageSize),
+                pageSize
+            };
+        } else {
+            let whereClause: any = {
+                projectId,
+                question: { contains: input }
+            };
+            if (confirmed) {
+                whereClause.questions = { confirmed };
+            }
+
+            if (type === 'sft') {
+                whereClause.isPrimaryAnswer = true;
+            }
+
+            const [data, total] = await Promise.all([
+                db.datasets.findMany({
+                    where: whereClause,
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    skip: (page - 1) * pageSize,
+                    take: pageSize
+                }),
+                db.datasets.count({ where: whereClause })
+            ]);
+
+            return {
+                data,
+                total,
+                currentPage: page,
+                totalPages: Math.ceil(total / pageSize),
+                pageSize
+            };
+        }
     } catch (error) {
-        console.error('Failed to get datasets by pagination in database');
+        console.error('Failed to get data by pagination', error);
         throw error;
     }
 }
@@ -94,27 +139,10 @@ export async function getDatasetsIds(projectId: string, confirmed: boolean | und
 }
 
 /**
- * 获取数据集数量(根据项目ID)
- * @param projectId 项目id
+ * 获取数据集数量
+ * @param questionId 问题id
  */
-export async function getDatasetsCount(projectId: string) {
-    try {
-        return await db.datasets.count({
-            where: {
-                projectId
-            }
-        });
-    } catch (error) {
-        console.error('Failed to get datasets count by projectId in database');
-        throw error;
-    }
-}
-
-/**
- * 获取数据集数量(根据问题Id)
- * @param questionId 问题Id
- */
-export async function getDatasetsCountByQuestionId(questionId: string) {
+export async function getDatasetsCount(questionId: string) {
     try {
         return await db.datasets.count({
             where: {
@@ -122,7 +150,7 @@ export async function getDatasetsCountByQuestionId(questionId: string) {
             }
         });
     } catch (error) {
-        console.error('Failed to get datasets count by projectId in database');
+        console.error('Failed to get datasets count by questionId in database');
         throw error;
     }
 }
@@ -207,43 +235,5 @@ export async function deleteDataset(datasetId: string) {
     } catch (error) {
         console.error('Failed to delete datasets in database');
         throw error;
-    }
-}
-
-export async function getDatasetsCounts(projectId: string) {
-    try {
-        const [total, confirmedCount] = await Promise.all([
-            db.datasets.count({
-                where: { projectId }
-            }),
-            db.datasets.count({
-                where: { projectId, confirmed: true }
-            })
-        ]);
-
-        return { total, confirmedCount };
-    } catch (error) {
-        console.error('Failed to delete datasets in database');
-        throw error;
-    }
-}
-
-export async function getNavigationItems(projectId: string, datasetId: string, operateType: 'prev' | 'next') {
-    const currentItem = await db.datasets.findUnique({
-        where: { id: datasetId }
-    });
-    if (!currentItem) {
-        throw new Error('当前记录不存在');
-    }
-    if (operateType === 'prev') {
-        return await db.datasets.findFirst({
-            where: { createdAt: { gt: currentItem.createdAt }, projectId },
-            orderBy: { createdAt: 'asc' }
-        });
-    } else {
-        return await db.datasets.findFirst({
-            where: { createdAt: { lt: currentItem.createdAt }, projectId },
-            orderBy: { createdAt: 'desc' }
-        });
     }
 }

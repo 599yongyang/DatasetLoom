@@ -1,7 +1,8 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { buildURL, fetcher } from '@/lib/utils';
-import type { Datasets } from '@prisma/client';
+import { type Datasets } from '@prisma/client';
+import type { QuestionsDTO } from '@/schema/questions';
 
 type UseDatasetsParams = {
     projectId: string;
@@ -9,6 +10,8 @@ type UseDatasetsParams = {
     pageSize: number;
     status: string;
     input: string;
+    type: string;
+    confirmed: string;
 };
 
 interface DatasetListResponse {
@@ -18,7 +21,7 @@ interface DatasetListResponse {
 }
 
 interface DatasetInfoResponse {
-    datasets: Datasets;
+    data: QuestionsDTO[];
     total: number;
     confirmedCount: number;
 }
@@ -31,7 +34,9 @@ export function useDatasets(params: UseDatasetsParams) {
             page: params.pageIndex + 1,
             size: params.pageSize,
             ...(params.status && { status: params.status }),
-            ...(params.input && { input: params.input })
+            ...(params.input && { input: params.input }),
+            type: params.type,
+            confirmed: params.confirmed
         };
 
         return buildURL(`/api/project/${params.projectId}/datasets`, paramsObj);
@@ -52,14 +57,11 @@ export function useDatasets(params: UseDatasetsParams) {
     };
 }
 
-export function useDatasetsId({ projectId, datasetId }: { projectId: string; datasetId: string }) {
-    const { data, error, isLoading, mutate } = useSWR<DatasetInfoResponse>(
-        `/api/project/${projectId}/datasets/${datasetId}`,
-        fetcher
-    );
+export function useDatasetsInfo({ projectId, questionId }: { projectId: string; questionId: string }) {
+    const { data, error, isLoading, mutate } = useSWR(`/api/project/${projectId}/questions/${questionId}`, fetcher);
 
     return {
-        datasets: data?.datasets || ({} as Datasets),
+        datasets: data?.data || {},
         total: data?.total || 0,
         confirmedCount: data?.confirmedCount || 0,
         isLoading: !error && !data,

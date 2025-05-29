@@ -95,19 +95,20 @@ model ChunkRelations {
 }
 
 model Questions {
-  id             String           @id @default(nanoid())
-  project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id             String          @id @default(nanoid())
+  project        Projects        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId      String
-  chunk          Chunks           @relation(fields: [chunkId], references: [id])
+  chunk          Chunks          @relation(fields: [chunkId], references: [id])
   chunkId        String
   question       String
   label          String
-  answered       Boolean          @default(false)
-  deleted        Boolean          @default(false)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  answered       Boolean         @default(false)
+  deleted        Boolean         @default(false)
+  confirmed      Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   Datasets       Datasets[]
-  PreferencePair PreferencePair[]
+  PreferencePair PreferencePair?
 
   @@index([projectId])
 }
@@ -116,7 +117,7 @@ model Datasets {
   id              String    @id @default(nanoid())
   project         Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId       String
-  questions       Questions @relation(fields: [questionId], references: [id])
+  questions       Questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
   questionId      String
   question        String
   answer          String
@@ -127,7 +128,6 @@ model Datasets {
   evidence        String
   cot             String
   confidence      Float
-  confirmed       Boolean   @default(false)
   isPrimaryAnswer Boolean?  @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -139,8 +139,8 @@ model PreferencePair {
   id              String    @id @default(nanoid())
   project         Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId       String
-  question        Questions @relation(fields: [questionId], references: [id])
-  questionId      String
+  question        Questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId      String    @unique
   prompt          String
   chosen          String
   rejected        String

@@ -8,7 +8,6 @@ export async function POST(request: Request, props: { params: Params }) {
     const params = await props.params;
     const { projectId } = params;
     const data = await request.json();
-    console.log(data);
     // 验证参数
     if (!projectId) {
         return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });

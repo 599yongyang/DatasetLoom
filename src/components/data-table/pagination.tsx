@@ -5,16 +5,57 @@ import { Button } from '@/components/ui/button';
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-interface PaginationControlsProps<TData> {
-    table: Table<TData>;
+interface CommonPaginationProps {
+    pageIndex: number;
+    pageSize: number;
+    pageCount: number;
+    canPreviousPage?: boolean;
+    canNextPage?: boolean;
+    gotoPage?: (page: number) => void;
+    previousPage?: () => void;
+    nextPage?: () => void;
+    setPageSize?: (size: number) => void;
 }
 
-export const Pagination = <TData,>({ table }: PaginationControlsProps<TData>) => {
+interface PaginationProps<TData> {
+    table?: Table<TData>;
+    pagination?: CommonPaginationProps;
+}
+
+export const Pagination = <TData,>({ table, pagination: customPagination }: PaginationProps<TData>) => {
     const { t } = useTranslation('common');
+    // 如果传入的是 table，则使用 table 提供的方法和状态
+    const resolvedPagination = table
+        ? {
+              pageIndex: table.getState().pagination.pageIndex,
+              pageSize: table.getState().pagination.pageSize,
+              pageCount: table.getPageCount(),
+              canPreviousPage: table.getCanPreviousPage(),
+              canNextPage: table.getCanNextPage(),
+              gotoPage: table.setPageIndex,
+              previousPage: table.previousPage,
+              nextPage: table.nextPage,
+              setPageSize: table.setPageSize
+          }
+        : customPagination;
+
+    if (!resolvedPagination) return null;
+
+    const {
+        pageIndex,
+        pageSize,
+        pageCount,
+        canPreviousPage,
+        canNextPage,
+        gotoPage,
+        previousPage,
+        nextPage,
+        setPageSize
+    } = resolvedPagination;
     return (
         <div className="flex items-center justify-between px-4">
             <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-                {table.getIsSomePageRowsSelected() ? (
+                {table?.getIsSomePageRowsSelected() ? (
                     <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
                         {t('pagination.select_row', {
                             selected_count: table.getFilteredSelectedRowModel().rows.length,
@@ -30,14 +71,9 @@ export const Pagination = <TData,>({ table }: PaginationControlsProps<TData>) =>
                     <Label htmlFor="rows-per-page" className="text-sm font-medium">
                         {t('pagination.page_rows')}
                     </Label>
-                    <Select
-                        value={`${table.getState().pagination.pageSize}`}
-                        onValueChange={value => {
-                            table.setPageSize(Number(value));
-                        }}
-                    >
+                    <Select value={`${pageSize}`} onValueChange={value => setPageSize?.(Number(value))}>
                         <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                            <SelectValue placeholder={table.getState().pagination.pageSize} />
+                            <SelectValue placeholder={pageSize} />
                         </SelectTrigger>
                         <SelectContent side="top">
                             {[10, 20, 30, 40, 50].map(pageSize => (
@@ -50,16 +86,16 @@ export const Pagination = <TData,>({ table }: PaginationControlsProps<TData>) =>
                 </div>
                 <div className="flex w-fit items-center justify-center text-sm font-medium">
                     {t('pagination.page_count', {
-                        current: table.getState().pagination.pageIndex + 1,
-                        page: table.getPageCount()
+                        current: pageIndex + 1,
+                        page: pageCount
                     })}
                 </div>
                 <div className="ml-auto flex items-center gap-2 lg:ml-0">
                     <Button
                         variant="outline"
                         className="hidden h-8 w-8 p-0 lg:flex"
-                        onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}
+                        onClick={() => gotoPage?.(0)}
+                        disabled={!canPreviousPage}
                     >
                         <span className="sr-only">{t('pagination.first')}</span>
                         <IconChevronsLeft />
@@ -68,8 +104,8 @@ export const Pagination = <TData,>({ table }: PaginationControlsProps<TData>) =>
                         variant="outline"
                         className="size-8"
                         size="icon"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
+                        onClick={() => previousPage?.()}
+                        disabled={!canPreviousPage}
                     >
                         <span className="sr-only"> {t('pagination.previous')}</span>
                         <IconChevronLeft />
@@ -78,8 +114,8 @@ export const Pagination = <TData,>({ table }: PaginationControlsProps<TData>) =>
                         variant="outline"
                         className="size-8"
                         size="icon"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
+                        onClick={() => nextPage?.()}
+                        disabled={!canNextPage}
                     >
                         <span className="sr-only">{t('pagination.next')}</span>
                         <IconChevronRight />
@@ -88,8 +124,8 @@ export const Pagination = <TData,>({ table }: PaginationControlsProps<TData>) =>
                         variant="outline"
                         className="hidden size-8 lg:flex"
                         size="icon"
-                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                        disabled={!table.getCanNextPage()}
+                        onClick={() => gotoPage?.(pageCount - 1)}
+                        disabled={!canNextPage}
                     >
                         <span className="sr-only">{t('pagination.last')}</span>
                         <IconChevronsRight />

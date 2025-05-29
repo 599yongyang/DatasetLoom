@@ -6,6 +6,8 @@ import {
     insertPreferencePair,
     updatePreferencePair
 } from '@/lib/db/preference-pair';
+import { getDatasetsById } from '@/lib/db/datasets';
+import type { PreferencePair } from '@prisma/client';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -26,8 +28,8 @@ export async function GET(request: Request, props: { params: Params }) {
         const data = await getPreferencePair(projectId, questionId);
         return NextResponse.json(data);
     } catch (error) {
-        console.error('Error obtaining model configuration:', error);
-        return NextResponse.json({ error: 'Failed to obtain model configuration' }, { status: 500 });
+        console.error('Error get PreferencePair:', error);
+        return NextResponse.json({ error: 'Failed to get PreferencePair' }, { status: 500 });
     }
 }
 
@@ -49,7 +51,7 @@ export async function POST(request: Request, props: { params: Params }) {
         }
         return NextResponse.json({ message: 'success' });
     } catch (error) {
-        console.error('Error obtaining model configuration:', error);
-        return NextResponse.json({ error: 'Failed to obtain model configuration' }, { status: 500 });
+        console.error('Error save PreferencePair:', error);
+        return NextResponse.json({ error: 'Failed to save PreferencePair' }, { status: 500 });
     }
 }

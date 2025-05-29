@@ -1,19 +1,8 @@
 import { NextResponse } from 'next/server';
-import {
-    deleteDataset,
-    getDatasetsById,
-    getDatasetsCounts,
-    getNavigationItems,
-    updateDataset
-} from '@/lib/db/datasets';
+import { deleteDataset, getDatasetsById, updateDataset } from '@/lib/db/datasets';
 import type { Datasets } from '@prisma/client';
 
 type Params = Promise<{ projectId: string; datasetId: string }>;
-type OperateType = 'prev' | 'next';
-
-function isOperateType(value: string | null): value is OperateType {
-    return value === 'prev' || value === 'next';
-}
 
 export async function GET(request: Request, props: { params: Params }) {
     try {
@@ -26,15 +15,8 @@ export async function GET(request: Request, props: { params: Params }) {
         if (!datasetId) {
             return NextResponse.json({ error: '数据集ID不能为空' }, { status: 400 });
         }
-        const { searchParams } = new URL(request.url);
-        const operateType = searchParams.get('operateType');
-        if (operateType !== null && isOperateType(operateType)) {
-            const data = await getNavigationItems(projectId, datasetId, operateType);
-            return NextResponse.json(data);
-        }
         const datasets = await getDatasetsById(datasetId);
-        let counts = await getDatasetsCounts(projectId);
-        return NextResponse.json({ datasets, ...counts });
+        return NextResponse.json(datasets);
     } catch (error) {
         console.error('获取数据集详情失败:', error);
         return NextResponse.json(
@@ -83,7 +65,7 @@ export async function PUT(request: Request, props: { params: Params }) {
     try {
         const params = await props.params;
         const { datasetId } = params;
-        const { answer, cot, confirmed } = await request.json();
+        const { answer, cot } = await request.json();
         if (!datasetId) {
             return NextResponse.json(
                 {
@@ -98,7 +80,6 @@ export async function PUT(request: Request, props: { params: Params }) {
         }
 
         let data = { id: datasetId } as Datasets;
-        if (confirmed) data.confirmed = confirmed;
         if (answer) data.answer = answer;
         if (cot) data.cot = cot;
         // 保存更新后的数据集列表

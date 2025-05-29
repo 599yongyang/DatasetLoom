@@ -13,6 +13,8 @@
         "createdAt": "CreatedAt",
         "cot": "COT",
         "answer": "Answer",
+        "confidence": "Confidence",
+        "isPrimaryAnswer": "PrimaryAnswer",
         "actions": "Actions"
     },
     "detail": {

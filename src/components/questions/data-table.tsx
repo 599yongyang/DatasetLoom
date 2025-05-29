@@ -171,27 +171,25 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
                                                                             </span>
                                                                         )}
 
-                                                                        <Button
-                                                                            size="sm"
-                                                                            variant="link"
+                                                                        <div
                                                                             className={cn(
-                                                                                'truncate text-left px-0',
+                                                                                'truncate max-w-[90vh] text-[12px] font-medium hover:underline hover:cursor-pointer text-left px-0',
                                                                                 dataset.isPrimaryAnswer
                                                                                     ? 'text-primary font-semibold'
                                                                                     : 'text-foreground hover:text-primary'
                                                                             )}
                                                                             onClick={() =>
                                                                                 router.push(
-                                                                                    `/project/${dataset.projectId}/datasets/${dataset.id}`
+                                                                                    `/project/${dataset.projectId}/datasets/${dataset.questionId}?did=${dataset.id}`
                                                                                 )
                                                                             }
                                                                         >
                                                                             {dataset.answer}
-                                                                        </Button>
+                                                                        </div>
                                                                         <ModelTag model={dataset.model} type="color" />
                                                                         <Badge variant={'secondary'}>
                                                                             置信度
-                                                                            <span>73</span>
+                                                                            <span>{dataset.confidence * 100}%</span>
                                                                         </Badge>
                                                                     </div>
 

@@ -13,7 +13,6 @@ export default function Page() {
         nodes: [],
         edges: []
     });
-    console.log(kid, 'kid');
     const getGraphData = () => {
         const url = `/api/project/${projectId}/graph${kid ? `?kid=${kid}` : ''}`;
         axios

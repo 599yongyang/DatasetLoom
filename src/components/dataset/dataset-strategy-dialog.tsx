@@ -25,7 +25,6 @@ export function DatasetStrategyDialog({
     const { projectId }: { projectId: string } = useParams();
     const { generateSingleDataset, generateMultipleDataset } = useGenerateDataset();
     const model = useAtomValue(selectedModelInfoAtom);
-    console.log(model);
     const [datasetStrategy, setDatasetStrategy] = useState<DatasetStrategyParams>({
         ...defaultDatasetStrategyConfig,
         modelConfigId: model.id,

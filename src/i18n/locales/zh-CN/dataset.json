@@ -12,7 +12,9 @@
         "model": "使用模型",
         "createdAt": "创建时间",
         "cot": "思维链",
-        "answer": "回答",
+        "answer": "答案",
+        "confidence": "置信度",
+        "isPrimaryAnswer": "主答案",
         "actions": "操作"
     },
     "detail": {

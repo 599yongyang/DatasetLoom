@@ -10,3 +10,5 @@ export const selectedProjectAtom = atomWithStorage<string>('selectedProject', ''
 export const modelConfigListAtom = atomWithStorage<ModelConfig[]>('modelConfigList', []);
 
 export const selectedModelInfoAtom = atomWithStorage<ModelConfig>('selectedModelInfo', {} as ModelConfig);
+
+export const datasetViewModeAtom = atomWithStorage<string>('datasetViewMode', 'all');
