@@ -237,3 +237,114 @@ export async function deleteDataset(datasetId: string) {
         throw error;
     }
 }
+
+export async function exportDatasetRaw(projectId: string, confirmedOnly: boolean, cot: boolean = true) {
+    try {
+        const questions = await db.questions.findMany({
+            where: {
+                projectId,
+                confirmed: confirmedOnly ? true : undefined,
+                Datasets: {
+                    some: {}
+                }
+            },
+            select: {
+                question: true,
+                Datasets: {
+                    select: {
+                        answer: true,
+                        cot,
+                        model: true
+                    }
+                }
+            }
+        });
+        const result = questions.map(q => ({
+            question: q.question,
+            answers: q.Datasets.map(d => ({
+                text: d.answer,
+                model: d.model,
+                ...(cot ? { cot: d.cot ?? '' } : {})
+            }))
+        }));
+
+        return result;
+    } catch (error) {
+        console.error('Failed to export datasets in database');
+        throw error;
+    }
+}
+
+export async function exportDatasetSFT(projectId: string, confirmedOnly: boolean, cot: boolean = true) {
+    try {
+        const questions = await db.questions.findMany({
+            where: {
+                projectId,
+                confirmed: confirmedOnly ? true : undefined,
+                Datasets: {
+                    some: {
+                        isPrimaryAnswer: true
+                    }
+                }
+            },
+            select: {
+                question: true,
+                Datasets: {
+                    select: {
+                        answer: true,
+                        cot,
+                        confidence: true,
+                        model: true
+                    }
+                }
+            }
+        });
+        const result = questions.map(q => ({
+            instruction: q.question,
+            output: q.Datasets[0]?.answer ?? '',
+            confidence: q.Datasets[0]?.confidence ?? 0,
+            ...(cot ? { cot: q.Datasets[0]?.cot ?? '' } : {})
+        }));
+
+        return result;
+    } catch (error) {
+        console.error('Failed to export datasets in database');
+        throw error;
+    }
+}
+
+export async function exportDatasetDPO(projectId: string, confirmedOnly: boolean) {
+    try {
+        const questions = await db.questions.findMany({
+            where: {
+                projectId,
+                confirmed: confirmedOnly ? true : undefined,
+                PreferencePair: {
+                    isNot: null
+                }
+            },
+            select: {
+                question: true,
+                PreferencePair: {
+                    select: {
+                        chosen: true,
+                        rejected: true
+                    }
+                }
+            }
+        });
+        const result = questions.map(question => {
+            const pair = question.PreferencePair;
+            return {
+                prompt: question.question,
+                chosen: pair?.chosen ?? '',
+                rejected: pair?.rejected ?? ''
+            };
+        });
+
+        return result;
+    } catch (error) {
+        console.error('Failed to export datasets in database');
+        throw error;
+    }
+}

@@ -128,7 +128,7 @@ model Datasets {
   evidence        String
   cot             String
   confidence      Float
-  isPrimaryAnswer Boolean?  @default(false)
+  isPrimaryAnswer Boolean   @default(false)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

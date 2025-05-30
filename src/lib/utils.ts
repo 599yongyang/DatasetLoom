@@ -113,3 +113,32 @@ export async function doubleCheckModelOutput<T>(jsonString: string, schema: z.Zo
         throw error;
     }
 }
+
+// 生成文件内容
+export const generateFileContent = (data: any[], format: string) => {
+    if (format === 'jsonl') {
+        return {
+            content: data.map(item => JSON.stringify(item)).join('\n'),
+            extension: 'jsonl',
+            mimeType: 'application/jsonl'
+        };
+    }
+    return {
+        content: JSON.stringify(data, null, 2),
+        extension: 'json',
+        mimeType: 'application/json'
+    };
+};
+
+//  下载文件
+export const downloadFile = (content: string, fileName: string, extension: string) => {
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.${extension}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};

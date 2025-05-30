@@ -1,35 +1,46 @@
-export const jsonExample: Record<string, any> = {
-    alpaca: [
-        {
-            instruction: '人类指令（必填）',
-            input: '人类输入（选填）',
-            output: '模型回答（必填）',
-            system: '系统提示词（选填）'
-        }
-    ],
-    sharegpt: [
-        {
-            messages: [
+export const exampleData: Record<string, any> = {
+    raw: {
+        json: JSON.stringify(
+            [
                 {
-                    role: 'system',
-                    content: '系统提示词（选填）'
-                },
-                {
-                    role: 'user',
-                    content: '人类指令'
-                },
-                {
-                    role: 'assistant',
-                    content: '模型回答'
+                    question: '机器学习是什么？',
+                    answers: [
+                        { text: '一种AI技术...', model: 'deepseek-chat' },
+                        { text: '让计算机学习的学科...', model: 'qwen3' }
+                    ]
                 }
-            ]
-        }
-    ]
-};
-
-export const jsonlExample: Record<string, any> = {
-    alpaca: `{"instruction": "人类指令（必填）", "input": "人类输入（选填）", "output": "模型回答（必填）", "system": "系统提示词（选填）"}
-{"instruction": "第二个指令", "input": "", "output": "第二个回答", "system": "系统提示词"}`,
-    sharegpt: `{"messages": [{"role": "system", "content": "系统提示词（选填）"}, {"role": "user", "content": "人类指令"}, {"role": "assistant", "content": "模型回答"}]}
-{"messages": [{"role": "user", "content": "第二个问题"}, {"role": "assistant", "content": "第二个回答"}]}`
+            ],
+            null,
+            2
+        ),
+        jsonl: `{"question":"...","answers":[...]}\n{"question":"...","answers":[...]}`
+    },
+    sft: {
+        json: JSON.stringify(
+            [
+                {
+                    instruction: '解释机器学习',
+                    output: '一种通过数据训练模型的技术...',
+                    confidence: 0.92
+                }
+            ],
+            null,
+            2
+        ),
+        jsonl: `{"instruction":"...","output":"..."}`
+    },
+    dpo: {
+        json: JSON.stringify(
+            [
+                {
+                    prompt: '解释神经网络',
+                    chosen: '由多层神经元组成的...',
+                    rejected: '类似大脑的结构...'
+                }
+            ],
+            null,
+            2
+        ),
+        jsonl: `{"prompt":"...","chosen":"...","rejected":"..."}`
+    }
 };

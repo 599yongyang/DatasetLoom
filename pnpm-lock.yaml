@@ -53,6 +53,9 @@ dependencies:
     '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.4)
+    '@huggingface/hub':
+        specifier: ^2.1.0
+        version: 2.1.0
     '@langchain/community':
         specifier: ^0.3.42
         version: 0.3.43(@browserbasehq/stagehand@1.14.0)(@ibm-cloud/watsonx-ai@1.6.6)(@langchain/core@0.3.56)(axios@1.9.0)(epub2@3.0.2)(ibm-cloud-sdk-core@5.3.2)(ioredis@5.6.1)(mammoth@1.9.0)(openai@4.100.0)(pdf-parse@1.1.1)(playwright@1.52.0)(word-extractor@1.0.4)
@@ -2064,6 +2067,24 @@ packages:
         dependencies:
             '@standard-schema/utils': 0.3.0
             react-hook-form: 7.56.4(react@18.3.1)
+        dev: false
+
+    /@huggingface/hub@2.1.0:
+        resolution:
+            {
+                integrity: sha512-L+125tAXwCOwVd8n4qQlT20ZJP7I5sEXOLNrIzpgkUG6eMIsGlxT+9hmmiCH/LGmjbXjlcRHoPB8GGT3zCws4A==
+            }
+        engines: { node: '>=18' }
+        hasBin: true
+        dependencies:
+            '@huggingface/tasks': 0.19.11
+        dev: false
+
+    /@huggingface/tasks@0.19.11:
+        resolution:
+            {
+                integrity: sha512-oBhSgVlg7Pp643MsH8BiI3OAXIMJNxdSiMtv4mApRZV8dmAz8oasKhg6CVKIplO7vAO7F6dkmMn4bYM64I2A9w==
+            }
         dev: false
 
     /@humanfs/core@0.19.1:
