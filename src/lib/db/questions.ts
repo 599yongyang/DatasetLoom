@@ -38,7 +38,7 @@ export async function getQuestions(
                             content: true
                         }
                     },
-                    Datasets: true
+                    DatasetSamples: true
                 },
                 skip: (page - 1) * pageSize,
                 take: pageSize
@@ -72,7 +72,7 @@ export async function getAllQuestionsByProjectId(projectId: string) {
             }
         });
     } catch (error) {
-        console.error('Failed to get datasets ids in database');
+        console.error('Failed to get questions ids in database');
         throw error;
     }
 }
@@ -94,7 +94,7 @@ export async function getQuestionsIds(projectId: string, answered: boolean | und
             }
         });
     } catch (error) {
-        console.error('Failed to get datasets ids in database');
+        console.error('Failed to get questions ids in database');
         throw error;
     }
 }
@@ -118,7 +118,7 @@ export async function getQuestionsByIds(projectId: string, ids: string[]) {
             }
         });
     } catch (error) {
-        console.error('Failed to get datasets ids in database');
+        console.error('Failed to get questions ids in database');
         throw error;
     }
 }
@@ -126,7 +126,10 @@ export async function getQuestionsByIds(projectId: string, ids: string[]) {
 export async function getQuestionById(id: string) {
     try {
         return await db.questions.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                DatasetSamples: true
+            }
         });
     } catch (error) {
         console.error('Failed to get questions by name in database');
@@ -151,7 +154,7 @@ export async function getQuestionWithDatasetById(id: string) {
         return await db.questions.findUnique({
             where: { id },
             include: {
-                Datasets: true,
+                DatasetSamples: true,
                 PreferencePair: true
             }
         });
@@ -177,20 +180,20 @@ export async function getNavigationItems(projectId: string, questionId: string, 
         return db.questions.findFirst({
             where: {
                 projectId,
-                Datasets: { some: {} },
+                DatasetSamples: { some: {} },
                 OR: [{ createdAt: { gt: createdAt } }, { createdAt: createdAt, id: { gt: id } }]
             },
-            include: { Datasets: true, PreferencePair: true },
+            include: { DatasetSamples: true, PreferencePair: true },
             orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
         });
     } else {
         return db.questions.findFirst({
             where: {
                 projectId,
-                Datasets: { some: {} },
+                DatasetSamples: { some: {} },
                 OR: [{ createdAt: { lt: createdAt } }, { createdAt: createdAt, id: { lt: id } }]
             },
-            include: { Datasets: true, PreferencePair: true },
+            include: { DatasetSamples: true, PreferencePair: true },
             orderBy: [{ createdAt: 'desc' }, { id: 'desc' }]
         });
     }
@@ -223,11 +226,11 @@ export async function updateQuestion(question: Questions) {
 
 export async function getQuestionsCount(projectId: string) {
     try {
-        // 获取总数：有 Datasets 的问题
+        // 获取总数：有 DatasetSamples 的问题
         const total = await db.questions.count({
             where: {
                 projectId,
-                Datasets: { some: {} }
+                DatasetSamples: { some: {} }
             }
         });
 
@@ -236,7 +239,7 @@ export async function getQuestionsCount(projectId: string) {
             where: {
                 projectId,
                 confirmed: true,
-                Datasets: { some: {} }
+                DatasetSamples: { some: {} }
             }
         });
 

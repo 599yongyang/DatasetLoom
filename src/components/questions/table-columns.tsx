@@ -144,7 +144,7 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
                                 mutateQuestions={mutateQuestions}
                             />
                         )}
-                        {row.original.Datasets.length > 1 && (
+                        {row.original.DatasetSamples.length > 1 && (
                             <Button variant="ghost" size="icon" onClick={() => setPpOpen(true)}>
                                 <Drama size={30} />
                             </Button>

@@ -17,9 +17,9 @@ export default function Page() {
     const searchParams = useSearchParams();
     const { t } = useTranslation('dataset');
     const { projectId, questionId } = useParams<{ projectId: string; questionId: string }>();
-    const datasetId = searchParams.get('did');
+    const dssId = searchParams.get('dssId');
     const [qId, setQid] = useState<string>(questionId as string);
-    const [activeAnswerId, setActiveAnswerId] = useState<string>(datasetId as string);
+    const [activeAnswerId, setActiveAnswerId] = useState<string>(dssId as string);
     const {
         datasets: data,
         confirmedCount,
@@ -46,8 +46,8 @@ export default function Page() {
         if (response.data.data) {
             const data = response.data.data;
             setQid(data.id);
-            setActiveAnswerId(data.Datasets[0].id);
-            router.replace(`/project/${projectId}/datasets/${data.id}?did=${data.Datasets[0].id}`);
+            setActiveAnswerId(data.DatasetSamples[0].id);
+            router.replace(`/project/${projectId}/datasets/${data.id}?dssId=${data.DatasetSamples[0].id}`);
         } else {
             toast.warning(`已经是${direction === 'next' ? '最后' : '第'}一条数据了`);
         }
@@ -86,9 +86,9 @@ export default function Page() {
             success: () => {
                 if (nextDataset) {
                     setQid(nextDataset.id);
-                    setActiveAnswerId(nextDataset.Datasets[0].id);
+                    setActiveAnswerId(nextDataset.DatasetSamples[0].id);
                     router.replace(
-                        `/project/${projectId}/datasets/${nextDataset.id}?did=${nextDataset.Datasets[0].id}`
+                        `/project/${projectId}/datasets/${nextDataset.id}?dssId=${nextDataset.DatasetSamples[0].id}`
                     );
                 } else {
                     router.push(`/project/${projectId}/datasets`);
@@ -155,9 +155,9 @@ export default function Page() {
                 {data.question}
             </div>
             <DatasetDetail
-                datasets={data.Datasets}
+                datasetSamples={data.DatasetSamples}
                 refresh={refresh}
-                datasetId={activeAnswerId}
+                dssId={activeAnswerId}
                 pp={data.PreferencePair}
             />
         </div>

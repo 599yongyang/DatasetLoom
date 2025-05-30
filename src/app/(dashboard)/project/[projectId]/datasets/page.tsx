@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Check, Eye, FileUp, MoreHorizontal, Star, ThumbsDown, ThumbsUp, Trash2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { type Datasets } from '@prisma/client';
+import { type DatasetSamples } from '@prisma/client';
 import axios from 'axios';
 import { useParams, useRouter } from 'next/navigation';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
@@ -63,7 +63,7 @@ export default function Page() {
             toast.error('删除失败，请重试');
         }
     };
-    const columns: ColumnDef<Datasets>[] = [
+    const columns: ColumnDef<DatasetSamples>[] = [
         {
             id: 'select',
             header: ({ table }) => (
@@ -95,7 +95,7 @@ export default function Page() {
                 const router = useRouter();
                 const handleClick = () => {
                     router.push(
-                        `/project/${row.original.projectId}/datasets/${row.original.questionId}?did=${row.original.id}`
+                        `/project/${row.original.projectId}/datasets/${row.original.questionId}?dssId=${row.original.id}`
                     );
                 };
                 return (
@@ -294,7 +294,7 @@ export default function Page() {
                                         className={' hover:cursor-pointer hover:underline'}
                                         onClick={() =>
                                             router.push(
-                                                `/project/${projectId}/datasets/${item.questionId}?did=${item.id}`
+                                                `/project/${projectId}/datasets/${item.questionId}?dssId=${item.id}`
                                             )
                                         }
                                     >
@@ -345,7 +345,7 @@ export default function Page() {
                                         className={' hover:cursor-pointer hover:underline'}
                                         onClick={() =>
                                             router.push(
-                                                `/project/${projectId}/datasets/${item.questionId}?did=${item.datasetChosenId}`
+                                                `/project/${projectId}/datasets/${item.questionId}?dssId=${item.datasetChosenId}`
                                             )
                                         }
                                     >

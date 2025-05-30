@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { ModelTag } from '@lobehub/icons';
 import { cn } from '@/lib/utils';
 import axios from 'axios';
-import type { Datasets } from '@prisma/client';
+import type { DatasetSamples } from '@prisma/client';
 import { toast } from 'sonner';
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Tooltip } from '@/components/ui/tooltip';
@@ -43,7 +43,7 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
     const table = useReactTable({
         data,
         columns,
-        getRowCanExpand: row => Boolean(row.original.Datasets.length > 0),
+        getRowCanExpand: row => Boolean(row.original.DatasetSamples.length > 0),
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         enableRowSelection: true,
@@ -57,26 +57,27 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
         }
     });
 
-    const handlePrimaryAnswer = (dataset: Datasets) => {
+    const handlePrimaryAnswer = (datasetSample: DatasetSamples) => {
         axios
-            .put(`/api/project/${dataset.projectId}/datasets/primary-answer`, {
-                datasetId: dataset.id,
-                questionId: dataset.questionId
+            .put(`/api/project/${datasetSample.projectId}/datasets/primary-answer`, {
+                dssId: datasetSample.id,
+                questionId: datasetSample.questionId
             })
-            .then(res => {
+            .then(_ => {
                 toast.success('设置成功');
                 refresh();
             })
             .catch(error => {
+                console.log(error);
                 toast.error('设置失败');
             });
     };
-    const deleteDataset = async (dataset: Datasets, row: any) => {
+    const deleteDataset = async (dataset: DatasetSamples, row: any) => {
         const res = await axios.delete(`/api/project/${dataset.projectId}/datasets/${dataset.id}`);
         if (res.status === 200) {
             toast.success('删除成功');
             void refresh();
-            if (row.original.Datasets.length == 0) {
+            if (row.original.DatasetSamples.length == 0) {
                 row.toggleExpanded();
             }
         } else {
@@ -119,7 +120,7 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
                                             <TableCell colSpan={row.getVisibleCells().length}>
                                                 <div className="px-4 bg-muted/50 rounded-lg border border-muted">
                                                     <div className="space-y-2">
-                                                        {row.original.Datasets.sort((a, b) => {
+                                                        {row.original.DatasetSamples.sort((a, b) => {
                                                             const aValue = a.isPrimaryAnswer ?? false;
                                                             const bValue = b.isPrimaryAnswer ?? false;
                                                             return (bValue ? 1 : 0) - (aValue ? 1 : 0);
@@ -180,7 +181,7 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
                                                                             )}
                                                                             onClick={() =>
                                                                                 router.push(
-                                                                                    `/project/${dataset.projectId}/datasets/${dataset.questionId}?did=${dataset.id}`
+                                                                                    `/project/${dataset.projectId}/datasets/${dataset.questionId}?dssId=${dataset.id}`
                                                                                 )
                                                                             }
                                                                         >

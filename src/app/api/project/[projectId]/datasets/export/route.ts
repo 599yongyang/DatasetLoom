@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { exportDatasetDPO, exportDatasetRaw, exportDatasetSFT, getDatasets } from '@/lib/db/datasets';
+import { exportDatasetDPO, exportDatasetRaw, exportDatasetSFT } from '@/lib/db/dataset';
 import { validateProjectId } from '@/lib/utils/api-validator';
 
 type Params = Promise<{ projectId: string }>;

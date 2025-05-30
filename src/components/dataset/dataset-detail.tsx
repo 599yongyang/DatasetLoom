@@ -10,67 +10,67 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Markdown } from '@/components/playground/markdown';
 import { Textarea } from '@/components/ui/textarea';
 import { ModelTag } from '@lobehub/icons';
-import type { Datasets, PreferencePair } from '@prisma/client';
+import type { DatasetSamples, PreferencePair } from '@prisma/client';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { nanoid } from 'nanoid';
 
 export default function DatasetDetail({
-    datasets,
-    datasetId,
+    datasetSamples,
+    dssId,
     pp,
     refresh
 }: {
-    datasets: Datasets[];
-    datasetId: string;
+    datasetSamples: DatasetSamples[];
+    dssId: string;
     pp: PreferencePair;
     refresh: () => void;
 }) {
-    const [activeAnswerId, setActiveAnswerId] = useState(datasetId);
-    const [activeAnswer, setActiveAnswer] = useState(datasets[0]);
+    const [activeAnswerId, setActiveAnswerId] = useState(dssId);
+    const [activeAnswer, setActiveAnswer] = useState(datasetSamples[0]);
     useEffect(() => {
-        setActiveAnswerId(datasetId);
-    }, [datasetId]);
+        setActiveAnswerId(dssId);
+    }, [dssId]);
 
     useEffect(() => {
-        if (!datasets || datasets.length === 0) return;
-        const foundAnswer = datasets.find(d => d.id === activeAnswerId) || datasets[0];
+        if (!datasetSamples || datasetSamples.length === 0) return;
+        const foundAnswer = datasetSamples.find(d => d.id === activeAnswerId) || datasetSamples[0];
         setActiveAnswer(foundAnswer);
-    }, [activeAnswerId, datasets]);
+    }, [activeAnswerId, datasetSamples]);
     return (
         <>
             {/* 答案部分 */}
             <div className="mb-8">
-                {datasets.length > 1 ? (
+                {datasetSamples.length > 1 ? (
                     <Tabs
                         value={activeAnswerId}
                         onValueChange={value => setActiveAnswerId(value)}
                         className="space-y-4 mt-3"
                     >
                         <TabsList className=" p-1 rounded-lg">
-                            {datasets.map((dataset, index) => (
+                            {datasetSamples.map((dss, index) => (
                                 <TabsTrigger
-                                    key={dataset.id}
-                                    value={dataset.id.toString()}
+                                    key={dss.id}
+                                    value={dss.id.toString()}
                                     className="flex items-center gap-1 px-4 py-2 rounded-md transition-all data-[state=active]:bg-white data-[state=active]:shadow-sm"
                                 >
                                     答案 {String.fromCharCode(65 + index)}
-                                    {dataset.isPrimaryAnswer && <Star className="w-3 h-3 text-black " />}
+                                    {dss.isPrimaryAnswer && <Star className="w-3 h-3 text-black " />}
                                 </TabsTrigger>
                             ))}
                         </TabsList>
                         <TabsContent value={activeAnswerId}>
                             <AnswerCard
-                                count={datasets.length}
+                                count={datasetSamples.length}
                                 refresh={refresh}
-                                activeAnswer={activeAnswer as Datasets}
+                                activeAnswer={activeAnswer as DatasetSamples}
                                 pp={pp}
                             />
                         </TabsContent>
                     </Tabs>
                 ) : (
                     <div className={'mt-3'}>
-                        <AnswerCard count={1} refresh={refresh} activeAnswer={activeAnswer as Datasets} pp={pp} />
+                        <AnswerCard count={1} refresh={refresh} activeAnswer={activeAnswer as DatasetSamples} pp={pp} />
                     </div>
                 )}
             </div>
@@ -124,9 +124,9 @@ export default function DatasetDetail({
                             <TableBody className="[&_td:first-child]:rounded-l-lg [&_td:last-child]:rounded-r-lg">
                                 {activeAnswer?.evidence &&
                                     JSON.parse(activeAnswer.evidence).map(
-                                        (item: { location: string; text: string }) => (
+                                        (item: { location: string; text: string }, index: number) => (
                                             <TableRow
-                                                key={item.location}
+                                                key={item.location + index}
                                                 className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r"
                                             >
                                                 <TableCell>{item.location}</TableCell>
@@ -162,12 +162,11 @@ function AnswerCard({
     count,
     refresh
 }: {
-    activeAnswer: Datasets;
+    activeAnswer: DatasetSamples;
     pp: PreferencePair;
     count: number;
     refresh: () => void;
 }) {
-    const router = useRouter();
     const getPreferenceBadge = (id: string) => {
         if (!pp) return null;
         if (id === pp.datasetChosenId) {
@@ -196,7 +195,7 @@ function AnswerCard({
 
         // 初始化 pp 对象
         const newPP = {
-            id: pp?.id ?? '',
+            id: pp?.id ?? nanoid(),
             projectId,
             questionId,
             prompt: question,
@@ -228,14 +227,15 @@ function AnswerCard({
     const handlePrimaryAnswer = () => {
         axios
             .put(`/api/project/${activeAnswer.projectId}/datasets/primary-answer`, {
-                datasetId: activeAnswer.id,
+                dssId: activeAnswer.id,
                 questionId: activeAnswer.questionId
             })
-            .then(res => {
+            .then(_ => {
                 toast.success('设置成功');
                 refresh();
             })
             .catch(error => {
+                console.error('设置失败:', error);
                 toast.error('设置失败');
             });
     };

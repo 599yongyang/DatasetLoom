@@ -1,11 +1,11 @@
 import type { TaskParams, TaskResult } from '@/lib/queue';
-import type { Datasets, Questions } from '@prisma/client';
+import type { DatasetSamples, Questions } from '@prisma/client';
 import { getQuestionsByIds } from '@/lib/db/questions';
 import LLMClient from '@/lib/llm/core';
 import { getModelConfigById } from '@/lib/db/model-config';
 import { getAnswerPrompt } from '@/lib/llm/prompts/answer';
 import { nanoid } from 'nanoid';
-import { createDataset } from '@/lib/db/datasets';
+import { createDatasetSample } from '@/lib/db/dataset-samples';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { answerSchema } from '@/lib/llm/prompts/schema';
 import { getChunkById } from '@/lib/db/chunks';
@@ -69,7 +69,7 @@ export async function datasetTask(params: TaskParams): Promise<TaskResult> {
                 questionId: question.id
             };
 
-            await createDataset(datasets as Datasets);
+            await createDatasetSample(datasets as DatasetSamples);
             datasetList.push(datasets);
         }
 

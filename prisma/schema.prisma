@@ -19,7 +19,7 @@ model Projects {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   Questions        Questions[]
-  Datasets         Datasets[]
+  DatasetSamples   DatasetSamples[]
   Chunks           Chunks[]
   ModelConfig      ModelConfig[]
   Documents        Documents[]
@@ -95,25 +95,25 @@ model ChunkRelations {
 }
 
 model Questions {
-  id             String          @id @default(nanoid())
-  project        Projects        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id             String           @id @default(nanoid())
+  project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId      String
-  chunk          Chunks          @relation(fields: [chunkId], references: [id])
+  chunk          Chunks           @relation(fields: [chunkId], references: [id])
   chunkId        String
   question       String
   label          String
-  answered       Boolean         @default(false)
-  deleted        Boolean         @default(false)
-  confirmed      Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  Datasets       Datasets[]
+  answered       Boolean          @default(false)
+  deleted        Boolean          @default(false)
+  confirmed      Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  DatasetSamples DatasetSamples[]
   PreferencePair PreferencePair?
 
   @@index([projectId])
 }
 
-model Datasets {
+model DatasetSamples {
   id              String    @id @default(nanoid())
   project         Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId       String

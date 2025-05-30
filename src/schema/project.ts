@@ -4,7 +4,7 @@ export type ProjectsWithCounts = Prisma.ProjectsGetPayload<{
     include: {
         _count: {
             select: {
-                Datasets: true;
+                DatasetSamples: true;
                 Questions: true;
                 ModelConfig: true;
             };

@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { buildURL, fetcher } from '@/lib/utils';
-import { type Datasets } from '@prisma/client';
+import { type DatasetSamples } from '@prisma/client';
 import type { QuestionsDTO } from '@/schema/questions';
 
 type UseDatasetsParams = {
@@ -15,7 +15,7 @@ type UseDatasetsParams = {
 };
 
 interface DatasetListResponse {
-    data: Datasets[];
+    data: DatasetSamples[];
     total: number;
     confirmedCount: number;
 }

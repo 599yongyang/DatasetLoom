@@ -83,9 +83,9 @@ export function QuestionDialog({
                         <Button variant="link" className="text-foreground w-fit px-0 text-left hover:cursor-pointer">
                             {item.question}
                         </Button>
-                        {item.Datasets.length > 0 && (
+                        {item.DatasetSamples.length > 0 && (
                             <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
-                                {t('answer_count', { count: item.Datasets.length })}
+                                {t('answer_count', { count: item.DatasetSamples.length })}
                             </Badge>
                         )}
                     </div>

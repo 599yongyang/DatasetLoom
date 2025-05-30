@@ -85,7 +85,7 @@ ${question}
     "text": "支持答案的原文片段",
     "location": "原文位置描述"
   }],
-  "confidence": 0.95
+  "confidence": 0.0-1.0
 }
 \`\`\`
 

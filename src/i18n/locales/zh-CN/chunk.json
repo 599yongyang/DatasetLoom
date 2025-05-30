@@ -12,7 +12,7 @@
     },
     "table_columns": {
         "name": "文本块名称",
-        "content": "文件类型",
+        "content": "文本块内容",
         "domain": "所属领域",
         "tag": "标签",
         "fileName": "所属文件",

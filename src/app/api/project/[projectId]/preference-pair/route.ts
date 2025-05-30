@@ -6,8 +6,6 @@ import {
     insertPreferencePair,
     updatePreferencePair
 } from '@/lib/db/preference-pair';
-import { getDatasetsById } from '@/lib/db/datasets';
-import type { PreferencePair } from '@prisma/client';
 
 type Params = Promise<{ projectId: string }>;
 

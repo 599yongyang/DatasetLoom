@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
-import { createDataset, getDatasetsByPagination, getDatasetsCount } from '@/lib/db/datasets';
+import { createDatasetSample } from '@/lib/db/dataset-samples';
 import { getQuestionById, updateQuestion } from '@/lib/db/questions';
 import { getChunkById } from '@/lib/db/chunks';
 import { getProject } from '@/lib/db/projects';
 import LLMClient from '@/lib/llm/core';
 import { getAnswerPrompt } from '@/lib/llm/prompts/answer';
 import { nanoid } from 'nanoid';
-import type { Datasets, Questions } from '@prisma/client';
+import type { DatasetSamples, Questions } from '@prisma/client';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { answerSchema } from '@/lib/llm/prompts/schema';
 import type { DatasetStrategyParams } from '@/types/dataset';
 import { getModelConfigById } from '@/lib/db/model-config';
 import type { AnswerStyle, DetailLevel, Language } from '@/lib/llm/prompts/type';
+import { getDatasetsByPagination } from '@/lib/db/dataset';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -87,11 +88,11 @@ export async function POST(request: Request, props: { params: Params }) {
         // 调用大模型生成答案
         const { text, reasoning } = await llmClient.chat(prompt);
         const llmOutput = await doubleCheckModelOutput(text, answerSchema);
-        const count = await getDatasetsCount(question.id);
-        const datasetId = nanoid(12);
+        const count = question.DatasetSamples.length;
+        const dssId = nanoid(12);
         // 创建新的数据集项
-        const datasets = {
-            id: datasetId,
+        const data = {
+            id: dssId,
             projectId: projectId,
             question: question.question,
             answer: llmOutput.answer,
@@ -105,9 +106,9 @@ export async function POST(request: Request, props: { params: Params }) {
             questionId: question.id,
             isPrimaryAnswer: count <= 0
         };
-        let dataset = await createDataset(datasets as Datasets);
+        let datasetSample = await createDatasetSample(data as DatasetSamples);
         await updateQuestion({ id: questionId, answered: true } as Questions);
-        return NextResponse.json({ success: true, dataset });
+        return NextResponse.json({ success: true, datasetSample });
     } catch (error) {
         console.error('Failed to generate dataset:', error);
         return NextResponse.json(

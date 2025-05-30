@@ -49,7 +49,7 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
                             </Badge>
                             <Badge variant="outline">
                                 <Database />
-                                {project._count.Datasets} {t('datasets')}
+                                {project._count.DatasetSamples} {t('datasets')}
                             </Badge>
                         </CardAction>
                     </CardHeader>

@@ -35,7 +35,7 @@ export async function checkPreferencePair(projectId: string, questionId: string)
 
 export async function getPreferencePair(projectId: string, questionId: string) {
     try {
-        return await db.datasets.findMany({
+        return await db.datasetSamples.findMany({
             where: { questionId, projectId },
             orderBy: { confidence: 'desc' },
             take: 2

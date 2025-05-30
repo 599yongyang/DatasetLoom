@@ -1,29 +1,28 @@
 import { NextResponse } from 'next/server';
-import { getDatasets, getDatasetsById, updateDataset, updateDatasetPrimaryAnswer } from '@/lib/db/datasets';
-import type { Datasets } from '@prisma/client';
+import { getDatasetSampleById, updateDatasetSamplePrimaryAnswer } from '@/lib/db/dataset-samples';
 
 export async function PUT(request: Request) {
     try {
-        const { datasetId, questionId } = await request.json();
-        if (!datasetId) {
-            return NextResponse.json({ error: 'Dataset ID cannot be empty' }, { status: 400 });
+        const { dssId, questionId } = await request.json();
+        if (!dssId) {
+            return NextResponse.json({ error: 'DatasetSample ID cannot be empty' }, { status: 400 });
         }
-        let dataset = await getDatasetsById(datasetId);
-        if (!dataset) {
-            return NextResponse.json({ error: 'Dataset does not exist' }, { status: 404 });
+        let datasetSample = await getDatasetSampleById(dssId);
+        if (!datasetSample) {
+            return NextResponse.json({ error: 'DatasetSample does not exist' }, { status: 404 });
         }
 
-        await updateDatasetPrimaryAnswer(datasetId, questionId);
+        await updateDatasetSamplePrimaryAnswer(dssId, questionId);
 
         return NextResponse.json({
             success: true,
-            message: 'Dataset updated successfully',
-            dataset: dataset
+            message: 'DatasetSample updated successfully',
+            datasetSample
         });
     } catch (error) {
-        console.error('Failed to update dataset:', error);
+        console.error('Failed to update dataset-sample:', error);
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Failed to update dataset' },
+            { error: error instanceof Error ? error.message : 'Failed to update dataset-sample' },
             { status: 500 }
         );
     }

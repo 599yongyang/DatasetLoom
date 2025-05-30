@@ -87,7 +87,7 @@ export async function PATCH(request: Request, props: { params: Params }) {
         return NextResponse.json({
             success: true,
             message: 'question updated successfully',
-            dataset: data
+            data
         });
     } catch (error) {
         console.error('Failed to update question:', error);

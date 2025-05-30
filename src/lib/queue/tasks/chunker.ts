@@ -4,8 +4,7 @@ import { chunker } from '@/lib/chunker';
 import path from 'path';
 import { saveChunks } from '@/lib/db/chunks';
 import { processChunks } from '@/app/api/project/[projectId]/documents/chunker/route';
-import { db } from '@/server/db';
-import { getDefaultModelConfig, getModelConfigById } from '@/lib/db/model-config';
+import { getDefaultModelConfig } from '@/lib/db/model-config';
 
 export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, workflowId, projectId } = params;
@@ -45,7 +44,7 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
                     fileId: doc.id,
                     fileName: doc.fileName,
                     content: text.pageContent,
-                    summary: text.pageContent,
+                    summary: '',
                     size: text.pageContent.length
                 } as Chunks;
             });
@@ -53,9 +52,6 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
 
         const chunkRes = await saveChunks(chunkList);
 
-        const project = await db.projects.findUnique({
-            where: { id: projectId }
-        });
         const model = await getDefaultModelConfig(projectId);
 
         if (model) {

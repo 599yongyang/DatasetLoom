@@ -8,6 +8,6 @@ export type QuestionsDTO = Prisma.QuestionsGetPayload<{
                 content: true;
             };
         };
-        Datasets: true;
+        DatasetSamples: true;
     };
 }>;

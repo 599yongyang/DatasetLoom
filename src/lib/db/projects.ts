@@ -57,7 +57,7 @@ export async function getProjects(name: string) {
             include: {
                 _count: {
                     select: {
-                        Datasets: true,
+                        DatasetSamples: true,
                         Questions: true,
                         ModelConfig: true
                     }
