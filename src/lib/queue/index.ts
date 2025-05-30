@@ -111,6 +111,14 @@ class QueueService {
         }
     }
 
+    public async deleteWorkflow(workflowId: string, projectId: string) {
+        const jobId = `once:${projectId}-${workflowId}`;
+        const existingJob = await this.workflowQueue.getJob(jobId);
+        if (existingJob) {
+            await existingJob.remove();
+        }
+    }
+
     public async scheduleWorkflow(workflowId: string, projectId: string) {
         const workflow = await db.workFlow.findUnique({
             where: { id: workflowId }
@@ -118,7 +126,7 @@ class QueueService {
 
         if (!workflow) throw new Error(`Project ${projectId} --> Workflow ${workflowId} not found`);
 
-        const jobId = workflow.isScheduled ? `repeat:${projectId}-${workflowId}` : `once:${projectId}-${workflowId}`;
+        const jobId = `once:${projectId}-${workflowId}`;
         const existingJob = await this.workflowQueue.getJob(jobId);
 
         if (existingJob) {

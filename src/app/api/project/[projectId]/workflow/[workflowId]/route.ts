@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { deleteWorkflow, getWorkflowById } from '@/lib/db/workflow';
+import queueService from '@/lib/queue';
 
 type Params = Promise<{ projectId: string; workflowId: string }>;
 
@@ -35,7 +36,7 @@ export async function DELETE(request: Request, props: { params: Params }) {
         }
         // 删除工作流
         await deleteWorkflow(workflowId);
-
+        await queueService.deleteWorkflow(workflowId, projectId);
         return NextResponse.json({ success: true, message: 'Delete successful' });
     } catch (error) {
         console.error('Delete failed:', error);
