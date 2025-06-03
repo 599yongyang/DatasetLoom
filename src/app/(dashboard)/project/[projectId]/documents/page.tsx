@@ -121,7 +121,7 @@ export default function Page() {
                         onClick={() => router.push(`/project/${projectId}/graph`)}
                     >
                         <Waypoints size={30} />
-                        <span className="hidden lg:inline ">查看图谱</span>
+                        <span className="hidden lg:inline ">{t('graph_btn')}</span>
                     </Button>
                 </div>
                 <div className={'flex items-center gap-2'}>

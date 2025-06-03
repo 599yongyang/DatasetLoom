@@ -155,5 +155,8 @@
     "packageManager": "pnpm@8.15.5",
     "lint-staged": {
         "**/*": "prettier --write --ignore-unknown"
+    },
+    "prisma": {
+        "schema": "prisma/schema.prisma"
     }
 }

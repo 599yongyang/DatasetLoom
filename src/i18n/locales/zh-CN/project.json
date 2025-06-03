@@ -35,6 +35,8 @@
         "provider": "提供商",
         "api_url": "接口地址",
         "api_key": "API 密钥",
+        "model_id": "模型 ID",
+        "model_id_info": "服务商调用模型时的唯一标识",
         "model_name": "模型名称",
         "model_type": "模型类型",
         "temperature": "模型温度",

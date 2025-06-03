@@ -98,7 +98,7 @@ model Questions {
   id             String           @id @default(nanoid())
   project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId      String
-  chunk          Chunks           @relation(fields: [chunkId], references: [id])
+  chunk          Chunks           @relation(fields: [chunkId], references: [id], onDelete: Cascade)
   chunkId        String
   question       String
   label          String
@@ -188,7 +188,7 @@ model ModelConfig {
   isDefault   Boolean      @default(false)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  Project     Projects?    @relation(fields: [projectId], references: [id])
+  Project     Projects?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   String?
 }
 

@@ -15,18 +15,28 @@
 
 > 一个面向大语言模型（LLM）的智能数据集构建工具。
 
-DatasetLoom 是一个基于 [Easy Dataset](https://github.com/ConardLi/easy-dataset) 的全面重构项目，采用现代前端技术栈（TypeScript、Next.js
-15、shadcn/ui）重新实现，并进行了大量功能优化与架构升级。
-
-> ⚠️ 本项目为非官方版本
-
 ---
 
 ## 🧩 项目简介
 
-DatasetLoom 致力于帮助开发者和研究人员快速构建高质量的结构化训练数据集，适用于 LLM 微调、评估、测试等多个场景。
+DatasetLoom 是一款专为开发者和研究人员打造的高质量训练数据集构建平台，支持多种 LLM 场景下的数据生成任务，如微调（SFT）、偏好对齐（DPO）等。通过模块化设计与可视化界面，帮助用户高效完成从原始数据到结构化训练样本的全流程处理。
+
+### ✨ 核心特性
+
+- ✅ 支持生成 **SFT（Supervised Fine-Tuning）数据集**
+- ✅ 支持生成 **DPO（Direct Preference Optimization）偏好数据集**
+- 🔁 提供灵活的工作流配置系统
+- 📊 可视化管理：知识库、分块策略、问题生成、数据集支持导出本地与上传至Hugging Face等
+- 🚀 基于 TypeScript + Next.js 15 + Tailwind CSS 构建，性能优异且易于扩展
 
 ---
+
+## 🎬 演示视频
+
+<video width="600" controls>
+  <source src="https://5ai7pu9b9vyjvq87.public.blob.vercel-storage.com/datasetloom-demo-xFinMFnPlppgMxI6H7eKyz139u2pOt.mp4"  type="video/mp4">
+  您的浏览器不支持 video 标签。
+</video>
 
 ## 📸 截图（示例）
 
@@ -120,14 +130,6 @@ pnpm run start
 ```
 
 预览地址同上：👉 [http://localhost:2088](http://localhost:2088)
-
----
-
-## 📜 第三方代码说明
-
-本项目最初基于 [Easy Dataset](https://github.com/ConardLi/easy-dataset) 的 Apache License 2.0 版本进行重构与优化。
-
-本项目目前采用 [MIT License](LICENSE)，不包含原项目 AGPL 3 的任何新版本代码。
 
 ---
 

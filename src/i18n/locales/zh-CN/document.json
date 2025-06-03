@@ -5,6 +5,7 @@
     "delete_btn": "删除所选文件",
     "chunk_btn": "分块所选文件",
     "upload_btn": "上传文件",
+    "graph_btn": "查看图谱",
     "delete_title": "确认要删除此文件吗?",
     "table_columns": {
         "file_name": "文件名称",
@@ -19,16 +20,5 @@
         "rm_all_btn": "删除所有文件",
         "confirm_upload_btn": "开始上传",
         "cancel_btn": "取消"
-    },
-    "chunk": {
-        "info": "已选择 {{selected}} 个文本块，共 {{count}} 个文本块",
-        "gen_btn": "批量生成问题",
-        "character": "{{count}} 个字符",
-        "question": "{{count}} 个问题",
-        "select_item": {
-            "all": "全部文本块",
-            "generated": "已生成问题",
-            "unGenerated": "未生成问题"
-        }
     }
 }

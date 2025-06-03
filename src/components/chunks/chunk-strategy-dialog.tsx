@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { useAtomValue } from 'jotai/index';
 import { selectedModelInfoAtom } from '@/atoms';
 import { i18n } from '@/i18n';
+import { useTranslation } from 'react-i18next';
 
 const items = [
     { value: 'auto', label: '自动', desc: '自动进行分块设置' },
@@ -40,6 +41,7 @@ export function ChunkStrategyDialog({
     onOpenChange?: (open: boolean) => void;
 }) {
     const { projectId } = useParams();
+    const { t } = useTranslation('chunk');
     const model = useAtomValue(selectedModelInfoAtom);
     const [localOpen, setLocalOpen] = useState(false);
     const isOpen = controlledOpen !== undefined ? controlledOpen : localOpen;
@@ -90,11 +92,13 @@ export function ChunkStrategyDialog({
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Chunker 策略</AlertDialogTitle>
+                    <AlertDialogTitle>{t('strategy_dialog.title')}</AlertDialogTitle>
                 </AlertDialogHeader>
                 <div className={'space-y-4'}>
                     <div className="space-y-4">
-                        <div className="text-foreground text-sm leading-none font-medium">分块策略</div>
+                        <div className="text-foreground text-sm leading-none font-medium">
+                            {t('strategy_dialog.strategy.title')}
+                        </div>
                         <RadioGroup
                             className="gap-2"
                             value={formData.strategy}
@@ -111,8 +115,12 @@ export function ChunkStrategyDialog({
                                         className="order-1 after:absolute after:inset-0"
                                     />
                                     <div className="grid grow gap-2">
-                                        <Label htmlFor={`${item.value}`}>{item.label}</Label>
-                                        <p className="text-muted-foreground text-xs">{item.desc}</p>
+                                        <Label htmlFor={`${item.value}`}>
+                                            {t(`strategy_dialog.strategy.options.${item.value}.label`)}
+                                        </Label>
+                                        <p className="text-muted-foreground text-xs">
+                                            {t(`strategy_dialog.strategy.options.${item.value}.desc`)}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -122,7 +130,7 @@ export function ChunkStrategyDialog({
                     {formData.strategy === 'custom' && (
                         <>
                             <div className="space-y-4">
-                                <Label className={'text-sm'}>自定义字符</Label>
+                                <Label className={'text-sm'}>{t('strategy_dialog.separators')}</Label>
                                 <Input
                                     type={'text'}
                                     value={formData.separators}
@@ -131,7 +139,7 @@ export function ChunkStrategyDialog({
                             </div>
 
                             <div className="space-y-4">
-                                <Label className={'text-sm'}>最大字符数</Label>
+                                <Label className={'text-sm'}>{t('strategy_dialog.chunk_size')}</Label>
                                 <Input
                                     type={'number'}
                                     value={formData.chunkSize}
@@ -139,7 +147,7 @@ export function ChunkStrategyDialog({
                                 />
                             </div>
                             <div className="space-y-4">
-                                <Label className={'text-sm'}>字符重叠数</Label>
+                                <Label className={'text-sm'}>{t('strategy_dialog.chunk_overlap')}</Label>
                                 <Input
                                     type={'number'}
                                     value={formData.chunkOverlap}
@@ -151,8 +159,8 @@ export function ChunkStrategyDialog({
                 </div>
 
                 <AlertDialogFooter>
-                    <AlertDialogCancel>取消</AlertDialogCancel>
-                    <Button onClick={handleSubmit}>确认</Button>
+                    <AlertDialogCancel>{t('strategy_dialog.cancel_btn')}</AlertDialogCancel>
+                    <Button onClick={handleSubmit}>{t('strategy_dialog.confirm_btn')}</Button>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

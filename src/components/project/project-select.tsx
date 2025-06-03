@@ -28,7 +28,7 @@ export function ProjectSelect() {
     const { projects } = useGetProjects();
 
     useEffect(() => {
-        if (projectId !== selectedProject) {
+        if (projectId !== selectedProject && projectId !== undefined) {
             setSelectedProject(projectId);
             setValue(projectId);
         }

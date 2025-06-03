@@ -23,7 +23,7 @@ export function QuestionStrategyDialog({
     mutateChunks: () => void;
 }) {
     const { projectId }: { projectId: string } = useParams();
-    const { t } = useTranslation('project');
+    const { t } = useTranslation('question');
 
     const model = useAtomValue(selectedModelInfoAtom);
     const { generateSingleQuestion, generateMultipleQuestion } = useGenerateQuestion();
@@ -57,7 +57,7 @@ export function QuestionStrategyDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-lg [&>button:last-child]:top-3.5">
                 <DialogHeader className="contents space-y-0 text-left">
-                    <DialogTitle className="border-b px-6 py-4 text-base">问题生成配置</DialogTitle>
+                    <DialogTitle className="border-b px-6 py-4 text-base">{t('strategy_dialog_title')}</DialogTitle>
                     <div className="flex flex-col overflow-y-auto px-4 text-sm">
                         <QuestionStrategyForm
                             type={'chunk'}
@@ -69,12 +69,12 @@ export function QuestionStrategyDialog({
                 <DialogFooter className="border-t px-6 py-4 sm:items-center">
                     <DialogClose asChild>
                         <Button type="button" variant="outline">
-                            取消
+                            {t('cancel_btn')}
                         </Button>
                     </DialogClose>
                     <DialogClose asChild>
                         <Button type="button" onClick={handleGenerateQuestion}>
-                            生成
+                            {t('confirm_btn')}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

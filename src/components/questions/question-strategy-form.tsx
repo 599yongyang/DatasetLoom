@@ -20,8 +20,9 @@ export function QuestionStrategyForm({
     questionStrategy: QuestionStrategyParams;
     setQuestionStrategy: React.Dispatch<React.SetStateAction<QuestionStrategyParams>>;
 }) {
-    const { t } = useTranslation('project');
-
+    const { t } = useTranslation(['question', 'project']);
+    const tQuestion = (key: string) => t(`question:${key}`);
+    const tProject = (key: string) => t(`project:${key}`);
     const handleChange = (field: keyof QuestionStrategyParams, value: string | number) => {
         setQuestionStrategy(prev => ({
             ...prev,
@@ -34,7 +35,7 @@ export function QuestionStrategyForm({
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Brain className="h-4 w-4 text-muted-foreground" />
-                        <Label className="font-medium text-base">模型选择</Label>
+                        <Label className="font-medium text-base">{tQuestion('strategy_form.model')}</Label>
                     </div>
                     <RadioGroup
                         className="flex flex-wrap gap-2"
@@ -44,13 +45,13 @@ export function QuestionStrategyForm({
                         <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem value={'default'} className="after:absolute after:inset-0" />
-                                <Label>默认</Label>
+                                <Label>{tQuestion('strategy_form.model_type.default')}</Label>
                             </div>
                         </div>
                         <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem value={'custom'} className="after:absolute after:inset-0" />
-                                <Label>自定义</Label>
+                                <Label>{tQuestion('strategy_form.model_type.custom')}</Label>
                             </div>
                         </div>
                     </RadioGroup>
@@ -64,7 +65,7 @@ export function QuestionStrategyForm({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <BetweenVerticalStart className="h-4 w-4 text-muted-foreground" />
-                    <Label className="font-medium ">每块生成问题数</Label>
+                    <Label className="font-medium ">{tQuestion('strategy_form.question_count')}</Label>
                 </div>
                 <RadioGroup
                     className="flex flex-wrap gap-2"
@@ -74,13 +75,13 @@ export function QuestionStrategyForm({
                     <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                         <div className="flex items-center gap-2">
                             <RadioGroupItem value={'auto'} className="after:absolute after:inset-0" />
-                            <Label>自动</Label>
+                            <Label>{tQuestion('strategy_form.questionCount_type.auto')}</Label>
                         </div>
                     </div>
                     <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                         <div className="flex items-center gap-2">
                             <RadioGroupItem value={'custom'} className="after:absolute after:inset-0" />
-                            <Label>自定义</Label>
+                            <Label>{tQuestion('strategy_form.questionCount_type.custom')}</Label>
                         </div>
                     </div>
                 </RadioGroup>
@@ -98,7 +99,7 @@ export function QuestionStrategyForm({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Palette className="h-4 w-4 text-muted-foreground" />
-                    <Label className="font-medium ">问题风格</Label>
+                    <Label className="font-medium ">{tQuestion('strategy_form.genre')}</Label>
                 </div>
                 <Select value={questionStrategy.genre} onValueChange={value => handleChange('genre', value)}>
                     <SelectTrigger className={'w-45'}>
@@ -116,7 +117,7 @@ export function QuestionStrategyForm({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <ListFilter className="h-4 w-4 text-muted-foreground" />
-                    <Label className="font-medium ">难度级别</Label>
+                    <Label className="font-medium ">{tQuestion('strategy_form.difficulty')}</Label>
                 </div>
                 <Select value={questionStrategy.difficulty} onValueChange={value => handleChange('difficulty', value)}>
                     <SelectTrigger className={'w-45'}>
@@ -135,7 +136,7 @@ export function QuestionStrategyForm({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <Label className="font-medium ">受众人群</Label>
+                    <Label className="font-medium ">{tQuestion('strategy_form.audience')}</Label>
                 </div>
                 <Input
                     className={'w-45'}
@@ -147,14 +148,14 @@ export function QuestionStrategyForm({
             <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value={'more'} className="py-2">
                     <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
-                        更多设置
+                        {tQuestion('strategy_form.more_setting')}
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground pb-2">
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Thermometer className="h-4 w-4 text-muted-foreground" />
-                                    <Label className="font-medium">{t('model_dialog.temperature')}</Label>
+                                    <Label className="font-medium">{tProject('model_dialog.temperature')}</Label>
                                 </div>
                                 <span className="font-medium  text-primary">{questionStrategy.temperature}</span>
                             </div>
@@ -168,9 +169,9 @@ export function QuestionStrategyForm({
                                     className="py-2"
                                 />
                                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                                    <span>{t('model_dialog.temperature_accurate')}</span>
-                                    <span>{t('model_dialog.temperature_balance')}</span>
-                                    <span>{t('model_dialog.temperature_creative')}</span>
+                                    <span>{tProject('model_dialog.temperature_accurate')}</span>
+                                    <span>{tProject('model_dialog.temperature_balance')}</span>
+                                    <span>{tProject('model_dialog.temperature_creative')}</span>
                                 </div>
                             </div>
                         </div>
@@ -179,7 +180,7 @@ export function QuestionStrategyForm({
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Hash className="h-4 w-4 text-muted-foreground" />
-                                    <Label className="font-medium "> {t('model_dialog.max_token')}</Label>
+                                    <Label className="font-medium "> {tProject('model_dialog.max_token')}</Label>
                                 </div>
                                 <span className="font-medium text-lg text-primary">{questionStrategy.maxTokens}</span>
                             </div>

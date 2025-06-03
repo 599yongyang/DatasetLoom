@@ -18,6 +18,7 @@
     "dialog": {
         "title": "问题详情",
         "question": "问题",
+        "tag": "标签",
         "chunk": "所属文本块",
         "save_btn": "保存",
         "cancel_btn": "取消"
@@ -25,5 +26,24 @@
     "delete_title": "确认要删除此问题吗？",
     "toast": {
         "gen_ing": "数据集生成中..."
+    },
+    "strategy_dialog_title": "问题生成配置",
+    "confirm_btn": "确认",
+    "cancel_btn": "取消",
+    "strategy_form": {
+        "model": "模型选择",
+        "model_type": {
+            "default": "默认",
+            "custom": "自定义"
+        },
+        "question_count": "每块生成问题数",
+        "questionCount_type": {
+            "auto": "自动",
+            "custom": "自定义"
+        },
+        "genre": "问题风格",
+        "difficulty": "难度级别",
+        "audience": "受众人群",
+        "more_setting": "更多设置"
     }
 }

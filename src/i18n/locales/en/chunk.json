@@ -19,5 +19,30 @@
         "createdAt": "CreatedAt",
         "size": "Size",
         "actions": "Actions"
+    },
+    "strategy_dialog": {
+        "title": "Chunker",
+        "strategy": {
+            "title": "Strategy",
+            "options": {
+                "auto": {
+                    "label": "Auto",
+                    "desc": "Automatic block"
+                },
+                "custom": {
+                    "label": "Custom",
+                    "desc": "Customizable block rule parameters"
+                },
+                "page": {
+                    "label": "Page",
+                    "desc": "Page by page partitioning (currently only supports PDF files)"
+                }
+            }
+        },
+        "separators": "Separators",
+        "chunk_size": "Chunk Size",
+        "chunk_overlap": "Chunk Overlap",
+        "confirm_btn": "Submit",
+        "cancel_btn": "Cancel"
     }
 }

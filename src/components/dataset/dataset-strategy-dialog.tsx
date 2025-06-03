@@ -8,6 +8,7 @@ import type { Questions } from '@prisma/client';
 import { DatasetStrategyForm } from '@/components/dataset/dataset-strategy-form';
 import { type DatasetStrategyParams, defaultDatasetStrategyConfig } from '@/types/dataset';
 import { useGenerateDataset } from '@/hooks/use-generate-dataset';
+import { useTranslation } from 'react-i18next';
 
 export function DatasetStrategyDialog({
     type,
@@ -23,6 +24,7 @@ export function DatasetStrategyDialog({
     mutateQuestions: () => void;
 }) {
     const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('dataset');
     const { generateSingleDataset, generateMultipleDataset } = useGenerateDataset();
     const model = useAtomValue(selectedModelInfoAtom);
     const [datasetStrategy, setDatasetStrategy] = useState<DatasetStrategyParams>({
@@ -52,7 +54,7 @@ export function DatasetStrategyDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-lg [&>button:last-child]:top-3.5">
                 <DialogHeader className="contents space-y-0 text-left">
-                    <DialogTitle className="border-b px-6 py-4 text-base">数据集生成配置</DialogTitle>
+                    <DialogTitle className="border-b px-6 py-4 text-base">{t('strategy_dialog_title')}</DialogTitle>
                     <div className="flex flex-col gap-4 overflow-y-auto p-4 text-sm">
                         <DatasetStrategyForm
                             type={'question'}
@@ -64,12 +66,12 @@ export function DatasetStrategyDialog({
                 <DialogFooter className="border-t px-6 py-4 sm:items-center">
                     <DialogClose asChild>
                         <Button type="button" variant="outline">
-                            取消
+                            {t('cancel_btn')}
                         </Button>
                     </DialogClose>
                     <DialogClose asChild>
                         <Button type="button" onClick={handleGenerateDataset}>
-                            生成
+                            {t('confirm_btn')}
                         </Button>
                     </DialogClose>
                 </DialogFooter>

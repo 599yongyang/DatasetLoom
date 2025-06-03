@@ -117,7 +117,7 @@ export function QuestionDialog({
                                 name="label"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>领域标签</FormLabel>
+                                        <FormLabel>{t('dialog.tag')}</FormLabel>
                                         <FormControl>
                                             <TagInput
                                                 tags={tags}

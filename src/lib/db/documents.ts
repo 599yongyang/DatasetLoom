@@ -102,9 +102,7 @@ export async function createDocument(document: Documents) {
 
 export async function delDocumentByIds(fileId: string[]) {
     try {
-        const delChunks = db.chunks.deleteMany({ where: { fileId: { in: fileId } } });
-        const delDoc = db.documents.deleteMany({ where: { id: { in: fileId } } });
-        return await db.$transaction([delChunks, delDoc]);
+        return await db.documents.deleteMany({ where: { id: { in: fileId } } });
     } catch (error) {
         console.error('Failed to delete Documents by id in database');
         throw error;

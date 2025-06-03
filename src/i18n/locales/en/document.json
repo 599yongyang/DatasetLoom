@@ -5,6 +5,7 @@
     "delete_btn": "Delete selected data",
     "chunk_btn": "Chunk selected data",
     "upload_btn": "Upload files",
+    "graph_btn": "View Graph",
     "delete_title": "Are you sure you want to delete this file ?",
     "table_columns": {
         "file_name": "file Name",
@@ -19,16 +20,5 @@
         "rm_all_btn": "Remove all files",
         "cancel_btn": "Cancel",
         "confirm_upload_btn": "Start uploading"
-    },
-    "chunk": {
-        "info": " {{selected}} chunks selected， {{count}} chunks",
-        "gen_btn": "Batch Generation",
-        "character": "{{count}} Character",
-        "question": "{{count}} Questions",
-        "select_item": {
-            "all": "All Chunk",
-            "generated": "Generated",
-            "unGenerated": "unGenerated"
-        }
     }
 }

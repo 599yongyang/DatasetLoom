@@ -240,14 +240,14 @@ export function ModelDialog({
 
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 mb-1.5">
-                            <Label className="font-medium text-base">模型 ID</Label>
-                            <Label className="text-xs text-muted-foreground">服务商调用模型时的唯一标识</Label>
+                            <Label className="font-medium text-base">{t('model_dialog.model_id')}</Label>
+                            <Label className="text-xs text-muted-foreground">{t('model_dialog.model_id_info')}</Label>
                         </div>
                         <Input value={modelData.modelId} onChange={e => handleChange('modelId', e.target.value)} />
                     </div>
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 mb-1.5">
-                            <Label className="font-medium text-base">模型名称</Label>
+                            <Label className="font-medium text-base">{t('model_dialog.model_name')}</Label>
                         </div>
                         <Input value={modelData.modelName} onChange={e => handleChange('modelName', e.target.value)} />
                     </div>

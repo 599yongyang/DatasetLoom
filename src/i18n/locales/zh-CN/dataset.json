@@ -28,5 +28,23 @@
         "model": "使用模型",
         "createdAt": "创建时间",
         "chunk": "文本块"
+    },
+    "strategy_dialog_title": "问题生成配置",
+    "confirm_btn": "确认",
+    "cancel_btn": "取消",
+    "strategy_form": {
+        "model": "模型选择",
+        "model_type": {
+            "default": "默认",
+            "custom": "自定义"
+        },
+        "answer_style": "答案风格",
+        "detail_level": "答案详细程度",
+        "citation": "记录引用",
+        "citation_option": {
+            "yes": "是",
+            "no": "否"
+        },
+        "more_setting": "更多设置"
     }
 }

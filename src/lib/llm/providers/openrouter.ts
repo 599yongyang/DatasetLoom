@@ -19,7 +19,7 @@ class OpenRouterClient extends BaseClient {
 
         // 初始化 OpenRouter 实例
         this.openrouter = createOpenRouter({
-            baseURL: config.provider.apiKey ?? 'https://api.openrouter.ai', // 默认 OpenRouter API 地址
+            baseURL: config.provider.apiUrl ?? 'https://api.openrouter.ai', // 默认 OpenRouter API 地址
             apiKey: config.provider.apiKey ?? '' // 确保 apiKey 必须提供
         });
     }

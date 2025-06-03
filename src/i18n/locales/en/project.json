@@ -35,6 +35,8 @@
         "provider": "Provider",
         "api_url": "API URL",
         "api_key": "API Key",
+        "model_id": "Model ID",
+        "model_id_info": "Unique identifier when the service provider calls the model",
         "model_name": "Model Name",
         "model_type": "Model Type",
         "temperature": "Temperature",

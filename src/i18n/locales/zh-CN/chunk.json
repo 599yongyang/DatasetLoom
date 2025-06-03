@@ -19,5 +19,30 @@
         "createdAt": "上传时间",
         "size": "文件大小",
         "actions": "操作"
+    },
+    "strategy_dialog": {
+        "title": "Chunker 策略",
+        "strategy": {
+            "title": "策略",
+            "options": {
+                "auto": {
+                    "label": "自动",
+                    "desc": "自动进行分块设置"
+                },
+                "custom": {
+                    "label": "自定义",
+                    "desc": "可自定义分块规则参数"
+                },
+                "page": {
+                    "label": "逐页",
+                    "desc": "逐页进行分块(暂只支持pdf文件)"
+                }
+            }
+        },
+        "separators": "自定义字符",
+        "chunk_size": "最大字符数",
+        "chunk_overlap": "字符重叠数",
+        "confirm_btn": "确定",
+        "cancel_btn": "取消"
     }
 }

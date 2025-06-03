@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/llm/core/index';
 import type { UIMessage } from 'ai';
+import { getModelConfigById } from '@/lib/db/model-config';
+import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -25,9 +27,9 @@ export async function POST(request: Request, props: { params: Params }) {
         if (!Array.isArray(messages) || messages.length === 0) {
             return NextResponse.json({ error: 'The message list cannot be empty' }, { status: 400 });
         }
-
+        const modelConfig = await getModelConfigById(model.id);
         // 使用自定义的LLM客户端
-        const llmClient = new LLMClient(model);
+        const llmClient = new LLMClient(modelConfig as ModelConfigWithProvider);
 
         // 格式化消息历史
         const formattedMessages = messages.map(msg => {
@@ -56,6 +58,7 @@ export async function POST(request: Request, props: { params: Params }) {
         let response = '';
         try {
             const { text } = await llmClient.chat(formattedMessages as UIMessage[]);
+            console.log('LLM response:', text);
             response = text;
         } catch (error) {
             console.error('Failed to call LLM API:', error);
