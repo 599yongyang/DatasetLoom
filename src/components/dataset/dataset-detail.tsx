@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, ThumbsUp, ThumbsDown, Tag, Brain, Quote, FileText } from 'lucide-react';
+import { Star, ThumbsUp, ThumbsDown, Tag, Brain, Quote, FileText, Atom } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Markdown } from '@/components/playground/markdown';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,9 @@ import type { DatasetSamples, PreferencePair } from '@prisma/client';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
+import { AIScoreDashboard } from '@/components/dataset/ai-score-chart';
+import { useAtomValue } from 'jotai';
+import { selectedModelInfoAtom } from '@/atoms';
 
 export default function DatasetDetail({
     datasetSamples,
@@ -26,8 +29,10 @@ export default function DatasetDetail({
     pp: PreferencePair;
     refresh: () => void;
 }) {
+    const model = useAtomValue(selectedModelInfoAtom);
     const [activeAnswerId, setActiveAnswerId] = useState(dssId);
     const [activeAnswer, setActiveAnswer] = useState(datasetSamples[0]);
+    const [isScoring, setIsScoring] = useState(false);
     useEffect(() => {
         setActiveAnswerId(dssId);
     }, [dssId]);
@@ -37,6 +42,34 @@ export default function DatasetDetail({
         const foundAnswer = datasetSamples.find(d => d.id === activeAnswerId) || datasetSamples[0];
         setActiveAnswer(foundAnswer);
     }, [activeAnswerId, datasetSamples]);
+
+    const handleAIScore = () => {
+        setIsScoring(true);
+        toast.promise(
+            axios.post(`/api/project/${activeAnswer?.projectId}/datasets/ai-score`, {
+                dssId: activeAnswerId,
+                modelId: model.id
+            }),
+            {
+                loading: 'AI 正在进行评分中...',
+                success: data => {
+                    if (data.data.success) {
+                        refresh();
+                        return '处理成功';
+                    } else {
+                        return '处理失败';
+                    }
+                },
+                error: error => {
+                    console.error('处理失败:', error);
+                    return '处理失败';
+                },
+                finally: () => {
+                    setIsScoring(false);
+                }
+            }
+        );
+    };
     return (
         <>
             {/* 答案部分 */}
@@ -74,7 +107,42 @@ export default function DatasetDetail({
                     </div>
                 )}
             </div>
-            <Accordion type="multiple" defaultValue={['cot', 'label', 'evidence']} className="w-full">
+
+            <Accordion type="multiple" defaultValue={['ai-score', 'cot', 'label', 'evidence']} className="w-full">
+                {/*AI 评分*/}
+                <AccordionItem value={'ai-score'} className="py-2">
+                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Atom className="w-5 h-5 text-sky-600" />
+                            <span>大模型回答质量评估</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        {activeAnswer?.aiScoreModel ? (
+                            <AIScoreDashboard dss={activeAnswer as DatasetSamples} handleAIScore={handleAIScore} />
+                        ) : isScoring ? (
+                            <div className="text-center py-6">
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+                                <p className="mt-2 text-sm text-muted-foreground">AI 正在评分中 ...</p>
+                            </div>
+                        ) : (
+                            <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center space-y-4">
+                                <div className="flex justify-center">
+                                    <Atom className="w-10 h-10 text-gray-400" />
+                                </div>
+                                <h3 className="text-lg font-medium">暂未进行 AI 评分</h3>
+                                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                                    点击下方按钮，使用大模型对当前答案进行自动评分。
+                                </p>
+                                <Button variant="outline" size="sm" onClick={handleAIScore} className="gap-1 px-4 py-2">
+                                    <Atom className="w-4 h-4" />
+                                    生成 AI 评分
+                                </Button>
+                            </div>
+                        )}
+                    </AccordionContent>
+                </AccordionItem>
+
                 {/*思维链*/}
                 <AccordionItem value={'cot'} className="py-2">
                     <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">

@@ -38,3 +38,26 @@ export const answerSchema = z.object({
     evidence: z.array(evidenceSchema),
     confidence: z.number().min(0).max(1) // 置信度应在 0~1 之间
 });
+
+// Scores 对象 Schema
+const scoresSchema = z.object({
+    factualAccuracy: z.number().min(0).max(1),
+    logicalIntegrity: z.number().min(0).max(1),
+    expressionQuality: z.number().min(0).max(1),
+    safetyCompliance: z.number().min(0).max(1),
+    compositeScore: z.number()
+});
+
+// Diagnostics 对象 Schema
+const diagnosticsSchema = z.object({
+    factualInfo: z.string().optional(),
+    logicalInfo: z.string().optional(),
+    expressionInfo: z.string().optional(),
+    safetyInfo: z.string().optional(),
+    compositeInfo: z.string().optional()
+});
+
+export const aiScoreSchema = z.object({
+    scores: scoresSchema,
+    diagnostics: diagnosticsSchema
+});
