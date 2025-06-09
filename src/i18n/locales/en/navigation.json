@@ -8,6 +8,7 @@
     "datasets": "Datasets",
     "settings": "Settings",
     "project_info": "Project Info",
+    "parser_config": "Parser Config",
     "model_config": "Model Config",
     "task_config": "Task Config",
     "prompt_config": "Prompt Config",

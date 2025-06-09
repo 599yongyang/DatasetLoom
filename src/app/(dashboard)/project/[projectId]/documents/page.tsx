@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SquareSplitVertical, Trash2, Waypoints } from 'lucide-react';
+import { SquareSplitVertical, Trash2, Upload, Waypoints } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
@@ -114,7 +114,11 @@ export default function Page() {
                             ))}
                         </SelectContent>
                     </Select>
-                    <UploadDialog refreshFiles={refreshFiles} />
+                    {/*<UploadDialog refreshFiles={refreshFiles} />*/}
+                    <Button onClick={() => router.push(`/project/${projectId}/documents/upload`)}>
+                        <Upload size={30} />
+                        上传资源
+                    </Button>
                     <Button
                         variant="outline"
                         className={'hover:cursor-pointer'}

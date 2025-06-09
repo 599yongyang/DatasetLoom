@@ -25,7 +25,7 @@ export function DocumentNode({ isConnectable }: NodeProps) {
                                 <div className="flex min-w-0 flex-1 justify-between">
                                     <p className="truncate text-[13px] font-medium">{file.fileName}</p>
                                     <p className="text-muted-foreground text-xs justify-end">
-                                        {formatBytes(file.size)}
+                                        {formatBytes(file.size || file.parserFileSize || 0)}
                                     </p>
                                 </div>
                             </div>
@@ -56,9 +56,9 @@ export function DocumentNode({ isConnectable }: NodeProps) {
                         return {
                             id: file.id,
                             name: file.fileName,
-                            size: file.size,
-                            type: file.fileExt,
-                            url: file.path
+                            size: file.size!,
+                            type: file.fileExt!,
+                            url: file.path!
                         };
                     })}
                 />

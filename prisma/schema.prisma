@@ -26,19 +26,24 @@ model Projects {
   WorkFlow         WorkFlow[]
   LlmProviders     LlmProviders[]
   PreferencePair   PreferencePair[]
+  ParserConfig     ParserConfig[]
 }
 
 model Documents {
-  id        String   @id @default(nanoid())
-  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId String
-  fileName  String
-  fileExt   String
-  path      String
-  size      Int
-  md5       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(nanoid())
+  project        Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      String
+  fileName       String
+  fileExt        String?
+  path           String?
+  size           Int?
+  md5            String?
+  sourceType     String   @default("local")
+  parserFilePath String?
+  parserFileExt  String?
+  parserFileSize Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Chunks {
@@ -201,6 +206,19 @@ model ModelConfig {
   updatedAt   DateTime     @updatedAt
   Project     Projects?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   String?
+}
+
+model ParserConfig {
+  id          String   @id @default(nanoid())
+  project     Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  serviceId   String
+  serviceName String
+  apiUrl      String
+  apiKey      String
+  status      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model WorkFlow {

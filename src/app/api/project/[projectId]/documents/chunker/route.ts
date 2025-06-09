@@ -40,7 +40,11 @@ export async function POST(request: Request, props: { params: Params }) {
     //将文件内容进行分块
     let chunkList: Chunks[] = [];
     for (const doc of docs) {
-        const data = await chunker(doc.path, strategy, { chunkSize, chunkOverlap, separators });
+        const filePath = doc.parserFilePath || doc.path;
+        if (!filePath) {
+            continue;
+        }
+        const data = await chunker(filePath, strategy, { chunkSize, chunkOverlap, separators });
         chunkList = data.map((text, index) => {
             const chunkId = `${path.basename(doc.fileName, path.extname(doc.fileName))}-part-${index + 1}`;
             return {

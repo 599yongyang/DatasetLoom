@@ -58,7 +58,7 @@ dependencies:
         version: 2.1.0
     '@langchain/community':
         specifier: ^0.3.42
-        version: 0.3.43(@browserbasehq/stagehand@1.14.0)(@ibm-cloud/watsonx-ai@1.6.6)(@langchain/core@0.3.56)(axios@1.9.0)(epub2@3.0.2)(ibm-cloud-sdk-core@5.3.2)(ioredis@5.6.1)(mammoth@1.9.0)(openai@4.100.0)(pdf-parse@1.1.1)(playwright@1.52.0)(word-extractor@1.0.4)
+        version: 0.3.43(@browserbasehq/stagehand@1.14.0)(@ibm-cloud/watsonx-ai@1.6.6)(@langchain/core@0.3.56)(@mendable/firecrawl-js@1.25.5)(axios@1.9.0)(epub2@3.0.2)(ibm-cloud-sdk-core@5.3.2)(ioredis@5.6.1)(mammoth@1.9.0)(openai@4.100.0)(pdf-parse@1.1.1)(playwright@1.52.0)(word-extractor@1.0.4)
     '@langchain/core':
         specifier: ^0.3.55
         version: 0.3.56(openai@4.100.0)
@@ -71,6 +71,9 @@ dependencies:
     '@lobehub/icons':
         specifier: ^2.0.0
         version: 2.1.0(@babel/core@7.27.1)(@types/react@18.3.22)(acorn@8.14.1)(antd@5.25.2)(framer-motion@12.12.1)(react-dom@18.3.1)(react@18.3.1)
+    '@mendable/firecrawl-js':
+        specifier: ^1.25.5
+        version: 1.25.5
     '@openrouter/ai-sdk-provider':
         specifier: ^0.4.5
         version: 0.4.6(zod@3.25.17)
@@ -2510,7 +2513,7 @@ packages:
             '@jridgewell/resolve-uri': 3.1.2
             '@jridgewell/sourcemap-codec': 1.5.0
 
-    /@langchain/community@0.3.43(@browserbasehq/stagehand@1.14.0)(@ibm-cloud/watsonx-ai@1.6.6)(@langchain/core@0.3.56)(axios@1.9.0)(epub2@3.0.2)(ibm-cloud-sdk-core@5.3.2)(ioredis@5.6.1)(mammoth@1.9.0)(openai@4.100.0)(pdf-parse@1.1.1)(playwright@1.52.0)(word-extractor@1.0.4):
+    /@langchain/community@0.3.43(@browserbasehq/stagehand@1.14.0)(@ibm-cloud/watsonx-ai@1.6.6)(@langchain/core@0.3.56)(@mendable/firecrawl-js@1.25.5)(axios@1.9.0)(epub2@3.0.2)(ibm-cloud-sdk-core@5.3.2)(ioredis@5.6.1)(mammoth@1.9.0)(openai@4.100.0)(pdf-parse@1.1.1)(playwright@1.52.0)(word-extractor@1.0.4):
         resolution:
             {
                 integrity: sha512-rTXuKflXyftKFw2fAl5YbkfMcwsIcot8tpUy50asXxbe3eGpQimIFXZsLeaBlftjQPadgnBMOr3Wn1xX8kfOzA==
@@ -2900,6 +2903,7 @@ packages:
             '@ibm-cloud/watsonx-ai': 1.6.6
             '@langchain/core': 0.3.56(openai@4.100.0)
             '@langchain/openai': 0.5.10(@langchain/core@0.3.56)
+            '@mendable/firecrawl-js': 1.25.5
             binary-extensions: 2.3.0
             epub2: 3.0.2(ts-toolbelt@9.6.0)
             expr-eval: 2.0.2
@@ -3397,6 +3401,21 @@ packages:
             '@types/mdx': 2.0.13
             '@types/react': 18.3.22
             react: 18.3.1
+        dev: false
+
+    /@mendable/firecrawl-js@1.25.5:
+        resolution:
+            {
+                integrity: sha512-cozEZipMdtyfAQKX8IFC8DW06cYd7CxL8cxwMaD61sQrWpLkGcpivoMEeSFuyJTKmobAYAT5EB5ZExUJSVJkXw==
+            }
+        engines: { node: '>=22.0.0' }
+        dependencies:
+            axios: 1.9.0(debug@4.4.1)
+            typescript-event-target: 1.1.1
+            zod: 3.25.17
+            zod-to-json-schema: 3.24.5(zod@3.25.17)
+        transitivePeerDependencies:
+            - debug
         dev: false
 
     /@mermaid-js/parser@0.4.0:
@@ -19036,6 +19055,13 @@ packages:
         transitivePeerDependencies:
             - supports-color
         dev: true
+
+    /typescript-event-target@1.1.1:
+        resolution:
+            {
+                integrity: sha512-dFSOFBKV6uwaloBCCUhxlD3Pr/P1a/tJdcmPrTXCHlEFD3faj0mztjcGn6VBAhQ0/Bdy8K3VWrrqwbt/ffsYsg==
+            }
+        dev: false
 
     /typescript@5.8.3:
         resolution:

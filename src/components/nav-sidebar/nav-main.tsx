@@ -106,7 +106,8 @@ export function NavMain({ items }: { items: IMenu[] }) {
                         <Collapsible
                             key={item.title}
                             asChild
-                            open={openItems[item.title]}
+                            // open={openItems[item.title]}
+                            open={true}
                             onOpenChange={() => handleToggle(item.title)}
                         >
                             <SidebarMenuItem>

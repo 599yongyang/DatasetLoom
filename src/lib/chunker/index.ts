@@ -54,10 +54,6 @@ export async function chunker(filePath: string, strategy: string, options: Chunk
         separators: options.separators ?? DEFAULT_CHUNK_SEPARATORS
     };
     const docs = await loader(filePath, strategy);
-    if (strategy === 'page') {
-        console.log(docs.length, `loaded`);
-        return docs;
-    }
     const allContent = docs.map(doc => doc.pageContent).join();
     const ext = filePath.slice(filePath.lastIndexOf('.')).toLowerCase();
     // 获取对应格式的分块函数

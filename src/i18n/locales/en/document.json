@@ -8,8 +8,9 @@
     "graph_btn": "View Graph",
     "delete_title": "Are you sure you want to delete this file ?",
     "table_columns": {
-        "file_name": "file Name",
-        "file_ext": "file Type",
+        "file_name": "Name",
+        "source_type": "Source Type",
+        "file_ext": "File Type",
         "createdAt": "CreatedAt",
         "size": "Size",
         "actions": "Actions"

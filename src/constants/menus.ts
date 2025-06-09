@@ -51,11 +51,11 @@ export const getMenuConfig = (projectId: string): IMenu[] =>
                     icon: Brain,
                     to: `/project/${projectId}/settings/model-config`
                 },
-                // {
-                //     title: "task_config",
-                //     icon: ListTodo,
-                //     to: `/project/${projectId}/settings/task-config`,
-                // },
+                {
+                    title: 'parser_config',
+                    icon: ListTodo,
+                    to: `/project/${projectId}/settings/parser-config`
+                },
                 {
                     title: 'prompt_config',
                     icon: SquareTerminal,

@@ -66,6 +66,11 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
             enableHiding: false
         },
         {
+            accessorKey: 'sourceType',
+            header: t('table_columns.source_type'),
+            cell: ({ row }) => <div>{formatSourceType(row.original.sourceType)}</div>
+        },
+        {
             accessorKey: 'fileExt',
             header: t('table_columns.file_ext'),
             cell: ({ row }) => <div>{row.original.fileExt}</div>
@@ -75,7 +80,7 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
             header: t('table_columns.size'),
             cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground">
-                    {formatBytes(row.original.size)}
+                    {formatBytes(row.original.size || row.original.parserFileSize || 0)}
                 </Badge>
             )
         },
@@ -90,7 +95,7 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
             cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-2">
-                        <ChunkStrategyDialog fileIds={[row.original.id]} fileExt={row.original.fileExt} />
+                        <ChunkStrategyDialog fileIds={[row.original.id]} fileExt={row.original.fileExt ?? ''} />
                         <Button
                             variant="ghost"
                             className={'hover:cursor-pointer'}
@@ -115,3 +120,16 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
 
     return columns;
 }
+
+const formatSourceType = (type: string): string => {
+    switch (type) {
+        case 'local':
+            return '本地文件';
+        case 'webUrl':
+            return '网站内容';
+        case 'webFile':
+            return '在线文件';
+        default:
+            return '未知';
+    }
+};

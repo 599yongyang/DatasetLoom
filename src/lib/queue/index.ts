@@ -95,7 +95,7 @@ class QueueService {
             .on('ready', () => console.log('✅ Worker is ready'))
             .on('completed', job => console.log(`✅ Job completed: ${job.id}`))
             .on('failed', (job, err) => console.error(`❌ Job failed: ${job?.id}`, err))
-            .on('error', err => console.error('❌ Worker error:', err))
+            // .on('error', err => console.error('❌ Worker error:', err))
             .on('closed', () => {
                 console.log('🛑 Worker closed');
                 this.worker = null;

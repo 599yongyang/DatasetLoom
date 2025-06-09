@@ -11,11 +11,15 @@ export async function getDocumentsPagination(
     fileExt: string
 ) {
     try {
-        const whereClause = {
-            projectId,
-            fileName: { contains: fileName },
-            fileExt: { contains: fileExt }
+        const whereClause: any = {
+            projectId
         };
+        if (fileExt) {
+            whereClause.fileExt = { contains: fileExt };
+        }
+        if (fileName) {
+            whereClause.fileName = { contains: fileName };
+        }
         const [data, total] = await Promise.all([
             db.documents.findMany({
                 where: whereClause,
