@@ -13,9 +13,14 @@ import {
 } from 'lucide-react';
 
 import type { IMenu } from '@/schema/menu';
+import type { CurrentUser } from '@/server/auth';
 
-export const getMenuConfig = (projectId: string): IMenu[] =>
-    [
+export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => {
+    const permissions = user?.permissions.find(permission => permission.projectId === projectId);
+    // const isAdminOrOwner = permissions?.role === 'OWNER' || permissions?.role === 'ADMIN';
+    const isAdminOrOwner = true;
+
+    const menuItems: IMenu[] = [
         {
             title: 'documents',
             icon: FileText,
@@ -35,8 +40,11 @@ export const getMenuConfig = (projectId: string): IMenu[] =>
             title: 'datasets',
             icon: Database,
             to: `/project/${projectId}/datasets`
-        },
-        {
+        }
+    ];
+
+    if (isAdminOrOwner) {
+        menuItems.push({
             title: 'settings',
             icon: Settings,
             to: `/project/${projectId}/settings`,
@@ -62,7 +70,10 @@ export const getMenuConfig = (projectId: string): IMenu[] =>
                     to: `/project/${projectId}/settings/prompt-config`
                 }
             ]
-        },
+        });
+    }
+
+    menuItems.push(
         {
             title: 'playground',
             icon: BotMessageSquare,
@@ -73,4 +84,7 @@ export const getMenuConfig = (projectId: string): IMenu[] =>
             icon: Workflow,
             to: `/project/${projectId}/workflow`
         }
-    ] as const;
+    );
+
+    return menuItems;
+};

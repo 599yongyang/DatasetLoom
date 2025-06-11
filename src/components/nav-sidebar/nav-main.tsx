@@ -1,5 +1,4 @@
 'use client';
-import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
     SidebarGroup,
@@ -19,18 +18,16 @@ import { useTranslation } from 'react-i18next';
 
 import { navOpenItemsAtom } from '@/atoms';
 import type { IMenu } from '@/schema/menu';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { ProjectSelect } from '@/components/project/project-select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { ProjectDialog } from '@/components/project/project-dialog';
+import { toast } from 'sonner';
 
-export function NavMain({ items }: { items: IMenu[] }) {
+export function NavMain({ items, projectId }: { items: IMenu[]; projectId: string }) {
     const { t } = useTranslation('navigation');
     const pathname = usePathname();
     const [openItems, setOpenItems] = useAtom(navOpenItemsAtom);
     const [open, setOpen] = useState(false);
-
+    const router = useRouter();
     const { isPathActive, isParentActive } = useMemo(() => {
         const isPathActive = (path: string) => {
             return pathname === path || pathname.startsWith(`${path}/`);
@@ -77,28 +74,19 @@ export function NavMain({ items }: { items: IMenu[] }) {
 
         setOpenItems(newOpenItems);
     };
+    const handleClick = (href: string) => {
+        if (projectId) {
+            router.push(href);
+        } else {
+            toast.warning('Please select a project');
+        }
+    };
     return (
         <>
             <SidebarGroup className="flex flex-col gap-2">
                 <SidebarMenu>
                     <SidebarMenuItem className="flex items-center gap-2">
                         <ProjectSelect />
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        size="icon"
-                                        onClick={() => setOpen(true)}
-                                        className="h-9 w-9 shrink-0 hover:cursor-pointer group-data-[collapsible=icon]:opacity-0"
-                                    >
-                                        <Plus />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>{t('quick_create')}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
                     </SidebarMenuItem>
                 </SidebarMenu>
                 <SidebarMenu>
@@ -116,10 +104,10 @@ export function NavMain({ items }: { items: IMenu[] }) {
                                     tooltip={t(item.title)}
                                     data-active={item.children ? false : isPathActive(item.to)}
                                 >
-                                    <Link href={item.to}>
+                                    <div className={'hover:cursor-pointer'} onClick={() => handleClick(item.to)}>
                                         <item.icon />
                                         <span>{t(item.title)}</span>
-                                    </Link>
+                                    </div>
                                 </SidebarMenuButton>
                                 {item.children?.length ? (
                                     <>
@@ -137,9 +125,12 @@ export function NavMain({ items }: { items: IMenu[] }) {
                                                             asChild
                                                             data-active={isPathActive(subItem.to)}
                                                         >
-                                                            <Link href={subItem.to}>
+                                                            <div
+                                                                className={'hover:cursor-pointer'}
+                                                                onClick={() => handleClick(item.to)}
+                                                            >
                                                                 <span>{t(subItem.title)}</span>
-                                                            </Link>
+                                                            </div>
                                                         </SidebarMenuSubButton>
                                                     </SidebarMenuSubItem>
                                                 ))}
@@ -152,7 +143,6 @@ export function NavMain({ items }: { items: IMenu[] }) {
                     ))}
                 </SidebarMenu>
             </SidebarGroup>
-            <ProjectDialog open={open} setOpen={setOpen} />
         </>
     );
 }

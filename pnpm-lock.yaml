@@ -248,6 +248,9 @@ dependencies:
     next:
         specifier: ^15.2.3
         version: 15.3.2(@babel/core@7.27.1)(@playwright/test@1.52.0)(react-dom@18.3.1)(react@18.3.1)
+    next-auth:
+        specifier: 5.0.0-beta.28
+        version: 5.0.0-beta.28(next@15.3.2)(react@18.3.1)
     next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@18.3.1)(react@18.3.1)
@@ -1046,6 +1049,30 @@ packages:
             d3-shape: 3.2.0
             d3-time: 3.1.0
             d3-timer: 3.0.1
+        dev: false
+
+    /@auth/core@0.39.1:
+        resolution:
+            {
+                integrity: sha512-McD8slui0oOA1pjR5sPjLPl5Zm//nLP/8T3kr8hxIsvNLvsiudYvPHhDFPjh1KcZ2nFxCkZmP6bRxaaPd/AnLA==
+            }
+        peerDependencies:
+            '@simplewebauthn/browser': ^9.0.1
+            '@simplewebauthn/server': ^9.0.2
+            nodemailer: ^6.8.0
+        peerDependenciesMeta:
+            '@simplewebauthn/browser':
+                optional: true
+            '@simplewebauthn/server':
+                optional: true
+            nodemailer:
+                optional: true
+        dependencies:
+            '@panva/hkdf': 1.2.1
+            jose: 6.0.11
+            oauth4webapi: 3.5.2
+            preact: 10.24.3
+            preact-render-to-string: 6.5.11(preact@10.24.3)
         dev: false
 
     /@aws-crypto/sha256-js@5.2.0:
@@ -3968,6 +3995,13 @@ packages:
         requiresBuild: true
         dev: true
         optional: true
+
+    /@panva/hkdf@1.2.1:
+        resolution:
+            {
+                integrity: sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==
+            }
+        dev: false
 
     /@pkgjs/parseargs@0.11.0:
         resolution:
@@ -10200,7 +10234,7 @@ packages:
             react: 18.3.1
             react-dom: 18.3.1(react@18.3.1)
             react-easy-sort: 1.6.0(react-dom@18.3.1)(react@18.3.1)
-            tailwind-merge: 3.3.0
+            tailwind-merge: 3.3.1
         transitivePeerDependencies:
             - '@types/react'
             - '@types/react-dom'
@@ -12740,6 +12774,13 @@ packages:
             }
         hasBin: true
 
+    /jose@6.0.11:
+        resolution:
+            {
+                integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==
+            }
+        dev: false
+
     /jotai@2.12.4(@types/react@18.3.22)(react@18.3.1):
         resolution:
             {
@@ -14956,6 +14997,30 @@ packages:
             }
         dev: false
 
+    /next-auth@5.0.0-beta.28(next@15.3.2)(react@18.3.1):
+        resolution:
+            {
+                integrity: sha512-2RDR1h3DJb4nizcd5UBBwC2gtyP7j/jTvVLvEtDaFSKUWNfou3Gek2uTNHSga/Q4I/GF+OJobA4mFbRaWJgIDQ==
+            }
+        peerDependencies:
+            '@simplewebauthn/browser': ^9.0.1
+            '@simplewebauthn/server': ^9.0.2
+            next: ^14.0.0-0 || ^15.0.0-0
+            nodemailer: ^6.6.5
+            react: ^18.2.0 || ^19.0.0-0
+        peerDependenciesMeta:
+            '@simplewebauthn/browser':
+                optional: true
+            '@simplewebauthn/server':
+                optional: true
+            nodemailer:
+                optional: true
+        dependencies:
+            '@auth/core': 0.39.1
+            next: 15.3.2(@babel/core@7.27.1)(@playwright/test@1.52.0)(react-dom@18.3.1)(react@18.3.1)
+            react: 18.3.1
+        dev: false
+
     /next-themes@0.4.6(react-dom@18.3.1)(react@18.3.1):
         resolution:
             {
@@ -15140,6 +15205,13 @@ packages:
         resolution:
             {
                 integrity: sha512-qaKRmtYPZ5qdw4jWJD6bxEf1FJEqllJrwxCLIm0sQU/A7v2/czigzOb+C2uSiFsa9lBUzeH7M1oK+Q+OLxL3kA==
+            }
+        dev: false
+
+    /oauth4webapi@3.5.2:
+        resolution:
+            {
+                integrity: sha512-VYz5BaP3izIrUc1GAVzIoz4JnljiW0YAUFObMBwsqDnfHxz2sjLu3W7/8vE8Ms9IbMewN9+1kcvhY3tMscAeGQ==
             }
         dev: false
 
@@ -15837,6 +15909,24 @@ packages:
             picocolors: 1.1.1
             source-map-js: 1.2.1
         dev: true
+
+    /preact-render-to-string@6.5.11(preact@10.24.3):
+        resolution:
+            {
+                integrity: sha512-ubnauqoGczeGISiOh6RjX0/cdaF8v/oDXIjO85XALCQjwQP+SB4RDXXtvZ6yTYSjG+PC1QRP2AhPgCEsM2EvUw==
+            }
+        peerDependencies:
+            preact: '>=10'
+        dependencies:
+            preact: 10.24.3
+        dev: false
+
+    /preact@10.24.3:
+        resolution:
+            {
+                integrity: sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA==
+            }
+        dev: false
 
     /prelude-ls@1.2.1:
         resolution:
@@ -18643,6 +18733,13 @@ packages:
         resolution:
             {
                 integrity: sha512-fyW/pEfcQSiigd5SNn0nApUOxx0zB/dm6UDU/rEwc2c3sX2smWUNbapHv+QRqLGVp9GWX3THIa7MUGPo+YkDzQ==
+            }
+        dev: false
+
+    /tailwind-merge@3.3.1:
+        resolution:
+            {
+                integrity: sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==
             }
         dev: false
 

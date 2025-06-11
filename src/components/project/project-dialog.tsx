@@ -1,3 +1,4 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -47,7 +48,7 @@ export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open
             success: data => {
                 router.push(`/project/${data.data.id}/settings/model-config`);
                 setOpen(false);
-                refresh(data.data.data);
+                void refresh(data.data.data);
                 return '创建成功';
             },
             error: error => {

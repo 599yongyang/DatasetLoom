@@ -16,6 +16,7 @@ import { getMenuConfig } from '@/constants/menus';
 import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Store } from 'lucide-react';
+import type { CurrentUser } from '@/server/auth';
 
 interface Breadcrumb {
     title: I18nKeys;
@@ -23,10 +24,10 @@ interface Breadcrumb {
     isLast: boolean;
 }
 
-export function NavBreadcrumb({ className }: { className?: string }) {
+export function NavBreadcrumb({ className, user }: { className?: string; user: CurrentUser }) {
     const pathname = usePathname();
     const { projectId } = useParams();
-    const menuItems = getMenuConfig(projectId as string);
+    const menuItems = getMenuConfig(projectId as string, user);
     menuItems.push({
         title: 'dataset_square',
         icon: Store,

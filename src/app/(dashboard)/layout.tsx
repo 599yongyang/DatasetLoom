@@ -1,4 +1,3 @@
-'use client';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/nav-sidebar/app-sidebar';
 import { Separator } from '@/components/ui/separator';
@@ -11,41 +10,25 @@ import { NavBreadcrumb } from '@/components/nav-sidebar/nav-breadcrumb';
 import { Search } from '@/components/search';
 import { ThemeSwitcher } from '@/components/theme/theme-switcher';
 import { ModelSelect } from '@/components/model-select';
-import { useAtom } from 'jotai';
-import { workStateAtom } from '@/atoms';
-import { useEffect } from 'react';
-import axios from 'axios';
+import { auth, type CurrentUser } from '@/server/auth';
+import { redirect } from 'next/navigation';
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    const [workState, setWorkState] = useAtom(workStateAtom);
-    useEffect(() => {
-        const workerState = async () => {
-            if (workState === 'wait') {
-                try {
-                    const res = await axios.get('/api/worker');
-                    if (res.status === 200) {
-                        setWorkState('success');
-                    }
-                } catch (error) {
-                    // toast.error('工作流功能需要正常运行Redis服务，请检查Redis服务是否已启动')
-                    setWorkState('error');
-                    console.error('Failed to fetch worker state:', error);
-                }
-            }
-        };
-        void workerState();
-    }, []);
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+    const session = await auth();
+    if (!session) {
+        redirect('/login');
+    }
 
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar user={session.user as CurrentUser} />
             <SidebarInset className="w-full overflow-hidden">
                 <div className="sticky top-0 z-10">
                     <header className="flex h-14 w-full shrink-0 items-center justify-between border-b bg-background/80 px-2 backdrop-blur-sm sm:h-16 sm:px-4">
                         <div className="flex items-center gap-2">
                             <SidebarTrigger className="-ml-0.5 sm:-ml-1" />
                             <Separator orientation="vertical" className="mr-2 hidden h-4 sm:block" />
-                            <NavBreadcrumb className="hidden sm:flex" />
+                            <NavBreadcrumb className="hidden sm:flex" user={session.user as CurrentUser} />
                         </div>
                         <div className="ml-auto flex flex-1 items-center space-x-2 px-2 sm:px-4 md:max-w-100 lg:max-w-xl">
                             <ModelSelect type={'head'} />

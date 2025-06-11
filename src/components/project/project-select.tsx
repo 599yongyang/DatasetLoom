@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,10 @@ import { selectedProjectAtom } from '@/atoms';
 import { useTranslation } from 'react-i18next';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useModelConfigSelect } from '@/hooks/query/use-llm';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useGetProjects } from '@/hooks/query/use-project';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ProjectDialog } from '@/components/project/project-dialog';
 
 export function ProjectSelect() {
     const { projectId } = useParams<{ projectId: string }>();
@@ -26,7 +28,8 @@ export function ProjectSelect() {
     const [selectedProject, setSelectedProject] = useAtom(selectedProjectAtom);
     useModelConfigSelect(value);
     const { projects } = useGetProjects();
-
+    const [projectDialogOpen, setProjectDialogOpen] = React.useState(false);
+    const [projectName, setProjectName] = useState(t('search_project'));
     useEffect(() => {
         if (projectId !== selectedProject && projectId !== undefined) {
             setSelectedProject(projectId);
@@ -71,49 +74,73 @@ export function ProjectSelect() {
         router.push(`/${segments.join('/')}`);
     };
 
+    useEffect(() => {
+        const projectName = projects.find(project => project.id === selectedProject)?.name;
+        setProjectName(projectName || t('search_project'));
+    }, [selectedProject, projects.length]);
+
     return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={open}
-                    className="w-[200px] justify-between"
-                    size={'sm'}
-                >
-                    {value ? projects.find(project => project.id === value)?.name : t('search_project')}
-                    <ChevronsUpDown className="opacity-50" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-                <Command shouldFilter={false}>
-                    <CommandInput
-                        placeholder={t('search_project')}
-                        className="h-9"
-                        onValueChange={e => {
-                            setFilter(e.trim().toLowerCase());
-                        }}
-                    />
-                    <CommandList>
-                        <CommandEmpty>{t('no_found')}</CommandEmpty>
-                        <CommandGroup>
-                            {projects
-                                .filter(project => project.name.toLowerCase().includes(filter.toLowerCase()))
-                                .map(project => (
-                                    <CommandItem key={project.id} value={project.id} onSelect={handleSelectChange}>
-                                        {project.name}
-                                        <Check
-                                            className={cn(
-                                                'ml-auto',
-                                                value === project.id ? 'opacity-100' : 'opacity-0'
-                                            )}
-                                        />
-                                    </CommandItem>
-                                ))}
-                        </CommandGroup>
-                    </CommandList>
-                </Command>
-            </PopoverContent>
-        </Popover>
+        <>
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-[200px] justify-between"
+                        size={'sm'}
+                    >
+                        {projectName}
+                        <ChevronsUpDown className="opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0">
+                    <Command shouldFilter={false}>
+                        <CommandInput
+                            placeholder={t('search_project')}
+                            className="h-9"
+                            onValueChange={e => {
+                                setFilter(e.trim().toLowerCase());
+                            }}
+                        />
+                        <CommandList>
+                            <CommandEmpty>{t('no_found')}</CommandEmpty>
+                            <CommandGroup>
+                                {projects
+                                    .filter(project => project.name.toLowerCase().includes(filter.toLowerCase()))
+                                    .map(project => (
+                                        <CommandItem key={project.id} value={project.id} onSelect={handleSelectChange}>
+                                            {project.name}
+                                            <Check
+                                                className={cn(
+                                                    'ml-auto',
+                                                    value === project.id ? 'opacity-100' : 'opacity-0'
+                                                )}
+                                            />
+                                        </CommandItem>
+                                    ))}
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            size="icon"
+                            onClick={() => setProjectDialogOpen(true)}
+                            className="h-9 w-9 shrink-0 hover:cursor-pointer group-data-[collapsible=icon]:opacity-0"
+                        >
+                            <Plus />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>{t('quick_create')}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <ProjectDialog open={projectDialogOpen} setOpen={setProjectDialogOpen} />
+        </>
     );
 }

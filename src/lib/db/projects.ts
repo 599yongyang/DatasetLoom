@@ -2,40 +2,80 @@
 
 import fs from 'fs';
 import path from 'path';
-import { DEFAULT_SETTINGS } from '@/constants/setting';
 import { nanoid } from 'nanoid';
 import { db } from '@/server/db';
-import type { Projects } from '@prisma/client';
+import { type Projects } from '@prisma/client';
 import { getProjectRoot } from '@/lib/utils/file';
+import { ProjectRole } from '@/schema/types';
 
-// 创建新项目
-export async function createProject(projectData: { name: string; description: string }) {
+/**
+ * 创建新项目
+ */
+export async function createProject(projectData: { name: string; description: string; ownerId: string }) {
+    if (!projectData.name || !projectData.ownerId) {
+        throw new Error('Missing required fields: name or ownerId');
+    }
+
+    const projectId = nanoid(12);
+    let projectRoot = await getProjectRoot();
+    let projectDir = path.join(projectRoot, projectId);
+
     try {
-        let projectId = nanoid(12);
-        const projectRoot = await getProjectRoot();
-        const projectDir = path.join(projectRoot, projectId);
-        // 创建项目目录
-        await fs.promises.mkdir(projectDir, { recursive: true });
-        // 创建子目录
-        await fs.promises.mkdir(path.join(projectDir, 'files'), { recursive: true }); // 原始文件
-        return await db.projects.create({
-            data: {
-                id: projectId,
-                name: projectData.name,
-                description: projectData.description
-            }
-        });
+        await createProjectDirectories(projectDir);
+        // 使用 Prisma 事务确保数据库操作的原子性
+        const [project, projectMember] = await db.$transaction([
+            db.projects.create({
+                data: {
+                    id: projectId,
+                    name: projectData.name,
+                    description: projectData.description,
+                    ownerId: projectData.ownerId
+                }
+            }),
+            db.projectMember.create({
+                data: {
+                    projectId: projectId,
+                    userId: projectData.ownerId,
+                    role: ProjectRole.OWNER
+                }
+            })
+        ]);
+
+        return project;
     } catch (error) {
-        console.error('Failed to create project in database');
+        // 清理已创建的文件夹以避免残留
+        if (projectDir && fs.existsSync(projectDir)) {
+            try {
+                await fs.promises.rm(projectDir, { recursive: true });
+            } catch (cleanupError) {
+                console.error('Failed to clean up project directory after failure:', cleanupError);
+            }
+        }
+
+        console.error('Failed to create project:', error);
         throw error;
     }
 }
 
-export async function isExistByName(name: string) {
+/**
+ * 创建项目所需的目录结构
+ */
+async function createProjectDirectories(projectDir: string) {
+    try {
+        await fs.promises.mkdir(projectDir, { recursive: true });
+        await fs.promises.mkdir(path.join(projectDir, 'files'), { recursive: true });
+    } catch (error) {
+        console.error('Failed to create project directories:', error);
+        throw error;
+    }
+}
+
+export async function isExistByName(name: string, userId: string) {
     try {
         const count = await db.projects.count({
             where: {
-                name: name
+                name: name,
+                ownerId: userId
             }
         });
         return count > 0;
@@ -46,13 +86,14 @@ export async function isExistByName(name: string) {
 }
 
 // 获取所有项目
-export async function getProjects(name: string) {
+export async function getProjects(name: string, userId: string) {
     try {
         return await db.projects.findMany({
             where: {
                 name: {
                     contains: name
-                }
+                },
+                OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }]
             },
             include: {
                 _count: {

@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import { createDocument, delDocumentByIds, getDocumentsPagination } from '@/lib/db/documents';
 import { getFileMD5, getProjectRoot } from '@/lib/utils/file';
 import type { Documents } from '@prisma/client';
+import { auth } from '@/server/auth';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -18,6 +19,16 @@ export async function GET(request: Request, props: { params: Params }) {
         if (!projectId) {
             return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
         }
+        const session = await auth();
+
+        if (!session || !session.user || !session.user.id) {
+            return new Response('Unauthorized', { status: 401 });
+        }
+
+        // const allowed = await hasProjectPermission(session.user.id, projectId, ['OWNER', 'ADMIN']);
+        // if (!allowed) {
+        //     return NextResponse.json({error: 'Unauthorized'}, {status: 401});
+        // }
 
         // 获取文件列表
         const files = await getDocumentsPagination(

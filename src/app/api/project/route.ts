@@ -1,8 +1,15 @@
 import { createProject, getProjects, isExistByName } from '@/lib/db/projects';
 import { copyModelConfig } from '@/lib/db/model-config';
+import { auth } from '@/server/auth';
 
 export async function POST(request: Request) {
     try {
+        const session = await auth();
+
+        if (!session || !session.user || !session.user.id) {
+            return new Response('Unauthorized', { status: 401 });
+        }
+
         const projectData = await request.json();
         // 验证必要的字段
         if (!projectData.name) {
@@ -10,16 +17,20 @@ export async function POST(request: Request) {
         }
 
         // 验证项目名称是否已存在
-        if (await isExistByName(projectData.name)) {
+        if (await isExistByName(projectData.name, session.user.id)) {
             return Response.json({ error: '项目名称已存在' }, { status: 400 });
         }
         // 创建项目
-        const newProject = await createProject({ name: projectData.name, description: projectData.description });
+        const newProject = await createProject({
+            name: projectData.name,
+            description: projectData.description,
+            ownerId: session.user.id
+        });
         // 如果指定了要复用的项目配置
         if (projectData.copyId) {
             await copyModelConfig(newProject.id, projectData.copyId);
         }
-        const data = await getProjects('');
+        const data = await getProjects('', session.user.id);
         return Response.json({ data, id: newProject.id }, { status: 200 });
     } catch (error: unknown) {
         console.error('创建项目出错:', error);
@@ -33,10 +44,15 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
     try {
+        const session = await auth();
+
+        if (!session || !session.user || !session.user.id) {
+            return new Response('Unauthorized', { status: 401 });
+        }
         const url = new URL(request.url);
         const searchParams = url.searchParams;
         // // 获取所有项目
-        const projects = await getProjects(searchParams.get('name') ?? '');
+        const projects = await getProjects(searchParams.get('name') ?? '', session.user.id);
         return Response.json(projects);
     } catch (error: unknown) {
         console.error('获取项目列表出错:', error);

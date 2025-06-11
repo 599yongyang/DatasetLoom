@@ -1,5 +1,7 @@
 // 获取项目详情
 import { deleteProject, getProject, updateProject } from '@/lib/db/projects';
+import { auth } from '@/server/auth';
+import { hasProjectPermission } from '@/lib/db/users';
 
 type Params = Promise<{ projectId: string }>;
 
@@ -24,6 +26,15 @@ export async function PUT(request: Request, props: { params: Params }) {
         const params = await props.params;
         const { projectId } = params;
         const projectData = await request.json();
+        const session = await auth();
+
+        if (!session || !session.user || !session.user.id) {
+            return new Response('Unauthorized', { status: 401 });
+        }
+        const allowed = await hasProjectPermission(session.user.id, projectId, ['OWNER', 'ADMIN']);
+        if (!allowed) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         const project = await getProject(projectId);
         if (!project) {
@@ -48,6 +59,14 @@ export async function DELETE(request: Request, props: { params: Params }) {
     try {
         const params = await props.params;
         const { projectId } = params;
+        const session = await auth();
+        if (!session || !session.user || !session.user.id) {
+            return new Response('Unauthorized', { status: 401 });
+        }
+        const allowed = await hasProjectPermission(session.user.id, projectId, ['OWNER', 'ADMIN']);
+        if (!allowed) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         const success = await deleteProject(projectId);
 
         if (!success) {

@@ -9,14 +9,20 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { ConfirmAlert } from '@/components/confirm-alert';
+import { useAtom } from 'jotai/index';
+import { selectedProjectAtom } from '@/atoms';
 
 export function ProjectCards({ projects, getProjects }: { projects: ProjectsWithCounts[]; getProjects: () => void }) {
     const { t } = useTranslation('project');
+    const [selectedProject, setSelectedProject] = useAtom(selectedProjectAtom);
     const router = useRouter();
     const deleteProject = (id: string) => {
         toast.promise(axios.delete(`/api/project/${id}`), {
             success: () => {
                 getProjects();
+                if (selectedProject === id) {
+                    setSelectedProject('');
+                }
                 return '删除成功';
             },
             error: error => {
@@ -33,7 +39,7 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
     };
 
     return (
-        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-50 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-20 @xl/main:grid-cols-2 @5xl/main:grid-cols-3">
             {projects.map(project => (
                 <Card key={project.id} className="@container/card">
                     <CardHeader>
@@ -58,14 +64,14 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
                             {t('create_time')}：{new Date(project.createdAt).toLocaleString('zh-CN')}
                         </div>
                         <div className={'flex gap-2'}>
-                            <Button
-                                size={'sm'}
-                                className="hover:cursor-pointer"
-                                variant="outline"
-                                onClick={() => handleView(project.id, project._count.ModelConfig)}
-                            >
-                                {t('view')}
-                            </Button>
+                            {/*<Button*/}
+                            {/*    size={'sm'}*/}
+                            {/*    className="hover:cursor-pointer"*/}
+                            {/*    variant="outline"*/}
+                            {/*    onClick={() => handleView(project.id, project._count.ModelConfig)}*/}
+                            {/*>*/}
+                            {/*    {t('view')}*/}
+                            {/*</Button>*/}
                             <ConfirmAlert
                                 title={'确认要删除此项目吗？'}
                                 message={'操作不可恢复,请谨慎操作!!!'}
