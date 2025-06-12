@@ -13,6 +13,6 @@
     "task_config": "Task Config",
     "prompt_config": "Prompt Config",
     "dataset_square": "Datasets Square",
-    "playground": "Playground",
+    "chat": "Chat",
     "workflow": "Workflow(beta)"
 }

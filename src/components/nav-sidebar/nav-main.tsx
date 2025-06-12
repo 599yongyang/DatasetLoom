@@ -94,8 +94,7 @@ export function NavMain({ items, projectId }: { items: IMenu[]; projectId: strin
                         <Collapsible
                             key={item.title}
                             asChild
-                            // open={openItems[item.title]}
-                            open={true}
+                            open={openItems[item.title]}
                             onOpenChange={() => handleToggle(item.title)}
                         >
                             <SidebarMenuItem>
@@ -127,7 +126,7 @@ export function NavMain({ items, projectId }: { items: IMenu[]; projectId: strin
                                                         >
                                                             <div
                                                                 className={'hover:cursor-pointer'}
-                                                                onClick={() => handleClick(item.to)}
+                                                                onClick={() => handleClick(subItem.to)}
                                                             >
                                                                 <span>{t(subItem.title)}</span>
                                                             </div>

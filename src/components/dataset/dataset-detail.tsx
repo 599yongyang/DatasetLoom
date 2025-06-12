@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, ThumbsUp, ThumbsDown, Tag, Brain, Quote, FileText, Atom } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Markdown } from '@/components/playground/markdown';
+import { Markdown } from '@/components/chat/markdown';
 import { Textarea } from '@/components/ui/textarea';
 import { ModelTag } from '@lobehub/icons';
 import type { DatasetSamples, PreferencePair } from '@prisma/client';

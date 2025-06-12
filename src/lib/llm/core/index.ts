@@ -1,7 +1,7 @@
 import type { ConfigOptions, ModelConfigWithProvider } from './types';
 import type { BaseClient } from '../providers/base';
 import { createLLMClient } from './factory';
-import type { UIMessage } from 'ai';
+import type { Message, UIMessage } from 'ai';
 import type { Schema } from 'zod';
 
 /**
@@ -32,11 +32,16 @@ export default class LLMClient {
 
     /**
      * 流式聊天输出
-     * @param prompt - 用户输入内容或消息历史
+     * @param messages - 用户输入内容或消息历史
+     * @param chatId - 聊天 ID
+     * @param userMessage - 用户输入消息
      * @param options - 可选参数
      */
-    chatStream(prompt: string | UIMessage[], options?: ConfigOptions) {
-        const messages = Array.isArray(prompt) ? prompt : ([{ role: 'user', content: prompt }] as UIMessage[]);
-        return this.client.chatStream(messages, options);
+    chatStream(messages: UIMessage[], chatId: string, userMessage: UIMessage, options?: ConfigOptions) {
+        return this.client.chatStream(messages, chatId, userMessage, options);
+    }
+
+    generateTitleFromUserMessage(message: Message) {
+        return this.client.generateTitleFromUserMessage(message);
     }
 }

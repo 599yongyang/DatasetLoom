@@ -6,22 +6,30 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
 import { SparklesIcon } from './icons';
 import { Markdown } from './markdown';
+import { MessageActions } from './message-actions';
 import { PreviewAttachment } from './preview-attachment';
 import equal from 'fast-deep-equal';
 import { cn } from '@/lib/utils';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
+import type { ChatMessageVote } from '@prisma/client';
 
 const PurePreviewMessage = ({
+    chatId,
     message,
+    vote,
     isLoading,
     setMessages,
-    reload
+    reload,
+    isReadonly
 }: {
+    chatId: string;
     message: UIMessage;
+    vote: ChatMessageVote | undefined;
     isLoading: boolean;
     setMessages: UseChatHelpers['setMessages'];
     reload: UseChatHelpers['reload'];
+    isReadonly: boolean;
 }) => {
     const [mode, setMode] = useState<'view' | 'edit'>('view');
 
@@ -54,8 +62,8 @@ const PurePreviewMessage = ({
                     <div className="flex flex-col gap-4 w-full">
                         {message.experimental_attachments && (
                             <div data-testid={`message-attachments`} className="flex flex-row justify-end gap-2">
-                                {message.experimental_attachments.map((attachment, index) => (
-                                    <PreviewAttachment key={index} attachment={attachment} />
+                                {message.experimental_attachments.map(attachment => (
+                                    <PreviewAttachment key={attachment.url} attachment={attachment} />
                                 ))}
                             </div>
                         )}
@@ -69,23 +77,31 @@ const PurePreviewMessage = ({
                             }
 
                             if (type === 'text') {
-                                if (mode === 'view') {
-                                    return (
-                                        <div key={key} className="flex flex-row gap-2 items-start">
-                                            <div
-                                                data-testid="message-content"
-                                                className={cn('flex flex-col gap-4', {
-                                                    'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
-                                                        message.role === 'user'
-                                                })}
-                                            >
-                                                <Markdown>{part.text}</Markdown>
-                                            </div>
+                                return (
+                                    <div key={key} className="flex flex-row gap-2 items-start">
+                                        <div
+                                            data-testid="message-content"
+                                            className={cn('flex flex-col gap-4', {
+                                                'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
+                                                    message.role === 'user'
+                                            })}
+                                        >
+                                            <Markdown>{part.text}</Markdown>
                                         </div>
-                                    );
-                                }
+                                    </div>
+                                );
                             }
                         })}
+
+                        {!isReadonly && (
+                            <MessageActions
+                                key={`action-${message.id}`}
+                                chatId={chatId}
+                                message={message}
+                                vote={vote}
+                                isLoading={isLoading}
+                            />
+                        )}
                     </div>
                 </div>
             </motion.div>
@@ -97,6 +113,7 @@ export const PreviewMessage = memo(PurePreviewMessage, (prevProps, nextProps) =>
     if (prevProps.isLoading !== nextProps.isLoading) return false;
     if (prevProps.message.id !== nextProps.message.id) return false;
     if (!equal(prevProps.message.parts, nextProps.message.parts)) return false;
+    if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     return true;
 });

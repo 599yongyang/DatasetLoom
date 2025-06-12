@@ -72,10 +72,10 @@ export function Search({ ...props }: ButtonProps & DialogProps) {
                 onClick={() => setOpen(true)}
                 {...props}
             >
-                <span className="inline-flex items-center gap-2 capitalize">
+                <div className="inline-flex items-center gap-2 capitalize">
                     <SearchIcon className="size-4" />
                     <span className="sm:inline-flex">{t('search')}...</span>
-                </span>
+                </div>
                 <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
                     <span className="text-xs">⌘</span>K
                 </kbd>

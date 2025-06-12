@@ -40,6 +40,16 @@ export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => 
             title: 'datasets',
             icon: Database,
             to: `/project/${projectId}/datasets`
+        },
+        {
+            title: 'chat',
+            icon: BotMessageSquare,
+            to: `/project/${projectId}/chat`
+        },
+        {
+            title: 'workflow',
+            icon: Workflow,
+            to: `/project/${projectId}/workflow`
         }
     ];
 
@@ -72,19 +82,6 @@ export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => 
             ]
         });
     }
-
-    menuItems.push(
-        {
-            title: 'playground',
-            icon: BotMessageSquare,
-            to: `/project/${projectId}/playground`
-        },
-        {
-            title: 'workflow',
-            icon: Workflow,
-            to: `/project/${projectId}/workflow`
-        }
-    );
 
     return menuItems;
 };

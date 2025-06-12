@@ -14,6 +14,7 @@ import {
     memo
 } from 'react';
 import { toast } from 'sonner';
+import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 
 import { ArrowUpIcon, PaperclipIcon, StopIcon } from './icons';
 import { PreviewAttachment } from './preview-attachment';
@@ -21,8 +22,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import equal from 'fast-deep-equal';
 import type { UseChatHelpers } from '@ai-sdk/react';
+import { useParams } from 'next/navigation';
 
 function PureMultimodalInput({
+    chatId,
     input,
     setInput,
     status,
@@ -35,6 +38,7 @@ function PureMultimodalInput({
     handleSubmit,
     className
 }: {
+    chatId: string;
     input: UseChatHelpers['input'];
     setInput: UseChatHelpers['setInput'];
     status: UseChatHelpers['status'];
@@ -48,6 +52,8 @@ function PureMultimodalInput({
     className?: string;
 }) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const { width } = useWindowSize();
+    const { projectId } = useParams();
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -69,17 +75,23 @@ function PureMultimodalInput({
         }
     };
 
+    const [localStorageInput, setLocalStorageInput] = useLocalStorage('input', '');
+
     useEffect(() => {
         if (textareaRef.current) {
             const domValue = textareaRef.current.value;
             // Prefer DOM value over localStorage to handle hydration
-            const finalValue = domValue || '';
+            const finalValue = domValue || localStorageInput || '';
             setInput(finalValue);
             adjustHeight();
         }
         // Only run once after hydration
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        setLocalStorageInput(input);
+    }, [input, setLocalStorageInput]);
 
     const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setInput(event.target.value);
@@ -90,13 +102,20 @@ function PureMultimodalInput({
     const [uploadQueue, setUploadQueue] = useState<Array<string>>([]);
 
     const submitForm = useCallback(() => {
+        window.history.replaceState({}, '', `/${projectId}/chat/${chatId}`);
+
         handleSubmit(undefined, {
             experimental_attachments: attachments
         });
 
         setAttachments([]);
+        setLocalStorageInput('');
         resetHeight();
-    }, [attachments, handleSubmit, setAttachments]);
+
+        if (width && width > 768) {
+            textareaRef.current?.focus();
+        }
+    }, [attachments, handleSubmit, setAttachments, setLocalStorageInput, width, chatId]);
 
     const uploadFile = async (file: File) => {
         const formData = new FormData();
@@ -150,6 +169,12 @@ function PureMultimodalInput({
 
     return (
         <div className="relative w-full flex flex-col gap-4">
+            {/*{messages.length === 0 &&*/}
+            {/*    attachments.length === 0 &&*/}
+            {/*    uploadQueue.length === 0 && (*/}
+            {/*        <SuggestedActions append={append} chatId={chatId}/>*/}
+            {/*    )}*/}
+
             <input
                 type="file"
                 className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"

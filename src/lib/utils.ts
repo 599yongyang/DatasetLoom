@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
+import type { CoreAssistantMessage, CoreToolMessage, UIMessage } from 'ai';
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
 export function cn(...inputs: ClassValue[]) {
@@ -52,6 +53,22 @@ export function buildURL(base: string, params: Record<string, string | number | 
         .join('&');
 
     return search ? `${base}?${search}` : base;
+}
+
+export function getMostRecentUserMessage(messages: Array<UIMessage>) {
+    const userMessages = messages.filter(message => message.role === 'user');
+    return userMessages.at(-1);
+}
+
+type ResponseMessageWithoutId = CoreToolMessage | CoreAssistantMessage;
+type ResponseMessage = ResponseMessageWithoutId & { id: string };
+
+export function getTrailingMessageId({ messages }: { messages: Array<ResponseMessage> }): string | null {
+    const trailingMessage = messages.at(-1);
+
+    if (!trailingMessage) return null;
+
+    return trailingMessage.id;
 }
 
 /**

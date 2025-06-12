@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { useParams } from 'next/navigation';
 import { useGetChunkById } from '@/hooks/query/use-chunks';
 import { Badge } from '@/components/ui/badge';
-import { Markdown } from '@/components/playground/markdown';
+import { Markdown } from '@/components/chat/markdown';
 import type { ChunkEntities } from '@prisma/client';
 
 export default function GraphSheet({

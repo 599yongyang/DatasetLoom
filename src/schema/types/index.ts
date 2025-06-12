@@ -9,3 +9,8 @@ export enum UserRole {
     USER = 'USER',
     ADMIN = 'ADMIN'
 }
+
+export enum ChatVisibilityType {
+    PUBLIC = 'PUBLIC',
+    PRIVATE = 'PRIVATE'
+}

@@ -18,6 +18,7 @@ model Users {
   projectMembers ProjectMember[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  Chat           Chat[]
 }
 
 model Projects {
@@ -43,6 +44,7 @@ model Projects {
   LlmProviders     LlmProviders[]
   PreferencePair   PreferencePair[]
   ParserConfig     ParserConfig[]
+  Chat             Chat[]
 }
 
 model ProjectMember {
@@ -284,4 +286,40 @@ model WorkflowStep {
   finishedAt DateTime?
   retryCount Int       @default(0)
   logs       String?
+}
+
+model Chat {
+  id              String            @id @default(nanoid())
+  project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId       String
+  title           String
+  user            Users             @relation(fields: [userId], references: [id])
+  userId          String
+  visibility      String            @default("PRIVATE")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  ChatMessages    ChatMessages[]
+  ChatMessageVote ChatMessageVote[]
+}
+
+model ChatMessages {
+  id              String            @id @default(nanoid())
+  chat            Chat              @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId          String
+  role            String
+  parts           String
+  attachments     String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  ChatMessageVote ChatMessageVote[]
+}
+
+model ChatMessageVote {
+  chat      Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId    String
+  message   ChatMessages @relation(fields: [messageId], references: [id])
+  messageId String
+  isUpvote  Boolean
+
+  @@unique([chatId, messageId])
 }

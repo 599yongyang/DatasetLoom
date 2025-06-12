@@ -696,7 +696,6 @@ z"
             width="24"
             height="24"
             viewBox="0 0 128 128"
-            enable-background="new 0 0 128 128"
         >
             <path
                 fill="#010101"

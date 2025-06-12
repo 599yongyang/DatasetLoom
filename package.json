@@ -117,6 +117,7 @@
         "react-hotkeys-hook": "^5.0.1",
         "react-i18next": "^15.5.1",
         "react-markdown": "^10.1.0",
+        "react-resizable-panels": "^3.0.2",
         "recharts": "^2.15.3",
         "rehype-highlight": "^7.0.2",
         "rehype-raw": "^7.0.0",

@@ -10,7 +10,7 @@ import {
     AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
 import { type ReactNode } from 'react';
-import { Markdown } from '@/components/playground/markdown';
+import { Markdown } from '@/components/chat/markdown';
 
 export function ChunkContentDialog({
     title,
