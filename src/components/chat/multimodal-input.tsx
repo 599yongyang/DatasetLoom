@@ -169,12 +169,6 @@ function PureMultimodalInput({
 
     return (
         <div className="relative w-full flex flex-col gap-4">
-            {/*{messages.length === 0 &&*/}
-            {/*    attachments.length === 0 &&*/}
-            {/*    uploadQueue.length === 0 && (*/}
-            {/*        <SuggestedActions append={append} chatId={chatId}/>*/}
-            {/*    )}*/}
-
             <input
                 type="file"
                 className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
@@ -184,25 +178,25 @@ function PureMultimodalInput({
                 tabIndex={-1}
             />
 
-            {(attachments.length > 0 || uploadQueue.length > 0) && (
-                <div data-testid="attachments-preview" className="flex flex-row gap-2 overflow-x-scroll items-end">
-                    {attachments.map(attachment => (
-                        <PreviewAttachment key={attachment.url} attachment={attachment} />
-                    ))}
+            {/*{(attachments.length > 0 || uploadQueue.length > 0) && (*/}
+            {/*    <div data-testid="attachments-preview" className="flex flex-row gap-2 overflow-x-scroll items-end">*/}
+            {/*        {attachments.map(attachment => (*/}
+            {/*            <PreviewAttachment key={attachment.url} attachment={attachment} />*/}
+            {/*        ))}*/}
 
-                    {uploadQueue.map(filename => (
-                        <PreviewAttachment
-                            key={filename}
-                            attachment={{
-                                url: '',
-                                name: filename,
-                                contentType: ''
-                            }}
-                            isUploading={true}
-                        />
-                    ))}
-                </div>
-            )}
+            {/*        {uploadQueue.map(filename => (*/}
+            {/*            <PreviewAttachment*/}
+            {/*                key={filename}*/}
+            {/*                attachment={{*/}
+            {/*                    url: '',*/}
+            {/*                    name: filename,*/}
+            {/*                    contentType: ''*/}
+            {/*                }}*/}
+            {/*                isUploading={true}*/}
+            {/*            />*/}
+            {/*        ))}*/}
+            {/*    </div>*/}
+            {/*)}*/}
 
             <Textarea
                 data-testid="multimodal-input"
@@ -229,9 +223,9 @@ function PureMultimodalInput({
                 }}
             />
 
-            <div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">
-                <AttachmentsButton fileInputRef={fileInputRef} status={status} />
-            </div>
+            {/*<div className="absolute bottom-0 p-2 w-fit flex flex-row justify-start">*/}
+            {/*    <AttachmentsButton fileInputRef={fileInputRef} status={status} />*/}
+            {/*</div>*/}
 
             <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
                 {status === 'submitted' ? (
