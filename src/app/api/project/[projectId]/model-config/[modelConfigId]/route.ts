@@ -1,54 +1,59 @@
 import { NextResponse } from 'next/server';
 import { deleteModelConfigById, updateModelConfigDefault, updateModelConfigStatus } from '@/lib/db/model-config';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string; modelConfigId: string }>;
-
-// 删除模型配置
-export async function DELETE(request: Request, props: { params: Params }) {
+/**
+ * 删除模型配置
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, modelConfigId } = params;
-        // 验证项目 ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-        }
+        const { modelConfigId } = context;
         await deleteModelConfigById(modelConfigId);
         return NextResponse.json(true);
     } catch (error) {
         console.error('Error obtaining model configuration:', error);
         return NextResponse.json({ error: 'Failed to obtain model configuration' }, { status: 500 });
     }
-}
+});
 
-export async function PUT(request: Request, props: { params: Params }) {
+/**
+ * 更新模型配置
+ */
+export const PUT = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, modelConfigId } = params;
+        const { modelConfigId } = context;
         const { status } = await request.json();
-        // 验证项目 ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-        }
         await updateModelConfigStatus(modelConfigId, status);
         return NextResponse.json(true);
     } catch (error) {
         console.error('Error update model configuration:', error);
         return NextResponse.json({ error: 'Failed to update model configuration' }, { status: 500 });
     }
-}
+});
 
-export async function PATCH(request: Request, props: { params: Params }) {
+/**
+ * 设置模型配置为默认
+ */
+export const PATCH = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, modelConfigId } = params;
-        // 验证项目 ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-        }
+        const { modelConfigId } = context;
         await updateModelConfigDefault(modelConfigId);
         return NextResponse.json(true);
     } catch (error) {
         console.error('Error update model configuration:', error);
         return NextResponse.json({ error: 'Failed to update model configuration' }, { status: 500 });
     }
-}
+});

@@ -2,25 +2,23 @@
 
 import { useMemo } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
-import { unstable_serialize } from 'swr/infinite';
-// import { updateChatVisibility } from '@/app/(chat)/actions';
-
-import type { VisibilityType } from '@/components/chat/visibility-selector';
 import type { ChatHistory } from '@/components/chat/sidebar-history';
-import { getChatHistoryPaginationKey } from '@/hooks/query/use-chat';
-import { useParams } from 'next/navigation';
+import { getChatHistoryPaginationKey, useGetChatHistory } from '@/hooks/query/use-chat';
+import axios from 'axios';
+import { ChatVisibilityType } from '@/schema/types';
 
 export function useChatVisibility({
+    projectId,
     chatId,
     initialVisibility
 }: {
+    projectId: string;
     chatId: string;
-    initialVisibility: VisibilityType;
+    initialVisibility: ChatVisibilityType;
 }) {
-    const { mutate, cache } = useSWRConfig();
-    const history: ChatHistory = cache.get('/api/history')?.data;
-    const { projectId }: { projectId: string } = useParams();
-
+    const { cache } = useSWRConfig();
+    const { mutate } = useGetChatHistory(projectId);
+    const history: ChatHistory = cache.get(`/api/project/${projectId}/chat/history`)?.data;
     const { data: localVisibility, mutate: setLocalVisibility } = useSWR(`${chatId}-visibility`, null, {
         fallbackData: initialVisibility
     });
@@ -28,21 +26,23 @@ export function useChatVisibility({
     const visibilityType = useMemo(() => {
         if (!history) return localVisibility;
         const chat = history.chats.find(chat => chat.id === chatId);
-        if (!chat) return 'private';
+        if (!chat) return ChatVisibilityType.PRIVATE;
         return chat.visibility;
     }, [history, chatId, localVisibility]);
 
-    const setVisibilityType = (updatedVisibilityType: VisibilityType) => {
+    const setVisibilityType = (updatedVisibilityType: ChatVisibilityType) => {
         setLocalVisibility(updatedVisibilityType);
         const getKey = (pageIndex: number, previousPageData: ChatHistory | null) =>
             getChatHistoryPaginationKey(pageIndex, previousPageData, projectId);
 
-        mutate(unstable_serialize(getKey));
-
-        // updateChatVisibility({
-        //   chatId: chatId,
-        //   visibility: updatedVisibilityType,
-        // });
+        axios
+            .put(`/api/project/${projectId}/chat`, {
+                chatId,
+                visibility: updatedVisibilityType
+            })
+            .then(() => {
+                mutate(undefined, true);
+            });
     };
 
     return { visibilityType, setVisibilityType };

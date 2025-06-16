@@ -11,6 +11,8 @@ import axios from 'axios';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import { useAtom } from 'jotai/index';
 import { selectedProjectAtom } from '@/atoms';
+import { WithPermission } from '../permission-wrapper';
+import { ProjectRole } from '@/schema/types';
 
 export function ProjectCards({ projects, getProjects }: { projects: ProjectsWithCounts[]; getProjects: () => void }) {
     const { t } = useTranslation('project');
@@ -64,26 +66,29 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
                             {t('create_time')}：{new Date(project.createdAt).toLocaleString('zh-CN')}
                         </div>
                         <div className={'flex gap-2'}>
-                            {/*<Button*/}
-                            {/*    size={'sm'}*/}
-                            {/*    className="hover:cursor-pointer"*/}
-                            {/*    variant="outline"*/}
-                            {/*    onClick={() => handleView(project.id, project._count.ModelConfig)}*/}
-                            {/*>*/}
-                            {/*    {t('view')}*/}
-                            {/*</Button>*/}
-                            <ConfirmAlert
-                                title={'确认要删除此项目吗？'}
-                                message={'操作不可恢复,请谨慎操作!!!'}
-                                onConfirm={() => deleteProject(project.id)}
+                            <Button
+                                size={'sm'}
+                                className="hover:cursor-pointer"
+                                variant="outline"
+                                onClick={() => handleView(project.id, project._count.ModelConfig)}
                             >
-                                <Button
-                                    size={'sm'}
-                                    className="hover:cursor-pointer hover:bg-red-500 text-white bg-red-500"
+                                {t('view')}
+                            </Button>
+
+                            <WithPermission required={ProjectRole.ADMIN} projectId={project.id}>
+                                <ConfirmAlert
+                                    title={'确认要删除此项目吗？'}
+                                    message={'操作不可恢复,请谨慎操作!!!'}
+                                    onConfirm={() => deleteProject(project.id)}
                                 >
-                                    {t('delete')}
-                                </Button>
-                            </ConfirmAlert>
+                                    <Button
+                                        size={'sm'}
+                                        className="hover:cursor-pointer hover:bg-red-500 text-white bg-red-500"
+                                    >
+                                        {t('delete')}
+                                    </Button>
+                                </ConfirmAlert>
+                            </WithPermission>
                         </div>
                     </CardFooter>
                 </Card>

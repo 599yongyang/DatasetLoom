@@ -10,24 +10,25 @@ import { nanoid } from 'nanoid';
 import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { insertChunkGraph } from '@/lib/db/chunk-graph';
-import { validateProjectId } from '@/lib/utils/api-validator';
 import type { Language } from '@/lib/llm/prompts/type';
 import { getModelConfigById } from '@/lib/db/model-config';
 import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
 import LLMClient from '@/lib/llm/core';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
+import { getProject } from '@/lib/db/projects';
 
-type Params = Promise<{ projectId: string }>;
-
-// chunker
-export async function POST(request: Request, props: { params: Params }) {
-    const params = await props.params;
-    const { projectId } = params;
-
-    const validationResult = await validateProjectId(projectId);
-
-    if (!validationResult.success) {
-        return validationResult.response;
-    }
+/**
+ * 文档分块
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
+    const { projectId } = context;
 
     const body = await request.json();
     const { fileIds, strategy, separators, chunkSize, chunkOverlap, modelConfigId, language } = body;
@@ -61,14 +62,18 @@ export async function POST(request: Request, props: { params: Params }) {
 
     //保存chunk
     let chunkRes = await saveChunks(chunkList as Chunks[]);
-    const { globalPrompt, domainTreePrompt } = validationResult.data;
+
+    const projectData = await getProject(projectId);
+
     //将chunk给大模型打标签
     queueMicrotask(() => {
-        processChunks(chunkRes, model, language, globalPrompt, domainTreePrompt).catch(console.error);
+        processChunks(chunkRes, model, language, projectData?.globalPrompt, projectData?.domainTreePrompt).catch(
+            console.error
+        );
     });
 
     return NextResponse.json({ success: true, count: chunkRes.length });
-}
+});
 
 export async function processChunks(
     chunkRes: Chunks[],

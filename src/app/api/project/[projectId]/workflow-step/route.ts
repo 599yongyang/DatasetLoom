@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getWorkflowById } from '@/lib/db/workflow';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string }>;
-
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取工作流
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
-        // 验证项目ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'Missing project ID' }, { status: 400 });
-        }
         const { searchParams } = new URL(request.url);
 
         const workflowId = searchParams.get('workflowId');
@@ -30,4 +29,4 @@ export async function GET(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});

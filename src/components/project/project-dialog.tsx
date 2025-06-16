@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import * as React from 'react';
 import { useGetProjects } from '@/hooks/query/use-project';
+import { useSession } from 'next-auth/react';
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -41,14 +42,16 @@ export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open
     });
     const [selectOpen, setSelectOpen] = useState(false);
     const [filter, setFilter] = React.useState('');
+    const { update } = useSession();
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         toast.promise(axios.post('/api/project', values), {
             loading: '创建项目中',
-            success: data => {
+            success: async data => {
                 router.push(`/project/${data.data.id}/settings/model-config`);
                 setOpen(false);
                 void refresh(data.data.data);
+                await update({ projectId: data.data.id });
                 return '创建成功';
             },
             error: error => {

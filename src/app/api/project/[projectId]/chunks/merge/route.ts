@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server';
 import { mergeChunks } from '@/lib/db/chunks';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-// 获取文本块内容
-export async function POST(request: Request, props: { params: Promise<{ projectId: string }> }) {
+/**
+ * 合并块
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request) => {
     try {
         // 获取动态路由参数
-        const params = await props.params;
-        const { projectId } = params;
         const { sourceId, targetId } = await request.json();
+
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: 'Project ID cannot be empty' }, { status: 400 });
-        }
         if (!sourceId || !targetId) {
             return NextResponse.json({ error: 'Source ID and Target ID cannot be empty' }, { status: 400 });
         }
@@ -25,4 +30,4 @@ export async function POST(request: Request, props: { params: Promise<{ projectI
             { status: 500 }
         );
     }
-}
+});

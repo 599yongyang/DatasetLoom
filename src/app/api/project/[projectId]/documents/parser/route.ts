@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { validateProjectId } from '@/lib/utils/api-validator';
 import { getFileMD5, getProjectRoot } from '@/lib/utils/file';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -7,21 +6,22 @@ import { createDocument } from '@/lib/db/documents';
 import type { Documents, ParserConfig } from '@prisma/client';
 import { getParserConfig } from '@/lib/db/parser-config';
 import { createParser } from '@/lib/parser/parser-factory';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string }>;
-
-export async function POST(request: Request, props: { params: Params }) {
-    const params = await props.params;
-    const { projectId } = params;
-
-    // 校验 projectId 是否合法
-    const validationResult = await validateProjectId(projectId);
-    if (!validationResult.success) {
-        return validationResult.response;
-    }
+/**
+ * 文档解析
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
+    const { projectId } = context;
 
     const formData = await request.formData();
-
     // 获取参数
     const sourceType = formData.get('sourceType')?.toString().trim() || '';
     const selectedService = formData.get('selectedService')?.toString().trim() || '';
@@ -154,4 +154,4 @@ export async function POST(request: Request, props: { params: Params }) {
     }
 
     return NextResponse.json({ success: false, message: '未知的来源类型' }, { status: 400 });
-}
+});

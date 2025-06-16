@@ -11,6 +11,8 @@ import { useTranslation } from 'react-i18next';
 import { useDatasetsInfo } from '@/hooks/query/use-datasets';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import DatasetDetail from '@/components/dataset/dataset-detail';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '@/components/permission-wrapper';
 
 export default function Page() {
     const router = useRouter();
@@ -125,28 +127,31 @@ export default function Page() {
                     <Button variant="ghost" size="icon" onClick={() => handleNavigate('next')}>
                         <ChevronRight className="h-4 w-4" />
                     </Button>
-
-                    <ConfirmAlert
-                        title={'确认要删除此问题嘛？'}
-                        message={'相关回答也将会全部删除'}
-                        onConfirm={handleDelete}
-                    >
-                        <Button variant="destructive" className="flex items-center gap-2 text-white">
-                            <Trash2 />
-                            删除
-                        </Button>
-                    </ConfirmAlert>
-                    {confirmed ? (
-                        <Button variant={'outline'} onClick={() => handleConfirm(false)}>
-                            <SaveOff />
-                            取消保留
-                        </Button>
-                    ) : (
-                        <Button className="flex items-center gap-2" onClick={() => handleConfirm(true)}>
-                            <Save />
-                            确认保留
-                        </Button>
-                    )}
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <ConfirmAlert
+                            title={'确认要删除此问题嘛？'}
+                            message={'相关回答也将会全部删除'}
+                            onConfirm={handleDelete}
+                        >
+                            <Button variant="destructive" className="flex items-center gap-2 text-white">
+                                <Trash2 />
+                                删除
+                            </Button>
+                        </ConfirmAlert>
+                    </WithPermission>
+                    <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                        {confirmed ? (
+                            <Button variant={'outline'} onClick={() => handleConfirm(false)}>
+                                <SaveOff />
+                                取消保留
+                            </Button>
+                        ) : (
+                            <Button className="flex items-center gap-2" onClick={() => handleConfirm(true)}>
+                                <Save />
+                                确认保留
+                            </Button>
+                        )}
+                    </WithPermission>
                 </div>
             </div>
             <Progress value={(confirmedCount / total) * 100} className="mb-6" />

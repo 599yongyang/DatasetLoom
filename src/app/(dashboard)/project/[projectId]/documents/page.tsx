@@ -14,6 +14,8 @@ import { UploadDialog } from '@/components/documents/upload-dialog';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '@/components/permission-wrapper';
 
 const fileType = [
     {
@@ -115,10 +117,12 @@ export default function Page() {
                         </SelectContent>
                     </Select>
                     {/*<UploadDialog refreshFiles={refreshFiles} />*/}
-                    <Button onClick={() => router.push(`/project/${projectId}/documents/upload`)}>
-                        <Upload size={30} />
-                        上传资源
-                    </Button>
+                    <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                        <Button onClick={() => router.push(`/project/${projectId}/documents/upload`)}>
+                            <Upload size={30} />
+                            上传资源
+                        </Button>
+                    </WithPermission>
                     <Button
                         variant="outline"
                         className={'hover:cursor-pointer'}
@@ -129,30 +133,33 @@ export default function Page() {
                     </Button>
                 </div>
                 <div className={'flex items-center gap-2'}>
-                    <ChunkStrategyDialog fileIds={fileIds} fileExt={''} open={open} onOpenChange={setOpen}>
+                    <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                        <ChunkStrategyDialog fileIds={fileIds} fileExt={''} open={open} onOpenChange={setOpen}>
+                            <Button
+                                variant="outline"
+                                disabled={Object.keys(rowSelection).length == 0}
+                                className={'hover:cursor-pointer'}
+                                onClick={() => {
+                                    setFileIds(Object.keys(rowSelection));
+                                    setOpen(true);
+                                }}
+                            >
+                                <SquareSplitVertical size={30} />
+                                <span className="hidden lg:inline ">{t('chunk_btn')}</span>
+                            </Button>
+                        </ChunkStrategyDialog>
+                    </WithPermission>
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                         <Button
                             variant="outline"
                             disabled={Object.keys(rowSelection).length == 0}
-                            className={'hover:cursor-pointer'}
-                            onClick={() => {
-                                setFileIds(Object.keys(rowSelection));
-                                setOpen(true);
-                            }}
+                            onClick={handleBatchDeleteDocuments}
+                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
                         >
-                            <SquareSplitVertical size={30} />
-                            <span className="hidden lg:inline ">{t('chunk_btn')}</span>
+                            <Trash2 size={30} />
+                            <span className="hidden lg:inline ">{t('delete_btn')}</span>
                         </Button>
-                    </ChunkStrategyDialog>
-
-                    <Button
-                        variant="outline"
-                        disabled={Object.keys(rowSelection).length == 0}
-                        onClick={handleBatchDeleteDocuments}
-                        className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
-                    >
-                        <Trash2 size={30} />
-                        <span className="hidden lg:inline ">{t('delete_btn')}</span>
-                    </Button>
+                    </WithPermission>
                 </div>
             </div>
             <DataTable

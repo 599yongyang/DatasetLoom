@@ -110,7 +110,7 @@ export function SidebarHistory() {
         setShowDeleteDialog(false);
 
         if (deleteId === id) {
-            router.push('/');
+            router.push(`/project/${projectId}/chat`);
         }
     };
 
@@ -143,7 +143,7 @@ export function SidebarHistory() {
             <SidebarGroup>
                 <SidebarGroupContent>
                     <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2">
-                        Your conversations will appear here once you start chatting!
+                        开始聊天后，对话内容将在此处显示！
                     </div>
                 </SidebarGroupContent>
             </SidebarGroup>
@@ -167,9 +167,7 @@ export function SidebarHistory() {
                                     <div className="flex flex-col gap-6">
                                         {groupedChats.today.length > 0 && (
                                             <div>
-                                                <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                                                    Today
-                                                </div>
+                                                <div className="px-2 py-1 text-xs text-sidebar-foreground/50">今天</div>
                                                 {groupedChats.today.map(chat => (
                                                     <ChatItem
                                                         key={chat.id}
@@ -187,9 +185,7 @@ export function SidebarHistory() {
 
                                         {groupedChats.yesterday.length > 0 && (
                                             <div>
-                                                <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                                                    Yesterday
-                                                </div>
+                                                <div className="px-2 py-1 text-xs text-sidebar-foreground/50">昨天</div>
                                                 {groupedChats.yesterday.map(chat => (
                                                     <ChatItem
                                                         key={chat.id}
@@ -208,7 +204,7 @@ export function SidebarHistory() {
                                         {groupedChats.lastWeek.length > 0 && (
                                             <div>
                                                 <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                                                    Last 7 days
+                                                    过去一周
                                                 </div>
                                                 {groupedChats.lastWeek.map(chat => (
                                                     <ChatItem
@@ -228,7 +224,7 @@ export function SidebarHistory() {
                                         {groupedChats.lastMonth.length > 0 && (
                                             <div>
                                                 <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                                                    Last 30 days
+                                                    过去一个月
                                                 </div>
                                                 {groupedChats.lastMonth.map(chat => (
                                                     <ChatItem
@@ -247,9 +243,7 @@ export function SidebarHistory() {
 
                                         {groupedChats.older.length > 0 && (
                                             <div>
-                                                <div className="px-2 py-1 text-xs text-sidebar-foreground/50">
-                                                    Older than last month
-                                                </div>
+                                                <div className="px-2 py-1 text-xs text-sidebar-foreground/50">更早</div>
                                                 {groupedChats.older.map(chat => (
                                                     <ChatItem
                                                         key={chat.id}
@@ -279,14 +273,14 @@ export function SidebarHistory() {
 
                     {hasReachedEnd ? (
                         <div className="px-2 text-zinc-500 w-full flex flex-row justify-center items-center text-sm gap-2 mt-8">
-                            You have reached the end of your chat history.
+                            已是聊天历史记录的末尾
                         </div>
                     ) : (
                         <div className="p-2 text-zinc-500 dark:text-zinc-400 flex flex-row gap-2 items-center mt-8">
                             <div className="animate-spin">
                                 <LoaderIcon />
                             </div>
-                            <div>Loading Chats...</div>
+                            <div>正在加载聊天记录...</div>
                         </div>
                     )}
                 </SidebarGroupContent>
@@ -295,11 +289,8 @@ export function SidebarHistory() {
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This action cannot be undone. This will permanently delete your chat and remove it from our
-                            servers.
-                        </AlertDialogDescription>
+                        <AlertDialogTitle>你确定要删除此聊天记录吗？</AlertDialogTitle>
+                        <AlertDialogDescription>此操作无法撤销。这将永久删除您的聊天记录。</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>

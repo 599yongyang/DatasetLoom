@@ -1,20 +1,25 @@
 import { type Chat } from '@prisma/client';
 import { db } from '@/server/db';
+import { ChatVisibilityType } from '@/schema/types';
 
 type PaginationParams = {
     id: string;
+    projectId: string;
     limit: number;
     startingAfter?: string | null;
     endingBefore?: string | null;
 };
 
-export async function getChatsByUserId({ id, limit, startingAfter, endingBefore }: PaginationParams) {
+export async function getChatsByUserId({ id, projectId, limit, startingAfter, endingBefore }: PaginationParams) {
     try {
         const extendedLimit = limit + 1;
 
         // 公共查询条件
         const baseWhere = {
-            userId: id
+            OR: [
+                { userId: id, projectId },
+                { visibility: ChatVisibilityType.PUBLIC, projectId }
+            ]
         };
 
         let chats: Array<Chat> = [];
@@ -107,6 +112,21 @@ export async function saveChat(chat: Chat) {
         return await db.chat.create({ data: chat });
     } catch (error) {
         console.error('Failed to save chat in database');
+        throw error;
+    }
+}
+
+export async function updateChatVisiblityById({
+    chatId,
+    visibility
+}: {
+    chatId: string;
+    visibility: ChatVisibilityType;
+}) {
+    try {
+        return await db.chat.update({ data: { visibility }, where: { id: chatId } });
+    } catch (error) {
+        console.error('Failed to update chat visibility in database');
         throw error;
     }
 }

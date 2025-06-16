@@ -9,10 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Chat } from '@/components/chat/chat';
 import { useGetChatById, useGetMessagesByChatId } from '@/hooks/query/use-chat';
 import type { ChatMessages } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 
 export default function Page() {
     const { projectId, id }: { projectId: string; id: string } = useParams();
     const router = useRouter();
+    const session = useSession();
+
     const { data: chat } = useGetChatById(id, projectId);
 
     if (!chat) {
@@ -50,9 +53,11 @@ export default function Page() {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={80}>
-                    <div className="flex flex-col min-w-0 h-full bg-background">
-                        <Chat id={chat.id} initialMessages={convertToUIMessages(messagesData)} isReadonly={false} />
-                    </div>
+                    <Chat
+                        id={chat.id}
+                        initialMessages={convertToUIMessages(messagesData)}
+                        isReadonly={session.data?.user?.id !== chat.userId}
+                    />
                 </ResizablePanel>
             </ResizablePanelGroup>
         </div>

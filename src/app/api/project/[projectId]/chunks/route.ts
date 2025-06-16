@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server';
 import { deleteChunkByIds, getChunksPagination } from '@/lib/db/chunks';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-// 获取文本块内容
-export async function POST(request: Request, props: { params: Promise<{ projectId: string }> }) {
+/**
+ * 获取分块列表
+ */
+export const POST = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        // 获取动态路由参数
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const { searchParams } = new URL(request.url);
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: 'Project ID cannot be empty' }, { status: 400 });
-        }
         const { array, status }: { array: string[]; status: string } = await request.json();
         if (array && !Array.isArray(array)) {
             return NextResponse.json({ error: 'Invalid array parameter' }, { status: 400 });
@@ -33,10 +35,15 @@ export async function POST(request: Request, props: { params: Promise<{ projectI
             { status: 500 }
         );
     }
-}
+});
 
-// 批量删除问题
-export async function DELETE(request: Request) {
+/**
+ * 删除分块
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request) => {
     try {
         const body = await request.json();
         const { chunkIds } = body;
@@ -53,4 +60,4 @@ export async function DELETE(request: Request) {
         console.error('Delete failed:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : 'Delete failed' }, { status: 500 });
     }
-}
+});

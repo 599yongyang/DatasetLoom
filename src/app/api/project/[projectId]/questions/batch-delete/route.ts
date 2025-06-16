@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import { batchDeleteQuestions } from '@/lib/db/questions';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-// 批量删除问题
-export async function DELETE(request: Request) {
+/**
+ * 批量删除问题
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request) => {
     try {
         const body = await request.json();
         const { questionIds } = body;
@@ -20,4 +29,4 @@ export async function DELETE(request: Request) {
         console.error('Delete failed:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : 'Delete failed' }, { status: 500 });
     }
-}
+});

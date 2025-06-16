@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server';
-import { getWorkflow, getWorkflowById, insertWorkflow } from '@/lib/db/workflow';
+import { getWorkflow, insertWorkflow } from '@/lib/db/workflow';
 import queueService from '@/lib/queue';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string }>;
-
-export async function POST(request: Request, props: { params: Params }) {
-    const params = await props.params;
-    const { projectId } = params;
+/**
+ * 创建工作流
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
+    const { projectId } = context;
     const data = await request.json();
     // 验证参数
     if (!projectId) {
@@ -22,16 +30,14 @@ export async function POST(request: Request, props: { params: Params }) {
     } catch (error) {
         return Response.json({ error: error instanceof Error ? error.message : error }, { status: 500 });
     }
-}
-
-export async function GET(request: Request, props: { params: Params }) {
+});
+/**
+ * 获取工作流列表
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
-        // 验证项目ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'Missing project ID' }, { status: 400 });
-        }
+        const { projectId } = context;
+
         const { searchParams } = new URL(request.url);
 
         // 获取工作流列表
@@ -48,4 +54,4 @@ export async function GET(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});

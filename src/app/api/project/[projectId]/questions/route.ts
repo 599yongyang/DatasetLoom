@@ -1,25 +1,18 @@
 import { NextResponse } from 'next/server';
-import {
-    getAllQuestionsByProjectId,
-    getQuestions,
-    getQuestionsIds,
-    isExistByQuestion,
-    saveQuestions,
-    updateQuestion
-} from '@/lib/db/questions';
+import { getQuestions, isExistByQuestion, saveQuestions, updateQuestion } from '@/lib/db/questions';
 import type { Questions } from '@prisma/client';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-type Params = Promise<{ projectId: string }>;
-
-// 获取项目的所有问题
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取项目的所有问题
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
-        // 验证项目ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'Missing project ID' }, { status: 400 });
-        }
+        const { projectId } = context;
         const { searchParams } = new URL(request.url);
         let status = searchParams.get('status');
         let answered = undefined;
@@ -42,13 +35,17 @@ export async function GET(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-// 新增问题
-export async function POST(request: Request, props: { params: Params }) {
+/**
+ * 新增问题
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const body = await request.json();
         const { question, chunkId, label } = body;
 
@@ -83,10 +80,15 @@ export async function POST(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-// 更新问题
-export async function PUT(request: Request) {
+/**
+ * 更新问题
+ */
+export const PUT = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request) => {
     try {
         const body = await request.json();
         // 保存更新后的数据
@@ -97,4 +99,4 @@ export async function PUT(request: Request) {
         console.error('更新问题失败:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : '更新问题失败' }, { status: 500 });
     }
-}
+});

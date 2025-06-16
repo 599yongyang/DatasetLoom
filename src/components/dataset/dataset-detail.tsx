@@ -17,6 +17,9 @@ import { nanoid } from 'nanoid';
 import { AIScoreDashboard } from '@/components/dataset/ai-score-chart';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/atoms';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '../permission-wrapper';
+import { useParams } from 'next/navigation';
 
 export default function DatasetDetail({
     datasetSamples,
@@ -30,6 +33,7 @@ export default function DatasetDetail({
     refresh: () => void;
 }) {
     const model = useAtomValue(selectedModelInfoAtom);
+    const { projectId }: { projectId: string } = useParams();
     const [activeAnswerId, setActiveAnswerId] = useState(dssId);
     const [activeAnswer, setActiveAnswer] = useState(datasetSamples[0]);
     const [isScoring, setIsScoring] = useState(false);
@@ -131,13 +135,20 @@ export default function DatasetDetail({
                                     <Atom className="w-10 h-10 text-gray-400" />
                                 </div>
                                 <h3 className="text-lg font-medium">暂未进行 AI 评分</h3>
-                                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                                    点击下方按钮，使用大模型对当前答案进行自动评分。
-                                </p>
-                                <Button variant="outline" size="sm" onClick={handleAIScore} className="gap-1 px-4 py-2">
-                                    <Atom className="w-4 h-4" />
-                                    生成 AI 评分
-                                </Button>
+                                <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                                        点击下方按钮，使用大模型对当前答案进行自动评分。
+                                    </p>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleAIScore}
+                                        className="gap-1 px-4 py-2"
+                                    >
+                                        <Atom className="w-4 h-4" />
+                                        生成 AI 评分
+                                    </Button>
+                                </WithPermission>
                             </div>
                         )}
                     </AccordionContent>
@@ -324,34 +335,36 @@ function AnswerCard({
                     <ModelTag model={activeAnswer.model} type={'color'} />
                     <p className="text-gray-500 text-sm">置信度: {activeAnswer.confidence * 100}%</p>
                 </div>
-                <div className="flex gap-2 flex-wrap">
-                    {count > 1 && !activeAnswer.isPrimaryAnswer && (
-                        <Button variant="outline" size="sm" onClick={handlePrimaryAnswer} className="gap-1">
-                            <Star className="w-4 h-4" /> 设置为主答案
-                        </Button>
-                    )}
+                <WithPermission required={ProjectRole.EDITOR} projectId={activeAnswer.projectId}>
+                    <div className="flex gap-2 flex-wrap">
+                        {count > 1 && !activeAnswer.isPrimaryAnswer && (
+                            <Button variant="outline" size="sm" onClick={handlePrimaryAnswer} className="gap-1">
+                                <Star className="w-4 h-4" /> 设置为主答案
+                            </Button>
+                        )}
 
-                    {pp?.datasetChosenId !== activeAnswer.id && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handlePP('chosen')}
-                            className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
-                        >
-                            <ThumbsUp className="w-4 h-4" /> 标为偏好
-                        </Button>
-                    )}
-                    {pp?.datasetRejectId !== activeAnswer.id && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handlePP('rejected')}
-                            className="gap-1 text-red-700 border-red-300 hover:bg-red-50"
-                        >
-                            <ThumbsDown className="w-4 h-4" /> 标为拒绝
-                        </Button>
-                    )}
-                </div>
+                        {pp?.datasetChosenId !== activeAnswer.id && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handlePP('chosen')}
+                                className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                            >
+                                <ThumbsUp className="w-4 h-4" /> 标为偏好
+                            </Button>
+                        )}
+                        {pp?.datasetRejectId !== activeAnswer.id && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handlePP('rejected')}
+                                className="gap-1 text-red-700 border-red-300 hover:bg-red-50"
+                            >
+                                <ThumbsDown className="w-4 h-4" /> 标为拒绝
+                            </Button>
+                        )}
+                    </div>
+                </WithPermission>
             </div>
         </div>
     );

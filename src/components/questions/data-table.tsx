@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ModelTag } from '@lobehub/icons';
 import { cn } from '@/lib/utils';
 import axios from 'axios';
@@ -17,6 +17,8 @@ import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Info, Trash2 } from 'lucide-react';
 import { ConfirmAlert } from '@/components/confirm-alert';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '../permission-wrapper';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -40,6 +42,7 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
     refresh
 }: DataTableProps<TData, TValue>) {
     const router = useRouter();
+    const { projectId }: { projectId: string } = useParams();
     const table = useReactTable({
         data,
         columns,
@@ -196,37 +199,47 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
 
                                                                     {/* 右侧操作按钮 */}
                                                                     {!dataset.isPrimaryAnswer && (
-                                                                        <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                                            <Button
-                                                                                variant="outline"
-                                                                                size="sm"
-                                                                                className="whitespace-nowrap"
-                                                                                onClick={() =>
-                                                                                    handlePrimaryAnswer(dataset)
-                                                                                }
-                                                                            >
-                                                                                设为主答案
-                                                                            </Button>
-                                                                        </div>
-                                                                    )}
-                                                                    <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                                        <ConfirmAlert
-                                                                            title={'确认要删除此数据集嘛？'}
-                                                                            onConfirm={() =>
-                                                                                deleteDataset(dataset, row)
-                                                                            }
+                                                                        <WithPermission
+                                                                            required={ProjectRole.EDITOR}
+                                                                            projectId={projectId}
                                                                         >
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className={
-                                                                                    'text-red-500 hover:cursor-pointer hover:text-red-500'
+                                                                            <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                                                <Button
+                                                                                    variant="outline"
+                                                                                    size="sm"
+                                                                                    className="whitespace-nowrap"
+                                                                                    onClick={() =>
+                                                                                        handlePrimaryAnswer(dataset)
+                                                                                    }
+                                                                                >
+                                                                                    设为主答案
+                                                                                </Button>
+                                                                            </div>
+                                                                        </WithPermission>
+                                                                    )}
+                                                                    <WithPermission
+                                                                        required={ProjectRole.ADMIN}
+                                                                        projectId={projectId}
+                                                                    >
+                                                                        <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                                            <ConfirmAlert
+                                                                                title={'确认要删除此数据集嘛？'}
+                                                                                onConfirm={() =>
+                                                                                    deleteDataset(dataset, row)
                                                                                 }
                                                                             >
-                                                                                <Trash2 size={30} />
-                                                                            </Button>
-                                                                        </ConfirmAlert>
-                                                                    </div>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className={
+                                                                                        'text-red-500 hover:cursor-pointer hover:text-red-500'
+                                                                                    }
+                                                                                >
+                                                                                    <Trash2 size={30} />
+                                                                                </Button>
+                                                                            </ConfirmAlert>
+                                                                        </div>
+                                                                    </WithPermission>
                                                                 </div>
                                                                 {!dataset.isPrimaryAnswer && (
                                                                     <Separator className="mt-3 group-last:hidden opacity-50" />

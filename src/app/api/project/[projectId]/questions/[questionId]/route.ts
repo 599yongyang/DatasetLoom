@@ -8,18 +8,22 @@ import {
     updateQuestion
 } from '@/lib/db/questions';
 import { type Questions } from '@prisma/client';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string; questionId: string }>;
-
-// 删除单个问题
-export async function DELETE(request: Request, props: { params: Params }) {
+/**
+ * 删除单个问题
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, questionId } = params;
+        const { questionId } = context;
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
-        }
         if (!questionId) {
             return NextResponse.json({ error: 'Question ID is required' }, { status: 400 });
         }
@@ -32,7 +36,7 @@ export async function DELETE(request: Request, props: { params: Params }) {
         console.error('Delete failed:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : 'Delete failed' }, { status: 500 });
     }
-}
+});
 
 type OperateType = 'prev' | 'next';
 
@@ -40,18 +44,16 @@ function isOperateType(value: string | null): value is OperateType {
     return value === 'prev' || value === 'next';
 }
 
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取单个问题
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, questionId } = params;
+        const { projectId, questionId } = context;
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
-        }
         if (!questionId) {
             return NextResponse.json({ error: 'Question ID is required' }, { status: 400 });
         }
-
         const { total, confirmedCount } = await getQuestionsCount(projectId);
 
         const { searchParams } = new URL(request.url);
@@ -67,12 +69,17 @@ export async function GET(request: Request, props: { params: Params }) {
         console.error('Delete failed:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : 'Delete failed' }, { status: 500 });
     }
-}
+});
 
-export async function PATCH(request: Request, props: { params: Params }) {
+/**
+ * 更新单个问题
+ */
+export const PATCH = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { questionId } = params;
+        const { questionId } = context;
         const { confirmed } = await request.json();
         if (!questionId) {
             return NextResponse.json({ error: 'questionId ID cannot be empty' }, { status: 400 });
@@ -96,4 +103,4 @@ export async function PATCH(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});

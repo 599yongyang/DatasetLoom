@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from 'next-auth';
 
-const publicPaths = ['/login', '/register', '/api/auth/*', '/_next/*', '/favicon.ico', '/full-logo.svg'];
+const publicPaths = ['/login', '/register', '/api/auth/*', '/_next/*', '/favicon.ico', '/full-logo.svg', '/logo.svg'];
 
 export const authConfig = {
     pages: {

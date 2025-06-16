@@ -24,6 +24,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Pagination } from '@/components/data-table/pagination';
 import { useAtom } from 'jotai';
 import { datasetViewModeAtom } from '@/atoms';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '@/components/permission-wrapper';
 
 export default function Page() {
     const router = useRouter();
@@ -176,21 +178,27 @@ export default function Page() {
                 <div className={'flex flex-1'}>
                     <Button
                         variant="ghost"
-                        onClick={() => router.push(`/project/${row.original.projectId}/datasets/${row.original.id}`)}
+                        onClick={() =>
+                            router.push(
+                                `/project/${row.original.projectId}/datasets/${row.original.questionId}?dssId=${row.original.id}`
+                            )
+                        }
                         className={'hover:cursor-pointer'}
                         size="icon"
                     >
                         <Eye size={30} />
                     </Button>
-                    <ConfirmAlert title={'确认要删除此数据集嘛？'} onConfirm={() => deleteDataset(row.original.id)}>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
-                        >
-                            <Trash2 size={30} />
-                        </Button>
-                    </ConfirmAlert>
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <ConfirmAlert title={'确认要删除此数据集嘛？'} onConfirm={() => deleteDataset(row.original.id)}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
+                            >
+                                <Trash2 size={30} />
+                            </Button>
+                        </ConfirmAlert>
+                    </WithPermission>
                 </div>
             )
         }
@@ -265,11 +273,17 @@ export default function Page() {
                         })}{' '}
                         （{total == 0 ? 0 : ((confirmedCount / total) * 100).toFixed(2)}%）
                     </span>
-                    <Button variant="outline" onClick={() => setDialogOpen(true)} className={'hover:cursor-pointer'}>
-                        <FileUp />
-                        <span className="hidden lg:inline ">{t('export_btn')}</span>
-                    </Button>
-                    <ExportDataDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setDialogOpen(true)}
+                            className={'hover:cursor-pointer'}
+                        >
+                            <FileUp />
+                            <span className="hidden lg:inline ">{t('export_btn')}</span>
+                        </Button>
+                        <ExportDataDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+                    </WithPermission>
                 </div>
             </div>
             {viewMode === 'all' && (

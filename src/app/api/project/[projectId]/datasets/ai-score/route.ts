@@ -1,26 +1,23 @@
 import { NextResponse } from 'next/server';
-import { validateProjectId } from '@/lib/utils/api-validator';
 import { getDatasetSampleById, updateDatasetSample } from '@/lib/db/dataset-samples';
 import { getAIScoringPrompt } from '@/lib/llm/prompts/ai-score';
 import { getModelConfigById } from '@/lib/db/model-config';
 import LLMClient from '@/lib/llm/core';
 import { doubleCheckModelOutput } from '@/lib/utils';
-import { aiScoreSchema, answerSchema } from '@/lib/llm/prompts/schema';
-
-type Params = Promise<{ projectId: string }>;
+import { aiScoreSchema } from '@/lib/llm/prompts/schema';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
 /**
  * AI 评分
  */
-export async function POST(request: Request, props: { params: Params }) {
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
-
-        const validationResult = await validateProjectId(projectId);
-        if (!validationResult.success) {
-            return validationResult.response;
-        }
         const { dssId, modelId } = await request.json();
         const dss = await getDatasetSampleById(dssId);
         if (!dss) {
@@ -56,4 +53,4 @@ export async function POST(request: Request, props: { params: Params }) {
         console.error('AI Score Error:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : 'AI Score Error' }, { status: 500 });
     }
-}
+});

@@ -17,6 +17,7 @@ import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Store } from 'lucide-react';
 import type { CurrentUser } from '@/server/auth';
+import { ProjectRole } from '@/schema/types';
 
 interface Breadcrumb {
     title: I18nKeys;
@@ -31,7 +32,8 @@ export function NavBreadcrumb({ className, user }: { className?: string; user: C
     menuItems.push({
         title: 'dataset_square',
         icon: Store,
-        to: `/dataset-square`
+        to: `/dataset-square`,
+        role: ProjectRole.VIEWER
     });
     const { t } = useTranslation('navigation');
     const findMenuPath = (

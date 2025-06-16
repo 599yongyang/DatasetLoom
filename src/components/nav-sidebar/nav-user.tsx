@@ -66,7 +66,7 @@ export function NavUser({ user }: { user: CurrentUser }) {
                         <DropdownMenuGroup>
                             <DropdownMenuItem
                                 onClick={() => {
-                                    router.push('/project');
+                                    router.push('/');
                                 }}
                             >
                                 <Sparkles />

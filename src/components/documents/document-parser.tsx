@@ -30,6 +30,7 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { useGetParserConfig } from '@/hooks/query/use-parser-config';
 import { PARSER_SERVICE_LIST } from '@/constants/parser';
 import axios from 'axios';
+import { useInputList } from '@/hooks/use-input-list';
 
 type ProcessingStatus = 'idle' | 'uploading' | 'processing' | 'completed' | 'error';
 
@@ -97,12 +98,7 @@ export default function DocumentParser() {
 
     const selectedServiceData = parsingServices.find(s => s.id === selectedService);
 
-    useEffect(() => {
-        console.log(selectedFiles);
-    }, [selectedFiles]);
-
     const handleProcess = async () => {
-        console.log(selectedService, selectedFiles, webUrls, webFileUrls, sourceType);
         const formData = new FormData();
         selectedFiles.forEach(file => {
             formData.append('localFiles', file);
@@ -508,18 +504,4 @@ export default function DocumentParser() {
             </div>
         </div>
     );
-}
-
-function useInputList(initialValue: string[]) {
-    const [list, setList] = useState<string[]>(initialValue);
-
-    const add = () => setList([...list.filter(url => url !== ''), '']);
-    const remove = (index: number) => setList(list.filter((_, i) => i !== index));
-    const update = (index: number, value: string) => {
-        const newList = [...list];
-        newList[index] = value;
-        setList(newList);
-    };
-
-    return { list, add, remove, update };
 }

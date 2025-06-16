@@ -1,24 +1,24 @@
 import { NextResponse } from 'next/server';
-import { validateProjectId } from '@/lib/utils/api-validator';
 import {
     checkPreferencePair,
     getPreferencePair,
     insertPreferencePair,
     updatePreferencePair
 } from '@/lib/db/preference-pair';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-type Params = Promise<{ projectId: string }>;
-
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取用户偏好数据集样本
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const url = new URL(request.url);
         const searchParams = url.searchParams;
-        const validationResult = await validateProjectId(projectId);
-        if (!validationResult.success) {
-            return validationResult.response;
-        }
         const questionId = searchParams.get('questionId');
         if (!questionId) {
             return NextResponse.json({ error: 'The question ID cannot be empty' }, { status: 400 });
@@ -29,18 +29,18 @@ export async function GET(request: Request, props: { params: Params }) {
         console.error('Error get PreferencePair:', error);
         return NextResponse.json({ error: 'Failed to get PreferencePair' }, { status: 500 });
     }
-}
+});
 
-export async function POST(request: Request, props: { params: Params }) {
+/**
+ * 保存用户偏好数据集样本
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
-        const validationResult = await validateProjectId(projectId);
-        if (!validationResult.success) {
-            return validationResult.response;
-        }
+        const { projectId } = context;
         const pp = await request.json();
-
         const check = await checkPreferencePair(projectId, pp.questionId);
         if (check) {
             await updatePreferencePair(pp);
@@ -52,4 +52,4 @@ export async function POST(request: Request, props: { params: Params }) {
         console.error('Error save PreferencePair:', error);
         return NextResponse.json({ error: 'Failed to save PreferencePair' }, { status: 500 });
     }
-}
+});

@@ -1,30 +1,35 @@
 import { NextResponse } from 'next/server';
 import { checkLlmProviders, getLlmProviders, saveLlmProvider } from '@/lib/db/llm-providers';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-// 获取 LLM 提供商数据
-type Params = Promise<{ projectId: string }>;
-
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取模型服务商列表
+ */
+export const GET = compose(AuthGuard(ProjectRole.ADMIN))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const result = await getLlmProviders(projectId);
         return NextResponse.json(result);
     } catch (error) {
         console.error('Database query error:', error);
         return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
     }
-}
+});
 
-export async function POST(request: Request, props: { params: Params }) {
+/**
+ * 添加模型服务商
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
 
-        // 验证项目 ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-        }
         // 获取请求体
         const { provider, type } = await request.json();
 
@@ -45,4 +50,4 @@ export async function POST(request: Request, props: { params: Params }) {
         console.error('Error updating model configuration:', error);
         return NextResponse.json({ error: 'Failed to update model configuration' }, { status: 500 });
     }
-}
+});

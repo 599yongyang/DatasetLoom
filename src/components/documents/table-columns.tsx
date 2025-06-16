@@ -11,6 +11,8 @@ import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/confirm-alert';
 import { type Documents } from '@prisma/client';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '@/components/permission-wrapper';
 
 export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments: () => void }) {
     const router = useRouter();
@@ -95,7 +97,9 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
             cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-2">
-                        <ChunkStrategyDialog fileIds={[row.original.id]} fileExt={row.original.fileExt ?? ''} />
+                        <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                            <ChunkStrategyDialog fileIds={[row.original.id]} fileExt={row.original.fileExt ?? ''} />
+                        </WithPermission>
                         <Button
                             variant="ghost"
                             className={'hover:cursor-pointer'}
@@ -107,11 +111,13 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
                         >
                             <Waypoints size={30} />
                         </Button>
-                        <ConfirmAlert
-                            title={t('delete_title')}
-                            message={row.original.fileName}
-                            onConfirm={() => deleteDocument(row.original.id)}
-                        />
+                        <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                            <ConfirmAlert
+                                title={t('delete_title')}
+                                message={row.original.fileName}
+                                onConfirm={() => deleteDocument(row.original.id)}
+                            />
+                        </WithPermission>
                     </div>
                 );
             }

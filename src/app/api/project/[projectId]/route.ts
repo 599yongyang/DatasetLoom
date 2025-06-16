@@ -1,14 +1,16 @@
-// 获取项目详情
 import { deleteProject, getProject, updateProject } from '@/lib/db/projects';
-import { auth } from '@/server/auth';
-import { hasProjectPermission } from '@/lib/db/users';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string }>;
-
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取项目详情
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const project = await getProject(projectId);
         if (!project) {
             return Response.json({ error: '项目不存在' }, { status: 404 });
@@ -18,23 +20,18 @@ export async function GET(request: Request, props: { params: Params }) {
         console.error('获取项目详情出错:', error);
         return Response.json({ error: error instanceof Error ? error.message : error }, { status: 500 });
     }
-}
+});
 
-// 更新项目
-export async function PUT(request: Request, props: { params: Params }) {
+/**
+ * 更新项目
+ */
+export const PUT = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const projectData = await request.json();
-        const session = await auth();
-
-        if (!session || !session.user || !session.user.id) {
-            return new Response('Unauthorized', { status: 401 });
-        }
-        const allowed = await hasProjectPermission(session.user.id, projectId, ['OWNER', 'ADMIN']);
-        if (!allowed) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
-        }
 
         const project = await getProject(projectId);
         if (!project) {
@@ -52,30 +49,24 @@ export async function PUT(request: Request, props: { params: Params }) {
         console.error('更新项目出错:', error);
         return Response.json({ error: error instanceof Error ? error.message : error }, { status: 500 });
     }
-}
+});
 
-// 删除项目
-export async function DELETE(request: Request, props: { params: Params }) {
+/**
+ * 删除项目
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
-        const session = await auth();
-        if (!session || !session.user || !session.user.id) {
-            return new Response('Unauthorized', { status: 401 });
-        }
-        const allowed = await hasProjectPermission(session.user.id, projectId, ['OWNER', 'ADMIN']);
-        if (!allowed) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        const { projectId } = context;
         const success = await deleteProject(projectId);
-
         if (!success) {
             return Response.json({ error: '项目不存在' }, { status: 404 });
         }
-
         return Response.json({ success: true });
     } catch (error) {
         console.error('删除项目出错:', error);
         return Response.json({ error: error instanceof Error ? error.message : error }, { status: 500 });
     }
-}
+});

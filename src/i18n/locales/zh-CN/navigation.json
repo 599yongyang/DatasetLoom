@@ -8,6 +8,7 @@
     "datasets": "数据集管理",
     "settings": "项目设置",
     "project_info": "基本信息",
+    "project_member": "成员管理",
     "parser_config": "解析服务配置",
     "model_config": "模型配置",
     "task_config": "任务配置",

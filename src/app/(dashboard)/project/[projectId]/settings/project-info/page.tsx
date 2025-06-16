@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '@/components/permission-wrapper';
 
 const formSchema = z.object({
     id: z.string(),
@@ -21,7 +23,7 @@ const formSchema = z.object({
 });
 
 export default function Page() {
-    let { projectId } = useParams();
+    let { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('project');
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -98,9 +100,11 @@ export default function Page() {
                             </FormItem>
                         )}
                     />
-                    <div className={'flex justify-end'}>
-                        <Button type="submit">{t('project_info.btn')}</Button>
-                    </div>
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <div className={'flex justify-end'}>
+                            <Button type="submit">{t('project_info.btn')}</Button>
+                        </div>
+                    </WithPermission>
                 </form>
             </Form>
         </div>

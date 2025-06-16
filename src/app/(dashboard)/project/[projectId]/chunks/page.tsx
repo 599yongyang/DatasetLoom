@@ -15,6 +15,8 @@ import { DraggableMergeDataTable } from '@/components/data-table/draggable-merge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
 import type { SelectedChunk } from '@/hooks/use-generate-question';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '@/components/permission-wrapper';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
@@ -119,25 +121,28 @@ export default function Page() {
                     </div>
                 </div>
                 <div className={'flex items-center gap-2'}>
-                    <Button
-                        variant="outline"
-                        disabled={Object.keys(rowSelection).length == 0}
-                        onClick={batchDeleteChunks}
-                        className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
-                    >
-                        <Trash2 size={30} />
-                        <span className="hidden lg:inline ">{t('batch_delete_btn')}</span>
-                    </Button>
-
-                    <Button
-                        variant="outline"
-                        className={'hover:cursor-pointer'}
-                        disabled={Object.keys(rowSelection).length == 0}
-                        onClick={handelGenerateQuestions}
-                    >
-                        <FileQuestion size={30} />
-                        <span className="hidden lg:inline ">{t('gen_btn')}</span>
-                    </Button>
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <Button
+                            variant="outline"
+                            disabled={Object.keys(rowSelection).length == 0}
+                            onClick={batchDeleteChunks}
+                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
+                        >
+                            <Trash2 size={30} />
+                            <span className="hidden lg:inline ">{t('batch_delete_btn')}</span>
+                        </Button>
+                    </WithPermission>
+                    <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                        <Button
+                            variant="outline"
+                            className={'hover:cursor-pointer'}
+                            disabled={Object.keys(rowSelection).length == 0}
+                            onClick={handelGenerateQuestions}
+                        >
+                            <FileQuestion size={30} />
+                            <span className="hidden lg:inline ">{t('gen_btn')}</span>
+                        </Button>
+                    </WithPermission>
                 </div>
             </div>
             <DraggableMergeDataTable

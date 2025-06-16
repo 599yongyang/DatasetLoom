@@ -20,9 +20,9 @@ import { NavDocuments } from '@/components/nav-sidebar/nav-documents';
 import { useAtom } from 'jotai';
 import { selectedProjectAtom } from '@/atoms';
 import { NavUser } from '@/components/nav-sidebar/nav-user';
-import type { Users } from '@prisma/client';
 import type { CurrentUser } from '@/server/auth';
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 const navSecondary = [
     {
@@ -34,9 +34,10 @@ const navSecondary = [
 ];
 
 export function AppSidebar({ user }: { user: CurrentUser }) {
+    const { data: session, status } = useSession();
     let { projectId }: { projectId: string } = useParams();
     const [localProjectId, setLocalProjectId] = useAtom(selectedProjectAtom);
-    const [menuItems, setMenuItems] = useState(getMenuConfig(projectId, user));
+    const [menuItems, setMenuItems] = useState(getMenuConfig(projectId, (session?.user as CurrentUser) || user));
     if (projectId !== 'undefined' && projectId !== undefined) {
         setTimeout(() => {
             setLocalProjectId(projectId);
@@ -46,8 +47,8 @@ export function AppSidebar({ user }: { user: CurrentUser }) {
     }
 
     useEffect(() => {
-        setMenuItems(getMenuConfig(projectId, user));
-    }, [projectId, user]);
+        setMenuItems(getMenuConfig(projectId, (session?.user as CurrentUser) || user));
+    }, [projectId, session?.user || user]);
     return (
         <Sidebar variant="inset">
             <SidebarHeader>
@@ -73,7 +74,7 @@ export function AppSidebar({ user }: { user: CurrentUser }) {
                 <NavSecondary items={navSecondary} className="mt-auto" />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={user} />
+                <NavUser user={(session?.user as CurrentUser) || user} />
             </SidebarFooter>
         </Sidebar>
     );

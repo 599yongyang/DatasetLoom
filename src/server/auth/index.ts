@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials';
 
 import { authConfig } from './config';
 import { getUserByEmail } from '@/lib/db/users';
+import type { ProjectRole } from '@/lib/data-dictionary';
 
 export type CurrentUser = {
     id: string;
@@ -10,7 +11,7 @@ export type CurrentUser = {
     avatar?: string | null;
     email?: string | null;
     role: string;
-    permissions: { projectId: string; role: string }[];
+    permissions: { projectId: string; role: ProjectRole }[];
 };
 
 export const {
@@ -41,16 +42,31 @@ export const {
         })
     ],
     callbacks: {
-        async jwt({ token, user }: { token: any; user: any }) {
+        async jwt({ token, user, trigger }: any) {
             if (user) {
                 token.id = user.id;
-                token.role = user.role;
+                token.name = user.name;
+                token.email = user.email;
                 token.avatar = user.avatar;
+                token.role = user.role;
                 token.permissions = user.projectMembers;
             }
+
+            if (trigger === 'update') {
+                const email = token.email as string;
+                const updatedUser = await getUserByEmail(email);
+                if (updatedUser) {
+                    token.id = updatedUser.id;
+                    token.name = updatedUser.name;
+                    token.avatar = updatedUser.avatar;
+                    token.role = updatedUser.role;
+                    token.permissions = updatedUser.projectMembers;
+                }
+            }
+
             return token;
         },
-        async session({ session, token }) {
+        async session({ session, token, trigger }) {
             return {
                 ...session,
                 user: {

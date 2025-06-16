@@ -13,6 +13,8 @@ import { useParams } from 'next/navigation';
 import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
 import React, { useState } from 'react';
 import { PreferencePairDialog } from '@/components/preference-pair/preference-pair-dialog';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '../permission-wrapper';
 
 export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: () => void }) {
     const { t } = useTranslation('question');
@@ -83,7 +85,27 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             accessorKey: 'question',
             header: t('table_columns.question'),
             cell: ({ row }) => {
-                return <QuestionDialog item={row.original} getQuestions={mutateQuestions} />;
+                return (
+                    <WithPermission
+                        required={ProjectRole.EDITOR}
+                        projectId={projectId}
+                        fallback={
+                            <div className={'flex items-center gap-2'}>
+                                {row.original.question}
+                                {row.original.DatasetSamples.length > 0 && (
+                                    <Badge
+                                        variant="outline"
+                                        className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3"
+                                    >
+                                        {t('answer_count', { count: row.original.DatasetSamples.length })}
+                                    </Badge>
+                                )}
+                            </div>
+                        }
+                    >
+                        <QuestionDialog item={row.original} getQuestions={mutateQuestions} />
+                    </WithPermission>
+                );
             },
             enableHiding: false
         },
@@ -126,37 +148,41 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
                 const [ppOpen, setPpOpen] = useState(false);
                 return (
                     <div className="flex flex-1 justify-center gap-2">
-                        <QuestionDialog item={row.original} getQuestions={mutateQuestions}>
-                            <Button variant="ghost" size="icon" aria-label="View">
-                                <SquarePen size={30} />
+                        <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                            <QuestionDialog item={row.original} getQuestions={mutateQuestions}>
+                                <Button variant="ghost" size="icon" aria-label="View">
+                                    <SquarePen size={30} />
+                                </Button>
+                            </QuestionDialog>
+                            <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+                                <Wand size={30} />
                             </Button>
-                        </QuestionDialog>
-                        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
-                            <Wand size={30} />
-                        </Button>
 
-                        {open && (
-                            <DatasetStrategyDialog
-                                type={'single'}
-                                questions={[row.original]}
-                                open={open}
-                                setOpen={setOpen}
-                                mutateQuestions={mutateQuestions}
+                            {open && (
+                                <DatasetStrategyDialog
+                                    type={'single'}
+                                    questions={[row.original]}
+                                    open={open}
+                                    setOpen={setOpen}
+                                    mutateQuestions={mutateQuestions}
+                                />
+                            )}
+                            {row.original.DatasetSamples.length > 1 && (
+                                <Button variant="ghost" size="icon" onClick={() => setPpOpen(true)}>
+                                    <Drama size={30} />
+                                </Button>
+                            )}
+                            {ppOpen && (
+                                <PreferencePairDialog questionId={row.original.id} open={ppOpen} setOpen={setPpOpen} />
+                            )}
+                        </WithPermission>
+                        <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                            <ConfirmAlert
+                                title={t('delete_title')}
+                                message={row.original.question}
+                                onConfirm={() => deleteQuestion(row.original.id)}
                             />
-                        )}
-                        {row.original.DatasetSamples.length > 1 && (
-                            <Button variant="ghost" size="icon" onClick={() => setPpOpen(true)}>
-                                <Drama size={30} />
-                            </Button>
-                        )}
-                        {ppOpen && (
-                            <PreferencePairDialog questionId={row.original.id} open={ppOpen} setOpen={setPpOpen} />
-                        )}
-                        <ConfirmAlert
-                            title={t('delete_title')}
-                            message={row.original.question}
-                            onConfirm={() => deleteQuestion(row.original.id)}
-                        />
+                        </WithPermission>
                     </div>
                 );
             }

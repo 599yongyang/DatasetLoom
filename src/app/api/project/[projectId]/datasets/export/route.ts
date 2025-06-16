@@ -1,21 +1,21 @@
 import { NextResponse } from 'next/server';
 import { exportDatasetDPO, exportDatasetRaw, exportDatasetSFT } from '@/lib/db/dataset';
-import { validateProjectId } from '@/lib/utils/api-validator';
-
-type Params = Promise<{ projectId: string }>;
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
 /**
  * 获取导出数据集
  */
-export async function POST(request: Request, props: { params: Params }) {
+export const POST = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
 
-        const validationResult = await validateProjectId(projectId);
-        if (!validationResult.success) {
-            return validationResult.response;
-        }
         const { dataType, confirmedOnly, includeCOT } = await request.json();
 
         if (dataType === 'raw') {
@@ -40,4 +40,4 @@ export async function POST(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});

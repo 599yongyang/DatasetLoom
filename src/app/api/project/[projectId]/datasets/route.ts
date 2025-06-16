@@ -13,16 +13,21 @@ import type { DatasetStrategyParams } from '@/types/dataset';
 import { getModelConfigById } from '@/lib/db/model-config';
 import type { AnswerStyle, DetailLevel, Language } from '@/lib/llm/prompts/type';
 import { getDatasetsByPagination } from '@/lib/db/dataset';
-
-type Params = Promise<{ projectId: string }>;
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
 /**
- * 生成数据集（为单个问题生成答案）
+ * 生成数据集样本
  */
-export async function POST(request: Request, props: { params: Params }) {
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const {
             questionId,
             datasetStrategyParams
@@ -118,21 +123,14 @@ export async function POST(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
 /**
  * 获取项目的所有数据集
  */
-export async function GET(request: Request, props: { params: Params }) {
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
-
-        // 验证项目ID是否有效
-        if (!projectId) {
-            return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
-        }
-
+        const { projectId } = context;
         // 解析查询参数
         const url = new URL(request.url);
         const searchParams = url.searchParams;
@@ -163,4 +161,4 @@ export async function GET(request: Request, props: { params: Params }) {
 
         return NextResponse.json({ error: '未知错误' }, { status: 500 });
     }
-}
+});

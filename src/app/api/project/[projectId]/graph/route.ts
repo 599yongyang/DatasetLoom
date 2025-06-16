@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getChunkGraph } from '@/lib/db/chunk-graph';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string }>;
-
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取图谱
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const { searchParams } = new URL(request.url);
         // 验证参数
         if (!projectId) {
@@ -25,4 +29,4 @@ export async function GET(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});

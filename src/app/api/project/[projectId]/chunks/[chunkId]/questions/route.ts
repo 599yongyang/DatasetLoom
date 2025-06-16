@@ -11,14 +11,21 @@ import type { QuestionStrategyParams } from '@/types/question';
 import { getModelConfigById } from '@/lib/db/model-config';
 import type { Language } from '@/lib/llm/prompts/type';
 import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string; chunkId: string }>;
-
-// 为指定文本块生成问题
-export async function POST(request: Request, props: { params: Params }) {
+/**
+ * 生成指定文本块的问题
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, chunkId } = params;
+        const { projectId, chunkId } = context;
 
         // 验证项目ID和文本块ID
         if (!projectId || !chunkId) {
@@ -92,13 +99,14 @@ export async function POST(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-// 获取指定文本块的问题
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取指定文本块的问题
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, chunkId } = params;
+        const { projectId, chunkId } = context;
 
         // 验证项目ID和文本块ID
         if (!projectId || !chunkId) {
@@ -121,4 +129,4 @@ export async function GET(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});

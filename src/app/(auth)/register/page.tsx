@@ -7,13 +7,13 @@ import { SubmitButton } from '@/components/submit-button';
 
 import { register, type RegisterActionState } from '../actions';
 import { toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineShadowText } from '@/components/ui/line-shadow-text';
-import Form from 'next/form';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import * as React from 'react';
-
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import { AuthSidePanel } from '@/components/auth/side-panel';
 export default function Page() {
     const router = useRouter();
 
@@ -25,15 +25,15 @@ export default function Page() {
 
     useEffect(() => {
         if (state.status === 'user_exists') {
-            toast.error('Account already exists!');
+            toast.error('帐户已存在！');
         } else if (state.status === 'failed') {
-            toast.error('Failed to create account!');
+            toast.error('创建帐户失败！');
         } else if (state.status === 'invalid_data') {
-            toast.error('Failed validating your submission!');
+            toast.error('创建帐户失败！');
         } else if (state.status === 'success') {
-            toast.success('Account created successfully!');
+            toast.success('帐户创建成功！');
             setIsSuccessful(true);
-            router.push('/project');
+            router.push('/');
         }
     }, [state]);
 
@@ -42,62 +42,117 @@ export default function Page() {
     };
 
     return (
-        <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-            <div className="flex w-full max-w-sm flex-col gap-6">
-                <div className={'flex flex-col gap-6'}>
-                    <Card>
-                        <CardHeader className="text-center">
-                            <CardTitle className="text-xl">
-                                <div className="text-balance text-5xl font-semibold leading-none tracking-tighter">
-                                    Dataset{' '}
-                                    <LineShadowText className="italic" shadowColor={'black'}>
-                                        Loom
-                                    </LineShadowText>
-                                </div>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Form action={handleSubmit}>
-                                <div className="grid gap-6">
-                                    <div className="grid gap-6">
-                                        <div className="grid gap-3">
-                                            <Label htmlFor="name">Full name</Label>
-                                            <Input id="name" name="name" placeholder="Your Name" type="text" required />
+        <div className="grid min-h-screen lg:grid-cols-2 bg-background">
+            {/* 左侧区域 */}
+            <div className="flex flex-col p-6 md:p-12 lg:p-16">
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 200 }}
+                    className="self-start mb-8"
+                >
+                    <Image
+                        src="/full-logo.svg"
+                        width={160}
+                        height={80}
+                        alt="logo"
+                        className="hover:scale-105 transition-transform duration-300"
+                    />
+                </motion.div>
+
+                {/* 表单内容 */}
+                <div className="flex flex-1 items-center justify-center">
+                    <div className="w-full max-w-md space-y-8 -mt-16">
+                        <div className="text-center space-y-2">
+                            <div className="text-center space-y-2">
+                                <motion.h1
+                                    initial={{ y: -10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="text-3xl font-bold text-foreground"
+                                >
+                                    创建您的账户
+                                </motion.h1>
+                                <motion.p
+                                    initial={{ y: -10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-muted-foreground text-sm"
+                                >
+                                    开始构建您的第一个数据集
+                                </motion.p>
+                            </div>
+                            <motion.form
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                                action={handleSubmit}
+                                className="mt-8 space-y-6"
+                            >
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label htmlFor="name">昵称</Label>
+                                        <Input
+                                            id="name"
+                                            name="name"
+                                            type="text"
+                                            required
+                                            className="mt-1 h-11 focus-visible:ring-2 focus-visible:ring-primary"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="email">邮箱</Label>
+                                        <Input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            placeholder="x@example.com"
+                                            required
+                                            className="mt-1 h-11 focus-visible:ring-2 focus-visible:ring-primary"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <Label htmlFor="password">密码</Label>
                                         </div>
-                                        <div className="grid gap-3">
-                                            <Label htmlFor="email">Email</Label>
-                                            <Input
-                                                id="email"
-                                                name="email"
-                                                type="email"
-                                                placeholder="m@example.com"
-                                                required
-                                            />
-                                        </div>
-                                        <div className="grid gap-3">
-                                            <div className="flex items-center">
-                                                <Label htmlFor="password">Password</Label>
-                                                {/*<a*/}
-                                                {/*    href="#"*/}
-                                                {/*    className="ml-auto text-sm underline-offset-4 hover:underline"*/}
-                                                {/*>*/}
-                                                {/*    Forgot your password?*/}
-                                                {/*</a>*/}
-                                            </div>
-                                            <Input id="password" name="password" type="password" required />
-                                        </div>
-                                        <SubmitButton isSuccessful={isSuccessful}>Sign Up</SubmitButton>
+                                        <Input
+                                            id="password"
+                                            name="password"
+                                            type="password"
+                                            placeholder="*********"
+                                            required
+                                            className="mt-1 h-11 focus-visible:ring-2 focus-visible:ring-primary"
+                                        />
                                     </div>
                                 </div>
-                            </Form>
-                        </CardContent>
-                    </Card>
-                    <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-                        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{' '}
-                        <a href="#">Privacy Policy</a>.
+
+                                <div className="space-y-4">
+                                    <SubmitButton
+                                        isSuccessful={isSuccessful}
+                                        className="w-full h-11 text-base font-medium bg-primary hover:bg-primary/90"
+                                    >
+                                        注册
+                                    </SubmitButton>
+
+                                    <p className="text-center text-sm text-muted-foreground">
+                                        已有账户?{' '}
+                                        <Link
+                                            href="/login"
+                                            className="font-semibold text-primary hover:text-primary/80 underline-offset-4 hover:underline"
+                                        >
+                                            立即登录
+                                        </Link>
+                                    </p>
+                                </div>
+                            </motion.form>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* 右侧区域 */}
+            <AuthSidePanel />
         </div>
     );
 }

@@ -1,28 +1,23 @@
 import { NextResponse } from 'next/server';
 import { getModelConfig, saveModelConfig } from '@/lib/db/model-config';
-import { getProject } from '@/lib/db/projects';
 import { getLlmProviderIds, saveLlmProvider } from '@/lib/db/llm-providers';
 import { DEFAULT_PROVIDERS } from '@/constants/provides';
 import { nanoid } from 'nanoid';
 import type { LlmProviders } from '@prisma/client';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-type Params = Promise<{ projectId: string }>;
-
-// 获取模型配置列表
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取模型配置
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const url = new URL(request.url);
         const searchParams = url.searchParams;
-        // 验证项目 ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-        }
-        let project = await getProject(projectId);
-        if (!project) {
-            return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
-        }
         let providerIds: string[] = [];
         const providerId = searchParams.get('providerId');
         if (providerId) {
@@ -42,13 +37,17 @@ export async function GET(request: Request, props: { params: Params }) {
         console.error('Error obtaining model configuration:', error);
         return NextResponse.json({ error: 'Failed to obtain model configuration' }, { status: 500 });
     }
-}
+});
 
-// 保存模型配置
-export async function POST(request: Request, props: { params: Params }) {
+/**
+ * 保存模型配置
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
 
         // 验证项目 ID
         if (!projectId) {
@@ -86,4 +85,4 @@ export async function POST(request: Request, props: { params: Params }) {
         console.error('Error updating model configuration:', error);
         return NextResponse.json({ error: 'Failed to update model configuration' }, { status: 500 });
     }
-}
+});

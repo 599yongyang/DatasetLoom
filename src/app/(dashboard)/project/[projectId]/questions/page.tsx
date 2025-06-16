@@ -13,6 +13,8 @@ import { useQuestionTableColumns } from '@/components/questions/table-columns';
 import useQuestions from '@/hooks/query/use-questions';
 import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
 import { DataTable } from '@/components/questions/data-table';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '@/components/permission-wrapper';
 
 export default function Page() {
     let { projectId }: { projectId: string } = useParams();
@@ -110,26 +112,28 @@ export default function Page() {
                     {/*    <Plus size={30}/>*/}
                     {/*    <span className="hidden lg:inline ">创建问题</span>*/}
                     {/*</Button>*/}
-
-                    <Button
-                        variant="outline"
-                        onClick={batchDeleteQuestions}
-                        disabled={Object.keys(rowSelection).length == 0}
-                        className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
-                    >
-                        <Trash2 size={30} />
-                        <span className="hidden lg:inline ">{t('delete_btn')}</span>
-                    </Button>
-
-                    <Button
-                        variant="outline"
-                        onClick={handleBatchGenerateDataset}
-                        disabled={Object.keys(rowSelection).length == 0}
-                        className={'hover:cursor-pointer'}
-                    >
-                        <Wand size={30} />
-                        <span className="hidden lg:inline ">{t('gen_btn')}</span>
-                    </Button>
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <Button
+                            variant="outline"
+                            onClick={batchDeleteQuestions}
+                            disabled={Object.keys(rowSelection).length == 0}
+                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
+                        >
+                            <Trash2 size={30} />
+                            <span className="hidden lg:inline ">{t('delete_btn')}</span>
+                        </Button>
+                    </WithPermission>
+                    <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                        <Button
+                            variant="outline"
+                            onClick={handleBatchGenerateDataset}
+                            disabled={Object.keys(rowSelection).length == 0}
+                            className={'hover:cursor-pointer'}
+                        >
+                            <Wand size={30} />
+                            <span className="hidden lg:inline ">{t('gen_btn')}</span>
+                        </Button>
+                    </WithPermission>
                 </div>
             </div>
             <DataTable

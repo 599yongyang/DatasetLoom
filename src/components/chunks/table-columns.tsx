@@ -13,6 +13,8 @@ import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
 import { ChunkInfoDialog } from '@/components/chunks/chunk-info-dialog';
 import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
 import React, { useState } from 'react';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '../permission-wrapper';
 
 export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
     const { t } = useTranslation('chunk');
@@ -125,31 +127,34 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                                 <Eye />
                             </Button>
                         </ChunkContentDialog>
-                        <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
-                            <FileQuestion />
-                        </Button>
-
-                        {open && (
-                            <QuestionStrategyDialog
-                                type={'single'}
-                                open={open}
-                                setOpen={setOpen}
-                                chunks={[{ id: row.original.id, name: row.original.name }]}
-                                mutateChunks={mutateChunks}
-                            />
-                        )}
-
-                        <ChunkInfoDialog item={row.original} refresh={mutateChunks} />
-
-                        <ConfirmAlert
-                            title={`确认要删除【${row.original.name}】此文本块嘛？`}
-                            message={'此操作不可逆，请谨慎操作！'}
-                            onConfirm={() => handleDeleteChunk(row.original.id)}
-                        >
-                            <Button variant="ghost" size="icon" className="text-destructive hover:text-red-500">
-                                <Trash2 />
+                        <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                            <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+                                <FileQuestion />
                             </Button>
-                        </ConfirmAlert>
+
+                            {open && (
+                                <QuestionStrategyDialog
+                                    type={'single'}
+                                    open={open}
+                                    setOpen={setOpen}
+                                    chunks={[{ id: row.original.id, name: row.original.name }]}
+                                    mutateChunks={mutateChunks}
+                                />
+                            )}
+
+                            <ChunkInfoDialog item={row.original} refresh={mutateChunks} />
+                        </WithPermission>
+                        <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                            <ConfirmAlert
+                                title={`确认要删除【${row.original.name}】此文本块嘛？`}
+                                message={'此操作不可逆，请谨慎操作！'}
+                                onConfirm={() => handleDeleteChunk(row.original.id)}
+                            >
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-red-500">
+                                    <Trash2 />
+                                </Button>
+                            </ConfirmAlert>
+                        </WithPermission>
                     </div>
                 );
             }

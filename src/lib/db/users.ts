@@ -61,3 +61,18 @@ export async function hasProjectPermission(userId: string, projectId: string, re
     }
     return requiredRoles.includes(member.role);
 }
+
+export async function getUserByEmails(emails: string[]) {
+    try {
+        return await db.users.findMany({
+            where: { email: { in: emails } },
+            select: {
+                id: true,
+                email: true
+            }
+        });
+    } catch (error) {
+        console.error('Failed to get users by emails in database');
+        throw error;
+    }
+}

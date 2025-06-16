@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 import type { CoreAssistantMessage, CoreToolMessage, UIMessage } from 'ai';
+import type { ProjectRole } from '@/lib/data-dictionary';
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
 export function cn(...inputs: ClassValue[]) {

@@ -39,8 +39,10 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
 import type { DragOverEvent } from '@dnd-kit/core/dist/types';
+import { ProjectRole } from '@/schema/types';
+import { WithPermission } from '../permission-wrapper';
+import { useParams } from 'next/navigation';
 
 interface RowWithIdAndName {
     id?: string;
@@ -76,6 +78,7 @@ export function DraggableMergeDataTable<TData extends RowData & RowWithIdAndName
     const [isMerging, setIsMerging] = useState(false);
     const [overId, setOverId] = useState<string | null>(null);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const { projectId }: { projectId: string } = useParams();
     const [pendingMerge, setPendingMerge] = useState<{
         activeRow: TData | null;
         overRow: TData | null;
@@ -180,7 +183,9 @@ export function DraggableMergeDataTable<TData extends RowData & RowWithIdAndName
                                 <TableHeader className="bg-muted sticky top-0 z-10">
                                     {table.getHeaderGroups().map(headerGroup => (
                                         <TableRow key={headerGroup.id}>
-                                            <TableHead className="w-10"></TableHead>
+                                            <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                                                <TableHead className="w-10"></TableHead>
+                                            </WithPermission>
                                             {headerGroup.headers.map(header => (
                                                 <TableHead key={header.id} colSpan={header.colSpan}>
                                                     {!header.isPlaceholder &&
@@ -272,7 +277,7 @@ interface SortableRowProps<TData> {
 
 function SortableRow<TData>({ row, isOver, isMerging }: SortableRowProps<TData>) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id });
-
+    const { projectId }: { projectId: string } = useParams();
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
@@ -291,22 +296,24 @@ function SortableRow<TData>({ row, isOver, isMerging }: SortableRowProps<TData>)
                 relative
             `}
         >
-            <TableCell className="w-10">
-                <button
-                    {...attributes}
-                    {...listeners}
-                    className="p-1 rounded-md hover:bg-gray-200 transition-colors"
-                    aria-label="拖拽合并"
-                >
-                    <GripVertical className="h-4 w-4 text-gray-500" />
-                </button>
-                {isOver && (
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center text-blue-500">
-                        <Merge className="h-4 w-4 mr-1" />
-                        <span className="text-xs font-medium">合并到此处</span>
-                    </div>
-                )}
-            </TableCell>
+            <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                <TableCell className="w-10">
+                    <button
+                        {...attributes}
+                        {...listeners}
+                        className="p-1 rounded-md hover:bg-gray-200 transition-colors"
+                        aria-label="拖拽合并"
+                    >
+                        <GripVertical className="h-4 w-4 text-gray-500" />
+                    </button>
+                    {isOver && (
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center text-blue-500">
+                            <Merge className="h-4 w-4 mr-1" />
+                            <span className="text-xs font-medium">合并到此处</span>
+                        </div>
+                    )}
+                </TableCell>
+            </WithPermission>
             {row.getVisibleCells().map(cell => (
                 <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
             ))}

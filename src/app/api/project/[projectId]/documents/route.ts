@@ -1,34 +1,22 @@
 import { NextResponse } from 'next/server';
-import { getProject } from '@/lib/db/projects';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { createDocument, delDocumentByIds, getDocumentsPagination } from '@/lib/db/documents';
 import { getFileMD5, getProjectRoot } from '@/lib/utils/file';
 import type { Documents } from '@prisma/client';
-import { auth } from '@/server/auth';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-type Params = Promise<{ projectId: string }>;
-
-// 获取项目文件列表
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取文档(知识库)列表
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
+        const { projectId } = context;
         const { searchParams } = new URL(request.url);
-        // 验证项目ID
-        if (!projectId) {
-            return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-        }
-        const session = await auth();
-
-        if (!session || !session.user || !session.user.id) {
-            return new Response('Unauthorized', { status: 401 });
-        }
-
-        // const allowed = await hasProjectPermission(session.user.id, projectId, ['OWNER', 'ADMIN']);
-        // if (!allowed) {
-        //     return NextResponse.json({error: 'Unauthorized'}, {status: 401});
-        // }
 
         // 获取文件列表
         const files = await getDocumentsPagination(
@@ -47,28 +35,20 @@ export async function GET(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-// 删除文件
-export async function DELETE(request: Request, props: { params: Params }) {
+/**
+ * 删除文档(知识库)
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request) => {
     try {
-        const params = await props.params;
-        const { projectId } = params;
         const { documentIds } = await request.json();
-
-        // 验证项目ID和文件名
-        if (!projectId) {
-            return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-        }
-
+        // 验证文件
         if (documentIds.length === 0) {
             return NextResponse.json({ error: 'The file name cannot be empty' }, { status: 400 });
-        }
-
-        // 获取项目信息
-        const project = await getProject(projectId);
-        if (!project) {
-            return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
         }
         await delDocumentByIds(documentIds);
         return NextResponse.json({ message: 'File deleted successfully' });
@@ -79,34 +59,24 @@ export async function DELETE(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-// 上传文件
-export async function POST(request: Request, props: { params: Params }) {
-    const params = await props.params;
-    const { projectId } = params;
-
-    // 验证项目ID
-    if (!projectId) {
-        console.log('The project ID cannot be empty, returning 400 error');
-        return NextResponse.json({ error: 'The project ID cannot be empty' }, { status: 400 });
-    }
-
-    // 获取项目信息
-    const project = await getProject(projectId);
-    if (!project) {
-        console.log('The project does not exist, returning 404 error');
-        return NextResponse.json({ error: 'The project does not exist' }, { status: 404 });
-    }
-
+/**
+ * 文件上传
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        // 保存文件
+        const { projectId } = context;
+
         const projectRoot = await getProjectRoot();
         const projectPath = path.join(projectRoot, projectId);
         const uploadDir = path.join(projectPath, 'files');
         const formData = await request.formData();
 
-        // 3. 手动创建文件并处理
+        // 文件处理
         const files = [];
         for (const [fieldName, fieldValue] of formData.entries()) {
             if (fieldValue instanceof Blob) {
@@ -142,4 +112,4 @@ export async function POST(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});

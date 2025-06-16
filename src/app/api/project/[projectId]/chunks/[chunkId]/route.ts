@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
 import { deleteChunkByIds, getChunkById, updateChunkById } from '@/lib/db/chunks';
 import type { Chunks } from '@prisma/client';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import type { ApiContext } from '@/types/api-context';
+import { AuditLog } from '@/lib/middleware/audit-log';
 
-type Params = Promise<{ projectId: string; chunkId: string }>;
-
-// 获取文本块内容
-export async function GET(request: Request, props: { params: Params }) {
+/**
+ * 获取文本块内容
+ */
+export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, chunkId } = params;
+        const { chunkId } = context;
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: 'Project ID cannot be empty' }, { status: 400 });
-        }
         if (!chunkId) {
-            return NextResponse.json({ error: 'Text block ID cannot be empty' }, { status: 400 });
+            return NextResponse.json({ error: 'text block ID cannot be empty' }, { status: 400 });
         }
         // 获取文本块内容
         const chunk = await getChunkById(chunkId);
@@ -27,19 +28,20 @@ export async function GET(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-// 删除文本块
-export async function DELETE(request: Request, props: { params: Params }) {
+/**
+ * 删除文本块
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.ADMIN),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, chunkId } = params;
+        const { chunkId } = context;
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: 'Project ID cannot be empty' }, { status: 400 });
-        }
         if (!chunkId) {
-            return NextResponse.json({ error: 'Text block ID cannot be empty' }, { status: 400 });
+            return NextResponse.json({ error: 'text block ID cannot be empty' }, { status: 400 });
         }
         await deleteChunkByIds([chunkId]);
 
@@ -51,26 +53,24 @@ export async function DELETE(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-// 编辑文本块
-export async function PUT(request: Request, props: { params: Params }) {
+/**
+ * 编辑文本块
+ */
+export const PUT = compose(
+    AuthGuard(ProjectRole.EDITOR),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
-        const params = await props.params;
-        const { projectId, chunkId } = params;
-
+        const { chunkId } = context;
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: '项目ID不能为空' }, { status: 400 });
-        }
-
         if (!chunkId) {
-            return NextResponse.json({ error: '文本块ID不能为空' }, { status: 400 });
+            return NextResponse.json({ error: 'text block ID cannot be empty' }, { status: 400 });
         }
 
-        // 解析请求体获取新内容
         const requestData = await request.json();
-        const { id, name, content, tags } = requestData;
+        const { name, content, tags } = requestData;
 
         let res = await updateChunkById(chunkId, { name, content } as Chunks, tags);
         return NextResponse.json(res);
@@ -78,4 +78,4 @@ export async function PUT(request: Request, props: { params: Params }) {
         console.error('编辑文本块失败:', error);
         return NextResponse.json({ error: error instanceof Error ? error.message : '编辑文本块失败' }, { status: 500 });
     }
-}
+});

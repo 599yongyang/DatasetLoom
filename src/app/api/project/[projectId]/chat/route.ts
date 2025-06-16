@@ -1,30 +1,31 @@
 import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/llm/core';
 import { getModelConfigById } from '@/lib/db/model-config';
-import { auth } from '@/server/auth';
-import { deleteChatById, getChatById, saveChat } from '@/lib/db/chat';
+import { deleteChatById, getChatById, saveChat, updateChatVisiblityById } from '@/lib/db/chat';
 import { getMostRecentUserMessage } from '@/lib/utils';
 import type { Chat, ChatMessages } from '@prisma/client';
 import { saveChatMessage } from '@/lib/db/chat-message';
+import { compose } from '@/lib/middleware/compose';
+import { AuthGuard } from '@/lib/middleware/auth-guard';
+import { ProjectRole } from '@/schema/types';
+import { AuditLog } from '@/lib/middleware/audit-log';
+import type { ApiContext } from '@/types/api-context';
 
-type Params = Promise<{ projectId: string }>;
-
-export async function POST(request: Request, props: { params: Params }) {
-    const params = await props.params;
-    const { projectId } = params;
-
+/**
+ * 创建会话
+ */
+export const POST = compose(
+    AuthGuard(ProjectRole.OWNER),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
+        const { projectId, user } = context;
         const { id, messages, model } = await request.json();
 
         if (!model || !messages) {
             return NextResponse.json({ error: 'Missing necessary parameters' }, { status: 400 });
         }
 
-        const session = await auth();
-
-        if (!session || !session.user || !session.user.id) {
-            return new Response('Unauthorized', { status: 401 });
-        }
         const userMessage = getMostRecentUserMessage(messages);
 
         if (!userMessage) {
@@ -41,9 +42,9 @@ export async function POST(request: Request, props: { params: Params }) {
 
         if (!chat) {
             const title = await llmClient.generateTitleFromUserMessage(userMessage);
-            await saveChat({ id, userId: session.user.id, title, projectId } as Chat);
+            await saveChat({ id, userId: user.id, title, projectId } as Chat);
         } else {
-            if (chat.userId !== session.user.id) {
+            if (chat.userId !== user.id) {
                 return new Response('Unauthorized', { status: 401 });
             }
         }
@@ -55,18 +56,8 @@ export async function POST(request: Request, props: { params: Params }) {
             attachments: ''
         } as ChatMessages);
 
-        try {
-            // 返回流式响应
-            return await llmClient.chatStream(messages, id, userMessage);
-        } catch (error) {
-            console.error('Failed to call LLM API:', error);
-            return NextResponse.json(
-                {
-                    error: `Failed to call ${model.provider} model: ${error instanceof Error ? error.message : error}`
-                },
-                { status: 500 }
-            );
-        }
+        // 返回流式响应
+        return await llmClient.chatStream(messages, id, userMessage);
     } catch (error) {
         console.error('Failed to process stream chat request:', error);
         return NextResponse.json(
@@ -74,29 +65,22 @@ export async function POST(request: Request, props: { params: Params }) {
             { status: 500 }
         );
     }
-}
+});
 
-export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-        return new Response('Not Found', { status: 404 });
-    }
-
-    const session = await auth();
-
-    if (!session || !session.user) {
-        return new Response('Unauthorized', { status: 401 });
-    }
-
+/**
+ * 获取会话
+ */
+export const GET = compose(AuthGuard(ProjectRole.OWNER))(async (request: Request) => {
     try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            return new Response('Not Found', { status: 404 });
+        }
         const chat = await getChatById(id);
         if (!chat) {
             return new Response('Not Found', { status: 404 });
-        }
-        if (chat.userId !== session.user.id) {
-            return new Response('Unauthorized', { status: 401 });
         }
 
         return Response.json(chat, { status: 200 });
@@ -105,31 +89,26 @@ export async function GET(request: Request) {
             status: 500
         });
     }
-}
+});
 
-export async function DELETE(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-        return new Response('Not Found', { status: 404 });
-    }
-
-    const session = await auth();
-
-    if (!session || !session.user) {
-        return new Response('Unauthorized', { status: 401 });
-    }
-
+/**
+ * 删除会话
+ */
+export const DELETE = compose(
+    AuthGuard(ProjectRole.OWNER),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
     try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            return new Response('Not Found', { status: 404 });
+        }
         const chat = await getChatById(id);
         if (!chat) {
             return new Response('Not Found', { status: 404 });
         }
-        if (chat.userId !== session.user.id) {
-            return new Response('Unauthorized', { status: 401 });
-        }
-
         await deleteChatById(id);
 
         return new Response('Chat deleted', { status: 200 });
@@ -138,4 +117,32 @@ export async function DELETE(request: Request) {
             status: 500
         });
     }
-}
+});
+
+/**
+ * 修改会话可见性
+ */
+export const PUT = compose(
+    AuthGuard(ProjectRole.OWNER),
+    AuditLog()
+)(async (request: Request, context: ApiContext) => {
+    try {
+        const { chatId, visibility } = await request.json();
+
+        if (!chatId || !visibility) {
+            return NextResponse.json({ error: 'Missing necessary parameters' }, { status: 400 });
+        }
+        const chat = await getChatById(chatId);
+        if (!chat) {
+            return new Response('Not Found', { status: 404 });
+        }
+        await updateChatVisiblityById({ chatId, visibility });
+        return new Response('Chat updated', { status: 200 });
+    } catch (error) {
+        console.error('Failed to process update chat request:', error);
+        return NextResponse.json(
+            { error: `Failed to process update chat request: ${error instanceof Error ? error.message : error}` },
+            { status: 500 }
+        );
+    }
+});
