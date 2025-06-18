@@ -2,7 +2,6 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 import type { CoreAssistantMessage, CoreToolMessage, UIMessage } from 'ai';
-import type { ProjectRole } from '@/lib/data-dictionary';
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
 export function cn(...inputs: ClassValue[]) {
@@ -160,3 +159,12 @@ export const downloadFile = (content: string, fileName: string, extension: strin
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 };
+
+export function stringToColor(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = Math.abs(hash) % 360;
+    return `hsl(${hue}, 70%, 50%)`;
+}

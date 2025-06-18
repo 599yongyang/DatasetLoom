@@ -15,7 +15,7 @@ import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '@/components/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
 const fileType = [
     {

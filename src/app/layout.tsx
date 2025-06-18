@@ -1,10 +1,10 @@
 import '@/styles/globals.css';
 
 import { type Metadata } from 'next';
-import { ThemeWrapper } from '@/components/theme/theme-wrapper';
 import { Toaster } from '@/components/ui/sonner';
 import I18nProviderWrapper from '@/components/I18nProviderWrapper';
 import HotkeysProviderWrapper from '@/components/HotkeysProviderWrapper';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 
 export const metadata: Metadata = {
     title: 'Dataset Loom - 面向大模型的智能数据集构建工具',
@@ -17,10 +17,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <html lang="en" suppressHydrationWarning>
             <body suppressHydrationWarning>
                 <I18nProviderWrapper>
-                    <ThemeWrapper>
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
                         <HotkeysProviderWrapper>{children}</HotkeysProviderWrapper>
                         <Toaster richColors position={'top-center'} />
-                    </ThemeWrapper>
+                    </ThemeProvider>
                 </I18nProviderWrapper>
             </body>
         </html>

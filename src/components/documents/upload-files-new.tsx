@@ -1,20 +1,9 @@
 import { AlertCircleIcon, FileUpIcon, XIcon } from 'lucide-react';
-import {
-    type FileMetadata,
-    type FileUploadOptions,
-    type FileWithPreview,
-    formatBytes,
-    useFileUpload
-} from '@/hooks/use-file-upload';
-import FileIcons from '@/components/file-icons';
+import { type FileUploadOptions, formatBytes, useFileUpload } from '@/hooks/use-file-upload';
+import FileIcons from '@/components/common/file-icons';
 import { Button } from '@/components/ui/button';
 import React, { useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
-import axios from 'axios';
-import { useAtom, useSetAtom } from 'jotai';
-import { documentWorkFlowAtom } from '@/atoms/workflow';
 
 export function UploadFilesNew({
     options,

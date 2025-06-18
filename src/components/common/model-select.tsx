@@ -10,62 +10,31 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { ModelIcon } from '@lobehub/icons';
-import axios from 'axios';
-import { datasetWorkFlowAtom, questionsWorkFlowAtom } from '@/atoms/workflow';
-import { useModelConfigSelect } from '@/hooks/query/use-llm';
 
-export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'workflow-dataset' }) {
+export function ModelSelect({
+    value,
+    setValue,
+    showConfigButton = true
+}: {
+    value: string;
+    setValue: (value: string) => void;
+    showConfigButton?: boolean;
+}) {
     let { projectId } = useParams();
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const modelConfigList = useAtomValue(modelConfigListAtom);
-    const [selectedModelInfo, setSelectedModelInfo] = useAtom(selectedModelInfoAtom);
-    const setQuestionsWorkFlow = useSetAtom(questionsWorkFlowAtom);
-    const setDatasetWorkFlow = useSetAtom(datasetWorkFlowAtom);
-    const [value, setValue] = useState('');
+    const selectedModelInfo = useAtomValue(selectedModelInfoAtom);
+
     const [search, setSearch] = useState('');
-    const [modelName, setModelName] = useState('');
-    const { refresh } = useModelConfigSelect(projectId as string);
-    const handleModelDefaultChange = (modelId: string) => {
-        axios
-            .patch(`/api/project/${projectId}/model-config/${modelId}`)
-            .then(res => {
-                console.log('设置默认模型成功');
-                void refresh();
-            })
-            .catch(error => {
-                console.log(error, '设置默认模型失败');
-            });
-    };
 
     useEffect(() => {
-        if (value && type === 'head') {
-            void handleModelDefaultChange(value);
-        } else if (value && type === 'workflow-question') {
-            let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === value);
-            if (modelConfig) {
-                const { modelName, id: modelConfigId, temperature, maxTokens } = modelConfig;
-                setQuestionsWorkFlow(prev => ({ ...prev, modelName, modelConfigId, temperature, maxTokens }));
-                setModelName(modelName);
-            }
-        } else if (value && type === 'workflow-dataset') {
-            let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === value);
-            if (modelConfig) {
-                const { modelName, id: modelConfigId, temperature, maxTokens } = modelConfig;
-                setDatasetWorkFlow(prev => ({ ...prev, modelName, modelConfigId, temperature, maxTokens }));
-                setModelName(modelName);
-            }
-        }
-    }, [value]);
-
-    useEffect(() => {
-        if (selectedModelInfo && selectedModelInfo.id) {
+        if (!value && selectedModelInfo?.id) {
             setValue(selectedModelInfo.id);
-            setModelName(selectedModelInfo.modelName);
         }
-    }, [selectedModelInfo]);
+    }, [value, selectedModelInfo]);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -91,14 +60,16 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
                     <CommandInput value={search} placeholder="搜索模型..." onValueChange={setSearch} />
                     <CommandList>
                         <CommandEmpty>
-                            <p className={'pb-1'}>暂无可用模型</p>
-                            <Button
-                                variant="link"
-                                className="hover:cursor-pointer"
-                                onClick={() => router.push(`/project/${projectId}/settings/model-config`)}
-                            >
-                                前往模型页面配置
-                            </Button>
+                            <p className={'pb-1'}>未找到此模型</p>
+                            {showConfigButton && (
+                                <Button
+                                    variant="link"
+                                    className="hover:cursor-pointer"
+                                    onClick={() => router.push(`/project/${projectId}/settings/model-config`)}
+                                >
+                                    前往模型页面配置
+                                </Button>
+                            )}
                         </CommandEmpty>
                         <CommandGroup>
                             {modelConfigList
@@ -108,7 +79,7 @@ export function ModelSelect({ type }: { type: 'head' | 'workflow-question' | 'wo
                                 .map((modelConfig: any) => (
                                     <CommandItem
                                         key={modelConfig.id}
-                                        value={modelConfig.id} // 这里保持使用id作为value
+                                        value={modelConfig.id}
                                         onSelect={currentId => {
                                             setValue(currentId);
                                             setOpen(false);

@@ -6,13 +6,13 @@ import { ArrowLeft, ChevronLeft, ChevronRight, MessageCircleQuestion, Save, Save
 import { Progress } from '@/components/ui/progress';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Loading } from '@/components/loading';
+import { Loading } from '@/components/common/loading';
 import { useTranslation } from 'react-i18next';
 import { useDatasetsInfo } from '@/hooks/query/use-datasets';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import DatasetDetail from '@/components/dataset/dataset-detail';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '@/components/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
 export default function Page() {
     const router = useRouter();

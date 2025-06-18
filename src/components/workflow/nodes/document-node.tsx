@@ -5,7 +5,7 @@ import { formatBytes } from '@/hooks/use-file-upload';
 import BaseNode from '@/components/workflow/nodes/base-node';
 import { useAtom } from 'jotai/index';
 import { documentWorkFlowAtom } from '@/atoms/workflow';
-import FileIcons, { type FileLike } from '@/components/file-icons';
+import FileIcons, { type FileLike } from '@/components/common/file-icons';
 import { UploadFiles } from '@/components/documents/upload-files';
 
 export function DocumentNode({ isConnectable }: NodeProps) {

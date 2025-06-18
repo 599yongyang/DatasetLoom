@@ -8,10 +8,10 @@ import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import axios from 'axios';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { useAtom } from 'jotai/index';
 import { selectedProjectAtom } from '@/atoms';
-import { WithPermission } from '../permission-wrapper';
+import { WithPermission } from '../common/permission-wrapper';
 import { ProjectRole } from '@/schema/types';
 
 export function ProjectCards({ projects, getProjects }: { projects: ProjectsWithCounts[]; getProjects: () => void }) {

@@ -20,7 +20,7 @@ import PasswordInput from '@/components/ui/password-input';
 import { ModelDialog } from '@/components/settings/model-dialog';
 import { useGetModelConfig, useModelConfigSelect } from '@/hooks/query/use-llm';
 import { nanoid } from 'nanoid';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProviderDialog } from '@/components/settings/provider-dialog';
 
 export default function Page() {

@@ -7,14 +7,14 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import type { ChunksVO } from '@/schema/chunks';
 import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
 import { ChunkInfoDialog } from '@/components/chunks/chunk-info-dialog';
 import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
 import React, { useState } from 'react';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '../permission-wrapper';
+import { WithPermission } from '../common/permission-wrapper';
 
 export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
     const { t } = useTranslation('chunk');

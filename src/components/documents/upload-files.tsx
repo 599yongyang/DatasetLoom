@@ -1,6 +1,6 @@
 import { AlertCircleIcon, FileUpIcon, XIcon } from 'lucide-react';
 import { type FileMetadata, formatBytes, useFileUpload } from '@/hooks/use-file-upload';
-import FileIcons from '@/components/file-icons';
+import FileIcons from '@/components/common/file-icons';
 import { Button } from '@/components/ui/button';
 import React from 'react';
 import { useParams } from 'next/navigation';

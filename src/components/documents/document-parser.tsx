@@ -42,7 +42,7 @@ const parsingServices = [
         icon: FileText,
         category: 'document',
         supportedInputs: ['local', 'webFile'],
-        supportedTypes: ['pdf', 'docx', 'txt', 'md'],
+        supportedTypes: ['pdf', 'docx', 'txt', 'md', 'epub'],
         requiresApiKey: false,
         features: ['快速处理', '基础文本提取']
     },

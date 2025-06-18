@@ -194,3 +194,43 @@ export async function exportDatasetDPO(projectId: string, confirmedOnly: boolean
         throw error;
     }
 }
+
+export async function datasetKanbanData(projectId: string) {
+    try {
+        const [confirmedCount, allCount, sftCount, cotCount, dpoCount] = await Promise.all([
+            db.datasetSamples.count({
+                where: {
+                    projectId,
+                    questions: {
+                        confirmed: true
+                    }
+                }
+            }),
+            db.datasetSamples.count({ where: { projectId } }),
+            db.datasetSamples.count({
+                where: {
+                    projectId,
+                    isPrimaryAnswer: true
+                }
+            }),
+            db.datasetSamples.count({
+                where: {
+                    projectId,
+                    cot: { not: '' }
+                }
+            }),
+            db.preferencePair.count({ where: { projectId } })
+        ]);
+
+        return {
+            confirmedCount,
+            allCount,
+            sftCount,
+            cotCount,
+            dpoCount
+        };
+    } catch (error) {
+        console.error('Failed to fetch kanban data from database', error);
+        throw error;
+    }
+}

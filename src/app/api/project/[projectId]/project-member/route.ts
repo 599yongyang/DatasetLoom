@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { validateProjectId } from '@/lib/utils/api-validator';
 import {
     addProjectMember,
     getProjectMember,
@@ -21,10 +20,6 @@ export const GET = compose(AuthGuard(ProjectRole.ADMIN))(async (request: Request
         const { projectId } = context;
         const { searchParams } = new URL(request.url);
         const input = searchParams.get('input');
-        const validationResult = await validateProjectId(projectId);
-        if (!validationResult.success) {
-            return validationResult.response;
-        }
         let memberList = await getProjectMember(projectId, input || '');
         return NextResponse.json(memberList);
     } catch (error) {

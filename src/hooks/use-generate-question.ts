@@ -1,7 +1,6 @@
 import { toast } from 'sonner';
 import axios, { type CancelTokenSource } from 'axios';
 import { i18n } from '@/i18n';
-import { isEmptyObject } from '@/lib/utils';
 import type { QuestionStrategyParams } from '@/types/question';
 
 export type SelectedChunk = {

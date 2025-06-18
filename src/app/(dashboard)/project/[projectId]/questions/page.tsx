@@ -14,7 +14,7 @@ import useQuestions from '@/hooks/query/use-questions';
 import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
 import { DataTable } from '@/components/questions/data-table';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '@/components/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
 export default function Page() {
     let { projectId }: { projectId: string } = useParams();

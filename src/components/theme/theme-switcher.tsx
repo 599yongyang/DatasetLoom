@@ -8,8 +8,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Moon, Sun } from 'lucide-react';
 
-import { useTheme } from '@/components/theme/theme-provider';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from 'next-themes';
 
 export function ThemeSwitcher() {
     const { setTheme } = useTheme();

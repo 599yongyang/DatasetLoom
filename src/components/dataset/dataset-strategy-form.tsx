@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Brain, FileText, Hash, Palette, Quote, Thermometer, Wand } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,10 @@ import { answerStyleMap, detailRuleMap } from '@/constants/prompt';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { DatasetStrategyParams } from '@/types/dataset';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ModelSelect } from '@/components/model-select';
+import { ModelSelect } from '@/components/common/model-select';
+import { useAtomValue, useSetAtom } from 'jotai/index';
+import { modelConfigListAtom } from '@/atoms';
+import { datasetWorkFlowAtom } from '@/atoms/workflow';
 
 export function DatasetStrategyForm({
     type,
@@ -23,12 +26,26 @@ export function DatasetStrategyForm({
     const { t } = useTranslation(['dataset', 'project']);
     const tDataset = (key: string) => t(`dataset:${key}`);
     const tProject = (key: string) => t(`project:${key}`);
+
+    const modelConfigList = useAtomValue(modelConfigListAtom);
+    const setDatasetWorkFlow = useSetAtom(datasetWorkFlowAtom);
+    const [modelValue, setModelValue] = useState('');
+
     const handleChange = (field: keyof DatasetStrategyParams, value: string | number | boolean) => {
         setDatasetStrategy(prev => ({
             ...prev,
             [field]: value
         }));
     };
+
+    useEffect(() => {
+        let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === modelValue);
+        if (modelConfig) {
+            const { modelName, id: modelConfigId, temperature, maxTokens } = modelConfig;
+            setDatasetWorkFlow(prev => ({ ...prev, modelName, modelConfigId, temperature, maxTokens }));
+            // setModelName(modelName);
+        }
+    }, [modelValue]);
 
     return (
         <div className="space-y-3">
@@ -60,7 +77,7 @@ export function DatasetStrategyForm({
             )}
             {datasetStrategy.type === 'custom' && (
                 <div className="px-1">
-                    <ModelSelect type={'workflow-dataset'} />
+                    <ModelSelect value={modelValue} setValue={setModelValue} />
                 </div>
             )}
             <div className="flex items-center justify-between">

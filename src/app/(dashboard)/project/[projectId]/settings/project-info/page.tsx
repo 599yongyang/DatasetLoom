@@ -12,7 +12,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '@/components/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
 const formSchema = z.object({
     id: z.string(),

@@ -13,7 +13,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { ExportDataDialog } from '@/components/dataset/export-data-dialog';
@@ -25,7 +25,7 @@ import { Pagination } from '@/components/data-table/pagination';
 import { useAtom } from 'jotai';
 import { datasetViewModeAtom } from '@/atoms';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '@/components/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
 export default function Page() {
     const router = useRouter();

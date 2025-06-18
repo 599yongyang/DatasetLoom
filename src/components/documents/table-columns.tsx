@@ -8,11 +8,11 @@ import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { type Documents } from '@prisma/client';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '@/components/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
 export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments: () => void }) {
     const router = useRouter();

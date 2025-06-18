@@ -12,8 +12,9 @@ import {
 import { processMessages } from '@/lib/utils/file';
 import type { ConfigOptions, ModelConfigWithProvider } from '@/lib/llm/core/types';
 import { saveChatMessage } from '@/lib/db/chat-message';
-import type { ChatMessages } from '@prisma/client';
+import type { ChatMessages, ModelUsage } from '@prisma/client';
 import { getTrailingMessageId } from '@/lib/utils';
+import { insertModelUsage } from '@/lib/db/model-usage';
 
 export class BaseClient {
     protected config: ModelConfigWithProvider;
@@ -24,6 +25,9 @@ export class BaseClient {
 
     async chat(messages: UIMessage[], options: ConfigOptions = {}, schema?: Schema) {
         const model = this._getModel();
+        if (!model) {
+            throw new Error('Model configuration is missing or invalid');
+        }
         const processedMessages = await processMessages(messages);
         const finalOptions = {
             model,
@@ -33,7 +37,16 @@ export class BaseClient {
             ...(schema ? { experimental_output: Output.object({ schema }) } : {})
         };
 
-        return await generateText(finalOptions);
+        const res = await generateText(finalOptions);
+        const { usage } = res;
+        await insertModelUsage({
+            projectId: this.config.projectId,
+            modelConfigId: this.config.id,
+            promptTokens: usage.promptTokens,
+            completionTokens: usage.completionTokens,
+            totalTokens: usage.totalTokens
+        } as ModelUsage);
+        return res;
     }
 
     async generateTitleFromUserMessage(message: Message) {

@@ -73,7 +73,9 @@ export const POST = compose(
             globalPrompt,
             questionPrompt
         });
-        const { text } = await llmClient.chat(prompt);
+        const data = await llmClient.chat(prompt);
+        console.log('LLM Response:', data);
+        const { text } = data;
         console.log('LLM Output:', text);
         const llmOutput = await doubleCheckModelOutput(text, questionsSchema);
         console.log('LLM Output after double check:', llmOutput);

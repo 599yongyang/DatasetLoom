@@ -14,7 +14,7 @@ import { nanoid } from 'nanoid';
 import { workflowStatusOptions } from '@/lib/data-dictionary';
 import SaveDialog from '@/components/workflow/save-dialog';
 import StepLog from '@/components/workflow/step-log';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { format } from 'date-fns';

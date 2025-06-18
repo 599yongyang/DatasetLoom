@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import type { ChatHistory } from '@/components/chat/sidebar-history';
-import { getChatHistoryPaginationKey, useGetChatHistory } from '@/hooks/query/use-chat';
+import { useGetChatHistory } from '@/hooks/query/use-chat';
 import axios from 'axios';
 import { ChatVisibilityType } from '@/schema/types';
 
@@ -32,9 +32,6 @@ export function useChatVisibility({
 
     const setVisibilityType = (updatedVisibilityType: ChatVisibilityType) => {
         setLocalVisibility(updatedVisibilityType);
-        const getKey = (pageIndex: number, previousPageData: ChatHistory | null) =>
-            getChatHistoryPaginationKey(pageIndex, previousPageData, projectId);
-
         axios
             .put(`/api/project/${projectId}/chat`, {
                 chatId,

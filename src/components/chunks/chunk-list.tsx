@@ -7,7 +7,7 @@ import { Edit, Eye, FileQuestion, Trash2 } from 'lucide-react';
 import type { ChunksVO } from '@/schema/chunks';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useGenerateQuestion } from '@/hooks/use-generate-question';

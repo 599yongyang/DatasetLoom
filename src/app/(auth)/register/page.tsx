@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 
-import { SubmitButton } from '@/components/submit-button';
+import { SubmitButton } from '@/components/common/submit-button';
 
 import { register, type RegisterActionState } from '../actions';
 import { toast } from 'sonner';

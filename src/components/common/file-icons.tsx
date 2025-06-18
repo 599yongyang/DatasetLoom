@@ -1,4 +1,3 @@
-// components/FileIcon.tsx
 import React from 'react';
 import {
     FileIcon as FileIconLucide,
@@ -9,7 +8,6 @@ import {
     HeadphonesIcon,
     ImageIcon
 } from 'lucide-react';
-import { type Documents } from '@prisma/client';
 
 export type FileLike = {
     fileExt?: string;

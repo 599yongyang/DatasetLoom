@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
-import { SubmitButton } from '@/components/submit-button';
+import { SubmitButton } from '@/components/common/submit-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { login, type LoginActionState } from '../actions';

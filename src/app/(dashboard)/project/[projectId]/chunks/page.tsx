@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
 import type { SelectedChunk } from '@/hooks/use-generate-question';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '@/components/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();

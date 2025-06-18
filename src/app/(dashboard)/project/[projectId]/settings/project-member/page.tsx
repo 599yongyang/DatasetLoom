@@ -11,7 +11,7 @@ import { projectRoleColorMap, projectRoleMap } from '@/lib/data-dictionary';
 import { Badge } from '@/components/ui/badge';
 import { useThrottle } from '@/hooks/use-throttle';
 import { ProjectMemberDialog } from '@/components/settings/member/add-dialog';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';

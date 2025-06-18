@@ -18,7 +18,7 @@ import { AIScoreDashboard } from '@/components/dataset/ai-score-chart';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/atoms';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '../permission-wrapper';
+import { WithPermission } from '../common/permission-wrapper';
 import { useParams } from 'next/navigation';
 
 export default function DatasetDetail({

@@ -6,10 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { difficultyMap, styleMap } from '@/constants/prompt';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Slider } from '@/components/ui/slider';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ModelSelect } from '@/components/model-select';
+import { ModelSelect } from '@/components/common/model-select';
 import type { QuestionStrategyParams } from '@/types/question';
+import { useAtomValue, useSetAtom } from 'jotai/index';
+import { modelConfigListAtom } from '@/atoms';
+import { questionsWorkFlowAtom } from '@/atoms/workflow';
 
 export function QuestionStrategyForm({
     type,
@@ -23,12 +26,23 @@ export function QuestionStrategyForm({
     const { t } = useTranslation(['question', 'project']);
     const tQuestion = (key: string) => t(`question:${key}`);
     const tProject = (key: string) => t(`project:${key}`);
+    const modelConfigList = useAtomValue(modelConfigListAtom);
+    const [modelValue, setModelValue] = useState('');
+    const setQuestionsWorkFlow = useSetAtom(questionsWorkFlowAtom);
     const handleChange = (field: keyof QuestionStrategyParams, value: string | number) => {
         setQuestionStrategy(prev => ({
             ...prev,
             [field]: value
         }));
     };
+    useEffect(() => {
+        let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === modelValue);
+        if (modelConfig) {
+            const { modelName, id: modelConfigId, temperature, maxTokens } = modelConfig;
+            setQuestionsWorkFlow(prev => ({ ...prev, modelName, modelConfigId, temperature, maxTokens }));
+            // setModelName(modelName);
+        }
+    }, [modelValue]);
     return (
         <div className="space-y-4 pt-2">
             {type === 'workflow' && (
@@ -59,7 +73,7 @@ export function QuestionStrategyForm({
             )}
             {questionStrategy.type === 'custom' && (
                 <div className="px-1">
-                    <ModelSelect type={'workflow-question'} />
+                    <ModelSelect value={modelValue} setValue={setModelValue} />
                 </div>
             )}
             <div className="flex items-center justify-between">

@@ -4,7 +4,7 @@ import { useFormStatus } from 'react-dom';
 
 import { Icons } from '@/components/icons';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
 
 export function SubmitButton({

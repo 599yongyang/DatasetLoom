@@ -97,11 +97,11 @@ model Chunks {
 }
 
 model ChunkMetadata {
-  id        String  @id @default(nanoid())
-  chunk     Chunks  @relation(fields: [chunkId], references: [id], onDelete: Cascade)
-  chunkId   String  @unique
+  id        String @id @default(nanoid())
+  chunk     Chunks @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  chunkId   String @unique
   domain    String
-  subDomain String?
+  subDomain String
   summary   String
   tags      String
   language  String
@@ -235,8 +235,9 @@ model ModelConfig {
   isDefault   Boolean      @default(false)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  Project     Projects?    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId   String?
+  Project     Projects     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  ModelUsage  ModelUsage[]
 }
 
 model ParserConfig {
@@ -322,4 +323,18 @@ model ChatMessageVote {
   isUpvote  Boolean
 
   @@unique([chatId, messageId])
+}
+
+model ModelUsage {
+  id               String      @id @default(nanoid())
+  projectId        String
+  modelConfig      ModelConfig @relation(fields: [modelConfigId], references: [id], onDelete: Cascade)
+  modelConfigId    String
+  promptTokens     Int
+  completionTokens Int
+  totalTokens      Int
+  createdAt        DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([modelConfigId])
 }

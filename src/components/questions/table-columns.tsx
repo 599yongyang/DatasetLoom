@@ -5,7 +5,7 @@ import { QuestionDialog } from '@/components/questions/question-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Wand, SquarePen, ChevronUpIcon, ChevronDownIcon, ChevronRight, Drama } from 'lucide-react';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,7 +14,7 @@ import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dia
 import React, { useState } from 'react';
 import { PreferencePairDialog } from '@/components/preference-pair/preference-pair-dialog';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '../permission-wrapper';
+import { WithPermission } from '../common/permission-wrapper';
 
 export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: () => void }) {
     const { t } = useTranslation('question');

@@ -16,9 +16,9 @@ import { toast } from 'sonner';
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Info, Trash2 } from 'lucide-react';
-import { ConfirmAlert } from '@/components/confirm-alert';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProjectRole } from '@/schema/types';
-import { WithPermission } from '../permission-wrapper';
+import { WithPermission } from '../common/permission-wrapper';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];

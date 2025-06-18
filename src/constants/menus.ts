@@ -9,7 +9,8 @@ import {
     SquareTerminal,
     BotMessageSquare,
     SquareSplitVertical,
-    Workflow
+    Workflow,
+    LayoutDashboard
 } from 'lucide-react';
 
 import type { IMenu } from '@/schema/menu';
@@ -20,6 +21,12 @@ import { hasPermission } from '@/lib/utils/auth-helper';
 export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => {
     const permissions = user?.permissions.find(permission => permission.projectId === projectId);
     const menuItems: IMenu[] = [
+        {
+            title: 'dashboard',
+            icon: LayoutDashboard,
+            to: `/project/${projectId}/dashboard`,
+            role: ProjectRole.VIEWER
+        },
         {
             title: 'documents',
             icon: FileText,

@@ -9,10 +9,10 @@ import { Icons } from '@/components/icons';
 import { NavBreadcrumb } from '@/components/nav-sidebar/nav-breadcrumb';
 import { Search } from '@/components/search';
 import { ThemeSwitcher } from '@/components/theme/theme-switcher';
-import { ModelSelect } from '@/components/model-select';
 import { auth, type CurrentUser } from '@/server/auth';
 import { redirect } from 'next/navigation';
 import { SessionProvider } from 'next-auth/react';
+import { NavModelSelect } from '@/components/nav-sidebar/nav-model-select';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     const session = await auth();
@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                                 <NavBreadcrumb className="hidden sm:flex" user={session.user as CurrentUser} />
                             </div>
                             <div className="ml-auto flex flex-1 items-center space-x-2 px-2 sm:px-4 md:max-w-100 lg:max-w-xl">
-                                <ModelSelect type={'head'} />
+                                <NavModelSelect />
                                 <Search />
                                 <Link href="https://github.com/599yongyang/DatasetLoom" target="_blank">
                                     <Button variant="ghost" size="icon">
@@ -45,7 +45,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                                     </Button>
                                 </Link>
                                 <ThemeSwitcher />
-                                {/*<ThemeCustomizer/>*/}
                             </div>
                         </header>
                     </div>

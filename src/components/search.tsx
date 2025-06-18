@@ -21,7 +21,7 @@ import { languages } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 import { Icons } from './icons';
-import { useTheme } from './theme/theme-provider';
+import { useTheme } from 'next-themes';
 
 export function Search({ ...props }: ButtonProps & DialogProps) {
     const router = useRouter();
