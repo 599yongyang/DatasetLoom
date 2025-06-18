@@ -24,7 +24,7 @@ export default function Page() {
     const searchQuery = useThrottle(inputValue, 300);
     const { data: projectMember, refresh } = useGetProjectMember(projectId, searchQuery);
     const [open, setOpen] = useState(false);
-    const { update } = useSession();
+    const { data: session, update } = useSession();
     const [member, setMember] = useState<ProjectMember | null>(null);
     const [changeRoleOpen, setChangeRoleOpen] = useState(false);
 
@@ -89,29 +89,33 @@ export default function Page() {
                                 </TableCell>
                                 <TableCell>{new Date(member.joinedAt).toLocaleString('zh-CN')} </TableCell>
                                 <TableCell className="text-center">
-                                    <Button
-                                        onClick={() => {
-                                            setMember(member);
-                                            setChangeRoleOpen(true);
-                                        }}
-                                        variant="ghost"
-                                        size="icon"
-                                    >
-                                        <Edit />
-                                    </Button>
-                                    <ConfirmAlert
-                                        title={`确认要删除此【${member.user.name}】项目成员？`}
-                                        message={'此操作不可逆，请谨慎操作！'}
-                                        onConfirm={() => handleDeleteMember(member.id)}
-                                    >
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-destructive hover:text-red-500"
-                                        >
-                                            <Trash2 />
-                                        </Button>
-                                    </ConfirmAlert>
+                                    {session?.user?.email !== member.user.email && (
+                                        <>
+                                            <Button
+                                                onClick={() => {
+                                                    setMember(member);
+                                                    setChangeRoleOpen(true);
+                                                }}
+                                                variant="ghost"
+                                                size="icon"
+                                            >
+                                                <Edit />
+                                            </Button>
+                                            <ConfirmAlert
+                                                title={`确认要删除此【${member.user.name}】项目成员？`}
+                                                message={'此操作不可逆，请谨慎操作！'}
+                                                onConfirm={() => handleDeleteMember(member.id)}
+                                            >
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="text-destructive hover:text-red-500"
+                                                >
+                                                    <Trash2 />
+                                                </Button>
+                                            </ConfirmAlert>
+                                        </>
+                                    )}
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -50,49 +50,6 @@ export async function getChunksByFileIds(fileIds: string[]) {
     }
 }
 
-// 获取项目中所有Chunks
-export async function getChunkByProjectId(projectId: string, filter?: string, fileIds?: string[]) {
-    try {
-        const whereClause: {
-            projectId: string;
-            fileId?: {
-                in?: string[];
-            };
-            Questions?: {
-                some?: Record<string, never>;
-                none?: Record<string, never>;
-            };
-        } = {
-            projectId
-        };
-        if (filter === 'generated') {
-            whereClause.Questions = {
-                some: {}
-            };
-        } else if (filter === 'ungenerated') {
-            whereClause.Questions = {
-                none: {}
-            };
-        }
-        if (fileIds && fileIds.length > 0) {
-            whereClause.fileId = { in: fileIds };
-        }
-        return await db.chunks.findMany({
-            where: whereClause,
-            include: {
-                Questions: {
-                    select: {
-                        question: true
-                    }
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Failed to get chunks by projectId in database');
-        throw error;
-    }
-}
-
 export async function getChunksPagination(
     projectId: string,
     page = 1,

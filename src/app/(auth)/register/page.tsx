@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { AuthSidePanel } from '@/components/auth/side-panel';
+
 export default function Page() {
     const router = useRouter();
 
@@ -29,7 +30,7 @@ export default function Page() {
         } else if (state.status === 'failed') {
             toast.error('创建帐户失败！');
         } else if (state.status === 'invalid_data') {
-            toast.error('创建帐户失败！');
+            toast.error('密码不能少于6位！');
         } else if (state.status === 'success') {
             toast.success('帐户创建成功！');
             setIsSuccessful(true);

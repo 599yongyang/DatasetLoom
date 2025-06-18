@@ -151,7 +151,7 @@ export default function Page() {
         {
             accessorKey: 'confidence',
             header: t('table_columns.confidence'),
-            cell: ({ row }) => <div>{row.original.confidence}</div>
+            cell: ({ row }) => <div>{row.original.confidence * 100}%</div>
         },
         {
             accessorKey: 'isPrimaryAnswer',
@@ -318,10 +318,10 @@ export default function Page() {
                             </CardHeader>
                             <CardContent>
                                 <CardDescription className="text-sm leading-relaxed">{item.answer}</CardDescription>
-                                <div className=" gap-2 py-2">
-                                    {item.referenceLabel.split(',').map((item, index) => (
-                                        <Badge key={index} variant="secondary" className="text-xs">
-                                            {item}
+                                <div className="gap-2 space-x-2 py-2 flex flex-wrap">
+                                    {item.referenceLabel?.split(',').map((label, index) => (
+                                        <Badge key={index} variant="secondary" className="text-xs whitespace-nowrap">
+                                            {label}
                                         </Badge>
                                     ))}
                                 </div>

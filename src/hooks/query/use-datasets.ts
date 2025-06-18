@@ -33,7 +33,6 @@ export function useDatasets(params: UseDatasetsParams) {
         const paramsObj = {
             page: params.pageIndex + 1,
             size: params.pageSize,
-            ...(params.status && { status: params.status }),
             ...(params.input && { input: params.input }),
             type: params.type,
             confirmed: params.confirmed

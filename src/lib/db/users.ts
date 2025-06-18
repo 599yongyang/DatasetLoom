@@ -37,29 +37,42 @@ export async function getUserByEmail(email: string) {
     }
 }
 
-export async function getUserProjectPermissions(userId: string) {
+export async function getUserById(id: string) {
     try {
-        return await db.projectMember.findMany({
-            where: { userId },
-            select: {
-                projectId: true,
-                role: true
-            }
-        });
+        return await db.users.findUnique({ where: { id } });
     } catch (error) {
-        console.error('Failed to get users by email in database');
+        console.error('Failed to get users by id in database');
         throw error;
     }
 }
 
-export async function hasProjectPermission(userId: string, projectId: string, requiredRoles: string[]) {
-    const member = await db.projectMember.findFirst({
-        where: { userId, projectId }
-    });
-    if (!member) {
-        return false;
+export async function updateUser(name: string, avatar: string, userId: string) {
+    try {
+        const data: { name: string; avatar?: string } = { name };
+        if (avatar !== '') {
+            data.avatar = avatar;
+        }
+
+        return await db.users.update({
+            where: { id: userId },
+            data
+        });
+    } catch (error) {
+        console.error('Failed to update user in database');
+        throw error;
     }
-    return requiredRoles.includes(member.role);
+}
+
+export async function updatePassword(id: string, password: string) {
+    try {
+        return await db.users.update({
+            where: { id },
+            data: { password }
+        });
+    } catch (error) {
+        console.error('Failed to update user password in database');
+        throw error;
+    }
 }
 
 export async function getUserByEmails(emails: string[]) {

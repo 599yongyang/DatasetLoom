@@ -46,3 +46,4 @@ yarn-error.log*
 .idea
 
 /local-db
+/public/avatar

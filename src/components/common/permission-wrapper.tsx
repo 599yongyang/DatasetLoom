@@ -12,7 +12,6 @@ interface WithPermissionProps {
 
 export const WithPermission: React.FC<WithPermissionProps> = ({ projectId, required, children, fallback = null }) => {
     const user = useCurrentUser();
-    console.log('user', user);
     const projectPermission = React.useMemo(() => {
         if (!user || !user.permissions) return null;
         return user.permissions.find(perm => perm.projectId === projectId);

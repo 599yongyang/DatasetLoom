@@ -17,7 +17,7 @@
         "tag": "标签",
         "fileName": "所属文件",
         "createdAt": "上传时间",
-        "size": "文件大小",
+        "size": "分块大小",
         "actions": "操作"
     },
     "strategy_dialog": {

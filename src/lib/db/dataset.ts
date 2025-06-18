@@ -18,17 +18,15 @@ export async function getDatasetsByPagination(
     confirmed: boolean | undefined
 ) {
     try {
+        console.log(type, confirmed, 'dasdsdadasda');
         if (type === 'pp') {
             const whereClause: any = {
                 projectId,
-                prompt: { contains: input },
-                question: {
-                    confirmed: confirmed
-                }
+                prompt: { contains: input }
             };
 
-            if (confirmed) {
-                whereClause.questions = { confirmed };
+            if (confirmed !== undefined) {
+                whereClause.question = { confirmed };
             }
             const [data, total] = await Promise.all([
                 db.preferencePair.findMany({
@@ -56,7 +54,7 @@ export async function getDatasetsByPagination(
                 projectId,
                 question: { contains: input }
             };
-            if (confirmed) {
+            if (confirmed !== undefined) {
                 whereClause.questions = { confirmed };
             }
 

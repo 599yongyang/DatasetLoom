@@ -78,7 +78,7 @@ export function ProjectMemberDialog({
                             <Label>邮箱</Label>
                             <div className="space-y-3">
                                 {emails.map((email, index) => (
-                                    <div className="flex gap-2">
+                                    <div key={index} className="flex gap-2">
                                         <Input
                                             key={index}
                                             id={`team-email-${index + 1}`}

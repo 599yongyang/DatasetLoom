@@ -1,4 +1,3 @@
-// app/api/upload/route.ts 或 pages/api/upload.ts
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import fs from 'fs/promises';

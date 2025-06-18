@@ -33,11 +33,7 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
         });
     };
     const handleView = (id: string, modelCount: number) => {
-        if (modelCount > 0) {
-            router.push(`/project/${id}/documents`);
-        } else {
-            router.push(`/project/${id}/settings/model-config`);
-        }
+        router.push(`/project/${id}/dashboard`);
     };
 
     return (

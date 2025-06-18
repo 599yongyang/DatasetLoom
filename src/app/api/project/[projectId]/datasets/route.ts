@@ -138,7 +138,7 @@ export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Reques
         const size = parseInt(searchParams.get('size') ?? '10');
         const input = searchParams.get('input') ?? '';
         const type = searchParams.get('type') ?? '';
-        const status = searchParams.get('confirmed') ?? 'all';
+        const status = searchParams.get('confirmed');
         let confirmed: boolean | undefined = undefined;
         if (status === 'confirmed') {
             confirmed = true;
