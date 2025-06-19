@@ -18,8 +18,7 @@ export async function getFileMD5(filePath: string): Promise<string> {
 
 // 获取适合的数据存储目录
 function getDbDirectory() {
-    // 在普通 Node.js 环境中运行（开发模式）
-    return path.join(process.cwd(), 'local-db');
+    return process.env.LOCAL_DB_PATH || '/app/data/local-db';
 }
 
 // 项目根目录

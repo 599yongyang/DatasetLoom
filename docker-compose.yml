@@ -1,0 +1,20 @@
+services:
+    app:
+        build:
+            context: .
+            args:
+                DATABASE_TYPE: sqlite
+        image: dataset-loom:latest
+        init: true
+        ports:
+            - '2088:2088'
+        environment:
+            - NODE_ENV=production
+            - DATABASE_URL=file:/data/db.sqlite
+        volumes:
+            - sqlite_data:/data
+            - ./local-db:/app/data/local-db
+        restart: unless-stopped
+
+volumes:
+    sqlite_data:
