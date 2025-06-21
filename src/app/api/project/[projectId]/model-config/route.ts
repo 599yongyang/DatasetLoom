@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getModelConfig, saveModelConfig } from '@/lib/db/model-config';
 import { getLlmProviderIds, saveLlmProvider } from '@/lib/db/llm-providers';
-import { DEFAULT_PROVIDERS } from '@/constants/provides';
 import { nanoid } from 'nanoid';
 import type { LlmProviders } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
@@ -9,6 +8,7 @@ import { AuthGuard } from '@/lib/middleware/auth-guard';
 import { ProjectRole } from '@/schema/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
+import { DEFAULT_PROVIDERS } from '@/constants/model';
 
 /**
  * 获取模型配置

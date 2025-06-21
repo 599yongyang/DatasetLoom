@@ -13,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import axios from 'axios';
 import { nanoid } from 'nanoid';
-import { DEFAULT_PROVIDERS } from '@/constants/provides';
 import {
     AlertDialog,
     AlertDialogContent,
@@ -21,6 +20,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle
 } from '@/components/ui/alert-dialog';
+import { DEFAULT_PROVIDERS } from '@/constants/model';
 
 export function ProviderDialog({
     open,

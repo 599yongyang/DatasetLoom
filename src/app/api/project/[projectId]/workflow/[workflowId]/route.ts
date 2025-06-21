@@ -38,15 +38,15 @@ export const DELETE = compose(
     try {
         const { projectId, workflowId } = context;
         // 验证参数
-        if (!projectId) {
-            return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
-        }
         if (!workflowId) {
             return NextResponse.json({ error: 'WorkflowId ID is required' }, { status: 400 });
         }
         // 删除工作流
         await deleteWorkflow(workflowId);
-        await queueService.deleteWorkflow(workflowId, projectId);
+        const qService = await queueService;
+        if (qService.isAvailable()) {
+            await qService.deleteWorkflow(workflowId, projectId);
+        }
         return NextResponse.json({ success: true, message: 'Delete successful' });
     } catch (error) {
         console.error('Delete failed:', error);

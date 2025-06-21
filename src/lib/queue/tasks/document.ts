@@ -1,7 +1,7 @@
-import type { TaskResult } from '@/lib/queue';
-import type { WorkflowStepWithNodeData } from '@/lib/dag';
+import type { TaskParams, TaskResult } from '@/lib/queue/types';
 
-export async function documentTask(step: WorkflowStepWithNodeData): Promise<TaskResult> {
+export async function documentTask(params: TaskParams): Promise<TaskResult> {
+    const { step } = params;
     console.log(`【${step.name}】【STEP_ID:${step.id}] 节点开始运行 @ ${new Date().toLocaleString()}`);
     return {
         success: true,

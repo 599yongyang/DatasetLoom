@@ -1,4 +1,3 @@
-import type { TaskParams, TaskResult } from '@/lib/queue';
 import type { Chunks, Questions } from '@prisma/client';
 import { getQuestionPrompt } from '@/lib/llm/prompts/question';
 import { questionsSchema } from '@/lib/llm/prompts/schema';
@@ -9,6 +8,7 @@ import { getModelConfigById } from '@/lib/db/model-config';
 import { nanoid } from 'nanoid';
 import { getChunkByIds } from '@/lib/db/chunks';
 import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
+import type { TaskParams, TaskResult } from '@/lib/queue/types';
 
 export async function questionTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, projectId } = params;

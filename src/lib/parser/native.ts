@@ -29,6 +29,7 @@ interface LoaderOptions {
 }
 
 const loaderMap: Record<string, LoaderFactory> = {
+    '.txt': filePath => new TextLoader(filePath),
     '.md': filePath => new TextLoader(filePath),
     '.pdf': (filePath: string, options: LoaderOptions = {}) =>
         new PDFLoader(filePath, { splitPages: options.splitPages }),

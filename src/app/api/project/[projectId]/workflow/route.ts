@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getWorkflow, insertWorkflow } from '@/lib/db/workflow';
+import { deleteWorkflow, getWorkflow, insertWorkflow } from '@/lib/db/workflow';
 import queueService from '@/lib/queue';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
@@ -21,12 +21,22 @@ export const POST = compose(
         return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
     }
     try {
+        const qService = await queueService;
+        if (!qService.isAvailable()) {
+            throw new Error('队列服务不可用，请检查Redis连接');
+        }
+        if (!qService.isWorkerRunning()) {
+            await qService.initializeWorker();
+        }
         const result = await insertWorkflow(data);
         // 将工作流加入队列
-        await queueService.scheduleWorkflow(result.id, projectId);
-        return NextResponse.json({
-            success: true
-        });
+        const scheduled = await qService.scheduleWorkflow(result.id, projectId);
+        if (!scheduled) {
+            // 如果调度失败，回滚数据库记录
+            await deleteWorkflow(result.id);
+            throw new Error('工作流调度失败');
+        }
+        return NextResponse.json({ success: true, data: { workflowId: result.id, scheduled: true } });
     } catch (error) {
         return Response.json({ error: error instanceof Error ? error.message : error }, { status: 500 });
     }

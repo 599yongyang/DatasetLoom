@@ -1,88 +1,97 @@
-export const MODEL_PROVIDERS = [
-    {
-        id: 'ollama',
-        name: 'Ollama',
-        defaultEndpoint: 'http://127.0.0.1:11434/api',
-        defaultModels: []
-    },
-    {
-        id: 'vllm',
-        name: 'VLLM',
-        defaultEndpoint: 'http://localhost:8000',
-        defaultModels: []
-    },
-    {
-        id: 'lmstudio',
-        name: 'LmStudio',
-        defaultEndpoint: 'http://localhost:1234',
-        defaultModels: []
-    },
-    {
-        id: 'openai',
-        name: 'OpenAI',
-        defaultEndpoint: 'https://api.openai.com/v1/',
-        defaultModels: ['gpt-4o', 'gpt-4o-mini', 'o1-mini']
-    },
-    {
-        id: 'siliconcloud',
-        name: '硅基流动',
-        defaultEndpoint: 'https://api.ap.siliconflow.com/v1/',
-        defaultModels: [
-            'deepseek-ai/DeepSeek-R1',
-            'deepseek-ai/DeepSeek-V3',
-            'Qwen2.5-7B-Instruct',
-            'meta-llama/Llama-3.3-70B-Instruct'
-        ]
-    },
-    {
-        id: 'deepseek',
-        name: 'DeepSeek',
-        defaultEndpoint: 'https://api.deepseek.com/v1/',
-        defaultModels: ['deepseek-chat', 'deepseek-reasoner']
-    },
-    {
-        id: 'zhipu',
-        name: '智谱AI',
-        defaultEndpoint: 'https://open.bigmodel.cn/api/paas/v4/',
-        defaultModels: ['glm-4-flash', 'glm-4-flashx', 'glm-4-plus', 'glm-4-long']
-    },
-    {
-        id: 'Doubao',
-        name: '火山引擎',
-        defaultEndpoint: 'https://ark.cn-beijing.volces.com/api/v3/',
-        defaultModels: []
-    },
-    {
-        id: 'groq',
-        name: 'Groq',
-        defaultEndpoint: 'https://api.groq.com/openai',
-        defaultModels: ['Gemma 7B', 'LLaMA3 8B', 'LLaMA3 70B']
-    },
-    {
-        id: 'grok',
-        name: 'Grok',
-        defaultEndpoint: 'https://api.x.ai/v1',
-        defaultModels: ['Grok Beta']
-    },
-    {
-        id: 'OpenRouter',
-        name: 'OpenRouter',
-        defaultEndpoint: 'https://openrouter.ai/api/v1/',
-        defaultModels: [
-            'google/gemma-2-9b-it:free',
-            'meta-llama/llama-3-8b-instruct:free',
-            'microsoft/phi-3-mini-128k-instruct:free'
-        ]
-    },
-    {
-        id: 'alibailian',
-        name: '阿里云百炼',
-        defaultEndpoint: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-        defaultModels: ['qwen-max-latest', 'qwen-max-2025-01-25']
-    }
-];
-
 export const DEFAULT_MODEL_SETTINGS = {
     temperature: 0.7,
     maxTokens: 8192
 };
+export const DEFAULT_PROVIDERS = [
+    {
+        id: 'ollama',
+        name: 'Ollama',
+        apiUrl: 'http://127.0.0.1:11434/api',
+        icon: 'ollama',
+        interfaceType: 'ollama'
+    },
+    {
+        id: 'vllm',
+        name: 'VLLM',
+        apiUrl: 'http://localhost:8000',
+        icon: 'vllm',
+        interfaceType: 'openAICompatible'
+    },
+    {
+        id: 'lmstudio',
+        name: 'LmStudio',
+        apiUrl: 'http://localhost:1234/v1',
+        icon: 'lmstudio',
+        interfaceType: 'openAICompatible'
+    },
+    {
+        id: 'deepseek',
+        name: 'DeepSeek',
+        apiUrl: 'https://api.deepseek.com/v1/',
+        icon: 'deepseek',
+        interfaceType: 'deepseek'
+    },
+    {
+        id: 'openai',
+        name: 'OpenAI',
+        apiUrl: 'https://api.openai.com/v1/',
+        icon: 'openai',
+        interfaceType: 'openai'
+    },
+    {
+        id: 'google',
+        name: 'Google AI',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/',
+        icon: 'google',
+        interfaceType: 'google'
+    },
+    {
+        id: 'anthropic',
+        name: 'Anthropic',
+        apiUrl: 'https://generativelanguage.googleapis.com/v1beta/',
+        icon: 'anthropic',
+        interfaceType: 'anthropic'
+    },
+    {
+        id: 'siliconcloud',
+        name: '硅基流动',
+        apiUrl: 'https://api.ap.siliconflow.com/v1/',
+        icon: 'siliconcloud',
+        interfaceType: 'openAICompatible'
+    },
+    {
+        id: 'zhipu',
+        name: '智谱AI',
+        apiUrl: 'https://open.bigmodel.cn/api/paas/v4/',
+        icon: 'zhipu',
+        interfaceType: 'zhipu'
+    },
+    {
+        id: 'Doubao',
+        name: '火山引擎(豆包)',
+        apiUrl: 'https://ark.cn-beijing.volces.com/api/v3/',
+        icon: 'doubao',
+        interfaceType: 'openAICompatible'
+    },
+    {
+        id: 'groq',
+        name: 'Groq',
+        apiUrl: 'https://api.groq.com/openai',
+        icon: 'groq',
+        interfaceType: 'openAICompatible'
+    },
+    {
+        id: 'grok',
+        name: 'Grok',
+        apiUrl: 'https://api.x.ai',
+        icon: 'grok',
+        interfaceType: 'openAICompatible'
+    },
+    {
+        id: 'openRouter',
+        name: 'OpenRouter',
+        apiUrl: 'https://openrouter.ai/api/v1/',
+        icon: 'openRouter',
+        interfaceType: 'openRouter'
+    }
+];

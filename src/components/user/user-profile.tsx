@@ -15,7 +15,7 @@ import type { CurrentUser } from '@/server/auth';
 export function UserProfile({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
     const { data: session, update } = useSession();
     const user = session?.user as CurrentUser;
-    const [name, setName] = useState(user?.name || '');
+    const [name, setName] = useState(user?.name!);
     const [{ files }, { openFileDialog, getInputProps }] = useFileUpload({
         accept: 'image/*'
     });
@@ -91,6 +91,7 @@ export function UserProfile({ open, setOpen }: { open: boolean; setOpen: (open: 
                                 <div className="relative">
                                     <Input
                                         value={name}
+                                        defaultValue={user?.name!}
                                         onChange={e => setName(e.target.value)}
                                         className="peer pe-9"
                                         placeholder="Username"

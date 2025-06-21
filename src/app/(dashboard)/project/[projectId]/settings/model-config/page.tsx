@@ -14,7 +14,6 @@ import axios from 'axios';
 import type { LlmProviders, ModelConfig } from '@prisma/client';
 import { ModelIcon, ModelTag, ProviderIcon } from '@lobehub/icons';
 import { useParams } from 'next/navigation';
-import { DEFAULT_PROVIDERS } from '@/constants/provides';
 import { toast } from 'sonner';
 import PasswordInput from '@/components/ui/password-input';
 import { ModelDialog } from '@/components/settings/model-dialog';
@@ -22,6 +21,7 @@ import { useGetModelConfig, useModelConfigSelect } from '@/hooks/query/use-llm';
 import { nanoid } from 'nanoid';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProviderDialog } from '@/components/settings/provider-dialog';
+import { DEFAULT_PROVIDERS } from '@/constants/model';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();

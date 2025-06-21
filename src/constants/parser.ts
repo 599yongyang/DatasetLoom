@@ -1,4 +1,3 @@
-import { Brain, ExternalLink, Globe, Zap } from 'lucide-react';
 import { Icons } from '@/components/icons';
 
 export const PARSER_SERVICE_LIST = [

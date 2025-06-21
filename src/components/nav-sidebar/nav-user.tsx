@@ -106,8 +106,8 @@ export function NavUser({ user }: { user: CurrentUser }) {
                     </DropdownMenu>
                 </SidebarMenuItem>
             </SidebarMenu>
-            <UserProfile open={open} setOpen={setOpen} />
-            <EditPassword open={passwordOpen} setOpen={setPasswordOpen} />
+            {open && <UserProfile open={open} setOpen={setOpen} />}
+            {passwordOpen && <EditPassword open={passwordOpen} setOpen={setPasswordOpen} />}
         </>
     );
 }

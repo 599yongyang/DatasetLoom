@@ -1,10 +1,10 @@
-import type { TaskParams, TaskResult } from '@/lib/queue';
 import type { Chunks } from '@prisma/client';
 import { chunker } from '@/lib/chunker';
 import path from 'path';
 import { saveChunks } from '@/lib/db/chunks';
 import { processChunks } from '@/app/api/project/[projectId]/documents/chunker/route';
 import { getDefaultModelConfig } from '@/lib/db/model-config';
+import type { TaskParams, TaskResult } from '@/lib/queue/types';
 
 export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, workflowId, projectId } = params;

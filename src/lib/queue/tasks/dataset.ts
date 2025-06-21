@@ -1,4 +1,3 @@
-import type { TaskParams, TaskResult } from '@/lib/queue';
 import type { DatasetSamples, Questions } from '@prisma/client';
 import { getQuestionsByIds } from '@/lib/db/questions';
 import LLMClient from '@/lib/llm/core';
@@ -9,6 +8,7 @@ import { createDatasetSample } from '@/lib/db/dataset-samples';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { answerSchema } from '@/lib/llm/prompts/schema';
 import { getChunkById } from '@/lib/db/chunks';
+import type { TaskParams, TaskResult } from '@/lib/queue/types';
 
 export async function datasetTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, projectId } = params;

@@ -1,8 +1,8 @@
-import type { WorkflowStep } from '@prisma/client';
-import type { TaskResult } from '@/lib/queue';
+import type { TaskParams, TaskResult } from '@/lib/queue/types';
 
-export async function endTask(step: WorkflowStep): Promise<TaskResult> {
+export async function endTask(params: TaskParams): Promise<TaskResult> {
     //结束节点--> 以备后续使用执行其他逻辑
+    const { step } = params;
     console.log(`【${step.name}】【STEP_ID:${step.id}] 节点开始运行 @ ${new Date().toLocaleString()}`);
     return {
         success: true,
