@@ -73,7 +73,7 @@ export const POST = compose(
         });
 
         const qTags = question.label?.split(',') ?? [];
-        const cTags = chunk.ChunkMetadata?.tags?.split(',') ?? [];
+        const cTags = chunk.tags.split(',') ?? [];
         const allTags = [...new Set([...qTags, ...cTags])]; // 合并并去重
 
         const citation = datasetStrategyParams.citation;

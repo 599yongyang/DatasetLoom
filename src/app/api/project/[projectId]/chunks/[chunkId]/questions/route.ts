@@ -63,7 +63,7 @@ export const POST = compose(
         // 获取问题生成提示词
         const prompt = getQuestionPrompt({
             text: chunk.content,
-            tags: chunk.ChunkMetadata?.tags || '',
+            tags: chunk.tags || '',
             number:
                 questionStrategy.questionCountType === 'custom' ? Number(questionStrategy.questionCount) : undefined,
             difficulty: questionStrategy.difficulty,

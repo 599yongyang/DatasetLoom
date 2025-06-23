@@ -2,8 +2,7 @@ import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
 import type { ApiContext } from '@/types/api-context';
 import { ProjectRole } from '@/schema/types';
-import { datasetKanbanData } from '@/lib/db/dataset';
-import { getChunkDomain } from '@/lib/db/chunk-metadata';
+import { getChunkDomain } from '@/lib/db/chunks';
 
 /**
  * 获取知识库领域分析

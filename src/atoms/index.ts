@@ -1,7 +1,6 @@
 import { atomWithStorage } from 'jotai/utils';
 import type { ModelConfig } from '@prisma/client';
-
-export const workStateAtom = atomWithStorage<string>('workState', 'wait');
+import { atom } from 'jotai';
 
 export const navOpenItemsAtom = atomWithStorage<Record<string, boolean>>('nav-open-items', {});
 
@@ -12,3 +11,5 @@ export const modelConfigListAtom = atomWithStorage<ModelConfig[]>('modelConfigLi
 export const selectedModelInfoAtom = atomWithStorage<ModelConfig>('selectedModelInfo', {} as ModelConfig);
 
 export const datasetViewModeAtom = atomWithStorage<string>('datasetViewMode', 'all');
+
+export const chunkConfigHashAtom = atom<string>('');

@@ -210,8 +210,7 @@ export class QueueService {
                 where: { id: workflowId },
                 data: {
                     status: success ? WorkflowStatus.COMPLETE : WorkflowStatus.FAILED,
-                    finishedAt: new Date(),
-                    ...(success ? {} : { error: `Failed at step: ${failedStep}` })
+                    finishedAt: new Date()
                 }
             });
         } catch (error) {

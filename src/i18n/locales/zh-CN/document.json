@@ -9,6 +9,7 @@
     "delete_title": "确认要删除此文件吗?",
     "table_columns": {
         "file_name": "名称",
+        "chunk_count": "分块数量",
         "source_type": "资源类型",
         "file_ext": "文件类型",
         "createdAt": "上传时间",

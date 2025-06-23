@@ -72,7 +72,7 @@ export const PUT = compose(
         const requestData = await request.json();
         const { name, content, tags } = requestData;
 
-        let res = await updateChunkById(chunkId, { name, content } as Chunks, tags);
+        let res = await updateChunkById(chunkId, { name, content, tags, size: content.length } as Chunks);
         return NextResponse.json(res);
     } catch (error) {
         console.error('编辑文本块失败:', error);

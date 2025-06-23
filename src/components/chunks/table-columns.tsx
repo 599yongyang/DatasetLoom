@@ -2,19 +2,19 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, FileQuestion, Trash2 } from 'lucide-react';
+import { FileQuestion, Hash, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import type { ChunksVO } from '@/schema/chunks';
-import { ChunkContentDialog } from '@/components/chunks/chunk-content-dialog';
-import { ChunkInfoDialog } from '@/components/chunks/chunk-info-dialog';
 import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
 import React, { useState } from 'react';
 import { ProjectRole } from '@/schema/types';
 import { WithPermission } from '../common/permission-wrapper';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChunkInfoSheet } from '@/components/chunks/chunk-info-sheet';
 
 export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
     const { t } = useTranslation('chunk');
@@ -58,62 +58,108 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             enableHiding: false
         },
         {
-            accessorKey: 'name',
-            header: t('table_columns.name'),
-            cell: ({ row }) => (
-                <div className="text-foreground w-fit px-0 text-left">
-                    {row.original.name}
-                    {row.original.Questions.length > 0 && (
-                        <Badge variant="secondary" className="flex gap-1 px-1.5 bg-green-300  [&_svg]:size-3">
-                            {row.original.Questions.length} 个问题
-                        </Badge>
-                    )}
-                </div>
-            ),
-            enableHiding: false
+            id: 'content',
+            header: '文本块信息',
+            cell: ({ row }) => {
+                const item = row.original;
+                return (
+                    <div className="py-2">
+                        {/* 文件名和分块信息 */}
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="flex items-center gap-2">
+                                <Hash className="h-3 w-3 text-gray-400" />
+                                <span className="font-medium  text-sm">{item.name}</span>
+                            </div>
+
+                            {item.Questions.length > 0 && (
+                                <div className="flex items-center gap-1">
+                                    <span className="text-xs font-medium text-green-700   px-2 py-1 rounded">
+                                        已生成 {item.Questions.length} 个问题
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 文本块内容 */}
+                        <div className="mb-4 w-full max-w-[60vw]">
+                            <div
+                                className="text-gray-700 text-sm leading-relaxed break-words whitespace-normal"
+                                style={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    wordBreak: 'break-word'
+                                }}
+                            >
+                                {item.content}
+                            </div>
+                        </div>
+
+                        {/* 标签 */}
+                        <div className="flex flex-wrap gap-2">
+                            {item.tags
+                                ?.split(',')
+                                ?.filter((tag: string) => tag.trim()) // 过滤掉空字符串
+                                ?.map((tag, index) => (
+                                    <Badge key={index} variant="outline" className="text-xs">
+                                        {tag}
+                                    </Badge>
+                                ))}
+                        </div>
+                    </div>
+                );
+            }
         },
         {
-            accessorKey: 'content',
-            header: t('table_columns.content'),
-            cell: ({ row }) => (
-                <div className="text-foreground w-100 truncate px-0 text-left">{row.original.content}</div>
-            ),
-            enableHiding: false
-        },
-        {
-            accessorKey: 'domain',
-            header: t('table_columns.domain'),
-            cell: ({ row }) => (
-                <Badge variant="outline" className="text-muted-foreground">
-                    {row.original.ChunkMetadata?.domain} / {row.original.ChunkMetadata?.subDomain}
-                </Badge>
-            )
-        },
-        {
-            accessorKey: 'tag',
-            header: t('table_columns.tag'),
-            cell: ({ row }) => (
-                <div className={'flex flex-wrap gap-2'}>
-                    {row.original.ChunkMetadata?.tags
-                        ?.split(',')
-                        ?.filter((tag: string) => tag.trim()) // 过滤掉空字符串
-                        ?.map((tag: string) => (
-                            <Badge key={tag.trim()} variant="outline" className="text-muted-foreground ">
-                                {tag.trim()}
-                            </Badge>
-                        ))}
-                </div>
-            )
-        },
-        {
-            accessorKey: 'fileName',
-            header: t('table_columns.fileName'),
-            cell: ({ row }) => <div>{row.original.fileName}</div>
-        },
-        {
-            accessorKey: 'size',
-            header: t('table_columns.size'),
-            cell: ({ row }) => <div>{row.original.size}</div>
+            id: 'metadata',
+            header: '元数据',
+            cell: ({ row }) => {
+                const item = row.original;
+                return (
+                    <div className="py-1 space-y-1">
+                        {/* 领域信息 */}
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1">
+                                <span className="text-xs text-gray-500">所属资源</span>
+                            </div>
+                            <div className="text-xs text-gray-800 font-medium">
+                                <TooltipProvider delayDuration={0}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="text-xs text-gray-800 font-medium max-w-[5vw]  inline-block truncate">
+                                                {item.documentName}
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="px-2 py-1 text-xs">
+                                            {item.documentName}
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
+                        </div>
+                        {/* 领域信息 */}
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1">
+                                <span className="text-xs text-gray-500">领域</span>
+                            </div>
+                            <div className="text-xs text-gray-800 font-medium">
+                                {item.domain} / {item.subDomain}
+                            </div>
+                        </div>
+                        {/* 分块大小 */}
+                        <div className="space-y-1">
+                            <span className="text-xs text-gray-500">大小</span>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-sm font-bold text-blue-500">{item.size.toLocaleString()}</span>
+                                <span className="text-xs text-gray-500">characters</span>
+                            </div>
+                        </div>
+                    </div>
+                );
+            },
+            size: 160
         },
         {
             id: 'actions',
@@ -122,11 +168,6 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                 const [open, setOpen] = useState(false);
                 return (
                     <div className="flex flex-1 justify-center gap-2">
-                        <ChunkContentDialog title={row.original.name} chunkContent={row.original.content}>
-                            <Button variant="ghost" size="icon">
-                                <Eye />
-                            </Button>
-                        </ChunkContentDialog>
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                             <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
                                 <FileQuestion />
@@ -142,7 +183,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                                 />
                             )}
 
-                            <ChunkInfoDialog item={row.original} refresh={mutateChunks} />
+                            <ChunkInfoSheet item={row.original} refresh={mutateChunks} />
                         </WithPermission>
                         <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                             <ConfirmAlert

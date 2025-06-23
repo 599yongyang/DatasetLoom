@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getFileMD5, getProjectRoot } from '@/lib/utils/file';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { createDocument } from '@/lib/db/documents';
+import { checkDocumentByMD5, createDocument } from '@/lib/db/documents';
 import type { Documents, ParserConfig } from '@prisma/client';
 import { getParserConfig } from '@/lib/db/parser-config';
 import { createParser } from '@/lib/parser/parser-factory';
@@ -48,7 +48,7 @@ export const POST = compose(
         parser = createParser(parserConfig);
     }
 
-    const files: Documents[] = [];
+    const fileIds: string[] = [];
 
     // 处理本地文件上传
     if (sourceType === 'local') {
@@ -69,6 +69,11 @@ export const POST = compose(
                 await fs.writeFile(filePath, fileBuffer);
                 const md5 = (await getFileMD5(filePath)) ?? '';
 
+                const doc = await checkDocumentByMD5(projectId, md5);
+                if (doc) {
+                    fileIds.push(doc.id);
+                    continue;
+                }
                 let parserFilePath = '';
                 let parserFileExt = '';
                 let parserFileSize = 0;
@@ -101,7 +106,7 @@ export const POST = compose(
                     parserFileSize
                 } as Documents);
 
-                files.push(document);
+                fileIds.push(document.id);
             } catch (error) {
                 console.error(`文件处理失败: ${error}`);
                 return NextResponse.json(
@@ -111,7 +116,7 @@ export const POST = compose(
             }
         }
 
-        return NextResponse.json({ success: true, data: files });
+        return NextResponse.json({ success: true, data: fileIds });
     }
 
     // 处理网页 URL 解析

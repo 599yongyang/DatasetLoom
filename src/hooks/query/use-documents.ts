@@ -1,10 +1,10 @@
 import useSWR from 'swr';
 import { buildURL, fetcher } from '@/lib/utils';
 import { useMemo } from 'react';
-import { type Documents } from '@prisma/client';
+import type { DocumentsWithCount } from '@/schema/documents';
 
 interface Response {
-    data: Documents[];
+    data: DocumentsWithCount[];
     total: number;
 }
 

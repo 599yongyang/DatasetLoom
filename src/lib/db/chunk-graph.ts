@@ -64,7 +64,7 @@ export async function getChunkGraph(
 }> {
     const whereClause: any = { projectId };
     if (fileIds && fileIds.length > 0) {
-        whereClause.fileId = { in: fileIds };
+        whereClause.documentId = { in: fileIds };
     }
 
     const chunks = await db.chunks.findMany({

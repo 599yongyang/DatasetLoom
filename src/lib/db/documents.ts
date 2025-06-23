@@ -23,6 +23,13 @@ export async function getDocumentsPagination(
         const [data, total] = await Promise.all([
             db.documents.findMany({
                 where: whereClause,
+                include: {
+                    _count: {
+                        select: {
+                            Chunks: true
+                        }
+                    }
+                },
                 orderBy: {
                     createdAt: 'desc'
                 },
@@ -68,9 +75,9 @@ export async function getDocumentsByProjectId(projectId: string) {
                         in: await db.chunks
                             .findMany({
                                 where: { projectId },
-                                select: { fileId: true }
+                                select: { documentId: true }
                             })
-                            .then(chunks => chunks.map(chunk => chunk.fileId))
+                            .then(chunks => chunks.map(chunk => chunk.documentId))
                     }
                 }
             }

@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
 import { useDocumentsTableColumns } from '@/components/documents/table-columns';
 import { useDocuments } from '@/hooks/query/use-documents';
-import { UploadDialog } from '@/components/documents/upload-dialog';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -116,21 +115,20 @@ export default function Page() {
                             ))}
                         </SelectContent>
                     </Select>
-                    {/*<UploadDialog refreshFiles={refreshFiles} />*/}
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                         <Button onClick={() => router.push(`/project/${projectId}/documents/upload`)}>
                             <Upload size={30} />
                             上传资源
                         </Button>
                     </WithPermission>
-                    <Button
-                        variant="outline"
-                        className={'hover:cursor-pointer'}
-                        onClick={() => router.push(`/project/${projectId}/graph`)}
-                    >
-                        <Waypoints size={30} />
-                        <span className="hidden lg:inline ">{t('graph_btn')}</span>
-                    </Button>
+                    {/*<Button*/}
+                    {/*    variant="outline"*/}
+                    {/*    className={'hover:cursor-pointer'}*/}
+                    {/*    onClick={() => router.push(`/project/${projectId}/graph`)}*/}
+                    {/*>*/}
+                    {/*    <Waypoints size={30} />*/}
+                    {/*    <span className="hidden lg:inline ">{t('graph_btn')}</span>*/}
+                    {/*</Button>*/}
                 </div>
                 <div className={'flex items-center gap-2'}>
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>

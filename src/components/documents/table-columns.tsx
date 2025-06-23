@@ -9,10 +9,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
-import { type Documents } from '@prisma/client';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { ProjectRole } from '@/schema/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
+import type { DocumentsWithCount } from '@/schema/documents';
 
 export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments: () => void }) {
     const router = useRouter();
@@ -36,7 +36,7 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
         );
     };
 
-    const columns: ColumnDef<Documents>[] = [
+    const columns: ColumnDef<DocumentsWithCount>[] = [
         {
             id: 'select',
             header: ({ table }) => (
@@ -65,6 +65,12 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
             accessorKey: 'fileName',
             header: t('table_columns.file_name'),
             cell: ({ row }) => <div className="text-foreground w-fit px-0 text-left">{row.original.fileName}</div>,
+            enableHiding: false
+        },
+        {
+            accessorKey: 'chunkCount',
+            header: t('table_columns.chunk_count'),
+            cell: ({ row }) => <div className="text-foreground w-fit px-0 text-left">{row.original._count.Chunks}</div>,
             enableHiding: false
         },
         {

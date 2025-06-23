@@ -9,6 +9,7 @@
     "delete_title": "Are you sure you want to delete this file ?",
     "table_columns": {
         "file_name": "Name",
+        "chunk_count": "Chunk Count",
         "source_type": "Source Type",
         "file_ext": "File Type",
         "createdAt": "CreatedAt",

@@ -18,85 +18,112 @@ export function getQuestionPrompt(options: QuestionPromptOptions): string {
     } = options;
 
     const currentStyle = styleMap[genre] || genre;
-    // 清洗用户输入规则
     const sanitizedGlobalPrompt = globalPrompt ? `\n## 全局规则\n${globalPrompt}` : '';
     const sanitizedQuestionPrompt = questionPrompt ? `\n## 问题生成专项规则\n${questionPrompt}` : '';
-
     const outputLanguage = languageMap[language] || '中文';
+
+    // 动态调整候选问题池大小
+    const candidatePoolSize = Math.max(number * 1.5, number + 5);
+
     return `
-# 角色使命
-你是一位资深的知识工程专家和内容重构专家，擅长从复杂文本中提取关键信息，并根据指定风格和受众生成多样化的问题。你的输出语言必须为 ${outputLanguage}。${sanitizedGlobalPrompt}
+# 角色定位
+你是一位专业的知识工程师，专精于从技术文档中提取核心概念并生成高质量的训练问答对。输出语言：${outputLanguage}${sanitizedGlobalPrompt}
 
-## 输入说明
-- 文本长度: ${text.length} 字符
-- 原始标签: [${tags || '无'}]
-- 预期问题数: ${number}
-- 难度级别: ${difficulty} (${difficultyMap[difficulty]?.depth})
-- 问题类型比例: ${difficultyMap[difficulty]?.ratio} (事实:推理:开放)
-- 风格要求: ${currentStyle}
-- 受众类型: ${audience}
+## 文本分析参数
+- 内容长度：${text.length} 字符
+- 领域标签：[${tags || '待识别'}]  
+- 目标问题数：${number} 个
+- 难度配置：${difficulty} - ${difficultyMap[difficulty]?.depth}
+- 类型分布：${difficultyMap[difficulty]?.ratio}
+- 风格适配：${currentStyle}
+- 目标受众：${audience}
 
-## 核心任务
-1. 对输入文本进行风格-受众适配的重构（保持信息完整）
-2. 在重构文本基础上生成不少于 ${number} 个高质量问题
-${sanitizedQuestionPrompt}
+## 生成策略${sanitizedQuestionPrompt}
 
-## 问题生成原则
-- 【信息密度优先】选择概念密集段落生成问题
-- 【认知层级分布】按指定比例生成:
-   - 事实性问题 (Who/What/When/Where)
-   - 推理性问题 (Why/How)
-   - 开放性/应用性问题
-- 【上下文感知】长文本中保持逻辑连贯
+### 1. 信息提取优先级
+**高优先级概念**：定义、原理、架构、流程、关键数据
+**中优先级概念**：特性、优势、应用场景、对比分析  
+**低优先级概念**：举例说明、背景信息、补充细节
 
-## 标签系统规则
-- 必须继承原始标签
-- 可添加最多2个新标签（需符合领域术语）
-- 推荐采用"领域-子领域-特性"三级标签体系
+### 2. 问题类型分布控制
+按${difficultyMap[difficulty]?.ratio}比例生成：
+- **事实询问型**：核心概念的定义、组成要素、基本特征
+- **逻辑推理型**：因果关系、工作原理、影响机制
+- **应用分析型**：使用场景、解决方案、实践建议
 
-### 过滤机制
-1. 排除以下问题类型:
-   - 文本中无明确答案的
-   - 涉及元信息(如"本章节")
-   - 答案过于明显或琐碎的
-2. 语义去重:
-   - 使用嵌入向量确保问题相似度<0.7
-   - 相同概念不同问法视为有效
+### 3. 质量控制标准
+**必须满足**：
+- 答案在原文中有明确依据
+- 问题表述清晰无歧义
+- 避免是非题和过于简单的选择
+- 专业术语使用准确
 
-## 输出规范
+**避免生成**：
+- 需要额外背景知识才能回答
+- 涉及具体数字但原文未明确给出
+- 过于宽泛或开放式的主观问题
+- 重复概念的不同表述
+
+## 输出要求
+
+### JSON 格式规范
 \`\`\`json
 [
   {
-    "question": "什么是 AI 芯片的主要用途？",
-    "label": ["AI芯片", "硬件设计"]
-  },
-  {
-    "question": "阿里云如何通过 AI 推理芯片提升云计算竞争力？",
-    "label": ["云计算优化", "推理芯片"]
+    "question": "什么是分布式训练中的数据并行？",
+    "label": ["分布式训练", "数据并行", "深度学习"],
+    "difficulty": "factual",
+    "answer_hint": "数据分割到多个设备上并行处理"
   }
 ]
 \`\`\`
 
-## 待处理文本
+### 标签规范
+- 保留原有标签：[${tags}]
+- 新增标签不超过2个，采用"领域-技术-特性"结构
+- 优先使用行业标准术语
+
+## 执行流程
+
+### 待分析文本
 \`\`\`
 ${text}
 \`\`\`
 
-## 最终指令
-请严格按以下步骤执行：
-1. 分析文本内容，识别关键信息点
-2. 按照指定风格和受众重构文本
-3. 生成候选问题池（约 ${number * 2} 个）
-4. 进行质量过滤和语义去重
-5. 输出最优 ${number} 个问题
-6. 确保 100% 符合 JSON Schema
-7. 输出格式必须严格遵循示例 不要添加任何额外文本或注释
+### 生成步骤
+1. **内容解析**：识别关键概念和信息层次
+2. **候选生成**：创建${candidatePoolSize}个候选问题
+3. **质量筛选**：应用过滤标准和去重机制
+4. **最终输出**：精选${number}个最佳问答对
+
+**重要**：仅输出符合JSON Schema的结果，不添加解释文字。
 `;
 }
 
-// 计算最佳问题数量
+/**
+ * 问题数量计算算法
+ */
 function calculateOptimalQuestionCount(text: string): number {
-    const baseCount = Math.floor(text.length / 240);
-    const conceptDensity = (text.match(/\b[A-Z][a-z]+[A-Z][a-z]+\b/g) || []).length;
-    return Math.min(20, Math.max(3, baseCount + Math.floor(conceptDensity / 2)));
+    const textLength = text.length;
+
+    // 基础问题数（基于文本长度）
+    let baseCount = Math.floor(textLength / 400); // 调整基础比例
+
+    // 概念密度分析（技术术语、专有名词）
+    const technicalTerms = text.match(/[A-Z]{2,}|[A-Za-z]+[A-Z][a-z]+|\b[A-Z][a-z]*[A-Z][a-z]*\b/g) || [];
+    const conceptBonus = Math.floor(technicalTerms.length / 8); // 降低权重
+
+    // 结构化内容检测（列表、步骤等）
+    const structurePatterns = text.match(/[1-9]\.|[•·▪▫◦‣⁃]\s|第[一二三四五六七八九十]\w/g) || [];
+    const structureBonus = Math.floor(structurePatterns.length / 5);
+
+    // 信息密度评估
+    const sentences = text.split(/[。！？.!?]/).filter(s => s.trim().length > 10);
+    const avgSentenceLength = sentences.reduce((sum, s) => sum + s.length, 0) / sentences.length;
+    const densityFactor = avgSentenceLength > 50 ? 1.2 : avgSentenceLength < 20 ? 0.8 : 1;
+
+    const finalCount = Math.floor((baseCount + conceptBonus + structureBonus) * densityFactor);
+
+    // 合理范围限制
+    return Math.min(25, Math.max(2, finalCount));
 }

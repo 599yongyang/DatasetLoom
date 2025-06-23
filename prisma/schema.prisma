@@ -75,6 +75,7 @@ model Documents {
   parserFileSize Int?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  Chunks         Chunks[]
 }
 
 model Chunks {
@@ -82,29 +83,22 @@ model Chunks {
   name          String
   project       Projects        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId     String
-  fileId        String
-  fileName      String
+  document      Documents       @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentId    String
+  documentName  String
   content       String
   summary       String
+  domain        String
+  subDomain     String
+  tags          String
+  language      String
   size          Int
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   Questions     Questions[]
-  ChunkMetadata ChunkMetadata?
   ChunkEntities ChunkEntities[]
 
   @@index([projectId])
-}
-
-model ChunkMetadata {
-  id        String @id @default(nanoid())
-  chunk     Chunks @relation(fields: [chunkId], references: [id], onDelete: Cascade)
-  chunkId   String @unique
-  domain    String
-  subDomain String
-  summary   String
-  tags      String
-  language  String
 }
 
 // graph(chunk_entities,chunkRelations)

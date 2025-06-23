@@ -36,7 +36,7 @@ export async function questionTask(params: TaskParams): Promise<TaskResult> {
         for (const chunk of chunks) {
             const prompt = getQuestionPrompt({
                 text: chunk.content,
-                tags: chunk.ChunkMetadata?.tags || '',
+                tags: chunk.tags || '',
                 number: step.data.questionCountType === 'auto' ? undefined : (step.data.questionCount as number)
             });
             const { text } = await llmClient.chat(prompt);

@@ -1,10 +1,11 @@
 import type { Chunks } from '@prisma/client';
 import { chunker } from '@/lib/chunker';
 import path from 'path';
-import { saveChunks } from '@/lib/db/chunks';
 import { processChunks } from '@/app/api/project/[projectId]/documents/chunker/route';
 import { getDefaultModelConfig } from '@/lib/db/model-config';
 import type { TaskParams, TaskResult } from '@/lib/queue/types';
+import { getProject } from '@/lib/db/projects';
+import { nanoid } from 'nanoid';
 
 export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, workflowId, projectId } = params;
@@ -24,6 +25,8 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
             throw new Error('Missing input document data');
         }
 
+        const projectData = await getProject(projectId);
+
         let chunkList: Chunks[] = [];
 
         for (const doc of inputs.document.data) {
@@ -39,30 +42,35 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
             chunkList = data.map((text, index) => {
                 const chunkId = `${baseName}-part-${index + 1}`;
                 return {
+                    id: nanoid(),
                     projectId,
                     name: chunkId,
-                    fileId: doc.id,
-                    fileName: doc.fileName,
+                    documentId: doc.id,
+                    documentName: doc.fileName,
                     content: text.pageContent,
-                    summary: '',
                     size: text.pageContent.length
                 } as Chunks;
             });
         }
 
-        const chunkRes = await saveChunks(chunkList);
-
         const model = await getDefaultModelConfig(projectId);
 
         if (model) {
-            await processChunks(chunkRes, model, 'zh').catch(console.error);
+            await processChunks({
+                chunks: chunkList,
+                model,
+                language: 'zh',
+                globalPrompt: projectData?.globalPrompt,
+                domainTreePrompt: projectData?.domainTreePrompt,
+                projectId
+            }).catch(console.error);
         } else {
             throw new Error('Model not found');
         }
 
         return {
             success: true,
-            data: chunkRes,
+            data: chunkList,
             startedAt,
             finishedAt: new Date(),
             stepName: step.name,

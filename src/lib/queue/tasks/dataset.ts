@@ -41,7 +41,7 @@ export async function datasetTask(params: TaskParams): Promise<TaskResult> {
             let allTags: string[] = [];
             if (chunk) {
                 const qTags = question.label?.split(',') ?? [];
-                const cTags = chunk.ChunkMetadata?.tags?.split(',') ?? [];
+                const cTags = chunk.tags?.split(',') ?? [];
                 allTags = [...new Set([...qTags, ...cTags])]; // 合并并去重
             }
 

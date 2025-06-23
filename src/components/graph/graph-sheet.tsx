@@ -33,8 +33,8 @@ export default function GraphSheet({
                             <section>
                                 <Label>标签</Label>
                                 <div className="flex flex-wrap gap-2 mt-2">
-                                    {chunk?.ChunkMetadata?.tags ? (
-                                        chunk.ChunkMetadata.tags
+                                    {chunk?.tags ? (
+                                        chunk.tags
                                             .split(',')
                                             .map((tag: string) => tag.trim())
                                             .filter((tag: string) => tag)

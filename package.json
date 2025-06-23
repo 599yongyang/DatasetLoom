@@ -99,6 +99,7 @@
         "jotai": "^2.12.3",
         "langchain": "^0.3.24",
         "llamaindex": "^0.10.2",
+        "lru-cache": "^11.1.0",
         "lucide-react": "^0.503.0",
         "mammoth": "^1.9.0",
         "motion": "^12.10.5",

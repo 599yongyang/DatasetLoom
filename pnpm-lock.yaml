@@ -233,6 +233,9 @@ dependencies:
     llamaindex:
         specifier: ^0.10.2
         version: 0.10.6(tree-sitter@0.22.4)(web-tree-sitter@0.24.7)(zod@3.25.17)
+    lru-cache:
+        specifier: ^11.1.0
+        version: 11.1.0
     lucide-react:
         specifier: ^0.503.0
         version: 0.503.0(react@18.3.1)
@@ -13710,6 +13713,14 @@ packages:
             {
                 integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==
             }
+        dev: false
+
+    /lru-cache@11.1.0:
+        resolution:
+            {
+                integrity: sha512-QIXZUBJUx+2zHUdQujWejBkcD9+cs94tLn0+YL8UrCh+D5sCXZ4c7LaEH48pNwRY3MLDgqUFyhlCyjJPf1WP0A==
+            }
+        engines: { node: 20 || >=22 }
         dev: false
 
     /lru-cache@5.1.1:

@@ -15,7 +15,7 @@ export async function getChunkById(chunkId: string) {
     try {
         return await db.chunks.findUnique({
             where: { id: chunkId },
-            include: { ChunkMetadata: true, ChunkEntities: true }
+            include: { ChunkEntities: true }
         });
     } catch (error) {
         console.error('Failed to get chunks by id in database');
@@ -25,7 +25,7 @@ export async function getChunkById(chunkId: string) {
 
 export async function getChunkByIds(chunkIds: string[]) {
     try {
-        return await db.chunks.findMany({ where: { id: { in: chunkIds } }, include: { ChunkMetadata: true } });
+        return await db.chunks.findMany({ where: { id: { in: chunkIds } } });
     } catch (error) {
         console.error('Failed to get chunks by id in database');
         throw error;
@@ -35,7 +35,7 @@ export async function getChunkByIds(chunkIds: string[]) {
 export async function getChunksByFileIds(fileIds: string[]) {
     try {
         return await db.chunks.findMany({
-            where: { fileId: { in: fileIds } },
+            where: { documentId: { in: fileIds } },
             include: {
                 Questions: {
                     select: {
@@ -90,14 +90,6 @@ export async function getChunksPagination(
                         select: {
                             question: true
                         }
-                    },
-                    ChunkMetadata: {
-                        select: {
-                            domain: true,
-                            subDomain: true,
-                            summary: true,
-                            tags: true
-                        }
                     }
                 },
                 orderBy: {
@@ -126,25 +118,12 @@ export async function deleteChunkByIds(chunkId: string[]) {
     }
 }
 
-export async function updateChunkById(chunkId: string, chunkData: Chunks, tags?: string) {
+export async function updateChunkById(chunkId: string, chunkData: Chunks) {
     try {
-        // 只有在 tags 存在时才更新 metadata
-        const updateOperations: any = [
-            db.chunks.update({
-                where: { id: chunkId },
-                data: chunkData
-            })
-        ];
-        if (tags) {
-            updateOperations.push(
-                db.chunkMetadata.update({
-                    where: { chunkId },
-                    data: { tags }
-                })
-            );
-        }
-        // 执行事务
-        return await db.$transaction(updateOperations);
+        return await db.chunks.update({
+            where: { id: chunkId },
+            data: chunkData
+        });
     } catch (error) {
         console.error('Failed to update chunks by id in database');
         throw error;
@@ -193,5 +172,37 @@ export async function mergeChunks(sourceId: string, targetId: string) {
     } catch (error) {
         console.error('Failed to merge chunks:', error);
         throw new Error(`Chunk merging failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+}
+
+export async function getChunkDomain(projectId: string, level: 'domain' | 'subDomain' = 'domain') {
+    try {
+        // 获取当前项目的所有 ChunkMetadata 总数
+        const totalCount = await db.chunks.count({
+            where: { projectId }
+        });
+        if (totalCount === 0) {
+            return [];
+        }
+        const domainCounts = await db.chunks.groupBy({
+            by: [level],
+            _count: {
+                id: true
+            },
+            where: { projectId }
+        });
+        const result = domainCounts.map(item => {
+            const percentage = ((item._count.id / totalCount) * 100).toFixed(1);
+            return {
+                domain: level === 'domain' ? item.domain : item.subDomain,
+                count: item._count.id,
+                value: parseFloat(percentage)
+            };
+        });
+
+        return result;
+    } catch (error) {
+        console.error('Failed to get chunkMetadata in database');
+        throw error;
     }
 }
