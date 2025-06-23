@@ -46,7 +46,10 @@ export function useGetChunkById({ projectId, chunkId }: { projectId: string; chu
     if (!chunkId) {
         return { chunk: null };
     }
-    const { data, error, isLoading, mutate } = useSWR(`/api/project/${projectId}/chunks/${chunkId}`, fetcher);
+    const { data, error, isLoading, mutate } = useSWR(
+        chunkId && `/api/project/${projectId}/chunks/${chunkId}`,
+        fetcher
+    );
     return {
         chunk: data,
         isLoading: !error && !data,

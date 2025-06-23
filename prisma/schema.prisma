@@ -104,24 +104,35 @@ model Chunks {
 // graph(chunk_entities,chunkRelations)
 
 model ChunkEntities {
-  id               String @id @default(nanoid())
-  chunk            Chunks @relation(fields: [chunkId], references: [id], onDelete: Cascade)
-  chunkId          String
-  type             String
-  value            String
-  normalized_value String
+  id              String  @id @default(nanoid())
+  chunk           Chunks  @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  chunkId         String
+  type            String
+  value           String
+  normalizedValue String?
 
-  @@unique([chunkId, type, normalized_value])
+  // Relations
+  outgoingRelations ChunkRelation[] @relation("outgoingRelations")
+  incomingRelations ChunkRelation[] @relation("incomingRelations")
+
+  @@unique([chunkId, type, normalizedValue])
+  @@index([chunkId])
+  @@index([type])
+  @@index([normalizedValue])
 }
 
-model ChunkRelations {
-  id             String @id @default(nanoid())
-  sourceEntityId String
-  targetEntityId String
+model ChunkRelation {
+  id             String        @id @default(nanoid())
   relationType   String
+  sourceEntity   ChunkEntities @relation(fields: [sourceEntityId], references: [id], name: "outgoingRelations", onDelete: Cascade)
+  sourceEntityId String
+  targetEntity   ChunkEntities @relation(fields: [targetEntityId], references: [id], name: "incomingRelations", onDelete: Cascade)
+  targetEntityId String
 
+  @@unique([sourceEntityId, targetEntityId, relationType])
   @@index([sourceEntityId])
   @@index([targetEntityId])
+  @@index([relationType])
 }
 
 model Questions {

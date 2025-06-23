@@ -132,7 +132,13 @@ export default function Page() {
                 </div>
                 <div className={'flex items-center gap-2'}>
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                        <ChunkStrategyDialog fileIds={fileIds} fileExt={''} open={open} onOpenChange={setOpen}>
+                        <ChunkStrategyDialog
+                            fileIds={fileIds}
+                            fileExt={''}
+                            open={open}
+                            onOpenChange={setOpen}
+                            refresh={refreshFiles}
+                        >
                             <Button
                                 variant="outline"
                                 disabled={Object.keys(rowSelection).length == 0}

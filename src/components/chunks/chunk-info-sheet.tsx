@@ -151,7 +151,7 @@ export function ChunkInfoSheet({
 
                                             <FormControl>
                                                 <ScrollArea className="text-sm h-[calc(100dvh-400px)]  ">
-                                                    <Textarea {...field} className="w-[calc(100%-50px)]" />
+                                                    <Textarea {...field} className="w-[calc(100%-60px)]" />
                                                 </ScrollArea>
                                             </FormControl>
                                             <FormMessage />

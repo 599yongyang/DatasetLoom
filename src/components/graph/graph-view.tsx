@@ -1,9 +1,19 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { CommonEvent, type GraphData, Graph } from '@antv/g6';
+import { CommonEvent, type GraphData, Graph, type EdgeData } from '@antv/g6';
 import GraphSheet from '@/components/graph/graph-sheet';
+import { stringToColor } from '@/lib/utils';
 
-export function GraphView({ nodes, edges }: GraphData) {
+interface CustomNodeData {
+    id: string;
+    name: string;
+    metadata: {
+        domain: string;
+        chunkId: string;
+    };
+}
+
+export function GraphView({ nodes, edges }: { nodes?: CustomNodeData[]; edges?: EdgeData[] }) {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const [open, setOpen] = React.useState(false);
@@ -29,10 +39,13 @@ export function GraphView({ nodes, edges }: GraphData) {
 
             // 边样式
             edge: {
+                type: 'line',
                 style: {
-                    labelText: (d: any) => d.label,
-                    stroke: '#aaa',
-                    lineWidth: 1
+                    labelText: d => d.label as string,
+                    labelBackground: true,
+                    endArrow: true,
+                    badgeBackgroundWidth: 12,
+                    badgeBackgroundHeight: 12
                 },
                 state: {
                     highlight: { stroke: '#D580FF' }
@@ -41,13 +54,11 @@ export function GraphView({ nodes, edges }: GraphData) {
 
             // 布局配置
             layout: {
-                type: 'd3-force',
-                linkDistance: 200, // 控制边长度
-                nodeStrength: -30, // 节点排斥力（负值）
-                edgeStrength: 0.2, // 边吸引力
-                preventOverlap: true,
-                alpha: 0.3,
-                alphaDecay: 0.01
+                type: 'force',
+                linkDistance: 50,
+                clustering: true,
+                nodeClusterBy: 'cluster',
+                clusterNodeStrength: 70
             },
             animation: false,
             // 交互行为
@@ -68,9 +79,10 @@ export function GraphView({ nodes, edges }: GraphData) {
         const graphData = {
             nodes: nodes?.map(node => ({
                 id: node.id,
-                label: node.label,
+                label: node.name,
+                metadata: node.metadata,
                 style: {
-                    fill: node.type === 'chunk' ? '#4096ff' : node.type === 'domain' ? '#faad14' : '#5D7092'
+                    fill: stringToColor(node.metadata.domain)
                 }
             })),
             edges: edges?.map(edge => ({
@@ -83,16 +95,20 @@ export function GraphView({ nodes, edges }: GraphData) {
         graph.setData(graphData);
         graph.render();
 
-        // 点击事件
-        graph.on(CommonEvent.CLICK, (evt: any) => {
-            if (evt.targetType === 'node') {
-                console.log('点击节点:', evt.target.id);
-                setNodeId(evt.target.id);
-                setOpen(true);
-            } else if (evt.targetType === 'edge') {
-                console.log('点击边:', evt.target.id);
-            }
-        });
+        // // 点击事件
+        // graph.on(CommonEvent.CLICK, (evt: any) => {
+        //     if (evt.targetType === 'node') {
+        //         const {target} = evt; // 获取被点击节点的 ID
+        //         console.log(`节点 ${target.id} 被点击了`);
+        //         // 获取节点数据
+        //         const nodeData = graph.getNodeData(target.id);
+        //         console.log('节点数据:', nodeData);
+        //         setNodeId(nodeData.metadata.chunkId);
+        //         setOpen(true);
+        //     } else if (evt.targetType === 'edge') {
+        //         console.log('点击边:', evt.target.id);
+        //     }
+        // });
 
         // 窗口大小变化时重绘
         const handleResize = () => {

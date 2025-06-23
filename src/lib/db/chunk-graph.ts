@@ -13,131 +13,149 @@ interface RelationInput {
     relation: string;
 }
 
-type ChunkNode = {
-    id: string;
-    label: string;
-    type?: 'chunk';
-    size?: number;
-    style?: { fill: string };
-};
-
-type ChunkEdge = {
-    source: string;
-    target: string;
-    label: string;
-    weight: number;
-};
-
 export async function insertChunkGraph(chunkId: string, entities: EntityInput[], relations: RelationInput[]) {
-    try {
-        await db.chunkEntities.createMany({
-            data: entities.map(e => ({
-                chunkId,
-                type: e.type,
-                value: e.name,
-                normalized_value: e.id
-            }))
-        });
-        await db.chunkRelations.createMany({
-            data: relations.map(r => ({
-                sourceEntityId: r.source,
-                targetEntityId: r.target,
-                relationType: r.relation
-            }))
-        });
-    } catch (error) {
-        console.error('Failed to create graph by id in database');
-        throw error;
-    }
-}
-
-function getCommonEntities(setA: Set<string>, setB: Set<string>): string[] {
-    return [...setA].filter(e => setB.has(e));
-}
-
-export async function getChunkGraph(
-    projectId: string,
-    fileIds?: string[]
-): Promise<{
-    nodes: ChunkNode[];
-    edges: ChunkEdge[];
-}> {
-    const whereClause: any = { projectId };
-    if (fileIds && fileIds.length > 0) {
-        whereClause.documentId = { in: fileIds };
+    if (!entities || !relations) {
+        throw new Error('Entities and relations must be provided');
     }
 
-    const chunks = await db.chunks.findMany({
-        where: whereClause,
-        include: {
-            ChunkEntities: true
+    return db.$transaction(async tx => {
+        try {
+            // 1. 先创建所有实体，并返回创建的记录
+            const createdEntities = await Promise.all(
+                entities.map(e =>
+                    tx.chunkEntities.create({
+                        data: {
+                            chunkId: chunkId,
+                            type: e.type,
+                            value: e.name,
+                            normalizedValue: e.id
+                        }
+                    })
+                )
+            );
+
+            // 2. 建立实体ID映射表 (inputId -> databaseId)
+            const entityIdMap = new Map(entities.map((e, index) => [e.id, createdEntities[index]?.id]));
+
+            // 3. 过滤并创建有效关系
+            const validRelations = relations.filter(r => {
+                const valid = entityIdMap.has(r.source) && entityIdMap.has(r.target);
+                if (!valid) {
+                    console.warn(`Invalid relation skipped: source=${r.source} target=${r.target}`);
+                }
+                return valid;
+            });
+
+            const createdRelations = await tx.chunkRelation.createMany({
+                data: validRelations.map(r => ({
+                    sourceEntityId: entityIdMap.get(r.source)!,
+                    targetEntityId: entityIdMap.get(r.target)!,
+                    relationType: r.relation
+                }))
+            });
+
+            return {
+                entityCount: createdEntities.length,
+                relationCount: createdRelations.count
+            };
+        } catch (error) {
+            console.error('Failed to create chunk with relations', error);
+            throw new Error('Database operation failed');
         }
     });
-
-    if (chunks.length === 0) {
-        return { nodes: [], edges: [] };
-    }
-
-    // 构建 chunkId -> entities 映射
-    const chunkEntityMap = new Map<string, Set<string>>();
-    for (const chunk of chunks) {
-        const entities = chunk.ChunkEntities.map(e => e.normalized_value);
-        chunkEntityMap.set(chunk.id, new Set(entities));
-    }
-
-    const edges: ChunkEdge[] = [];
-
-    // 构建 Chunk 共现关系
-    for (let i = 0; i < chunks.length; i++) {
-        for (let j = i + 1; j < chunks.length; j++) {
-            const chunkA = chunks[i];
-            const chunkB = chunks[j];
-            if (!chunkA || !chunkB) continue;
-            const entitiesA = chunkEntityMap.get(chunkA.id);
-            const entitiesB = chunkEntityMap.get(chunkB.id);
-
-            if (!entitiesA || !entitiesB) continue;
-
-            const common = getCommonEntities(entitiesA, entitiesB);
-
-            if (common.length >= 2) {
-                edges.push({
-                    source: chunkA.id,
-                    target: chunkB.id,
-                    label: `共有 ${common.length} 个实体`,
-                    weight: common.length
-                });
-            }
-        }
-    }
-
-    const nodes: ChunkNode[] = chunks.map(chunk => ({
-        id: chunk.id,
-        label: chunk.name || '未知文件块',
-        type: 'chunk'
-    }));
-
-    return {
-        nodes,
-        edges
-    };
 }
 
-// export async function getChunkGraphTag(projectId: string) {
-//     try {
-//         const chunks = await db.chunks.findMany({where: {projectId}})
-//         const chunkIds = chunks.map(chunk => chunk.id)
-//         const entities = await db.chunkEntities.findMany({
-//             where: {chunkId: {in: chunkIds}}, select: {
-//                 id: true,
-//                 value: true,
-//                 normalized_value: true,
-//             }
-//         });
-//         const relations = await db.chunkRelations.findMany()
-//         return {entities, relations}
-//     } catch (error) {
-//         console.error('Failed to get graph by id in database');
-//         throw error;
-//     }
-// }
+export async function getChunkGraph(projectId: string, fileIds?: string[], options = { limit: 100 }) {
+    try {
+        // 1. 查询 chunks，只获取需要的 chunkId 列表
+        const chunkList = await db.chunks.findMany({
+            where: {
+                projectId,
+                ...(fileIds?.length ? { documentId: { in: fileIds } } : {})
+            },
+            select: { id: true }
+        });
+
+        const chunkIds = chunkList.map(chunk => chunk.id);
+
+        if (chunkIds.length === 0) {
+            return { nodes: [], edges: [] };
+        }
+
+        // 2. 分页查询实体及其相关信息
+        const entities = await db.chunkEntities.findMany({
+            where: {
+                chunkId: { in: chunkIds }
+            },
+            take: options.limit,
+            include: {
+                // 包含关联的chunk基本信息
+                chunk: {
+                    select: {
+                        documentName: true,
+                        domain: true,
+                        subDomain: true
+                    }
+                }
+            }
+        });
+
+        // 3. 获取相关实体ID（使用数据库ID而非normalizedValue）
+        const entityDbIds = entities.map(e => e.id);
+
+        // 4. 查询关系（包含完整的关系信息）
+        const relations = await db.chunkRelation.findMany({
+            where: {
+                OR: [{ sourceEntityId: { in: entityDbIds } }, { targetEntityId: { in: entityDbIds } }]
+            },
+            include: {
+                sourceEntity: {
+                    select: {
+                        type: true,
+                        value: true,
+                        normalizedValue: true
+                    }
+                },
+                targetEntity: {
+                    select: {
+                        type: true,
+                        value: true,
+                        normalizedValue: true
+                    }
+                }
+            }
+        });
+
+        // 5. 转换为前端图谱格式
+        return {
+            nodes: entities.map(entity => ({
+                id: entity.id,
+                type: entity.type,
+                name: entity.value,
+                normalizedName: entity.normalizedValue,
+                metadata: {
+                    domain: entity.chunk.domain,
+                    subDomain: entity.chunk.subDomain,
+                    document: entity.chunk.documentName,
+                    chunkId: entity.chunkId
+                }
+            })),
+            edges: relations.map(relation => ({
+                id: relation.id,
+                source: relation.sourceEntityId,
+                target: relation.targetEntityId,
+                label: relation.relationType,
+                // 添加关系相关的元数据
+                metadata: {
+                    sourceType: relation.sourceEntity.type,
+                    targetType: relation.targetEntity.type,
+                    sourceName: relation.sourceEntity.value,
+                    targetName: relation.targetEntity.value
+                }
+            }))
+        };
+    } catch (error) {
+        console.error('Failed to fetch knowledge graph data:', error);
+        throw new Error('Knowledge graph query failed');
+    }
+}

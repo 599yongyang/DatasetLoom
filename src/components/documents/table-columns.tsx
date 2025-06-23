@@ -104,19 +104,25 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
                 return (
                     <div className="flex flex-1 justify-center gap-2">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                            <ChunkStrategyDialog fileIds={[row.original.id]} fileExt={row.original.fileExt ?? ''} />
+                            <ChunkStrategyDialog
+                                fileIds={[row.original.id]}
+                                fileExt={row.original.fileExt ?? ''}
+                                refresh={mutateDocuments}
+                            />
                         </WithPermission>
-                        <Button
-                            variant="ghost"
-                            className={'hover:cursor-pointer'}
-                            size="icon"
-                            onClick={() => {
-                                router.push(`/project/${projectId}/graph?kid=${row.original.id}`);
-                            }}
-                            aria-label="View"
-                        >
-                            <Waypoints size={30} />
-                        </Button>
+                        {row.original._count.Chunks > 0 && (
+                            <Button
+                                variant="ghost"
+                                className={'hover:cursor-pointer'}
+                                size="icon"
+                                onClick={() => {
+                                    router.push(`/project/${projectId}/graph?kid=${row.original.id}`);
+                                }}
+                                aria-label="View"
+                            >
+                                <Waypoints size={30} />
+                            </Button>
+                        )}
                         <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                             <ConfirmAlert
                                 title={t('delete_title')}

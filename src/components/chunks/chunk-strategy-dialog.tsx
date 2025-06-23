@@ -32,13 +32,15 @@ export function ChunkStrategyDialog({
     fileIds,
     fileExt,
     open: controlledOpen,
-    onOpenChange
+    onOpenChange,
+    refresh
 }: {
     children?: ReactNode;
     fileIds: string[];
     fileExt: string;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    refresh: () => void;
 }) {
     const { projectId } = useParams();
     const { t } = useTranslation('chunk');
@@ -60,25 +62,56 @@ export function ChunkStrategyDialog({
         }));
     };
 
-    const handleSubmit = () => {
-        axios
-            .post(`/api/project/${projectId}/documents/chunker`, {
+    const handleSubmit = async () => {
+        try {
+            const source = axios.CancelToken.source();
+            const loadingToastId = toast.loading('处理分块中...', {
+                position: 'top-right',
+                action: {
+                    label: '取消',
+                    onClick: () => {
+                        source.cancel('用户取消了操作');
+                        toast.dismiss(loadingToastId);
+                        toast.info('已取消生成', { position: 'top-right' });
+                    }
+                }
+            });
+            // 发起分块请求
+            const chunkResponse = await axios.post(`/api/project/${projectId}/documents/chunker`, {
                 ...formData,
                 modelConfigId: model.id,
                 fileIds,
                 language: i18n.language
-            })
-            .then(res => {
-                if (res.data.success) {
-                    toast.success('分块成功');
-                    setIsOpen(false);
-                } else {
-                    toast.error('分块失败');
-                }
-            })
-            .catch(err => {
-                console.log(err);
             });
+
+            if (!chunkResponse.data.success) {
+                throw new Error(chunkResponse.data.message || '分块请求失败');
+            }
+            setIsOpen(false);
+            // 确认分块结果
+            const confirmResponse = await axios.put(
+                `/api/project/${projectId}/documents/chunker`,
+                {
+                    chunkConfigHash: chunkResponse.data.hash,
+                    modelConfigId: model.id,
+                    language: i18n.language
+                },
+                {
+                    cancelToken: source.token
+                }
+            );
+
+            if (!confirmResponse.data.success) {
+                throw new Error(confirmResponse.data.message || '分块确认失败');
+            }
+
+            // 成功处理
+            toast.success('分块成功', { id: loadingToastId });
+            refresh();
+        } catch (error) {
+            console.error('分块过程中出错:', error);
+            toast.error('分块过程中发生未知错误');
+        }
     };
 
     return (
