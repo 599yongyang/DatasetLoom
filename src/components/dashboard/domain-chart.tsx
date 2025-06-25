@@ -135,24 +135,19 @@ export function DomainChart() {
                         </div>
 
                         {/* 图例 */}
-                        <div className="mt-4 space-y-2 max-h-32 overflow-y-auto">
-                            <div className="grid grid-cols-1 @[500px]/chart:grid-cols-2 gap-2">
-                                {domainData?.map((item, index) => (
+                        <div className="mt-3 max-h-[200px] overflow-y-auto">
+                            <div className="grid grid-cols-1 @[500px]:grid-cols-4 @[800px]:grid-cols-3 gap-2">
+                                {domainData?.map(item => (
                                     <div
-                                        key={index}
-                                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                                        key={item.domain}
+                                        className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/20"
                                     >
                                         <div
-                                            className="w-3 h-3 rounded-full flex-shrink-0"
+                                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                                             style={{ backgroundColor: stringToColor(item.domain) }}
                                         />
-                                        <span className="text-sm text-muted-foreground truncate flex-1">
-                                            {item.domain}
-                                        </span>
-                                        <div className="text-right flex-shrink-0">
-                                            <div className="text-sm font-medium">{item.value}%</div>
-                                            <div className="text-xs text-muted-foreground">{item.count}</div>
-                                        </div>
+                                        <span className="text-xs truncate flex-1">{item.domain}</span>
+                                        <div className="text-xs font-medium">{item.value}%</div>
                                     </div>
                                 ))}
                             </div>

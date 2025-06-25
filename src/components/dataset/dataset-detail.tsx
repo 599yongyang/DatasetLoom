@@ -136,9 +136,12 @@ export default function DatasetDetail({
                                 </div>
                                 <h3 className="text-lg font-medium">暂未进行 AI 评分</h3>
                                 <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                                        点击下方按钮，使用大模型对当前答案进行自动评分。
-                                    </p>
+                                    <div className="text-sm text-muted-foreground max-w-md mx-auto space-y-1">
+                                        <p>使用AI模型对当前答案进行自动质量评估</p>
+                                        <p className="text-xs">
+                                            建议: 使用不同于生成此答案的模型进行评估，以获得更客观结果
+                                        </p>
+                                    </div>
                                     <Button
                                         variant="outline"
                                         size="sm"

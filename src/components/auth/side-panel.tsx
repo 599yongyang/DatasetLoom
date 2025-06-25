@@ -13,7 +13,7 @@ export function AuthSidePanel() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="max-w-lg relative z-10"
+                className="max-w-xl relative z-10"
             >
                 <BoxReveal boxColor={'#c1ff72'} duration={0.6}>
                     <h1 className="text-5xl font-bold leading-tight text-[#c1ff72]">

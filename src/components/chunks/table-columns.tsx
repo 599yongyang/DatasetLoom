@@ -72,11 +72,47 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                             </div>
 
                             {item.Questions.length > 0 && (
-                                <div className="flex items-center gap-1">
-                                    <span className="text-xs font-medium text-green-700   px-2 py-1 rounded">
-                                        已生成 {item.Questions.length} 个问题
-                                    </span>
-                                </div>
+                                <TooltipProvider delayDuration={0}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <div className="flex items-center gap-1">
+                                                <Button
+                                                    variant="link"
+                                                    className="text-xs font-medium text-green-700   px-2 py-1 rounded"
+                                                >
+                                                    已生成 {item.Questions.length} 个问题
+                                                </Button>
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent
+                                            side="bottom"
+                                            className="max-w-[50vw] p-2 bg-white shadow-lg rounded-md border border-gray-200"
+                                        >
+                                            <div className="space-y-2">
+                                                <h4 className="text-xs font-semibold text-gray-700 mb-1">
+                                                    生成的问题列表
+                                                </h4>
+                                                {item.Questions.length > 0 ? (
+                                                    <ul className="space-y-1 max-h-[200px] overflow-y-auto">
+                                                        {item.Questions.map((question, index) => (
+                                                            <li
+                                                                key={index}
+                                                                className="text-xs text-gray-600 p-1 hover:bg-gray-50 rounded"
+                                                            >
+                                                                <div className="flex items-start gap-2">
+                                                                    <span className="text-gray-500">{index + 1}.</span>
+                                                                    <span>{question.question}</span>
+                                                                </div>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <p className="text-xs text-gray-500">暂无生成的问题</p>
+                                                )}
+                                            </div>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             )}
                         </div>
 

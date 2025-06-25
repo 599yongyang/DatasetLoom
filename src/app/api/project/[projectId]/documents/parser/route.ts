@@ -125,8 +125,6 @@ export const POST = compose(
             return NextResponse.json({ success: false, message: '请输入网址' }, { status: 400 });
         }
 
-        const documents = [];
-
         for (const url of webUrls) {
             try {
                 const result = await parser.parse({ url });
@@ -145,7 +143,7 @@ export const POST = compose(
                     parserFileSize: stats.size
                 } as Documents);
 
-                documents.push(document);
+                fileIds.push(document.id);
             } catch (error) {
                 console.error(`URL 解析失败: ${url}`, error);
                 return NextResponse.json(
@@ -155,7 +153,7 @@ export const POST = compose(
             }
         }
 
-        return NextResponse.json({ success: true, message: '解析完成', data: documents });
+        return NextResponse.json({ success: true, message: '解析完成', data: fileIds });
     }
 
     return NextResponse.json({ success: false, message: '未知的来源类型' }, { status: 400 });
