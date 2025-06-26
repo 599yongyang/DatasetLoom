@@ -8,6 +8,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { useMemo } from 'react';
 import { stringToColor } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface ModelRankData {
     modeId: string;
@@ -17,6 +18,7 @@ interface ModelRankData {
 
 export function ModelUseRankChart() {
     const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('dashboard');
     const { data: rankData, isLoading, isError } = useGetModelUseRank(projectId);
 
     const { chartConfig, processedData } = useMemo(() => {
@@ -39,40 +41,21 @@ export function ModelUseRankChart() {
         return { chartConfig: config, processedData: processed };
     }, [rankData]);
 
-    if (isError) {
-        return (
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <IconAlertCircle className="w-5 h-5 text-destructive" />
-                        <CardTitle className="text-lg">模型使用偏好</CardTitle>
-                    </div>
-                    <CardDescription>模型使用偏好统计</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
-                        <IconAlertCircle className="w-12 h-12 mb-4 text-destructive/50" />
-                        <p className="text-lg font-medium mb-2">加载失败</p>
-                        <p className="text-sm mb-4">无法获取模型使用数据</p>
-                    </div>
-                </CardContent>
-            </Card>
-        );
-    }
-
     return (
         <Card className="@container/chart">
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <IconBrain className="w-5 h-5 text-primary" />
-                        <CardTitle className="text-lg">模型使用偏好</CardTitle>
+                        <CardTitle className="text-lg">{t('model_use_rank.title')}</CardTitle>
                     </div>
                     {processedData.length > 0 && (
-                        <div className="text-sm text-muted-foreground">共使用 {processedData.length} 个模型</div>
+                        <div className="text-sm text-muted-foreground">
+                            {t('model_use_rank.info', { count: processedData.length })}
+                        </div>
                     )}
                 </div>
-                <CardDescription>展示各模型的使用频次排名，帮助了解使用偏好</CardDescription>
+                <CardDescription>{t('model_use_rank.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
                 {isLoading ? (
@@ -80,8 +63,7 @@ export function ModelUseRankChart() {
                         <div className="flex flex-col items-center gap-3 text-muted-foreground">
                             <IconLoader2 className="w-8 h-8 animate-spin text-primary" />
                             <div className="text-center">
-                                <p className="font-medium">加载中...</p>
-                                <p className="text-sm">正在获取模型使用数据</p>
+                                <p className="font-medium">${t('loading')}</p>
                             </div>
                         </div>
                     </div>
@@ -90,8 +72,8 @@ export function ModelUseRankChart() {
                         <div className="text-center space-y-3">
                             <IconBrain className="w-16 h-16 mx-auto opacity-20" />
                             <div>
-                                <p className="text-lg font-medium">暂无使用数据</p>
-                                <p className="text-sm">请先添加模型并开始使用</p>
+                                <p className="text-lg font-medium">{t('model_use_rank.nodata')}</p>
+                                <p className="text-sm">{t('model_use_rank.nodata_desc')}</p>
                             </div>
                         </div>
                     </div>

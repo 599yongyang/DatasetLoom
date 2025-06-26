@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import React, { useEffect } from 'react';
 import { useInputList } from '@/hooks/use-input-list';
 import type { FileUploadOptions } from '@/hooks/use-file-upload';
+import { useTranslation } from 'react-i18next';
 
 export default function StepOne({
     uploadFormData,
@@ -20,6 +21,8 @@ export default function StepOne({
     };
     handleChange: (field: string, value: any) => void;
 }) {
+    const { t } = useTranslation('document');
+
     const {
         list: webFileUrls,
         add: addWebFileUrl,
@@ -45,7 +48,7 @@ export default function StepOne({
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="local" className="flex items-center gap-2">
                         <Upload className="w-4 h-4" />
-                        本地文件
+                        {t('source_type.local')}
                     </TabsTrigger>
                     {/*<TabsTrigger value="webFile" className="flex items-center gap-2">*/}
                     {/*    <Link className="w-4 h-4"/>*/}
@@ -53,7 +56,7 @@ export default function StepOne({
                     {/*</TabsTrigger>*/}
                     <TabsTrigger value="webUrl" className="flex items-center gap-2">
                         <Globe className="w-4 h-4" />
-                        网站内容
+                        {t('source_type.web_url')}
                     </TabsTrigger>
                 </TabsList>
 
@@ -112,11 +115,11 @@ export default function StepOne({
                     <div className="space-y-4">
                         <div className="*:not-first:mt-2">
                             <Label htmlFor="web-url" className="text-base font-medium">
-                                网站地址
+                                {t('upload_steps.one.web_site_title')}
                             </Label>
                             <div className="space-y-3">
                                 {webUrls.map((webUrl, index) => (
-                                    <div className="flex gap-2">
+                                    <div key={webUrl} className="flex gap-2">
                                         <Input
                                             key={index}
                                             placeholder="https://example.com"
@@ -135,13 +138,13 @@ export default function StepOne({
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-sm text-muted-foreground">输入要解析的网站或网页地址</p>
+                            <p className="text-sm text-muted-foreground">{t('upload_steps.one.web_site_desc')}</p>
                         </div>
-                        <Button onClick={addWebUrls}>+ 添加更多</Button>
+                        <Button onClick={addWebUrls}>+ {t('upload_steps.add_more_btn')}</Button>
 
-                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                            <h4 className="font-medium text-purple-900 mb-3">支持的网站类型</h4>
-                            <div className="grid grid-cols-2 gap-2 text-sm text-purple-700">
+                        <div className="p-4 bg-blue-50  border border-blue-200 rounded-lg">
+                            <h4 className="font-medium text-blue-900 mb-3">支持的网站类型</h4>
+                            <div className="grid grid-cols-2 gap-2 text-sm text-blue-700">
                                 <div>• 新闻文章和博客</div>
                                 <div>• 产品页面和文档</div>
                                 <div>• 学术论文和报告</div>

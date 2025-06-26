@@ -19,34 +19,35 @@ import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/atoms';
 import { TrendingUp, Zap } from 'lucide-react';
 import { ModelSelect } from '@/components/common/model-select';
+import { useTranslation } from 'react-i18next';
 
 type TimeRange = '3' | '7' | '15';
 
-const chartConfig = {
-    count: {
-        label: 'API 调用次数'
-    },
-    promptTokens: {
-        label: '输入 Tokens'
-    },
-    completionTokens: {
-        label: '输出 Tokens'
-    }
-} satisfies ChartConfig;
-
-const timeRangeOptions = [
-    { value: '3', label: '3天' },
-    { value: '7', label: '7天' },
-    { value: '15', label: '15天' }
-];
-
 export function ModelUsagesChart() {
     const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('dashboard');
     const [timeRange, setTimeRange] = useState<TimeRange>('7');
     const selectedModelConfig = useAtomValue(selectedModelInfoAtom);
     const [modelConfigId, setModelConfigId] = useState(selectedModelConfig.id);
     const { data: chartData } = useGetModelUsageList(projectId, modelConfigId, Number(timeRange));
 
+    const chartConfig = {
+        count: {
+            label: t('model_usage.api.title')
+        },
+        promptTokens: {
+            label: t('model_usage.token.input')
+        },
+        completionTokens: {
+            label: t('model_usage.token.output')
+        }
+    } satisfies ChartConfig;
+
+    const timeRangeOptions = [
+        { value: '3', label: t('model_usage.days', { count: 3 }) },
+        { value: '7', label: t('model_usage.days', { count: 7 }) },
+        { value: '15', label: t('model_usage.days', { count: 15 }) }
+    ];
     const handleTimeRangeChange = (value: TimeRange) => {
         setTimeRange(value);
     };
@@ -56,9 +57,9 @@ export function ModelUsagesChart() {
             <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                        <CardTitle className="text-lg font-semibold">模型使用分析</CardTitle>
+                        <CardTitle className="text-lg font-semibold">{t('model_usage.title')}</CardTitle>
                         <CardDescription className="text-sm text-muted-foreground">
-                            最近 {timeRangeOptions.find(opt => opt.value === timeRange)?.label} 的使用情况
+                            {t('model_usage.desc', { day: timeRange })}
                         </CardDescription>
                     </div>
 
@@ -104,8 +105,8 @@ export function ModelUsagesChart() {
                                 <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
-                                <h3 className="font-medium text-sm">API 调用次数</h3>
-                                <p className="text-xs text-muted-foreground">每日调用统计</p>
+                                <h3 className="font-medium text-sm">{t('model_usage.api.title')}</h3>
+                                <p className="text-xs text-muted-foreground">{t('model_usage.api.desc')}</p>
                             </div>
                         </div>
 
@@ -148,8 +149,8 @@ export function ModelUsagesChart() {
                                 <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div>
-                                <h3 className="font-medium text-sm">Tokens 使用情况</h3>
-                                <p className="text-xs text-muted-foreground">输入输出统计</p>
+                                <h3 className="font-medium text-sm">{t('model_usage.token.title')}</h3>
+                                <p className="text-xs text-muted-foreground">{t('model_usage.token.desc')}</p>
                             </div>
                         </div>
 

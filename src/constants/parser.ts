@@ -3,8 +3,8 @@ import { Icons } from '@/components/icons';
 export const PARSER_SERVICE_LIST = [
     {
         id: 'unstructured',
-        name: 'Unstructured',
-        description: '专业文档解析服务，支持复杂布局和表格提取',
+        nameKey: 'upload_steps.parsers.unstructured.name',
+        descriptionKey: 'upload_steps.parsers.unstructured.desc',
         icon: Icons.unstructured,
         category: 'document',
         supportedInputs: ['local', 'webFile'],
@@ -39,8 +39,8 @@ export const PARSER_SERVICE_LIST = [
     // },
     {
         id: 'Jina',
-        name: 'Jina Reader',
-        description: '专业的网页内容提取和清理服务',
+        nameKey: 'upload_steps.parsers.jina_reader.name',
+        descriptionKey: 'upload_steps.parsers.jina_reader.desc',
         icon: Icons.jina,
         category: 'web',
         supportedInputs: ['local', 'webUrl', 'webFile'],
@@ -51,8 +51,8 @@ export const PARSER_SERVICE_LIST = [
     },
     {
         id: 'FireCrawl',
-        name: 'FireCrawl',
-        description: '强大的网站爬取和内容提取平台',
+        nameKey: 'upload_steps.parsers.firecrawl.name',
+        descriptionKey: 'upload_steps.parsers.firecrawl.desc',
         icon: Icons.firecrawl,
         category: 'web',
         supportedInputs: ['webUrl'],

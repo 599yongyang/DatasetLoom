@@ -1,0 +1,42 @@
+{
+    "dataset_cards": {
+        "all": "全部数据集",
+        "confirmed": "已确认 {{count}}%",
+        "sft": "SFT训练数据集",
+        "dpo": "DPO训练数据集",
+        "cot": "COT 数据集"
+    },
+    "domain_chart": {
+        "title": "知识库领域分布",
+        "desc": "各领域的占比情况",
+        "level1": "一级领域",
+        "level2": "二级领域",
+        "loading": "加载中...",
+        "nodata": "暂无数据",
+        "nodata_desc": "请先添加知识库并进行分块处理",
+        "count": "数量",
+        "percent": "占比"
+    },
+    "model_use_rank": {
+        "title": "模型使用偏好",
+        "desc": "展示各模型的使用频次排名，帮助了解使用偏好",
+        "info": "共使用 {{count}} 个模型",
+        "nodata": "暂无使用数据",
+        "nodata_desc": "请先添加模型并开始使用"
+    },
+    "model_usage": {
+        "title": "模型使用分析",
+        "desc": "最近 {{day}}天 的使用情况",
+        "days": "{{count}} 天",
+        "api": {
+            "title": "API 调用次数",
+            "desc": "每日调用统计"
+        },
+        "token": {
+            "title": "Token 使用情况",
+            "desc": "输入输出统计",
+            "input": "输入 Tokens",
+            "output": "输出 Tokens"
+        }
+    }
+}

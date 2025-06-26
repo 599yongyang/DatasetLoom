@@ -16,8 +16,8 @@ import type { UploadFormDataType } from '@/app/(dashboard)/project/[projectId]/d
 const PARSER_SERVICES = [
     {
         id: 'native',
-        name: '原生解析',
-        description: '使用内置解析器，适合简单文档',
+        nameKey: 'upload_steps.parsers.native.name',
+        descriptionKey: 'upload_steps.parsers.native.desc',
         icon: FileText,
         category: 'document',
         supportedInputs: ['local', 'webFile'],
@@ -42,7 +42,9 @@ export default function StepTwo({
 }) {
     const { projectId }: { projectId: string } = useParams();
     const router = useRouter();
-    const { t } = useTranslation('chunk');
+    const { t } = useTranslation(['chunk', 'document']);
+    const tChunk = (key: string) => t(`chunk:${key}`);
+    const tDocument = (key: string) => t(`document:${key}`);
     const getAvailableServices = () => {
         return PARSER_SERVICES.filter(service => {
             if (!service.supportedInputs.includes(uploadFormData.sourceType)) return false;
@@ -110,7 +112,7 @@ export default function StepTwo({
                                     <div className="flex-1">
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center gap-3">
-                                                <h4 className="font-medium ">{service.name}</h4>
+                                                <h4 className="font-medium ">{tDocument(service.nameKey)}</h4>
                                                 {service.id !== 'native' && (
                                                     <Badge variant="outline" className="text-xs text-green-600">
                                                         已配置
@@ -121,7 +123,9 @@ export default function StepTwo({
                                                 <CheckCircle className="w-5 h-5 text-primary" />
                                             )}
                                         </div>
-                                        <p className="text-muted-foreground text-sm mb-2">{service.description}</p>
+                                        <p className="text-muted-foreground text-sm mb-2">
+                                            {tDocument(service.descriptionKey)}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -146,10 +150,10 @@ export default function StepTwo({
                                 <RadioGroupItem value={item.value} className="order-1 after:absolute after:inset-0" />
                                 <div className="grid grow gap-2">
                                     <Label htmlFor={`${item.value}`}>
-                                        {t(`strategy_dialog.strategy.options.${item.value}.label`)}
+                                        {tChunk(`strategy_dialog.strategy.options.${item.value}.label`)}
                                     </Label>
                                     <p className="text-muted-foreground text-xs">
-                                        {t(`strategy_dialog.strategy.options.${item.value}.desc`)}
+                                        {tChunk(`strategy_dialog.strategy.options.${item.value}.desc`)}
                                     </p>
                                 </div>
                             </div>
@@ -160,7 +164,7 @@ export default function StepTwo({
                 {uploadFormData.strategy === 'custom' && (
                     <>
                         <div className="space-y-4">
-                            <Label className={'text-sm'}>{t('strategy_dialog.separators')}</Label>
+                            <Label className={'text-sm'}>{tChunk('strategy_dialog.separators')}</Label>
                             <Input
                                 type={'text'}
                                 value={uploadFormData.separators}
@@ -169,7 +173,7 @@ export default function StepTwo({
                         </div>
 
                         <div className="space-y-4">
-                            <Label className={'text-sm'}>{t('strategy_dialog.chunk_size')}</Label>
+                            <Label className={'text-sm'}>{tChunk('strategy_dialog.chunk_size')}</Label>
                             <Input
                                 type={'number'}
                                 value={uploadFormData.chunkSize}
@@ -177,7 +181,7 @@ export default function StepTwo({
                             />
                         </div>
                         <div className="space-y-4">
-                            <Label className={'text-sm'}>{t('strategy_dialog.chunk_overlap')}</Label>
+                            <Label className={'text-sm'}>{tChunk('strategy_dialog.chunk_overlap')}</Label>
                             <Input
                                 type={'number'}
                                 value={uploadFormData.chunkOverlap}

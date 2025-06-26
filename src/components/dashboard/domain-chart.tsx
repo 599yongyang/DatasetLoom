@@ -10,33 +10,13 @@ import { stringToColor } from '@/lib/utils';
 import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { useTranslation } from 'react-i18next';
 
 export function DomainChart() {
     const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('dashboard');
     const [checked, setChecked] = useState<boolean>(true);
     const { data: domainData, isLoading, isError } = useGetDomain(projectId, checked ? 1 : 2);
-
-    if (isError) {
-        return (
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <IconTags className="w-5 h-5 text-blue-600" />
-                        <CardTitle className="text-lg">知识库领域分布</CardTitle>
-                    </div>
-                    <CardDescription>各领域的占比情况</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                        <div className="text-center">
-                            <p>加载失败</p>
-                            <p className="text-sm">请稍后重试</p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        );
-    }
 
     return (
         <Card className="@container/chart">
@@ -44,32 +24,34 @@ export function DomainChart() {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <IconTags className="w-5 h-5 text-blue-600" />
-                        <CardTitle className="text-lg">知识库领域分布</CardTitle>
+                        <CardTitle className="text-lg">{t('domain_chart.title')}</CardTitle>
                     </div>
 
                     <div className="text-right">
                         <div className="inline-flex items-center gap-2">
                             <Switch checked={checked} onCheckedChange={setChecked} />
-                            <Label className="text-sm font-medium">{checked ? '一级领域' : '二级领域'}</Label>
+                            <Label className="text-sm font-medium">
+                                {checked ? t('domain_chart.level1') : t('domain_chart.level2')}
+                            </Label>
                         </div>
                     </div>
                 </div>
-                <CardDescription>各领域的占比情况</CardDescription>
+                <CardDescription>{t('domain_chart.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
                 {isLoading ? (
                     <div className="flex items-center justify-center h-[300px]">
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <IconLoader2 className="w-4 h-4 animate-spin" />
-                            <span>加载中...</span>
+                            <span>${t('loading')}</span>
                         </div>
                     </div>
                 ) : domainData?.length === 0 ? (
                     <div className="flex items-center justify-center h-[300px] text-muted-foreground">
                         <div className="text-center">
                             <IconTags className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                            <p>暂无数据</p>
-                            <p className="text-sm">请先添加知识库并进行分块处理</p>
+                            <p>{t('domain_chart.nodata')}</p>
+                            <p className="text-sm">{t('domain_chart.nodata_desc')}</p>
                         </div>
                     </div>
                 ) : (
@@ -115,11 +97,15 @@ export function DomainChart() {
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-4 text-sm">
                                                                 <div>
-                                                                    <span className="text-muted-foreground">数量</span>
+                                                                    <span className="text-muted-foreground">
+                                                                        {t('domain_chart.count')}
+                                                                    </span>
                                                                     <div className="font-bold">{data.count}</div>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-muted-foreground">占比</span>
+                                                                    <span className="text-muted-foreground">
+                                                                        {t('domain_chart.percent')}
+                                                                    </span>
                                                                     <div className="font-bold">{data.value}%</div>
                                                                 </div>
                                                             </div>

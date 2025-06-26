@@ -13,13 +13,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useGetParserConfig } from '@/hooks/query/use-parser-config';
 import { useAtomValue } from 'jotai/index';
 import { chunkConfigHashAtom } from '@/atoms';
-
-const steps = [
-    { id: 1, title: '选择内容来源', description: '上传文件或输入链接' },
-    { id: 2, title: '解析与分块设置', description: '选择文档解析方式和分块逻辑' },
-    { id: 3, title: '预览分块结果', description: '预览分块结果' },
-    { id: 4, title: '完成', description: '查看处理结果' }
-];
+import { useTranslation } from 'react-i18next';
 
 export interface UploadFormDataType {
     sourceType: string;
@@ -35,6 +29,7 @@ export interface UploadFormDataType {
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('document');
     const router = useRouter();
     const { data: parserConfigList } = useGetParserConfig(projectId);
     const chunkConfigHash = useAtomValue(chunkConfigHashAtom);
@@ -51,6 +46,12 @@ export default function Page() {
         chunkOverlap: 150
     });
 
+    const steps = [
+        { id: 1, title: t('upload_steps.one.title'), description: t('upload_steps.one.desc') },
+        { id: 2, title: t('upload_steps.two.title'), description: t('upload_steps.two.desc') },
+        { id: 3, title: t('upload_steps.three.title'), description: t('upload_steps.three.desc') },
+        { id: 4, title: t('upload_steps.four.title'), description: t('upload_steps.four.desc') }
+    ];
     const handleChange = (field: string, value: any) => {
         setUploadFormData(prev => ({
             ...prev,
@@ -88,21 +89,21 @@ export default function Page() {
         <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="w-full max-w-6xl mx-auto p-2 space-y-6">
                 <div className="text-center space-y-2">
-                    <p className=" font-bold">文档智能解析与结构化处理</p>
+                    <p className=" font-bold">{t('upload_steps.title')}</p>
                 </div>
                 {parserConfigList.length === 0 && (
                     <Alert>
                         <AlertTriangle className="h-4 w-4" />
                         <AlertDescription className={'flex flex-1'}>
-                            如需更高质量的解析效果。请先前往
+                            {t('upload_steps.upload_alert.pre')}{' '}
                             <Button
                                 variant="link"
                                 className="p-0 h-auto text-primary hover:cursor-pointer"
                                 onClick={() => router.push(`/project/${projectId}/settings/parser-config`)}
                             >
-                                解析服务配置
+                                {t('upload_steps.upload_alert.link')}
                             </Button>
-                            配置第三方解析服务。
+                            {t('upload_steps.upload_alert.suffix')}
                         </AlertDescription>
                     </Alert>
                 )}
@@ -146,7 +147,7 @@ export default function Page() {
                             {currentStep === 2 && <Cpu className="w-5 h-5" />}
                             {currentStep === 3 && <Settings className="w-5 h-5" />}
                             {currentStep === 4 && <FileText className="w-5 h-5" />}
-                            步骤 {currentStep}: {steps[currentStep - 1]?.title}
+                            {steps[currentStep - 1]?.title}
                         </CardTitle>
                         <CardDescription>{steps[currentStep - 1]?.description}</CardDescription>
                     </CardHeader>
@@ -176,7 +177,7 @@ export default function Page() {
                             {currentStep !== 1 && (
                                 <Button variant="outline" onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}>
                                     <ChevronLeft className="w-4 h-4 mr-2" />
-                                    上一步
+                                    {t('upload_steps.prev')}
                                 </Button>
                             )}
                         </div>
@@ -186,7 +187,7 @@ export default function Page() {
                                     onClick={() => setCurrentStep(Math.min(5, currentStep + 1))}
                                     disabled={!canProceedToNextStep()}
                                 >
-                                    下一步
+                                    {t('upload_steps.next')}
                                     <ChevronRight className="w-4 h-4 ml-2" />
                                 </Button>
                             )}

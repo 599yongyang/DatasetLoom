@@ -4,7 +4,7 @@
     "file_ext_all": "All",
     "delete_btn": "Delete selected data",
     "chunk_btn": "Chunk selected data",
-    "upload_btn": "Upload files",
+    "upload_btn": "Upload",
     "graph_btn": "View Graph",
     "delete_title": "Are you sure you want to delete this file ?",
     "table_columns": {
@@ -15,6 +15,63 @@
         "createdAt": "CreatedAt",
         "size": "Size",
         "actions": "Actions"
+    },
+    "source_type": {
+        "local": "Local File",
+        "web_url": "Web Content",
+        "web_file": "Online File",
+        "unknown": "Unknown"
+    },
+    "upload_steps": {
+        "title": "Intelligent Document Parsing & Structured Processing",
+        "upload_alert": {
+            "pre": "For better parsing quality, configure",
+            "link": "Parsing Config",
+            "suffix": "first."
+        },
+        "next": "Next",
+        "prev": "Prev",
+        "add_more_btn": "Add More",
+        "one": {
+            "title": "Select Content Source",
+            "desc": "Upload files or enter URLs",
+            "web_site_title": "Web Site",
+            "web_site_desc": "Enter the website or webpage address to be parsed"
+        },
+        "two": {
+            "title": "Parsing & Chunking Settings",
+            "desc": "Configure document parsing and chunking logic"
+        },
+        "three": {
+            "title": "Preview Chunks",
+            "desc": "Review chunking results"
+        },
+        "four": {
+            "title": "Complete",
+            "desc": "View processing results"
+        },
+        "parsers": {
+            "native": {
+                "name": "Native",
+                "desc": "Using built-in parser, suitable for simple documents.",
+                "features": ["Simple Documents", "Fast Processing", "No Configuration Required"]
+            },
+            "unstructured": {
+                "name": "Unstructured",
+                "desc": "Professional document parsing service that supports complex layouts and table extraction.",
+                "features": ["Complex Layout", "Table Extraction", "Metadata Retention", "Multi-format Support"]
+            },
+            "jina_reader": {
+                "name": "Jina Reader",
+                "desc": "Professional web content extraction and cleaning service.",
+                "features": ["Smart Cleaning", "Structure Preservation", "Ad Removal", "Multilingual Support"]
+            },
+            "firecrawl": {
+                "name": "FireCrawl",
+                "desc": "Powerful website crawling and content extraction platform.",
+                "features": ["Deep Crawling", "JavaScript Rendering", "Anti-Anti-Scraping", "Structured Data"]
+            }
+        }
     },
     "upload_dialog": {
         "prompt": "Drag & drop or click to browse",

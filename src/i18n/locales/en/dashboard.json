@@ -1,0 +1,42 @@
+{
+    "dataset_cards": {
+        "all": "All Datasets",
+        "confirmed": "{{count}}% Confirmed",
+        "sft": "SFT Training Dataset",
+        "dpo": "DPO Training Dataset",
+        "cot": "COT Datasets"
+    },
+    "domain_chart": {
+        "title": "Knowledge Base Domain Distribution",
+        "desc": "Proportion of each domain",
+        "level1": "Primary Domain",
+        "level2": "Secondary Domain",
+        "nodata": "No data available",
+        "nodata_desc": "Please add a knowledge base and perform chunking first",
+        "count": "Count",
+        "percent": "Percent"
+    },
+    "model_use_rank": {
+        "title": "Model Usage Preference",
+        "desc": "Shows model usage frequency ranking",
+        "info": "Using {{count}} models in total",
+        "nodata": "No usage data available",
+        "nodata_desc": "Please add models and start using them first"
+    },
+    "model_usage": {
+        "title": "Model Usage Analysis",
+        "desc": "Usage statistics for the last {{day}} days",
+        "days": "{{count}} days",
+        "api": {
+            "title": "API Calls",
+            "desc": "Daily call statistics"
+        },
+        "token": {
+            "title": "Token Usage",
+            "desc": "Input/output statistics",
+            "input": "Input Tokens",
+            "output": "Output Tokens"
+        }
+    },
+    "loading": "Loading..."
+}

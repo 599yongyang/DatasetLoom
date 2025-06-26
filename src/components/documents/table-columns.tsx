@@ -13,6 +13,8 @@ import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { ProjectRole } from '@/schema/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import type { DocumentsWithCount } from '@/schema/documents';
+import type { TFunction } from 'i18next';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments: () => void }) {
     const router = useRouter();
@@ -64,19 +66,41 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
         {
             accessorKey: 'fileName',
             header: t('table_columns.file_name'),
-            cell: ({ row }) => <div className="text-foreground w-fit px-0 text-left">{row.original.fileName}</div>,
+            cell: ({ row }) => (
+                <div className="text-foreground max-w-[30vw] px-0 text-left">
+                    <TooltipProvider delayDuration={0}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <p className={'truncate'}>{row.original.fileName}</p>
+                            </TooltipTrigger>
+                            <TooltipContent
+                                side="bottom"
+                                className="max-w-[50vw] p-2 bg-white shadow-lg rounded-md border border-gray-200"
+                            >
+                                {row.original.fileName}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+            ),
             enableHiding: false
         },
         {
             accessorKey: 'chunkCount',
             header: t('table_columns.chunk_count'),
-            cell: ({ row }) => <div className="text-foreground w-fit px-0 text-left">{row.original._count.Chunks}</div>,
+            cell: ({ row }) => <div className="text-foreground px-0 text-left">{row.original._count.Chunks}</div>,
             enableHiding: false
         },
         {
             accessorKey: 'sourceType',
             header: t('table_columns.source_type'),
-            cell: ({ row }) => <div>{formatSourceType(row.original.sourceType)}</div>
+            cell: ({ row }) => (
+                <div>
+                    <Badge variant="outline" className="text-muted-foreground">
+                        {formatSourceType(row.original.sourceType, t)}
+                    </Badge>
+                </div>
+            )
         },
         {
             accessorKey: 'fileExt',
@@ -139,15 +163,15 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
     return columns;
 }
 
-const formatSourceType = (type: string): string => {
+const formatSourceType = (type: string, t: TFunction<'document'>): string => {
     switch (type) {
         case 'local':
-            return '本地文件';
+            return t('source_type.local');
         case 'webUrl':
-            return '网站内容';
+            return t('source_type.web_url');
         case 'webFile':
-            return '在线文件';
+            return t('source_type.web_file');
         default:
-            return '未知';
+            return t('source_type.unknown');
     }
 };

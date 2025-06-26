@@ -118,7 +118,7 @@ export default function Page() {
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                         <Button onClick={() => router.push(`/project/${projectId}/documents/upload`)}>
                             <Upload size={30} />
-                            上传资源
+                            {t('upload_btn')}
                         </Button>
                     </WithPermission>
                     {/*<Button*/}

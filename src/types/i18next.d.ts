@@ -9,6 +9,7 @@ declare module 'i18next' {
             common: typeof resources.zh.common;
             navigation: typeof resources.zh.navigation;
             project: typeof resources.zh.project;
+            dashboard: typeof resources.zh.dashboard;
             question: typeof resources.zh.question;
             dataset: typeof resources.zh.dataset;
             document: typeof resources.zh.document;

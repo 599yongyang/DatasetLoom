@@ -4,7 +4,7 @@
     "file_ext_all": "所有类型",
     "delete_btn": "删除所选文件",
     "chunk_btn": "分块所选文件",
-    "upload_btn": "上传文件",
+    "upload_btn": "上传资源",
     "graph_btn": "查看图谱",
     "delete_title": "确认要删除此文件吗?",
     "table_columns": {
@@ -15,6 +15,63 @@
         "createdAt": "上传时间",
         "size": "文件大小",
         "actions": "操作"
+    },
+    "source_type": {
+        "local": "本地文件",
+        "web_url": "网站内容",
+        "web_file": "在线文件",
+        "unknown": "未知"
+    },
+    "upload_steps": {
+        "title": "文档智能解析与结构化处理",
+        "upload_alert": {
+            "pre": "如需更高质量的解析效果，请先前往",
+            "link": "解析服务配置",
+            "suffix": "配置第三方解析服务。"
+        },
+        "next": "下一步",
+        "prev": "上一步",
+        "add_more_btn": "添加更多",
+        "one": {
+            "title": "选择内容来源",
+            "desc": "上传文件或输入链接",
+            "web_site_title": "网站地址",
+            "web_site_desc": "输入要解析的网站或网页地址"
+        },
+        "two": {
+            "title": "解析与分块设置",
+            "desc": "选择文档解析方式和分块逻辑"
+        },
+        "three": {
+            "title": "预览分块结果",
+            "desc": "预览分块结果"
+        },
+        "four": {
+            "title": "完成",
+            "desc": "查看处理结果"
+        },
+        "parsers": {
+            "native": {
+                "name": "Native",
+                "desc": "Using built-in parser, suitable for simple documents.",
+                "features": ["简单文档", "快速处理", "无需配置"]
+            },
+            "unstructured": {
+                "name": "Unstructured",
+                "desc": "专业文档解析服务，支持复杂布局和表格提取",
+                "features": ["复杂布局", "表格提取", "元数据保留", "多格式支持"]
+            },
+            "jina_reader": {
+                "name": "Jina Reader",
+                "desc": "专业的网页内容提取和清理服务",
+                "features": ["智能清理", "保留结构", "去除广告", "多语言支持"]
+            },
+            "firecrawl": {
+                "name": "FireCrawl",
+                "desc": "强大的网站爬取和内容提取平台",
+                "features": ["深度爬取", "JavaScript渲染", "反反爬", "结构化数据"]
+            }
+        }
     },
     "upload_dialog": {
         "prompt": "拖放或单击浏览",

@@ -59,7 +59,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
         },
         {
             id: 'content',
-            header: '文本块信息',
+            header: t('table_columns.info'),
             cell: ({ row }) => {
                 const item = row.original;
                 return (
@@ -80,7 +80,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                                                     variant="link"
                                                     className="text-xs font-medium text-green-700   px-2 py-1 rounded"
                                                 >
-                                                    已生成 {item.Questions.length} 个问题
+                                                    {t('question', { count: item.Questions.length })}
                                                 </Button>
                                             </div>
                                         </TooltipTrigger>
@@ -150,7 +150,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
         },
         {
             id: 'metadata',
-            header: '元数据',
+            header: t('table_columns.metadata'),
             cell: ({ row }) => {
                 const item = row.original;
                 return (
@@ -158,7 +158,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                         {/* 领域信息 */}
                         <div className="space-y-1">
                             <div className="flex items-center gap-1">
-                                <span className="text-xs text-gray-500">所属资源</span>
+                                <span className="text-xs text-gray-500">{t('table_columns.fileName')}</span>
                             </div>
                             <div className="text-xs text-gray-800 font-medium">
                                 <TooltipProvider delayDuration={0}>
@@ -178,7 +178,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                         {/* 领域信息 */}
                         <div className="space-y-1">
                             <div className="flex items-center gap-1">
-                                <span className="text-xs text-gray-500">领域</span>
+                                <span className="text-xs text-gray-500">{t('table_columns.domain')}</span>
                             </div>
                             <div className="text-xs text-gray-800 font-medium">
                                 {item.domain} / {item.subDomain}
@@ -186,7 +186,7 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                         </div>
                         {/* 分块大小 */}
                         <div className="space-y-1">
-                            <span className="text-xs text-gray-500">大小</span>
+                            <span className="text-xs text-gray-500">{t('table_columns.size')}</span>
                             <div className="flex items-baseline gap-1">
                                 <span className="text-sm font-bold text-blue-500">{item.size.toLocaleString()}</span>
                                 <span className="text-xs text-gray-500">characters</span>

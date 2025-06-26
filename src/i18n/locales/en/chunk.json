@@ -11,12 +11,10 @@
         "unGenerated": "unGenerated"
     },
     "table_columns": {
-        "name": "Name",
-        "content": "Content",
+        "info": "Chunk Info",
+        "metadata": "Metadata",
+        "fileName": "Source",
         "domain": "Domain",
-        "tag": "Tags",
-        "fileName": "FileName",
-        "createdAt": "CreatedAt",
         "size": "Size",
         "actions": "Actions"
     },

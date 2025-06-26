@@ -11,13 +11,11 @@
         "unGenerated": "未生成问题"
     },
     "table_columns": {
-        "name": "文本块名称",
-        "content": "文本块内容",
-        "domain": "所属领域",
-        "tag": "标签",
+        "info": "文本块信息",
+        "metadata": "元数据",
         "fileName": "所属文件",
-        "createdAt": "上传时间",
-        "size": "分块大小",
+        "domain": "领域",
+        "size": "大小",
         "actions": "操作"
     },
     "strategy_dialog": {

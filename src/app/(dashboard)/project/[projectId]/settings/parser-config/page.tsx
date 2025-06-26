@@ -16,15 +16,17 @@ import { Badge } from '@/components/ui/badge';
 import { useGetParserConfig } from '@/hooks/query/use-parser-config';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export default function ServiceConfigPage() {
     const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('document');
     const { data: parserConfigList, refresh } = useGetParserConfig(projectId);
     const defaultParser = parserConfigList.find(config => config.serviceId === PARSER_SERVICE_LIST[0]?.id);
     const [selectedParser, setSelectedParser] = useState(PARSER_SERVICE_LIST[0]);
     const [parserConfig, setParserConfig] = useState<ParserConfig>({
         apiUrl: defaultParser?.apiUrl || PARSER_SERVICE_LIST[0]?.baseUrl,
-        serviceName: defaultParser?.serviceName || PARSER_SERVICE_LIST[0]?.name,
+        serviceName: defaultParser?.serviceName || t(PARSER_SERVICE_LIST[0]?.nameKey),
         serviceId: defaultParser?.serviceId || PARSER_SERVICE_LIST[0]?.id,
         apiKey: defaultParser?.apiKey || ''
     } as ParserConfig);
@@ -34,7 +36,7 @@ export default function ServiceConfigPage() {
         const data = parserConfigList.find(config => config.serviceId === service.id);
         setParserConfig({
             apiUrl: service.baseUrl,
-            serviceName: service.name,
+            serviceName: service.id,
             serviceId: service.id,
             ...data
         } as ParserConfig);
@@ -94,7 +96,7 @@ export default function ServiceConfigPage() {
                                 >
                                     <div className="flex items-center space-x-3">
                                         <service.icon />
-                                        <span className="text-sm font-medium text-gray-700">{service.name}</span>
+                                        <span className="text-sm font-medium text-gray-700">{t(service.nameKey)}</span>
                                     </div>
                                     {/*<Switch/>*/}
                                     <div className="flex items-center gap-2">{getStatus(service.id)}</div>
@@ -109,7 +111,7 @@ export default function ServiceConfigPage() {
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center space-x-3">
                                 {selectedParser && <selectedParser.icon className={'w-6 h-6 text-blue-500'} />}
-                                <h1 className="text-2xl font-bold text-gray-900">{selectedParser?.name}</h1>
+                                <h1 className="text-2xl font-bold text-gray-900">{t(selectedParser?.nameKey)}</h1>
                             </div>
                             <div className="flex items-center space-x-4">
                                 {/*<Switch/>*/}
