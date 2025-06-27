@@ -43,7 +43,7 @@ export function DomainChart() {
                     <div className="flex items-center justify-center h-[300px]">
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <IconLoader2 className="w-4 h-4 animate-spin" />
-                            <span>${t('loading')}</span>
+                            <span>{t('loading')}</span>
                         </div>
                     </div>
                 ) : domainData?.length === 0 ? (

@@ -82,9 +82,6 @@ export default function Page() {
         }
     };
 
-    useEffect(() => {
-        console.log(uploadFormData);
-    }, [uploadFormData]);
     return (
         <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="w-full max-w-6xl mx-auto p-2 space-y-6">

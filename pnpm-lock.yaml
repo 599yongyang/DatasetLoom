@@ -218,6 +218,9 @@ dependencies:
     jotai:
         specifier: ^2.12.3
         version: 2.12.4(@types/react@18.3.22)(react@18.3.1)
+    js-tiktoken:
+        specifier: ^1.0.20
+        version: 1.0.20
     langchain:
         specifier: ^0.3.24
         version: 0.3.26(@langchain/core@0.3.61)(axios@1.9.0)(openai@4.100.0)
@@ -248,6 +251,9 @@ dependencies:
     ollama-ai-provider:
         specifier: ^1.2.0
         version: 1.2.0(zod@3.25.17)
+    p-limit:
+        specifier: ^6.2.0
+        version: 6.2.0
     pdf-parse:
         specifier: ^1.1.1
         version: 1.1.1
@@ -15193,6 +15199,16 @@ packages:
             yocto-queue: 0.1.0
         dev: true
 
+    /p-limit@6.2.0:
+        resolution:
+            {
+                integrity: sha512-kuUqqHNUqoIWp/c467RI4X6mmyuojY5jGutNU0wVTmEOOfcuwLqyMVoAi9MKi2Ak+5i9+nhmrK4ufZE8069kHA==
+            }
+        engines: { node: '>=18' }
+        dependencies:
+            yocto-queue: 1.2.1
+        dev: false
+
     /p-locate@5.0.0:
         resolution:
             {
@@ -19731,6 +19747,14 @@ packages:
             }
         engines: { node: '>=10' }
         dev: true
+
+    /yocto-queue@1.2.1:
+        resolution:
+            {
+                integrity: sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg==
+            }
+        engines: { node: '>=12.20' }
+        dev: false
 
     /zhipu-ai-provider@0.1.1(zod@3.25.17):
         resolution:

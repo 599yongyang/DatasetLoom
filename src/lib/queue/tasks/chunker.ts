@@ -1,11 +1,11 @@
 import type { Chunks } from '@prisma/client';
 import { chunker } from '@/lib/chunker';
 import path from 'path';
-import { processChunks } from '@/app/api/project/[projectId]/documents/chunker/route';
 import { getDefaultModelConfig } from '@/lib/db/model-config';
 import type { TaskParams, TaskResult } from '@/lib/queue/types';
 import { getProject } from '@/lib/db/projects';
 import { nanoid } from 'nanoid';
+import { saveChunks } from '@/lib/db/chunks';
 
 export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, workflowId, projectId } = params;
@@ -25,7 +25,7 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
             throw new Error('Missing input document data');
         }
 
-        const projectData = await getProject(projectId);
+        // const projectData = await getProject(projectId);
 
         let chunkList: Chunks[] = [];
 
@@ -52,21 +52,22 @@ export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
                 } as Chunks;
             });
         }
-
-        const model = await getDefaultModelConfig(projectId);
-
-        if (model) {
-            await processChunks({
-                chunks: chunkList,
-                model,
-                language: 'zh',
-                globalPrompt: projectData?.globalPrompt,
-                domainTreePrompt: projectData?.domainTreePrompt,
-                projectId
-            }).catch(console.error);
-        } else {
-            throw new Error('Model not found');
-        }
+        await saveChunks(chunkList);
+        //工作流暂时不主动触发分析chunk
+        // const model = await getDefaultModelConfig(projectId);
+        // if (model) {
+        //     await processChunks({
+        //         chunkId: '',
+        //         context: '',
+        //         model,
+        //         language: 'zh',
+        //         globalPrompt: projectData?.globalPrompt,
+        //         domainTreePrompt: projectData?.domainTreePrompt,
+        //         projectId
+        //     }).catch(console.error);
+        // } else {
+        //     throw new Error('Model not found');
+        // }
 
         return {
             success: true,

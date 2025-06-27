@@ -179,7 +179,12 @@ export async function getChunkDomain(projectId: string, level: 'domain' | 'subDo
     try {
         // 获取当前项目的所有 ChunkMetadata 总数
         const totalCount = await db.chunks.count({
-            where: { projectId }
+            where: {
+                projectId,
+                domain: {
+                    not: ''
+                }
+            }
         });
         if (totalCount === 0) {
             return [];
@@ -189,7 +194,7 @@ export async function getChunkDomain(projectId: string, level: 'domain' | 'subDo
             _count: {
                 id: true
             },
-            where: { projectId }
+            where: { projectId, domain: { not: '' } }
         });
         const result = domainCounts.map(item => {
             const percentage = ((item._count.id / totalCount) * 100).toFixed(1);

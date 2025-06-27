@@ -63,7 +63,7 @@ export function ModelUseRankChart() {
                         <div className="flex flex-col items-center gap-3 text-muted-foreground">
                             <IconLoader2 className="w-8 h-8 animate-spin text-primary" />
                             <div className="text-center">
-                                <p className="font-medium">${t('loading')}</p>
+                                <p className="font-medium">{t('loading')}</p>
                             </div>
                         </div>
                     </div>

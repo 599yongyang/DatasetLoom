@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileQuestion, Hash, Trash2 } from 'lucide-react';
+import { FileQuestion, Hash, Tags, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,11 +15,14 @@ import { ProjectRole } from '@/schema/types';
 import { WithPermission } from '../common/permission-wrapper';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChunkInfoSheet } from '@/components/chunks/chunk-info-sheet';
+import { useAtomValue } from 'jotai/index';
+import { selectedModelInfoAtom } from '@/atoms';
+import i18n from 'i18next';
 
 export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
     const { t } = useTranslation('chunk');
     const { projectId }: { projectId: string } = useParams();
-
+    const model = useAtomValue(selectedModelInfoAtom);
     const handleDeleteChunk = async (chunkId: string) => {
         try {
             const response = await axios.delete(`/api/project/${projectId}/chunks/${chunkId}`);
@@ -30,6 +33,30 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
         } catch (error) {
             toast.error('删除失败');
         }
+    };
+
+    const handleAnalysis = async (chunkId: string) => {
+        toast.promise(
+            axios.put(`/api/project/${projectId}/chunks`, {
+                modelConfigId: model.id,
+                chunkId: chunkId,
+                language: i18n.language
+            }),
+            {
+                position: 'top-right',
+                loading: '分析分块内容中...',
+                success: _ => {
+                    mutateChunks();
+                    return '分析完成';
+                },
+                error: error => {
+                    if (axios.isCancel(error)) {
+                        return '请求已取消'; // 显示友好提示
+                    }
+                    return error.response?.data?.error || '处理失败';
+                }
+            }
+        );
     };
 
     const columns: ColumnDef<ChunksVO>[] = [
@@ -63,9 +90,9 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             cell: ({ row }) => {
                 const item = row.original;
                 return (
-                    <div className="py-2">
+                    <div>
                         {/* 文件名和分块信息 */}
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="flex items-center gap-2 mb-2">
                             <div className="flex items-center gap-2">
                                 <Hash className="h-3 w-3 text-gray-400" />
                                 <span className="font-medium  text-sm">{item.name}</span>
@@ -176,14 +203,16 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                             </div>
                         </div>
                         {/* 领域信息 */}
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-1">
-                                <span className="text-xs text-gray-500">{t('table_columns.domain')}</span>
+                        {item.domain && (
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-1">
+                                    <span className="text-xs text-gray-500">{t('table_columns.domain')}</span>
+                                </div>
+                                <div className="text-xs text-gray-800 font-medium">
+                                    {item.domain} / {item.subDomain}
+                                </div>
                             </div>
-                            <div className="text-xs text-gray-800 font-medium">
-                                {item.domain} / {item.subDomain}
-                            </div>
-                        </div>
+                        )}
                         {/* 分块大小 */}
                         <div className="space-y-1">
                             <span className="text-xs text-gray-500">{t('table_columns.size')}</span>
@@ -203,8 +232,11 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             cell: ({ row }) => {
                 const [open, setOpen] = useState(false);
                 return (
-                    <div className="flex flex-1 justify-center gap-2">
+                    <div className="flex flex-1 justify-center gap-1">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
+                            <Button variant="ghost" size="icon" onClick={() => handleAnalysis(row.original.id)}>
+                                <Tags />
+                            </Button>
                             <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
                                 <FileQuestion />
                             </Button>

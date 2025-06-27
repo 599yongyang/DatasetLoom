@@ -87,11 +87,11 @@ model Chunks {
   documentId    String
   documentName  String
   content       String
-  summary       String
-  domain        String
-  subDomain     String
-  tags          String
-  language      String
+  summary       String          @default("")
+  domain        String          @default("")
+  subDomain     String          @default("")
+  tags          String          @default("")
+  language      String          @default("")
   size          Int
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt

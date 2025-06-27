@@ -20,6 +20,12 @@ export async function insertChunkGraph(chunkId: string, entities: EntityInput[],
 
     return db.$transaction(async tx => {
         try {
+            await tx.chunkEntities.deleteMany({
+                where: {
+                    chunkId: chunkId
+                }
+            });
+
             // 1. 先创建所有实体，并返回创建的记录
             const createdEntities = await Promise.all(
                 entities.map(e =>

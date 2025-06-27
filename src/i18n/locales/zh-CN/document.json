@@ -52,8 +52,8 @@
         },
         "parsers": {
             "native": {
-                "name": "Native",
-                "desc": "Using built-in parser, suitable for simple documents.",
+                "name": "原生解析",
+                "desc": "使用内置解析器，适合简单文档",
                 "features": ["简单文档", "快速处理", "无需配置"]
             },
             "unstructured": {

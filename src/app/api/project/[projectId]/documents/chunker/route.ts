@@ -2,24 +2,15 @@ import { NextResponse } from 'next/server';
 import { getDocumentByIds } from '@/lib/db/documents';
 import { chunker } from '@/lib/chunker';
 import path from 'path';
-import { saveChunks } from '@/lib/db/chunks';
 import { type Chunks } from '@prisma/client';
-import getLabelPrompt from '@/lib/llm/prompts/label';
 import { nanoid } from 'nanoid';
-import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
-import { doubleCheckModelOutput } from '@/lib/utils';
-import { insertChunkGraph } from '@/lib/db/chunk-graph';
-import type { Language } from '@/lib/llm/prompts/type';
-import { getModelConfigById } from '@/lib/db/model-config';
-import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
-import LLMClient from '@/lib/llm/core';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
 import { ProjectRole } from '@/schema/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
-import { getProject } from '@/lib/db/projects';
 import cache, { generateChunkConfigHash } from '@/lib/utils/cache';
+import { saveChunks } from '@/lib/db/chunks';
 
 /**
  * 文档分块
@@ -55,7 +46,11 @@ export const POST = compose(
                 name: chunkId,
                 documentId: doc.id,
                 documentName: doc.fileName,
-                content: text.pageContent,
+                content: text.pageContent
+                    .split('\n')
+                    .filter(line => line.trim().length > 0)
+                    .map(line => line.trim())
+                    .join('\n'),
                 size: text.pageContent.length
             } as Chunks);
         });
@@ -72,14 +67,11 @@ export const PUT = compose(
 
     try {
         const body = await request.json();
-        const { chunkConfigHash, modelConfigId, language } = body;
+        const { chunkConfigHash } = body;
 
         // 参数验证
-        if (!chunkConfigHash || !modelConfigId || !language) {
-            return NextResponse.json(
-                { error: '缺少必要参数: chunkConfigHash, modelConfigId 或 language' },
-                { status: 400 }
-            );
+        if (!chunkConfigHash) {
+            return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
         }
 
         // 获取缓存数据
@@ -89,27 +81,8 @@ export const PUT = compose(
             return NextResponse.json({ error: '缓存数据无效或已过期，请重新上传操作' }, { status: 400 });
         }
 
-        // 获取模型配置
-        const model = await getModelConfigById(modelConfigId);
-        if (!model) {
-            return NextResponse.json({ error: '指定的模型配置不存在' }, { status: 404 });
-        }
-
-        // 获取项目数据
-        const projectData = await getProject(projectId);
-        if (!projectData) {
-            return NextResponse.json({ error: '项目数据获取失败' }, { status: 404 });
-        }
-
         // 处理分块数据
-        await processChunks({
-            chunks: cachedChunks,
-            model,
-            language,
-            globalPrompt: projectData.globalPrompt,
-            domainTreePrompt: projectData.domainTreePrompt,
-            projectId
-        });
+        await saveChunks(cachedChunks);
 
         return NextResponse.json({
             success: true,
@@ -125,108 +98,3 @@ export const PUT = compose(
         );
     }
 });
-
-interface ProcessChunksOptions {
-    chunks: Chunks[];
-    model: ModelConfigWithProvider;
-    language: Language;
-    globalPrompt?: string;
-    domainTreePrompt?: string;
-    projectId: string;
-    batchSize?: number;
-    retryCount?: number;
-}
-
-export async function processChunks(options: ProcessChunksOptions) {
-    const {
-        chunks,
-        model,
-        language,
-        globalPrompt,
-        domainTreePrompt,
-        projectId,
-        batchSize = 5,
-        retryCount = 2
-    } = options;
-
-    const llmClient = new LLMClient(model);
-    const totalChunks = chunks.length;
-    let processedCount = 0;
-    let failedCount = 0;
-    const failedChunks: string[] = [];
-
-    // 进度报告函数
-    const reportProgress = () => {
-        console.log(`处理进度: ${processedCount}/${totalChunks} (失败: ${failedCount})`);
-    };
-
-    for (let i = 0; i < totalChunks; i += batchSize) {
-        const batch = chunks.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (chunk, index) => {
-            let attempt = 0;
-            let lastError: Error | null = null;
-
-            while (attempt <= retryCount) {
-                try {
-                    const prompt = getLabelPrompt({
-                        text: chunk.content,
-                        language,
-                        globalPrompt,
-                        domainTreePrompt
-                    });
-
-                    const { text } = await llmClient.chat(prompt);
-                    const llmOutput = await doubleCheckModelOutput(text, documentAnalysisSchema);
-
-                    const chunkData = {
-                        id: chunk.id,
-                        name: chunk.name,
-                        projectId,
-                        documentId: chunk.documentId,
-                        documentName: chunk.documentName,
-                        content: chunk.content,
-                        size: chunk.size,
-                        summary: llmOutput.summary,
-                        domain: llmOutput.domain,
-                        subDomain: llmOutput.subDomain,
-                        tags: Array.isArray(llmOutput.tags) ? llmOutput.tags.join(',') : '',
-                        language
-                    } as Chunks;
-
-                    // 使用事务处理保存操作
-                    await saveChunks([chunkData]);
-                    if (llmOutput.entities && llmOutput.relations) {
-                        await insertChunkGraph(chunk.id, llmOutput.entities, llmOutput.relations);
-                    }
-
-                    processedCount++;
-                    reportProgress();
-                    return chunkData;
-                } catch (error) {
-                    lastError = error instanceof Error ? error : new Error(String(error));
-                    attempt++;
-
-                    if (attempt <= retryCount) {
-                        // 指数退避重试
-                        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
-                        continue;
-                    }
-
-                    console.error(`处理分块 ${chunk.id} 失败:`, lastError.message);
-                    failedCount++;
-                    failedChunks.push(chunk.id);
-                    return null;
-                }
-            }
-        });
-
-        // 等待当前批次完成
-        await Promise.all(batchPromises);
-    }
-
-    if (failedCount > 0) {
-        console.warn(`处理完成，但有 ${failedCount} 个分块处理失败。失败的ID:`, failedChunks);
-    } else {
-        console.log('所有分块处理成功完成');
-    }
-}

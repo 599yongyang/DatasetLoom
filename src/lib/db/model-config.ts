@@ -82,6 +82,7 @@ export async function copyModelConfig(newProjectId: string, copyProjectId: strin
                         ...config,
                         id: nanoid(),
                         providerId: newProviderId,
+                        projectId: newProjectId,
                         createdAt: new Date(),
                         updatedAt: new Date()
                     }

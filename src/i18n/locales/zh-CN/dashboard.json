@@ -11,7 +11,6 @@
         "desc": "各领域的占比情况",
         "level1": "一级领域",
         "level2": "二级领域",
-        "loading": "加载中...",
         "nodata": "暂无数据",
         "nodata_desc": "请先添加知识库并进行分块处理",
         "count": "数量",
@@ -38,5 +37,6 @@
             "input": "输入 Tokens",
             "output": "输出 Tokens"
         }
-    }
+    },
+    "loading": "加载中..."
 }
