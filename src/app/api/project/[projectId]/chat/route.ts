@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import LLMClient from '@/lib/llm/core';
-import { getModelConfigById } from '@/lib/db/model-config';
-import { deleteChatById, getChatById, saveChat, updateChatVisiblityById } from '@/lib/db/chat';
+import LLMClient from '@/lib/ai/core';
+import { getModelConfigById } from '@/server/db/model-config';
+import { deleteChatById, getChatById, saveChat, updateChatVisiblityById } from '@/server/db/chat';
 import { getMostRecentUserMessage } from '@/lib/utils';
 import type { Chat, ChatMessages } from '@prisma/client';
-import { saveChatMessage } from '@/lib/db/chat-message';
+import { saveChatMessage } from '@/server/db/chat-message';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 

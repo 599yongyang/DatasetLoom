@@ -2,7 +2,7 @@ import { type ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useRe
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Fragment } from 'react';
 import { Pagination } from '@/components/data-table/pagination';
-import type { QuestionsDTO } from '@/schema/questions';
+import type { QuestionsDTO } from '@/server/db/schema/questions';
 import { Separator } from '@/components/ui/separator';
 import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,7 @@ import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Info, Trash2 } from 'lucide-react';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { WithPermission } from '../common/permission-wrapper';
 
 interface DataTableProps<TData, TValue> {

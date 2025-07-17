@@ -45,6 +45,8 @@ model Projects {
   PreferencePair   PreferencePair[]
   ParserConfig     ParserConfig[]
   Chat             Chat[]
+  ImageFile        ImageFile[]
+  ImageBlock       ImageBlock[]
 }
 
 model ProjectMember {
@@ -95,7 +97,6 @@ model Chunks {
   size          Int
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
-  Questions     Questions[]
   ChunkEntities ChunkEntities[]
 
   @@index([projectId])
@@ -139,10 +140,13 @@ model Questions {
   id             String           @id @default(nanoid())
   project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId      String
-  chunk          Chunks           @relation(fields: [chunkId], references: [id], onDelete: Cascade)
-  chunkId        String
+  contextType    String // TEXT(文本)  IMAGE(图像)  AUDIO VIDEO
+  contextId      String // 上下文 ID
+  contextName    String // 显示名称
+  contextData    String // 额外信息（如坐标、OCR 内容等）
   question       String
-  label          String
+  realQuestion   String           @default("")
+  label          String           @default("")
   answered       Boolean          @default(false)
   deleted        Boolean          @default(false)
   confirmed      Boolean          @default(false)
@@ -155,36 +159,44 @@ model Questions {
 }
 
 model DatasetSamples {
-  id                     String    @id @default(nanoid())
-  project                Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId              String
-  questions              Questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId             String
-  question               String
-  answer                 String
-  chunkName              String
-  chunkContent           String
-  model                  String
-  referenceLabel         String
-  evidence               String
-  cot                    String
-  confidence             Float
-  isPrimaryAnswer        Boolean   @default(false)
-  aiScoreModel           String?
-  factualAccuracyScore   Float?
-  logicalIntegrityScore  Float?
-  expressionQualityScore Float?
-  safetyComplianceScore  Float?
-  compositeScore         Float?
-  factualInfo            String?
-  logicalInfo            String?
-  expressionInfo         String?
-  safetyInfo             String?
-  compositeInfo          String?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  id                String              @id @default(nanoid())
+  project           Projects            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId         String
+  questions         Questions           @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId        String
+  question          String
+  answer            String
+  model             String
+  referenceLabel    String
+  evidence          String
+  cot               String
+  confidence        Float
+  isPrimaryAnswer   Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  DatasetEvaluation DatasetEvaluation[]
 
   @@index([projectId])
+}
+
+model DatasetEvaluation {
+  id                     String         @id @default(nanoid())
+  sampleId               String
+  sample                 DatasetSamples @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+  type                   String // AI or Human
+  model                  String // 打分模型
+  factualAccuracyScore   Float
+  factualInfo            String
+  logicalIntegrityScore  Float
+  logicalInfo            String
+  expressionQualityScore Float
+  expressionInfo         String
+  safetyComplianceScore  Float
+  safetyInfo             String
+  compositeScore         Float
+  compositeInfo          String
+
+  createdAt DateTime @default(now())
 }
 
 model PreferencePair {
@@ -342,4 +354,33 @@ model ModelUsage {
 
   @@index([createdAt])
   @@index([modelConfigId])
+}
+
+model ImageFile {
+  id         String       @id @default(nanoid())
+  project    Projects     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  fileName   String
+  width      Int
+  height     Int
+  size       Int
+  url        String
+  ocrText    String?
+  tags       String       @default("")
+  status     String       @default("PENDING")
+  createdAt  DateTime     @default(now())
+  ImageBlock ImageBlock[]
+}
+
+model ImageBlock {
+  id        String    @id @default(nanoid())
+  project   Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  image     ImageFile @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  imageId   String
+  label     String
+  x         Float
+  y         Float
+  width     Float
+  height    Float
 }

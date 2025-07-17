@@ -2,7 +2,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { ProjectsWithCounts } from '@/schema/project';
+import type { ProjectsWithCounts } from '@/server/db/schema/project';
 import { Database, MessageCircleQuestion } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { useAtom } from 'jotai/index';
 import { selectedProjectAtom } from '@/atoms';
 import { WithPermission } from '../common/permission-wrapper';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 
 export function ProjectCards({ projects, getProjects }: { projects: ProjectsWithCounts[]; getProjects: () => void }) {
     const { t } = useTranslation('project');

@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 
 const formSchema = z.object({

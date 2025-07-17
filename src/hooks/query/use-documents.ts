@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { buildURL, fetcher } from '@/lib/utils';
 import { useMemo } from 'react';
-import type { DocumentsWithCount } from '@/schema/documents';
+import type { DocumentsWithCount } from '@/server/db/schema/documents';
 
 interface Response {
     data: DocumentsWithCount[];

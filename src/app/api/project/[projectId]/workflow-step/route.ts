@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getWorkflowById } from '@/lib/db/workflow';
+import { getWorkflowById } from '@/server/db/workflow';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 
 /**

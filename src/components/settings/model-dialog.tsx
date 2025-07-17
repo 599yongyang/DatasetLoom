@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { RefreshCw, Thermometer, Hash, ChevronsUpDown, Check } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { Slider } from '@/components/ui/slider';
@@ -18,6 +17,31 @@ import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { DEFAULT_MODEL_SETTINGS } from '@/constants/model';
 import { useModelConfigSelect } from '@/hooks/query/use-llm';
+import MultipleSelector, { type Option } from '@/components/ui/multiselect';
+import { ModelConfigType } from '@/server/db/types';
+
+const Ability: Option[] = [
+    {
+        value: ModelConfigType.TEXT,
+        label: '对话能力'
+    },
+    {
+        value: ModelConfigType.VISION,
+        label: '视觉能力'
+    },
+    {
+        value: ModelConfigType.COT,
+        label: '推理能力'
+    },
+    {
+        value: ModelConfigType.TOOL,
+        label: '工具能力'
+    },
+    {
+        value: ModelConfigType.EMBED,
+        label: '嵌入能力'
+    }
+];
 
 export function ModelDialog({
     open,
@@ -41,6 +65,7 @@ export function ModelDialog({
     const [modelOpen, setModelOpen] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState<LlmProviders>({} as LlmProviders);
     const { refresh: refreshModelSelect } = useModelConfigSelect(projectId);
+    const [abilityValue, setAbilityValue] = useState<Option[]>([]);
     const getProviderModels = () => {
         axios
             .get(`/api/llm/model?providerName=${provider.name}`)
@@ -106,7 +131,8 @@ export function ModelDialog({
             .post(`/api/project/${projectId}/model-config`, {
                 ...modelData,
                 providerId: provider.id,
-                projectId
+                projectId,
+                type: abilityValue.map(item => item.value).join(',')
             })
             .then(response => {
                 refresh();
@@ -123,9 +149,17 @@ export function ModelDialog({
     useEffect(() => {
         if (model?.id) {
             setModelData({ ...model });
+            setAbilityValue(
+                model.type.split(',').map(
+                    item =>
+                        Ability.find(ability => ability.value === item) || {
+                            value: 'unknown',
+                            label: '未知能力'
+                        }
+                )
+            );
         } else {
             setModelData({
-                type: 'text',
                 maxTokens: DEFAULT_MODEL_SETTINGS.maxTokens,
                 temperature: DEFAULT_MODEL_SETTINGS.temperature
             } as ModelConfig);
@@ -258,15 +292,17 @@ export function ModelDialog({
                                 {t('model_dialog.model_type')}
                             </Label>
                         </div>
-                        <Select value={modelData.type} onValueChange={value => handleChange('type', value)}>
-                            <SelectTrigger id="type" className="w-full">
-                                <SelectValue placeholder="选择模型标签" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="text">{t('model_config.lan_model')}</SelectItem>
-                                <SelectItem value="vision">{t('model_config.vision_model')}</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <MultipleSelector
+                            value={abilityValue}
+                            onChange={options => {
+                                setAbilityValue(options);
+                            }}
+                            defaultOptions={Ability}
+                            placeholder="选择模型能力"
+                            hideClearAllButton
+                            hidePlaceholderWhenSelected
+                            emptyIndicator={<p className="text-center text-sm">No results found</p>}
+                        />
                     </div>
 
                     <div className="space-y-4 pt-2">

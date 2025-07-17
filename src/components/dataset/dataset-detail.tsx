@@ -17,7 +17,7 @@ import { nanoid } from 'nanoid';
 import { AIScoreDashboard } from '@/components/dataset/ai-score-chart';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/atoms';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { WithPermission } from '../common/permission-wrapper';
 import { useParams } from 'next/navigation';
 

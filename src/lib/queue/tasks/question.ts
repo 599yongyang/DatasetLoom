@@ -1,13 +1,13 @@
 import type { Chunks, Questions } from '@prisma/client';
-import { getQuestionPrompt } from '@/lib/llm/prompts/question';
-import { questionsSchema } from '@/lib/llm/prompts/schema';
+import { getQuestionPrompt } from '@/lib/ai/prompts/question';
+import { questionsSchema } from '@/lib/ai/prompts/schema';
 import { doubleCheckModelOutput } from '@/lib/utils';
-import { saveQuestions } from '@/lib/db/questions';
-import LLMClient from '@/lib/llm/core';
-import { getModelConfigById } from '@/lib/db/model-config';
+import { saveQuestions } from '@/server/db/questions';
+import LLMClient from '@/lib/ai/core';
+import { getModelConfigById } from '@/server/db/model-config';
 import { nanoid } from 'nanoid';
-import { getChunkByIds } from '@/lib/db/chunks';
-import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
+import { getChunkByIds } from '@/server/db/chunks';
+import type { ModelConfigWithProvider } from '@/lib/ai/core/types';
 import type { TaskParams, TaskResult } from '@/lib/queue/types';
 
 export async function questionTask(params: TaskParams): Promise<TaskResult> {

@@ -4,10 +4,10 @@ import {
     getPreferencePair,
     insertPreferencePair,
     updatePreferencePair
-} from '@/lib/db/preference-pair';
+} from '@/server/db/preference-pair';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 

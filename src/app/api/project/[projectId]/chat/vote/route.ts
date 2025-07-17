@@ -1,9 +1,9 @@
-import { getVotesByChatId, voteMessage } from '@/lib/db/chat-message-vote';
-import { getChatById } from '@/lib/db/chat';
+import { getVotesByChatId, voteMessage } from '@/server/db/chat-message-vote';
+import { getChatById } from '@/server/db/chat';
 import { NextResponse } from 'next/server';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 

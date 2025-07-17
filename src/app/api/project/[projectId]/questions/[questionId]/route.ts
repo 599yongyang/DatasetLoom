@@ -6,11 +6,11 @@ import {
     getQuestionsCount,
     getQuestionWithDatasetById,
     updateQuestion
-} from '@/lib/db/questions';
+} from '@/server/db/questions';
 import { type Questions } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 

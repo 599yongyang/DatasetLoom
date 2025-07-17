@@ -1,8 +1,8 @@
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
 import type { ApiContext } from '@/types/api-context';
-import { ProjectRole } from '@/schema/types';
-import { getChunkDomain } from '@/lib/db/chunks';
+import { ProjectRole } from 'src/server/db/types';
+import { getChunkDomain } from '@/server/db/chunks';
 
 /**
  * 获取知识库领域分析

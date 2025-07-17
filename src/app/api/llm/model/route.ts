@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createLlmModels, getLlmModelsByProviderName } from '@/lib/db/llm-models'; // 导入db实例
+import { createLlmModels, getLlmModelsByProviderName } from '@/server/db/llm-models'; // 导入db实例
 
 // 获取LLM模型
 export async function GET(request: Request) {

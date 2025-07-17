@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { createDocument, delDocumentByIds, getDocumentsPagination } from '@/lib/db/documents';
+import { createDocument, delDocumentByIds, getDocumentsPagination } from '@/server/db/documents';
 import { getFileMD5, getProjectRoot } from '@/lib/utils/file';
 import type { Documents } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 

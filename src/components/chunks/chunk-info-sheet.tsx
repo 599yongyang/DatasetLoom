@@ -18,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type Tag, TagInput } from 'emblor';
 import { toast } from 'sonner';
 import axios from 'axios';
-import type { ChunksVO } from '@/schema/chunks';
+import type { ChunksVO } from '@/server/db/schema/chunks';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Edit } from 'lucide-react';

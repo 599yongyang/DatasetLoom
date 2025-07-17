@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getChunkGraph } from '@/lib/db/chunk-graph';
+import { getChunkGraph } from '@/server/db/chunk-graph';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 
 /**

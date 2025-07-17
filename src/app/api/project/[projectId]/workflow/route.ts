@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { deleteWorkflow, getWorkflow, insertWorkflow } from '@/lib/db/workflow';
+import { deleteWorkflow, getWorkflow, insertWorkflow } from '@/server/db/workflow';
 import queueService from '@/lib/queue';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 

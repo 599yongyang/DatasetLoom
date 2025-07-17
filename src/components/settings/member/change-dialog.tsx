@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 export function ChangeMemberRoleDialog({
     member,
     open,

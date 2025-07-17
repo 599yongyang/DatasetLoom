@@ -3,7 +3,7 @@ import { z } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
 import { nanoid } from 'nanoid';
-import { getUserById, updatePassword, updateUser } from '@/lib/db/users';
+import { getUserById, updatePassword, updateUser } from '@/server/db/users';
 import { auth } from '@/server/auth';
 
 const FileSchema = z.object({

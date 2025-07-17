@@ -1,11 +1,11 @@
 import type { Chunks } from '@prisma/client';
 import { chunker } from '@/lib/chunker';
 import path from 'path';
-import { getDefaultModelConfig } from '@/lib/db/model-config';
+import { getDefaultModelConfig } from '@/server/db/model-config';
 import type { TaskParams, TaskResult } from '@/lib/queue/types';
-import { getProject } from '@/lib/db/projects';
+import { getProject } from '@/server/db/projects';
 import { nanoid } from 'nanoid';
-import { saveChunks } from '@/lib/db/chunks';
+import { saveChunks } from '@/server/db/chunks';
 
 export async function chunkerTask(params: TaskParams): Promise<TaskResult> {
     const { step, inputs, workflowId, projectId } = params;

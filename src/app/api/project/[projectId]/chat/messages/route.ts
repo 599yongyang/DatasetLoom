@@ -1,9 +1,9 @@
-import { getMessagesByChatId } from '@/lib/db/chat-message';
+import { getMessagesByChatId } from '@/server/db/chat-message';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ChatVisibilityType, ProjectRole } from '@/schema/types';
+import { ChatVisibilityType, ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
-import { getChatById } from '@/lib/db/chat';
+import { getChatById } from '@/server/db/chat';
 
 /**
  * 获取聊天消息

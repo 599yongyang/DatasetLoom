@@ -4,9 +4,9 @@ import {
     getProjectMember,
     removeProjectMember,
     updateProjectMemberRole
-} from '@/lib/db/project-member';
-import { getUserByEmails } from '@/lib/db/users';
-import { ProjectRole } from '@/schema/types';
+} from '@/server/db/project-member';
+import { getUserByEmails } from '@/server/db/users';
+import { ProjectRole } from 'src/server/db/types';
 import { compose } from '@/lib/middleware/compose';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import { AuthGuard } from '@/lib/middleware/auth-guard';

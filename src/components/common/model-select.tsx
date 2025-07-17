@@ -12,22 +12,24 @@ import { useParams, useRouter } from 'next/navigation';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
 import { useAtomValue } from 'jotai';
 import { ModelIcon } from '@lobehub/icons';
+import type { ModelConfigType } from '@/lib/data-dictionary';
 
 export function ModelSelect({
     value,
     setValue,
-    showConfigButton = true
+    showConfigButton = true,
+    filter
 }: {
     value: string;
     setValue: (value: string) => void;
     showConfigButton?: boolean;
+    filter?: ModelConfigType;
 }) {
     let { projectId } = useParams();
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const modelConfigList = useAtomValue(modelConfigListAtom);
     const selectedModelInfo = useAtomValue(selectedModelInfoAtom);
-
     const [search, setSearch] = useState('');
 
     useEffect(() => {
@@ -40,7 +42,9 @@ export function ModelSelect({
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" aria-expanded={open} className=" w-full justify-between">
-                    {modelConfigList.find(modelConfig => modelConfig.id === value) ? (
+                    {modelConfigList
+                        .filter(modelConfig => !filter || modelConfig.type.includes(filter))
+                        .find(modelConfig => modelConfig.id === value) ? (
                         <div className="flex items-center gap-2">
                             <ModelIcon
                                 model={modelConfigList.find(modelConfig => modelConfig.id === value)?.modelId}
@@ -73,8 +77,10 @@ export function ModelSelect({
                         </CommandEmpty>
                         <CommandGroup>
                             {modelConfigList
-                                .filter(modelConfig =>
-                                    modelConfig.modelName.toLowerCase().includes(search.toLowerCase())
+                                .filter(
+                                    modelConfig =>
+                                        modelConfig.modelName.toLowerCase().includes(search.toLowerCase()) &&
+                                        (!filter || modelConfig.type.includes(filter))
                                 )
                                 .map((modelConfig: any) => (
                                     <CommandItem

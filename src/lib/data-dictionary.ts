@@ -61,3 +61,11 @@ export const projectRoleColorMap = {
     EDITOR: 'bg-blue-100 text-blue-800',
     VIEWER: 'bg-green-100 text-green-800'
 };
+
+export type QuestionType = 'TEXT' | 'IMAGE';
+export const questionTypeMap: Record<QuestionType, string> = {
+    TEXT: '文档',
+    IMAGE: '图像'
+};
+
+export type ModelConfigType = 'COT' | 'EMBED' | 'TEXT' | 'TOOL' | 'VISION' | 'ALL';

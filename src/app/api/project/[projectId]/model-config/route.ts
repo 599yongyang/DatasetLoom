@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getModelConfig, saveModelConfig } from '@/lib/db/model-config';
-import { getLlmProviderIds, saveLlmProvider } from '@/lib/db/llm-providers';
+import { getModelConfig, saveModelConfig } from '@/server/db/model-config';
+import { getLlmProviderIds, saveLlmProvider } from '@/server/db/llm-providers';
 import { nanoid } from 'nanoid';
 import type { LlmProviders } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import { DEFAULT_PROVIDERS } from '@/constants/model';

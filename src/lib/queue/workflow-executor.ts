@@ -1,4 +1,4 @@
-import { db } from '@/server/db';
+import { db } from '@/server/db/db';
 import { WorkflowStatus } from '@/lib/data-dictionary';
 import type { DependencyMap, StepMap, WorkflowStepWithNodeData } from '@/lib/dag';
 import type { ExecuteDAGResult, TaskResult } from './types';

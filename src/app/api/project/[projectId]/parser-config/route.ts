@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
 import { type ParserConfig } from '@prisma/client';
-import { checkParserConfig, createParserConfig, getParserConfigList, updateParserConfig } from '@/lib/db/parser-config';
+import {
+    checkParserConfig,
+    createParserConfig,
+    getParserConfigList,
+    updateParserConfig
+} from '@/server/db/parser-config';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 

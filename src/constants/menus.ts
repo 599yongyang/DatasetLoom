@@ -10,12 +10,13 @@ import {
     BotMessageSquare,
     SquareSplitVertical,
     Workflow,
-    LayoutDashboard
+    LayoutDashboard,
+    FileImage
 } from 'lucide-react';
 
 import type { IMenu } from '@/schema/menu';
 import type { CurrentUser } from '@/server/auth';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { hasPermission } from '@/lib/utils/auth-helper';
 
 export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => {
@@ -28,21 +29,49 @@ export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => 
             role: ProjectRole.VIEWER
         },
         {
-            title: 'documents',
+            title: 'knowledge.title',
             icon: FileText,
-            to: `/project/${projectId}/documents`,
-            role: ProjectRole.VIEWER
+            to: `/project/${projectId}/knowledge/document`,
+            role: ProjectRole.VIEWER,
+            children: [
+                {
+                    title: 'knowledge.document',
+                    icon: FileText,
+                    to: `/project/${projectId}/knowledge/document`,
+                    role: ProjectRole.VIEWER
+                },
+                {
+                    title: 'knowledge.image',
+                    icon: FileText,
+                    to: `/project/${projectId}/knowledge/image`,
+                    role: ProjectRole.VIEWER
+                }
+            ]
         },
         {
-            title: 'chunks',
+            title: 'chunk.title',
             icon: SquareSplitVertical,
-            to: `/project/${projectId}/chunks`,
-            role: ProjectRole.VIEWER
+            to: `/project/${projectId}/chunk/document`,
+            role: ProjectRole.VIEWER,
+            children: [
+                {
+                    title: 'chunk.document',
+                    icon: FileText,
+                    to: `/project/${projectId}/chunk/document`,
+                    role: ProjectRole.VIEWER
+                },
+                {
+                    title: 'chunk.image',
+                    icon: FileText,
+                    to: `/project/${projectId}/chunk/image`,
+                    role: ProjectRole.VIEWER
+                }
+            ]
         },
         {
-            title: 'questions',
+            title: 'question',
             icon: MessageCircleQuestion,
-            to: `/project/${projectId}/questions`,
+            to: `/project/${projectId}/question`,
             role: ProjectRole.VIEWER
         },
         {
@@ -57,44 +86,44 @@ export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => 
             to: `/project/${projectId}/chat`,
             role: ProjectRole.VIEWER
         },
+        // {
+        //     title: 'workflow',
+        //     icon: Workflow,
+        //     to: `/project/${projectId}/workflow`,
+        //     role: ProjectRole.VIEWER
+        // },
         {
-            title: 'workflow',
-            icon: Workflow,
-            to: `/project/${projectId}/workflow`,
-            role: ProjectRole.VIEWER
-        },
-        {
-            title: 'settings',
+            title: 'settings.title',
             icon: Settings,
             to: `/project/${projectId}/settings`,
             role: ProjectRole.VIEWER,
             children: [
                 {
-                    title: 'project_info',
+                    title: 'settings.project_info',
                     icon: Info,
                     to: `/project/${projectId}/settings/project-info`,
                     role: ProjectRole.VIEWER
                 },
                 {
-                    title: 'project_member',
+                    title: 'settings.project_member',
                     icon: Info,
                     to: `/project/${projectId}/settings/project-member`,
                     role: ProjectRole.ADMIN
                 },
                 {
-                    title: 'model_config',
+                    title: 'settings.model_config',
                     icon: Brain,
                     to: `/project/${projectId}/settings/model-config`,
                     role: ProjectRole.ADMIN
                 },
                 {
-                    title: 'parser_config',
+                    title: 'settings.parser_config',
                     icon: ListTodo,
                     to: `/project/${projectId}/settings/parser-config`,
                     role: ProjectRole.ADMIN
                 },
                 {
-                    title: 'prompt_config',
+                    title: 'settings.prompt_config',
                     icon: SquareTerminal,
                     to: `/project/${projectId}/settings/prompt-config`,
                     role: ProjectRole.ADMIN

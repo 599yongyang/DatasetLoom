@@ -10,8 +10,9 @@
     "answer_count": "{{count}} 个答案",
     "table_columns": {
         "question": "问题",
+        "type": "类别",
         "label": "标签",
-        "chunk": "所属文本块",
+        "chunk": "引用文件",
         "createdAt": "创建时间",
         "actions": "操作"
     },
@@ -19,7 +20,7 @@
         "title": "问题详情",
         "question": "问题",
         "tag": "标签",
-        "chunk": "所属文本块",
+        "chunk": "引用文件",
         "save_btn": "保存",
         "cancel_btn": "取消"
     },

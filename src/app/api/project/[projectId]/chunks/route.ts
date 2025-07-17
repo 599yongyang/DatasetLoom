@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { deleteChunkByIds, getChunkById, getChunkByIds, getChunksPagination } from '@/lib/db/chunks';
+import { deleteChunkByIds, getChunkById, getChunkByIds, getChunksPagination } from '@/server/db/chunks';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
-import { getProject } from '@/lib/db/projects';
-import { getModelConfigById } from '@/lib/db/model-config';
+import { getProject } from '@/server/db/projects';
+import { getModelConfigById } from '@/server/db/model-config';
 import { processChunks } from '@/app/api/project/[projectId]/documents/chunker/actions';
 
 /**

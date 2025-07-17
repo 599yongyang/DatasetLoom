@@ -3,7 +3,7 @@
 import { z } from 'zod';
 
 import { signIn } from '@/server/auth';
-import { createUser, getUserByEmail } from '@/lib/db/users';
+import { createUser, getUserByEmail } from '@/server/db/users';
 import type { Users } from '@prisma/client';
 
 const signUpSchema = z.object({

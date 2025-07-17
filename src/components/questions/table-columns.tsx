@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import type { QuestionsDTO } from '@/schema/questions';
+import type { QuestionsDTO } from '@/server/db/schema/questions';
 import { useTranslation } from 'react-i18next';
 import { QuestionDialog } from '@/components/questions/question-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -13,12 +13,20 @@ import { useParams } from 'next/navigation';
 import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dialog';
 import React, { useState } from 'react';
 import { PreferencePairDialog } from '@/components/preference-pair/preference-pair-dialog';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole, QuestionContextType } from 'src/server/db/types';
 import { WithPermission } from '../common/permission-wrapper';
+import MentionsTextarea from '@/components/ui/mentions-textarea';
+import { type QuestionType, questionTypeMap } from '@/lib/data-dictionary';
+import { useGenerateDataset } from '@/hooks/use-generate-dataset';
+import { useAtomValue } from 'jotai/index';
+import { selectedModelInfoAtom } from '@/atoms';
+import { type DatasetStrategyParams, defaultDatasetStrategyConfig } from '@/types/dataset';
 
 export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: () => void }) {
     const { t } = useTranslation('question');
     const { projectId }: { projectId: string } = useParams();
+    const { generateSingleDataset } = useGenerateDataset();
+    const model = useAtomValue(selectedModelInfoAtom);
     const deleteQuestion = (questionId: string) => {
         toast.promise(axios.delete(`/api/project/${projectId}/questions/${questionId}`), {
             loading: '删除中...',
@@ -28,6 +36,25 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             },
             error: e => e.response?.data?.message || '删除失败'
         });
+    };
+    const [open, setOpen] = useState(false);
+
+    const genAnswer = async (question: QuestionsDTO) => {
+        if (question.contextType === QuestionContextType.IMAGE) {
+            await generateSingleDataset({
+                projectId,
+                questionId: question.id,
+                questionInfo: question.question,
+                datasetStrategyParams: {
+                    modelConfigId: model.id,
+                    modelName: model.modelName,
+                    temperature: model.temperature,
+                    maxTokens: model.maxTokens
+                } as DatasetStrategyParams
+            });
+        } else {
+            setOpen(true);
+        }
     };
 
     const columns: ColumnDef<QuestionsDTO>[] = [
@@ -84,30 +111,17 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
         {
             accessorKey: 'question',
             header: t('table_columns.question'),
-            cell: ({ row }) => {
-                return (
-                    <WithPermission
-                        required={ProjectRole.EDITOR}
-                        projectId={projectId}
-                        fallback={
-                            <div className={'flex items-center gap-2'}>
-                                {row.original.question}
-                                {row.original.DatasetSamples.length > 0 && (
-                                    <Badge
-                                        variant="outline"
-                                        className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3"
-                                    >
-                                        {t('answer_count', { count: row.original.DatasetSamples.length })}
-                                    </Badge>
-                                )}
-                            </div>
-                        }
-                    >
-                        <QuestionDialog item={row.original} getQuestions={mutateQuestions} />
-                    </WithPermission>
-                );
-            },
+            cell: ({ row }) => <MentionsTextarea value={row.original.question} readOnly />,
             enableHiding: false
+        },
+        {
+            accessorKey: 'type',
+            header: t('table_columns.type'),
+            cell: ({ row }) => (
+                <Badge variant="outline" className="text-muted-foreground">
+                    {questionTypeMap[row.original.contextType as QuestionType]}
+                </Badge>
+            )
         },
         {
             accessorKey: 'label',
@@ -131,7 +145,7 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             header: t('table_columns.chunk'),
             cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground">
-                    {row.original.chunk.name}
+                    {row.original.contextName}
                 </Badge>
             )
         },
@@ -144,7 +158,6 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             id: 'actions',
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,
             cell: ({ row }) => {
-                const [open, setOpen] = useState(false);
                 const [ppOpen, setPpOpen] = useState(false);
                 return (
                     <div className="flex flex-1 justify-center gap-2">
@@ -154,7 +167,7 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
                                     <SquarePen size={30} />
                                 </Button>
                             </QuestionDialog>
-                            <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+                            <Button variant="ghost" size="icon" onClick={() => genAnswer(row.original)}>
                                 <Wand size={30} />
                             </Button>
 

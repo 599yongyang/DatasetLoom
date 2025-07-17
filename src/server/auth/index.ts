@@ -2,8 +2,8 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
 import { authConfig } from './config';
-import { getUserByEmail } from '@/lib/db/users';
 import type { ProjectRole } from '@/lib/data-dictionary';
+import { getUserByEmail } from '@/server/db/users';
 
 export type CurrentUser = {
     id: string;

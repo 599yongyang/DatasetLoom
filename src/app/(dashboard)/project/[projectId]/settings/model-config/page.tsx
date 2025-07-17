@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Plus, Key, Globe, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, Key, Globe, Edit, Trash2, Hammer, ScanEye, BrainCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -22,6 +22,12 @@ import { nanoid } from 'nanoid';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProviderDialog } from '@/components/settings/provider-dialog';
 import { DEFAULT_PROVIDERS } from '@/constants/model';
+
+const IconMap = {
+    TOOL: <Hammer className={'text-yellow-600'} size={20} />,
+    VISION: <ScanEye className={'text-green-500'} size={20} />,
+    COT: <BrainCog className={'text-blue-500'} size={20} />
+};
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
@@ -235,6 +241,13 @@ export default function Page() {
                                                     <h4 className="font-medium text-gray-900">{model.modelName}</h4>
                                                     <p className="text-sm text-gray-500">{model.modelId}</p>
                                                 </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                {model.type.split(',').map(type => (
+                                                    <React.Fragment key={type}>
+                                                        {IconMap[type as keyof typeof IconMap] || null}
+                                                    </React.Fragment>
+                                                ))}
                                             </div>
                                             <div className="flex items-center space-x-3">
                                                 <Switch

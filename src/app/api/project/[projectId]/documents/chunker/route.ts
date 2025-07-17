@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
-import { getDocumentByIds } from '@/lib/db/documents';
+import { getDocumentByIds } from '@/server/db/documents';
 import { chunker } from '@/lib/chunker';
 import path from 'path';
 import { type Chunks } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 import cache, { generateChunkConfigHash } from '@/lib/utils/cache';
-import { saveChunks } from '@/lib/db/chunks';
+import { saveChunks } from '@/server/db/chunks';
 
 /**
  * 文档分块

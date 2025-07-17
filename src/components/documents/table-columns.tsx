@@ -10,9 +10,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
-import type { DocumentsWithCount } from '@/schema/documents';
+import type { DocumentsWithCount } from '@/server/db/schema/documents';
 import type { TFunction } from 'i18next';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 

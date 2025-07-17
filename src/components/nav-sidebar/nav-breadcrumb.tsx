@@ -17,7 +17,7 @@ import { useParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Store } from 'lucide-react';
 import type { CurrentUser } from '@/server/auth';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 
 interface Breadcrumb {
     title: I18nKeys;

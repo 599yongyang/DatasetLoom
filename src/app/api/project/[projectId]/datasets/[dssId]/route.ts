@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { deleteDatasetSample, getDatasetSampleById, updateDatasetSample } from '@/lib/db/dataset-samples';
+import { deleteDatasetSample, getDatasetSampleById, updateDatasetSample } from '@/server/db/dataset-samples';
 import type { DatasetSamples } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 

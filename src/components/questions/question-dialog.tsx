@@ -6,7 +6,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
-import type { QuestionsDTO } from '@/schema/questions';
+import type { QuestionsDTO } from '@/server/db/schema/questions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -17,9 +17,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
-import { type ReactNode, useState } from 'react';
+import React, { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { type Tag, TagInput } from 'emblor';
+import MentionsTextarea from '@/components/ui/mentions-textarea';
 
 const formSchema = z.object({
     id: z.string(),
@@ -81,7 +82,7 @@ export function QuestionDialog({
                 {children || (
                     <div className={'flex items-center gap-2'}>
                         <Button variant="link" className="text-foreground w-fit px-0 text-left hover:cursor-pointer">
-                            {item.question}
+                            <MentionsTextarea value={item.question} />
                         </Button>
                         {item.DatasetSamples.length > 0 && (
                             <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">

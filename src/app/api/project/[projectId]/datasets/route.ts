@@ -1,23 +1,17 @@
 import { NextResponse } from 'next/server';
-import { createDatasetSample } from '@/lib/db/dataset-samples';
-import { getQuestionById, updateQuestion } from '@/lib/db/questions';
-import { getChunkById } from '@/lib/db/chunks';
-import { getProject } from '@/lib/db/projects';
-import LLMClient from '@/lib/llm/core';
-import { getAnswerPrompt } from '@/lib/llm/prompts/answer';
-import { nanoid } from 'nanoid';
+import { createDatasetSample } from '@/server/db/dataset-samples';
+import { getQuestionById, updateQuestion } from '@/server/db/questions';
+import LLMClient from '@/lib/ai/core';
 import type { DatasetSamples, Questions } from '@prisma/client';
-import { doubleCheckModelOutput } from '@/lib/utils';
-import { answerSchema } from '@/lib/llm/prompts/schema';
 import type { DatasetStrategyParams } from '@/types/dataset';
-import { getModelConfigById } from '@/lib/db/model-config';
-import type { AnswerStyle, DetailLevel, Language } from '@/lib/llm/prompts/type';
-import { getDatasetsByPagination } from '@/lib/db/dataset';
+import { getModelConfigById } from '@/server/db/model-config';
+import { getDatasetsByPagination } from '@/server/db/dataset';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ModelConfigType, ProjectRole, QuestionContextType } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
+import { generateImageDatasetSample, generateTextDatasetSample } from '@/app/api/project/[projectId]/datasets/service';
 
 /**
  * 生成数据集样本
@@ -28,6 +22,7 @@ export const POST = compose(
 )(async (request: Request, context: ApiContext) => {
     try {
         const { projectId } = context;
+
         const {
             questionId,
             datasetStrategyParams
@@ -35,84 +30,60 @@ export const POST = compose(
             questionId: string;
             datasetStrategyParams: DatasetStrategyParams;
         } = await request.json();
-        // 验证参数
-        if (!projectId || !questionId || !datasetStrategyParams.modelConfigId) {
+
+        if (!questionId || !datasetStrategyParams.modelConfigId) {
             return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
         }
 
-        // 获取问题
         const question = await getQuestionById(questionId);
         if (!question) {
             return NextResponse.json({ error: 'Question not found' }, { status: 404 });
         }
 
-        // 获取文本块内容
-        const chunk = await getChunkById(question.chunkId);
-        if (!chunk) {
-            return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
-        }
-
-        // 获取文本块内容
         const model = await getModelConfigById(datasetStrategyParams.modelConfigId);
         if (!model) {
             return NextResponse.json({ error: 'Model Config not found' }, { status: 404 });
         }
 
-        // 获取项目配置
-        const project = await getProject(projectId);
-        if (!project) {
-            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
-        }
-        const { globalPrompt, answerPrompt } = project;
+        const contextTypeSupported =
+            (question.contextType === QuestionContextType.TEXT && model.type.includes(ModelConfigType.TEXT)) ||
+            (question.contextType === QuestionContextType.IMAGE && model.type.includes(ModelConfigType.VISION));
 
-        // 创建LLM客户端
+        if (!contextTypeSupported) {
+            return NextResponse.json({ error: 'Model does not support the question context type' }, { status: 400 });
+        }
+
         const llmClient = new LLMClient({
             ...model,
             temperature: datasetStrategyParams.temperature,
             maxTokens: datasetStrategyParams.maxTokens
         });
 
-        const qTags = question.label?.split(',') ?? [];
-        const cTags = chunk.tags.split(',') ?? [];
-        const allTags = [...new Set([...qTags, ...cTags])]; // 合并并去重
+        let datasetSamples: Partial<DatasetSamples>;
 
-        const citation = datasetStrategyParams.citation;
-        // 生成答案的提示词
-        const prompt = getAnswerPrompt({
-            context: chunk.content,
-            question: question.question,
-            detailLevel: datasetStrategyParams.detailLevel as DetailLevel,
-            citation,
-            answerStyle: datasetStrategyParams.answerStyle as AnswerStyle,
-            tags: allTags,
-            language: datasetStrategyParams.language as Language,
-            globalPrompt,
-            answerPrompt
-        });
+        if (question.contextType === QuestionContextType.TEXT) {
+            datasetSamples = await generateTextDatasetSample(
+                question,
+                datasetStrategyParams,
+                llmClient,
+                projectId,
+                model.modelName
+            );
+        } else if (question.contextType === QuestionContextType.IMAGE) {
+            datasetSamples = await generateImageDatasetSample(
+                question,
+                datasetStrategyParams,
+                llmClient,
+                projectId,
+                model.modelName
+            );
+        } else {
+            return NextResponse.json({ error: 'Unsupported context type' }, { status: 400 });
+        }
 
-        // 调用大模型生成答案
-        const { text, reasoning } = await llmClient.chat(prompt);
-        const llmOutput = await doubleCheckModelOutput(text, answerSchema);
-        const count = question.DatasetSamples.length;
-        const dssId = nanoid(12);
-        // 创建新的数据集项
-        const data = {
-            id: dssId,
-            projectId: projectId,
-            question: question.question,
-            answer: llmOutput.answer,
-            model: model.modelName,
-            cot: reasoning ?? '',
-            referenceLabel: allTags.join(',') || '',
-            evidence: citation ? JSON.stringify(llmOutput.evidence) : '',
-            confidence: llmOutput.confidence,
-            chunkName: chunk.name,
-            chunkContent: chunk.content,
-            questionId: question.id,
-            isPrimaryAnswer: count <= 0
-        };
-        let datasetSample = await createDatasetSample(data as DatasetSamples);
+        const datasetSample = await createDatasetSample(datasetSamples as DatasetSamples);
         await updateQuestion({ id: questionId, answered: true } as Questions);
+
         return NextResponse.json({ success: true, datasetSample });
     } catch (error) {
         console.error('Failed to generate dataset:', error);

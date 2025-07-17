@@ -1,8 +1,8 @@
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
 import type { ApiContext } from '@/types/api-context';
-import { ProjectRole } from '@/schema/types';
-import { datasetKanbanData } from '@/lib/db/dataset';
+import { ProjectRole } from 'src/server/db/types';
+import { datasetKanbanData } from '@/server/db/dataset';
 
 /**
  * 获取数据集概览

@@ -1,13 +1,13 @@
 import type { DatasetSamples, Questions } from '@prisma/client';
-import { getQuestionsByIds } from '@/lib/db/questions';
-import LLMClient from '@/lib/llm/core';
-import { getModelConfigById } from '@/lib/db/model-config';
-import { getAnswerPrompt } from '@/lib/llm/prompts/answer';
+import { getQuestionsByIds } from '@/server/db/questions';
+import LLMClient from '@/lib/ai/core';
+import { getModelConfigById } from '@/server/db/model-config';
+import { getAnswerPrompt } from '@/lib/ai/prompts/answer';
 import { nanoid } from 'nanoid';
-import { createDatasetSample } from '@/lib/db/dataset-samples';
+import { createDatasetSample } from '@/server/db/dataset-samples';
 import { doubleCheckModelOutput } from '@/lib/utils';
-import { answerSchema } from '@/lib/llm/prompts/schema';
-import { getChunkById } from '@/lib/db/chunks';
+import { answerSchema } from '@/lib/ai/prompts/schema';
+import { getChunkById } from '@/server/db/chunks';
 import type { TaskParams, TaskResult } from '@/lib/queue/types';
 
 export async function datasetTask(params: TaskParams): Promise<TaskResult> {

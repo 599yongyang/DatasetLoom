@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
-import type { UploadFormDataType } from '@/app/(dashboard)/project/[projectId]/documents/upload/page';
+import type { UploadFormDataType } from '@/app/(dashboard)/project/[projectId]/knowledge/document/upload/page';
 
 const PARSER_SERVICES = [
     {
@@ -21,7 +21,7 @@ const PARSER_SERVICES = [
         icon: FileText,
         category: 'document',
         supportedInputs: ['local', 'webFile'],
-        supportedTypes: ['pdf', 'docx', 'txt', 'md', 'epub'],
+        supportedTypes: ['pdf', 'docx', 'doc', 'txt', 'md', 'epub'],
         requiresApiKey: false,
         features: ['快速处理', '基础文本提取']
     },

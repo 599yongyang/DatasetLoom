@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { exportDatasetDPO, exportDatasetRaw, exportDatasetSFT } from '@/lib/db/dataset';
+import { exportDatasetDPO, exportDatasetRaw, exportDatasetSFT } from '@/server/db/dataset';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 

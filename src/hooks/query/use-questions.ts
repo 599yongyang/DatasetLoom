@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 import { buildURL, fetcher } from '@/lib/utils';
-import type { QuestionsDTO } from '@/schema/questions';
+import type { QuestionsDTO } from '@/server/db/schema/questions';
 
 type UseQuestionsParams = {
     projectId: string;

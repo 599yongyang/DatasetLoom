@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
-import LLMClient from '@/lib/llm/core/index';
-import { getQuestionPrompt } from '@/lib/llm/prompts/question';
-import { getQuestionsForChunk, saveQuestions } from '@/lib/db/questions';
-import { getProject } from '@/lib/db/projects';
-import { getChunkById } from '@/lib/db/chunks';
+import LLMClient from '@/lib/ai/core/index';
+import { getQuestionPrompt } from '@/lib/ai/prompts/question';
+import { getQuestionsForChunk, saveQuestions } from '@/server/db/questions';
+import { getProject } from '@/server/db/projects';
+import { getChunkById } from '@/server/db/chunks';
 import { type Questions } from '@prisma/client';
-import { questionsSchema } from '@/lib/llm/prompts/schema';
+import { questionsSchema } from '@/lib/ai/prompts/schema';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import type { QuestionStrategyParams } from '@/types/question';
-import { getModelConfigById } from '@/lib/db/model-config';
-import type { Language } from '@/lib/llm/prompts/type';
-import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
+import { getModelConfigById } from '@/server/db/model-config';
+import type { Language } from '@/lib/ai/prompts/type';
+import type { ModelConfigWithProvider } from '@/lib/ai/core/types';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 
@@ -59,7 +59,6 @@ export const POST = compose(
             temperature: questionStrategy.temperature,
             maxTokens: questionStrategy.maxTokens
         } as ModelConfigWithProvider);
-
         // 获取问题生成提示词
         const prompt = getQuestionPrompt({
             text: chunk.content,

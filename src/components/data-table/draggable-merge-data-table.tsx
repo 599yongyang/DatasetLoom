@@ -40,7 +40,7 @@ import {
     AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import type { DragOverEvent } from '@dnd-kit/core/dist/types';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { WithPermission } from '../common/permission-wrapper';
 import { useParams } from 'next/navigation';
 

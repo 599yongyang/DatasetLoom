@@ -91,7 +91,9 @@ export function DatasetStrategyForm({
                     </SelectTrigger>
                     <SelectContent>
                         {Object.entries(answerStyleMap).map(([key, value]) => (
-                            <SelectItem value={key}>{value}</SelectItem>
+                            <SelectItem key={key} value={key}>
+                                {value}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
@@ -107,7 +109,9 @@ export function DatasetStrategyForm({
                     </SelectTrigger>
                     <SelectContent>
                         {Object.entries(detailRuleMap).map(([key, value]) => (
-                            <SelectItem value={key}>{value}</SelectItem>
+                            <SelectItem key={key} value={key}>
+                                {value}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>

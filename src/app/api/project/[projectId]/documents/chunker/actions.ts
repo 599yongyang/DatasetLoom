@@ -1,12 +1,12 @@
 import type { Chunks } from '@prisma/client';
-import type { ModelConfigWithProvider } from '@/lib/llm/core/types';
-import type { Language } from '@/lib/llm/prompts/type';
-import LLMClient from '@/lib/llm/core';
+import type { ModelConfigWithProvider } from '@/lib/ai/core/types';
+import type { Language } from '@/lib/ai/prompts/type';
+import LLMClient from '@/lib/ai/core';
 import { doubleCheckModelOutput } from '@/lib/utils';
-import { documentAnalysisSchema } from '@/lib/llm/prompts/schema';
-import { updateChunkById } from '@/lib/db/chunks';
-import getLabelPrompt from '@/lib/llm/prompts/label';
-import { insertChunkGraph } from '@/lib/db/chunk-graph';
+import { documentAnalysisSchema } from '@/lib/ai/prompts/schema';
+import { updateChunkById } from '@/server/db/chunks';
+import getLabelPrompt from '@/lib/ai/prompts/label';
+import { insertChunkGraph } from '@/server/db/chunk-graph';
 
 interface ProcessChunksOptions {
     chunkId: string;

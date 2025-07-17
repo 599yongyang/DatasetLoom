@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { z } from 'zod';
-import { ProjectRole } from './types';
+import { ProjectRole } from '@/server/db/types';
 
 const LucideIconSchema = z.custom<LucideIcon>(
     data => {

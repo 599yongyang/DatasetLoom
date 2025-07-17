@@ -11,7 +11,7 @@ import type { Chunks } from '@prisma/client';
 import { Markdown } from '@/components/chat/markdown';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useSetAtom } from 'jotai';
-import type { UploadFormDataType } from '@/app/(dashboard)/project/[projectId]/documents/upload/page';
+import type { UploadFormDataType } from '@/app/(dashboard)/project/[projectId]/knowledge/document/upload/page';
 
 type ParsingStatus = 'idle' | 'parsing' | 'chunking' | 'done' | 'error';
 

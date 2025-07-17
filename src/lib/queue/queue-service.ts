@@ -1,5 +1,5 @@
 import { Job, Queue, Worker } from 'bullmq';
-import { db } from '@/server/db';
+import { db } from '@/server/db/db';
 import { WorkflowStatus } from '@/lib/data-dictionary';
 import { buildGraph, topologicalSort, type WorkflowStepWithNodeData } from '@/lib/dag';
 import { RedisClient } from './redis-client';

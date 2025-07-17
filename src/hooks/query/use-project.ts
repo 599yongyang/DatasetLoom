@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { fetcher } from '@/lib/utils';
-import type { ProjectsWithCounts } from '@/schema/project';
-import type { ProjectRole } from '@/schema/types';
+import type { ProjectsWithCounts } from '@/server/db/schema/project';
+import type { ProjectRole } from 'src/server/db/types';
 import { useSession } from 'next-auth/react';
 import React from 'react';
 

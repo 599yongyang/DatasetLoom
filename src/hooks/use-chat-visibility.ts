@@ -5,7 +5,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import type { ChatHistory } from '@/components/chat/sidebar-history';
 import { useGetChatHistory } from '@/hooks/query/use-chat';
 import axios from 'axios';
-import { ChatVisibilityType } from '@/schema/types';
+import { ChatVisibilityType } from 'src/server/db/types';
 
 export function useChatVisibility({
     projectId,

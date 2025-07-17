@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getDatasetSampleById, updateDatasetSample } from '@/lib/db/dataset-samples';
-import { getAIScoringPrompt } from '@/lib/llm/prompts/ai-score';
-import { getModelConfigById } from '@/lib/db/model-config';
-import LLMClient from '@/lib/llm/core';
+import { getDatasetSampleById, updateDatasetSample } from '@/server/db/dataset-samples';
+import { getAIScoringPrompt } from '@/lib/ai/prompts/ai-score';
+import { getModelConfigById } from '@/server/db/model-config';
+import LLMClient from '@/lib/ai/core';
 import { doubleCheckModelOutput } from '@/lib/utils';
-import { aiScoreSchema } from '@/lib/llm/prompts/schema';
+import { aiScoreSchema } from '@/lib/ai/prompts/schema';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 
 /**

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { batchDeleteQuestions } from '@/lib/db/questions';
+import { batchDeleteQuestions } from '@/server/db/questions';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 
 /**

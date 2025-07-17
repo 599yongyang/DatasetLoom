@@ -15,7 +15,7 @@ import { memo } from 'react';
 import type { Chat } from '@prisma/client';
 import { useParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import { ChatVisibilityType } from '@/schema/types';
+import { ChatVisibilityType } from 'src/server/db/types';
 import { Users } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 

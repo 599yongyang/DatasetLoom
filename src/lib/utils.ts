@@ -160,11 +160,11 @@ export const downloadFile = (content: string, fileName: string, extension: strin
     URL.revokeObjectURL(url);
 };
 
-export function stringToColor(str: string): string {
+export function stringToColor(str: string, alpha: number = 1.0): string {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
     const hue = Math.abs(hash) % 360;
-    return `hsl(${hue}, 70%, 50%)`;
+    return `hsla(${hue}, 70%, 50%, ${alpha})`;
 }

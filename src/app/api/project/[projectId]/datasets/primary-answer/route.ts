@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getDatasetSampleById, updateDatasetSamplePrimaryAnswer } from '@/lib/db/dataset-samples';
+import { getDatasetSampleById, updateDatasetSamplePrimaryAnswer } from '@/server/db/dataset-samples';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 
 /**

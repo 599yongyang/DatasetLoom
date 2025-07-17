@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { checkLlmProviders, getLlmProviders, saveLlmProvider } from '@/lib/db/llm-providers';
+import { checkLlmProviders, getLlmProviders, saveLlmProvider } from '@/server/db/llm-providers';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 

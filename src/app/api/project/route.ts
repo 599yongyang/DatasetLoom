@@ -1,5 +1,5 @@
-import { createProject, getProjects, isExistByName } from '@/lib/db/projects';
-import { copyModelConfig } from '@/lib/db/model-config';
+import { createProject, getProjects, isExistByName } from '@/server/db/projects';
+import { copyModelConfig } from '@/server/db/model-config';
 import { auth } from '@/server/auth';
 
 export async function POST(request: Request) {

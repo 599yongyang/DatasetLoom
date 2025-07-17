@@ -11,8 +11,9 @@ import { useTranslation } from 'react-i18next';
 import { useDatasetsInfo } from '@/hooks/query/use-datasets';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import DatasetDetail from '@/components/dataset/dataset-detail';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
+import MentionsTextarea from '@/components/ui/mentions-textarea';
 
 export default function Page() {
     const router = useRouter();
@@ -157,7 +158,7 @@ export default function Page() {
             <Progress value={(confirmedCount / total) * 100} className="mb-6" />
             <div className="text-2xl font-bold  flex-1 flex items-center">
                 <MessageCircleQuestion className="w-6 h-6 mr-2" />
-                {data.question}
+                <MentionsTextarea className={'text-lg'} value={data.question} readOnly />
             </div>
             <DatasetDetail
                 datasetSamples={data.DatasetSamples}

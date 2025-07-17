@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import { buildURL, fetcher, fetcherPost } from '@/lib/utils';
-import type { ChunksVO } from '@/schema/chunks';
+import type { ChunksVO } from '@/server/db/schema/chunks';
 import { useMemo } from 'react';
 
 interface Response {

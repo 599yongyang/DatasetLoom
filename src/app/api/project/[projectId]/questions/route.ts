@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getQuestions, isExistByQuestion, saveQuestions, updateQuestion } from '@/lib/db/questions';
+import { getQuestions, saveQuestions, updateQuestion } from '@/server/db/questions';
 import type { Questions } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole, QuestionContextType } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
+import { getBlockCoordinates } from '@/server/db/image-block';
+import { replaceMentionsWithCoordinates } from '@/lib/utils/mentions';
 
 /**
  * 获取项目的所有问题
@@ -47,29 +49,44 @@ export const POST = compose(
     try {
         const { projectId } = context;
         const body = await request.json();
-        const { question, chunkId, label } = body;
+        const {
+            questions,
+            contextType,
+            contextId,
+            contextName
+        }: {
+            questions: string[];
+            contextType: QuestionContextType;
+            contextId: string;
+            contextName: string;
+        } = body;
 
         // 验证必要参数
-        if (!projectId || !question || !chunkId) {
+        if (!contextType || questions.length === 0 || !contextId || !contextName) {
             return NextResponse.json({ error: 'Missing necessary parameters' }, { status: 400 });
         }
+        const questionList: Questions[] = await Promise.all(
+            questions.map(async item => {
+                const question: Partial<Questions> = {
+                    projectId,
+                    question: item,
+                    contextType,
+                    contextId,
+                    contextName
+                };
 
-        // 检查问题是否已存在
-        const existingQuestion = await isExistByQuestion(question);
-        if (existingQuestion) {
-            return NextResponse.json({ error: 'Question already exists' }, { status: 400 });
-        }
+                if (contextType === QuestionContextType.IMAGE) {
+                    const { realQuestion, regions } = await replaceMentionsWithCoordinates(item);
+                    question.realQuestion = realQuestion;
+                    question.contextData = JSON.stringify(regions);
+                }
 
-        // 添加新问题
-        let questions = [
-            {
-                chunkId: chunkId,
-                question: question,
-                label: label || 'other'
-            }
-        ] as Questions[];
-        // 保存更新后的数据
-        let data = await saveQuestions(questions);
+                return question as Questions;
+            })
+        );
+
+        // 保存
+        let data = await saveQuestions(questionList);
 
         // 返回成功响应
         return NextResponse.json(data);

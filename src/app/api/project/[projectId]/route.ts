@@ -1,7 +1,7 @@
-import { deleteProject, getProject, updateProject } from '@/lib/db/projects';
+import { deleteProject, getProject, updateProject } from '@/server/db/projects';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from '@/schema/types';
+import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 

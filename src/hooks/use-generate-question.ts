@@ -9,9 +9,9 @@ export type SelectedChunk = {
 };
 
 // 封装通用的请求处理逻辑
-async function baseGenerateQuestion(url: string, data: any, cancelSource: CancelTokenSource, chunkName: string) {
+async function baseGenerateQuestion(url: string, data: any, cancelSource: CancelTokenSource, fileName: string) {
     const loadingToastId = toast.loading('问题生成中...', {
-        description: `文本块：【${chunkName}】`,
+        description: `引用文件：【${fileName}】`,
         position: 'top-right',
         action: {
             label: '取消',
@@ -44,13 +44,13 @@ async function baseGenerateQuestion(url: string, data: any, cancelSource: Cancel
 export function useGenerateQuestion() {
     const generateSingleQuestion = async ({
         projectId,
-        chunkId,
-        chunkName,
+        contextId,
+        fileName,
         questionStrategy
     }: {
         projectId: string;
-        chunkId: string;
-        chunkName: string;
+        contextId: string;
+        fileName: string;
         questionStrategy: QuestionStrategyParams;
     }) => {
         if (!questionStrategy.modelConfigId) {
