@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 用户表
 model Users {
   id             String          @id @default(nanoid())
   email          String          @unique
@@ -21,6 +22,7 @@ model Users {
   Chat           Chat[]
 }
 
+// 项目表
 model Projects {
   id               String           @id @default(nanoid(12))
   name             String
@@ -49,6 +51,7 @@ model Projects {
   ImageBlock       ImageBlock[]
 }
 
+// 项目成员表
 model ProjectMember {
   id        String   @id @default(nanoid())
   project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -62,6 +65,7 @@ model ProjectMember {
   @@unique([projectId, userId])
 }
 
+// 文档表
 model Documents {
   id             String   @id @default(nanoid())
   project        Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -80,6 +84,7 @@ model Documents {
   Chunks         Chunks[]
 }
 
+// 文档分块表
 model Chunks {
   id            String          @id @default(nanoid())
   name          String
@@ -103,7 +108,7 @@ model Chunks {
 }
 
 // graph(chunk_entities,chunkRelations)
-
+// 分块实体表
 model ChunkEntities {
   id              String  @id @default(nanoid())
   chunk           Chunks  @relation(fields: [chunkId], references: [id], onDelete: Cascade)
@@ -122,6 +127,7 @@ model ChunkEntities {
   @@index([normalizedValue])
 }
 
+// 分块实体关系表
 model ChunkRelation {
   id             String        @id @default(nanoid())
   relationType   String
@@ -136,6 +142,7 @@ model ChunkRelation {
   @@index([relationType])
 }
 
+// 问题表
 model Questions {
   id             String           @id @default(nanoid())
   project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -158,31 +165,32 @@ model Questions {
   @@index([projectId])
 }
 
+// QA 数据集表
 model DatasetSamples {
-  id                String              @id @default(nanoid())
-  project           Projects            @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId         String
-  questions         Questions           @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId        String
-  question          String
-  answer            String
-  model             String
-  referenceLabel    String
-  evidence          String
-  cot               String
-  confidence        Float
-  isPrimaryAnswer   Boolean             @default(false)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  DatasetEvaluation DatasetEvaluation[]
+  id              String    @id @default(nanoid())
+  project         Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId       String
+  questions       Questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId      String
+  question        String
+  answer          String
+  model           String
+  referenceLabel  String
+  evidence        String
+  cot             String
+  confidence      Float
+  isPrimaryAnswer Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([projectId])
 }
 
+// 数据集结果打分评价表
 model DatasetEvaluation {
-  id                     String         @id @default(nanoid())
+  id                     String @id @default(nanoid())
   sampleId               String
-  sample                 DatasetSamples @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+  sampleType             String
   type                   String // AI or Human
   model                  String // 打分模型
   factualAccuracyScore   Float
@@ -199,6 +207,7 @@ model DatasetEvaluation {
   createdAt DateTime @default(now())
 }
 
+// 偏好数据集
 model PreferencePair {
   id              String    @id @default(nanoid())
   project         Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -214,6 +223,7 @@ model PreferencePair {
   updatedAt       DateTime  @updatedAt
 }
 
+// 大模型服务商表
 model LlmProviders {
   id            String        @id
   project       Projects      @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -228,6 +238,7 @@ model LlmProviders {
   ModelConfig   ModelConfig[]
 }
 
+// 模型列表
 model LlmModels {
   id           String   @id @default(nanoid())
   modelId      String
@@ -237,6 +248,7 @@ model LlmModels {
   updatedAt    DateTime @updatedAt
 }
 
+// 项目模型配置
 model ModelConfig {
   id          String       @id @default(nanoid())
   provider    LlmProviders @relation(fields: [providerId], references: [id])
@@ -257,6 +269,7 @@ model ModelConfig {
   ModelUsage  ModelUsage[]
 }
 
+// 项目解析服务配置
 model ParserConfig {
   id          String   @id @default(nanoid())
   project     Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -270,6 +283,7 @@ model ParserConfig {
   updatedAt   DateTime @updatedAt
 }
 
+// 项目工作流配置
 model WorkFlow {
   id             String         @id @default(nanoid())
   project        Projects       @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -291,6 +305,7 @@ model WorkFlow {
   steps          WorkflowStep[]
 }
 
+// 工作流步骤
 model WorkflowStep {
   id         String    @id @default(nanoid())
   workflow   WorkFlow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
@@ -306,6 +321,7 @@ model WorkflowStep {
   logs       String?
 }
 
+// 模型对话表
 model Chat {
   id              String            @id @default(nanoid())
   project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -320,6 +336,7 @@ model Chat {
   ChatMessageVote ChatMessageVote[]
 }
 
+// 对话信息表
 model ChatMessages {
   id              String            @id @default(nanoid())
   chat            Chat              @relation(fields: [chatId], references: [id], onDelete: Cascade)
@@ -332,6 +349,7 @@ model ChatMessages {
   ChatMessageVote ChatMessageVote[]
 }
 
+// 对话信息打分表
 model ChatMessageVote {
   chat      Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId    String
@@ -342,6 +360,7 @@ model ChatMessageVote {
   @@unique([chatId, messageId])
 }
 
+// 模型使用表
 model ModelUsage {
   id               String      @id @default(nanoid())
   projectId        String
@@ -356,6 +375,7 @@ model ModelUsage {
   @@index([modelConfigId])
 }
 
+// 图像文件
 model ImageFile {
   id         String       @id @default(nanoid())
   project    Projects     @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -372,6 +392,7 @@ model ImageFile {
   ImageBlock ImageBlock[]
 }
 
+// 图像分块标注表
 model ImageBlock {
   id        String    @id @default(nanoid())
   project   Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)

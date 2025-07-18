@@ -10,7 +10,8 @@ import type { DatasetSamples } from '@prisma/client';
 export async function getDatasetSampleById(id: string) {
     try {
         return await db.datasetSamples.findUnique({
-            where: { id }
+            where: { id },
+            include: { questions: { select: { contextType: true, contextData: true } } }
         });
     } catch (error) {
         console.error('Failed to get datasets by id in database');

@@ -32,24 +32,6 @@ export async function getChunkByIds(chunkIds: string[]) {
     }
 }
 
-export async function getChunksByFileIds(fileIds: string[]) {
-    try {
-        return await db.chunks.findMany({
-            where: { documentId: { in: fileIds } },
-            include: {
-                Questions: {
-                    select: {
-                        question: true
-                    }
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Failed to get chunks by id in database');
-        throw error;
-    }
-}
-
 export async function getChunksPagination(
     projectId: string,
     page = 1,
@@ -85,13 +67,6 @@ export async function getChunksPagination(
         const [data, total] = await Promise.all([
             db.chunks.findMany({
                 where: whereClause,
-                include: {
-                    Questions: {
-                        select: {
-                            question: true
-                        }
-                    }
-                },
                 orderBy: {
                     createdAt: 'desc'
                 },
@@ -147,7 +122,7 @@ export async function mergeChunks(sourceId: string, targetId: string) {
             throw new Error('Cannot merge a chunk into itself');
         }
 
-        // 合并内容（你可以根据业务需要自定义合并策略）
+        // 合并内容
         const mergedContent = `${targetChunk.content}\n\n${sourceChunk.content}`;
 
         const result = await db.$transaction(async tx => {
@@ -157,7 +132,7 @@ export async function mergeChunks(sourceId: string, targetId: string) {
                 data: { content: mergedContent, size: mergedContent.length }
             });
 
-            await tx.questions.updateMany({ where: { chunkId: sourceId }, data: { chunkId: targetId } });
+            await tx.questions.updateMany({ where: { contextId: sourceId }, data: { contextId: targetId } });
 
             // 删除 source chunk
             await tx.chunks.delete({ where: { id: sourceId } });

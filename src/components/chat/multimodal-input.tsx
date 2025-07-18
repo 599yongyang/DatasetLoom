@@ -122,7 +122,7 @@ function PureMultimodalInput({
         formData.append('file', file);
 
         try {
-            const response = await fetch('/api/llm/files/upload', {
+            const response = await fetch('/api/ai/files/upload', {
                 method: 'POST',
                 body: formData
             });

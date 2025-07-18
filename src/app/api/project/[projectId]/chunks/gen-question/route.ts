@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import LLMClient from '@/lib/ai/core/index';
 import { getQuestionPrompt } from '@/lib/ai/prompts/question';
-import { getQuestionsForChunk, saveQuestions } from '@/server/db/questions';
+import { saveQuestions } from '@/server/db/questions';
 import { getProject } from '@/server/db/projects';
 import { getChunkById } from '@/server/db/chunks';
 import { type Questions } from '@prisma/client';
@@ -13,7 +13,7 @@ import type { Language } from '@/lib/ai/prompts/type';
 import type { ModelConfigWithProvider } from '@/lib/ai/core/types';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from 'src/server/db/types';
+import { ProjectRole, ContextType } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 
@@ -25,18 +25,19 @@ export const POST = compose(
     AuditLog()
 )(async (request: Request, context: ApiContext) => {
     try {
-        const { projectId, chunkId } = context;
-
-        // 验证项目ID和文本块ID
-        if (!projectId || !chunkId) {
-            return NextResponse.json({ error: 'Project ID or text block ID cannot be empty' }, { status: 400 });
-        }
+        const { projectId } = context;
 
         // 获取请求体
-        const questionStrategy: QuestionStrategyParams = await request.json();
-        console.log('questionStrategy:', questionStrategy, questionStrategy.modelConfigId);
-        if (!questionStrategy.modelConfigId) {
-            return NextResponse.json({ error: 'Model cannot be empty' }, { status: 400 });
+        const {
+            chunkId,
+            questionStrategy
+        }: {
+            chunkId: string;
+            questionStrategy: QuestionStrategyParams;
+        } = await request.json();
+
+        if (!chunkId || !questionStrategy.modelConfigId) {
+            return NextResponse.json({ error: 'Chunk ID or model cannot be empty' }, { status: 400 });
         }
 
         // 并行获取文本块内容和项目配置
@@ -46,8 +47,8 @@ export const POST = compose(
             getModelConfigById(questionStrategy.modelConfigId)
         ]);
 
-        if (!chunk || !project) {
-            return NextResponse.json({ error: 'Text block does not exist' }, { status: 404 });
+        if (!chunk || !project || !model) {
+            return NextResponse.json({ error: 'not found' }, { status: 400 });
         }
 
         // 获取项目 提示词配置 信息
@@ -80,10 +81,14 @@ export const POST = compose(
         console.log('LLM Output after double check:', llmOutput);
         const questions = llmOutput.map(question => {
             return {
+                realQuestion: question.question,
                 question: question.question,
                 label: question.label.join(','),
                 projectId,
-                chunkId
+                contextId: chunk.id,
+                contextData: chunk.content,
+                contextName: chunk.name,
+                contextType: ContextType.TEXT
             } as Questions;
         });
         // 保存问题到数据库
@@ -105,29 +110,29 @@ export const POST = compose(
 /**
  * 获取指定文本块的问题
  */
-export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
-    try {
-        const { projectId, chunkId } = context;
-
-        // 验证项目ID和文本块ID
-        if (!projectId || !chunkId) {
-            return NextResponse.json({ error: 'The item ID or text block ID cannot be empty' }, { status: 400 });
-        }
-
-        // 获取文本块的问题
-        const questions = await getQuestionsForChunk(projectId, chunkId);
-
-        // 返回问题列表
-        return NextResponse.json({
-            chunkId,
-            questions,
-            total: questions.length
-        });
-    } catch (error) {
-        console.error('Error getting questions:', error);
-        return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Error getting questions' },
-            { status: 500 }
-        );
-    }
-});
+// export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Request, context: ApiContext) => {
+//     try {
+//         const {projectId, chunkId} = context;
+//
+//         // 验证项目ID和文本块ID
+//         if (!projectId || !chunkId) {
+//             return NextResponse.json({error: 'The item ID or text block ID cannot be empty'}, {status: 400});
+//         }
+//
+//         // 获取文本块的问题
+//         const questions = await getQuestionsForChunk(projectId, chunkId);
+//
+//         // 返回问题列表
+//         return NextResponse.json({
+//             chunkId,
+//             questions,
+//             total: questions.length
+//         });
+//     } catch (error) {
+//         console.error('Error getting questions:', error);
+//         return NextResponse.json(
+//             {error: error instanceof Error ? error.message : 'Error getting questions'},
+//             {status: 500}
+//         );
+//     }
+// });

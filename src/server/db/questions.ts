@@ -231,12 +231,12 @@ export async function getQuestionsCount(projectId: string) {
  * @param {string} chunkId - 文本块ID
  */
 export async function getQuestionsForChunk(projectId: string, chunkId: string) {
-    try {
-        return await db.questions.findMany({ where: { projectId, chunkId } });
-    } catch (error) {
-        console.error('Failed to get questions in database');
-        throw error;
-    }
+    // try {
+    //     return await db.questions.findMany({ where: { projectId, chunkId } });
+    // } catch (error) {
+    //     console.error('Failed to get questions in database');
+    //     throw error;
+    // }
 }
 
 /**

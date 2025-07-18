@@ -2,19 +2,19 @@
 
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SquareSplitVertical, Trash2, Upload, Waypoints } from 'lucide-react';
+import { SquareSplitVertical, Trash2, Upload } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
-import { useDocumentsTableColumns } from '@/components/documents/table-columns';
 import { useDocuments } from '@/hooks/query/use-documents';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
+import { useDocumentsTableColumns } from '@/hooks/table-columns/use-document';
 
 const fileType = [
     {
@@ -116,7 +116,7 @@ export default function Page() {
                         </SelectContent>
                     </Select>
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                        <Button onClick={() => router.push(`/project/${projectId}/documents/upload`)}>
+                        <Button onClick={() => router.push(`/project/${projectId}/knowledge/document/upload`)}>
                             <Upload size={30} />
                             {t('upload_btn')}
                         </Button>

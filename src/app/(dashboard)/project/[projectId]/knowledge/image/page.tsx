@@ -2,8 +2,8 @@
 
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SquareSplitVertical, Trash2, Upload, Waypoints } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { SquareSplitVertical, Trash2, Upload } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
@@ -13,8 +13,8 @@ import axios from 'axios';
 import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useImages } from '@/hooks/query/use-images';
-import { useImagesTableColumns } from '@/components/images/table-columns';
 import UploadImageDialog from '@/components/images/upload-dialog';
+import { useImagesTableColumns } from '@/hooks/table-columns/use-image';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();

@@ -14,7 +14,7 @@ import type { ImageBlock } from '@prisma/client';
 import BlockHighlight from '@/components/image-block/block-highlight';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
-import { ModelConfigType, QuestionContextType } from '@/server/db/types';
+import { ModelConfigType, ContextType } from '@/server/db/types';
 import { toast } from 'sonner';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 
@@ -148,7 +148,7 @@ export default function AddQuestionDialog({
         axios
             .post(`/api/project/${projectId}/questions`, {
                 questions: questionList.map(q => q.question),
-                contextType: QuestionContextType.IMAGE,
+                contextType: ContextType.IMAGE,
                 contextId: imageId,
                 contextName: name
             })

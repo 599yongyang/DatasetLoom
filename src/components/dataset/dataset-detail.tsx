@@ -15,28 +15,24 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { nanoid } from 'nanoid';
 import { AIScoreDashboard } from '@/components/dataset/ai-score-chart';
-import { useAtomValue } from 'jotai';
-import { selectedModelInfoAtom } from '@/atoms';
-import { ProjectRole } from 'src/server/db/types';
+import { ContextType, ProjectRole } from 'src/server/db/types';
 import { WithPermission } from '../common/permission-wrapper';
-import { useParams } from 'next/navigation';
 
 export default function DatasetDetail({
-    datasetSamples,
+    questionInfo,
     dssId,
-    pp,
     refresh
 }: {
-    datasetSamples: DatasetSamples[];
+    questionInfo: any;
     dssId: string;
-    pp: PreferencePair;
     refresh: () => void;
 }) {
-    const model = useAtomValue(selectedModelInfoAtom);
-    const { projectId }: { projectId: string } = useParams();
+    const { DatasetSamples: datasetSamples, pp }: { DatasetSamples: DatasetSamples[]; pp: PreferencePair } =
+        questionInfo;
+    if (!datasetSamples[0]) return null;
     const [activeAnswerId, setActiveAnswerId] = useState(dssId);
-    const [activeAnswer, setActiveAnswer] = useState(datasetSamples[0]);
-    const [isScoring, setIsScoring] = useState(false);
+    const [activeAnswer, setActiveAnswer] = useState<DatasetSamples>(datasetSamples[0]);
+
     useEffect(() => {
         setActiveAnswerId(dssId);
     }, [dssId]);
@@ -44,36 +40,9 @@ export default function DatasetDetail({
     useEffect(() => {
         if (!datasetSamples || datasetSamples.length === 0) return;
         const foundAnswer = datasetSamples.find(d => d.id === activeAnswerId) || datasetSamples[0];
-        setActiveAnswer(foundAnswer);
+        if (foundAnswer) setActiveAnswer(foundAnswer);
     }, [activeAnswerId, datasetSamples]);
 
-    const handleAIScore = () => {
-        setIsScoring(true);
-        toast.promise(
-            axios.post(`/api/project/${activeAnswer?.projectId}/datasets/ai-score`, {
-                dssId: activeAnswerId,
-                modelId: model.id
-            }),
-            {
-                loading: 'AI 正在进行评分中...',
-                success: data => {
-                    if (data.data.success) {
-                        refresh();
-                        return '处理成功';
-                    } else {
-                        return '处理失败';
-                    }
-                },
-                error: error => {
-                    console.error('处理失败:', error);
-                    return '处理失败';
-                },
-                finally: () => {
-                    setIsScoring(false);
-                }
-            }
-        );
-    };
     return (
         <>
             {/* 答案部分 */}
@@ -113,79 +82,52 @@ export default function DatasetDetail({
             </div>
 
             <Accordion type="multiple" defaultValue={['ai-score', 'cot', 'label', 'evidence']} className="w-full">
-                {/*AI 评分*/}
-                <AccordionItem value={'ai-score'} className="py-2">
-                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
-                        <div className="flex items-center gap-3">
-                            <Atom className="w-5 h-5 text-sky-600" />
-                            <span>大模型回答质量评估</span>
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        {activeAnswer?.aiScoreModel ? (
-                            <AIScoreDashboard dss={activeAnswer as DatasetSamples} handleAIScore={handleAIScore} />
-                        ) : isScoring ? (
-                            <div className="text-center py-6">
-                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
-                                <p className="mt-2 text-sm text-muted-foreground">AI 正在评分中 ...</p>
-                            </div>
-                        ) : (
-                            <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center space-y-4">
-                                <div className="flex justify-center">
-                                    <Atom className="w-10 h-10 text-gray-400" />
+                {questionInfo.contextType === ContextType.TEXT && (
+                    <>
+                        {/*AI 评分*/}
+                        <AccordionItem value={'ai-score'} className="py-2">
+                            <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <Atom className="w-5 h-5 text-sky-600" />
+                                    <span>大模型回答质量评估</span>
                                 </div>
-                                <h3 className="text-lg font-medium">暂未进行 AI 评分</h3>
-                                <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                                    <div className="text-sm text-muted-foreground max-w-md mx-auto space-y-1">
-                                        <p>使用AI模型对当前答案进行自动质量评估</p>
-                                        <p className="text-xs">
-                                            建议: 使用不同于生成此答案的模型进行评估，以获得更客观结果
-                                        </p>
-                                    </div>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleAIScore}
-                                        className="gap-1 px-4 py-2"
-                                    >
-                                        <Atom className="w-4 h-4" />
-                                        生成 AI 评分
-                                    </Button>
-                                </WithPermission>
-                            </div>
-                        )}
-                    </AccordionContent>
-                </AccordionItem>
+                            </AccordionTrigger>
+                            <AccordionContent>
+                                <AIScoreDashboard dssId={activeAnswer?.id} />
+                            </AccordionContent>
+                        </AccordionItem>
 
-                {/*思维链*/}
-                <AccordionItem value={'cot'} className="py-2">
-                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
-                        <div className="flex items-center gap-3">
-                            <Brain className="w-5 h-5 text-indigo-600" />
-                            <span>思维链</span>
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground ps-7 pb-2">
-                        {activeAnswer?.cot || '无'}
-                    </AccordionContent>
-                </AccordionItem>
+                        {/*思维链*/}
+                        <AccordionItem value={'cot'} className="py-2">
+                            <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <Brain className="w-5 h-5 text-indigo-600" />
+                                    <span>思维链</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="text-muted-foreground ps-7 pb-2">
+                                {activeAnswer?.cot || '无'}
+                            </AccordionContent>
+                        </AccordionItem>
 
-                {/*参考标签*/}
-                <AccordionItem value={'label'} className="py-2">
-                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
-                        <div className="flex items-center gap-3">
-                            <Tag className="w-5 h-5 text-blue-600" />
-                            <span>参考标签</span>
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground ps-7 pb-2">
-                        <div className="flex flex-wrap gap-2">
-                            {activeAnswer?.referenceLabel
-                                .split(',')
-                                .map((label, index) => <Badge key={index}>{label}</Badge>)}
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
+                        {/*参考标签*/}
+                        <AccordionItem value={'label'} className="py-2">
+                            <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <Tag className="w-5 h-5 text-blue-600" />
+                                    <span>参考标签</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="text-muted-foreground ps-7 pb-2">
+                                <div className="flex flex-wrap gap-2">
+                                    {activeAnswer?.referenceLabel
+                                        .split(',')
+                                        .map((label, index) => <Badge key={index}>{label}</Badge>)}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </>
+                )}
 
                 {/*引用内容*/}
                 <AccordionItem value={'evidence'} className="py-2">
@@ -221,16 +163,26 @@ export default function DatasetDetail({
                     </AccordionContent>
                 </AccordionItem>
 
-                {/*文本块*/}
+                {/*引用内容*/}
                 <AccordionItem value={'4'} className="py-2">
                     <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
                         <div className="flex items-center gap-3">
                             <FileText className="w-5 h-5 text-teal-600" />
-                            <span>文本块</span>
+                            <span>引用内容</span>
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground ps-7 pb-2">
-                        {activeAnswer?.chunkContent && <Markdown>{activeAnswer.chunkContent}</Markdown>}
+                        {questionInfo.contextType === ContextType.TEXT && questionInfo.contextData && (
+                            <Markdown>{questionInfo.contextData}</Markdown>
+                        )}
+                        {questionInfo.contextType === ContextType.IMAGE && questionInfo.contextId && (
+                            <img
+                                src={`/api/view/${questionInfo.contextId}`}
+                                alt={questionInfo.contextName}
+                                className="w-full h-full object-contain"
+                            />
+                        )}
+                        {/*{activeAnswer?.chunkContent && <Markdown>{activeAnswer.chunkContent}</Markdown>}*/}
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

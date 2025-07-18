@@ -88,7 +88,7 @@ export default function StepFour() {
                         <div className="text-sm text-gray-500">文档已成功分块并存储</div>
                         <Button
                             onClick={() => {
-                                router.push(`/project/${projectId}/chunks`);
+                                router.push(`/project/${projectId}/chunk/document`);
                             }}
                         >
                             查看分块列表

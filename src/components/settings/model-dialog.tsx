@@ -68,7 +68,7 @@ export function ModelDialog({
     const [abilityValue, setAbilityValue] = useState<Option[]>([]);
     const getProviderModels = () => {
         axios
-            .get(`/api/llm/model?providerName=${provider.name}`)
+            .get(`/api/ai/model?providerName=${provider.name}`)
             .then(response => {
                 setModelList(response.data);
             })
@@ -80,7 +80,7 @@ export function ModelDialog({
     // 获取远程模型列表
     async function getNewModels() {
         try {
-            const response = await axios.post('/api/llm/remote-models', {
+            const response = await axios.post('/api/ai/remote-models', {
                 providerName: provider.name,
                 interfaceType: provider.interfaceType,
                 apiUrl: provider.apiUrl,
@@ -108,7 +108,7 @@ export function ModelDialog({
             setModelList(data);
             toast.success('刷新模型成功');
 
-            const syncResponse = await axios.post('/api/llm/model', {
+            const syncResponse = await axios.post('/api/ai/model', {
                 newModels: data,
                 providerId: selectedProvider.id
             });

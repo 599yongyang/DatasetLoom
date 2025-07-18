@@ -63,9 +63,9 @@ export function useGenerateQuestion() {
         // 添加语言配置
         questionStrategy.language = i18n.language;
 
-        const url = `/api/project/${projectId}/chunks/${chunkId}/questions`;
+        const url = `/api/project/${projectId}/chunks/gen-question`;
 
-        return baseGenerateQuestion(url, questionStrategy, source, chunkName);
+        return baseGenerateQuestion(url, { chunkId: contextId, questionStrategy }, source, fileName);
     };
 
     const generateMultipleQuestion = async (
@@ -102,7 +102,7 @@ export function useGenerateQuestion() {
             try {
                 const response = await baseGenerateQuestion(
                     `/api/project/${projectId}/chunks/${chunk.id}/questions`,
-                    { questionStrategy },
+                    { chunkId: chunk.id, questionStrategy },
                     source,
                     chunk.name
                 );

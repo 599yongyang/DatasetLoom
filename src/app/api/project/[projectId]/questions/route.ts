@@ -3,7 +3,7 @@ import { getQuestions, saveQuestions, updateQuestion } from '@/server/db/questio
 import type { Questions } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole, QuestionContextType } from 'src/server/db/types';
+import { ProjectRole, ContextType } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import { getBlockCoordinates } from '@/server/db/image-block';
@@ -56,7 +56,7 @@ export const POST = compose(
             contextName
         }: {
             questions: string[];
-            contextType: QuestionContextType;
+            contextType: ContextType;
             contextId: string;
             contextName: string;
         } = body;
@@ -75,7 +75,7 @@ export const POST = compose(
                     contextName
                 };
 
-                if (contextType === QuestionContextType.IMAGE) {
+                if (contextType === ContextType.IMAGE) {
                     const { realQuestion, regions } = await replaceMentionsWithCoordinates(item);
                     question.realQuestion = realQuestion;
                     question.contextData = JSON.stringify(regions);

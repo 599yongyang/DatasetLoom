@@ -40,8 +40,8 @@ export function QuestionStrategyDialog({
             if (chunks && chunks[0]) {
                 await generateSingleQuestion({
                     projectId,
-                    chunkId: chunks[0].id,
-                    chunkName: chunks[0].name,
+                    contextId: chunks[0].id,
+                    fileName: chunks[0].name,
                     questionStrategy
                 });
             } else {

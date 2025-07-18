@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
-import { ProjectRole } from 'src/server/db/types';
-import { WithPermission } from '../common/permission-wrapper';
+import { ProjectRole } from '@/server/db/types';
+import { WithPermission } from '../../components/common/permission-wrapper';
 import type { DatasetSamples } from '@prisma/client';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { ModelTag } from '@lobehub/icons';
@@ -21,7 +21,7 @@ export function useDatasetTableColumns({ mutateDatasets }: { mutateDatasets: () 
     const { projectId }: { projectId: string } = useParams();
 
     const deleteDataset = async (id: string) => {
-        const res = await axios.delete(`/api/project/${projectId}/datasets/${id}`);
+        const res = await axios.delete(`/api/project/${projectId}/dataset/qa/${id}`);
         if (res.status === 200) {
             toast.success('删除成功');
             void mutateDatasets();
@@ -129,7 +129,7 @@ export function useDatasetTableColumns({ mutateDatasets }: { mutateDatasets: () 
                         variant="ghost"
                         onClick={() =>
                             router.push(
-                                `/project/${row.original.projectId}/datasets/${row.original.questionId}?dssId=${row.original.id}`
+                                `/project/${row.original.projectId}/dataset/qa/${row.original.questionId}?dssId=${row.original.id}`
                             )
                         }
                         className={'hover:cursor-pointer'}

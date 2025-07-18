@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
-import { ProjectRole } from 'src/server/db/types';
+import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { ImageFile } from '@prisma/client';
@@ -68,7 +68,7 @@ export function useImagesTableColumns({ mutateImages }: { mutateImages: () => vo
             cell: ({ row }) => (
                 <div className={'w-10 h-10'}>
                     <img
-                        src={`/api/view/${row.original.id}`}
+                        src={`/api/view/image/${row.original.id}`}
                         className="size-full object-cover"
                         width={20}
                         height={20}

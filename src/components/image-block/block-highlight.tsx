@@ -18,7 +18,7 @@ export default function BlockHighlight({
     return (
         <>
             {/* 主图像 */}
-            <img src={`/api/view/${imageId}`} alt={name} className="w-full h-full object-contain" />
+            <img src={`/api/view/image/${imageId}`} alt={name} className="w-full h-full object-contain" />
 
             {/* 高亮标注区域 */}
             <div className="absolute inset-0">

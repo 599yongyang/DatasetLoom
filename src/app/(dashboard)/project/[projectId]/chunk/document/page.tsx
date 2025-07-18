@@ -10,13 +10,13 @@ import { useChunks } from '@/hooks/query/use-chunks';
 import axios from 'axios';
 import { toast } from 'sonner';
 import type { ChunksVO } from '@/server/db/schema/chunks';
-import { useChunksTableColumns } from '@/components/chunks/table-columns';
 import { DraggableMergeDataTable } from '@/components/data-table/draggable-merge-data-table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
 import type { SelectedChunk } from '@/hooks/use-generate-question';
 import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
+import { useTextChunkTableColumns } from '@/hooks/table-columns/use-text-chunk';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
@@ -44,7 +44,12 @@ export default function Page() {
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
     const [open, setOpen] = useState(false);
-    const columns = useChunksTableColumns({ mutateChunks: refresh });
+    const [selectedChunk, setSelectedChunk] = useState<ChunksVO | null>(null);
+    const handleOpenDialog = (chunk: ChunksVO) => {
+        setSelectedChunk(chunk);
+        setOpen(true);
+    };
+    const columns = useTextChunkTableColumns({ mutateChunks: refresh, onOpenDialog: handleOpenDialog });
 
     const handleMergeChunks = async (activeRow: ChunksVO, overRow: ChunksVO) => {
         const res = await axios.post(`/api/project/${projectId}/chunks/merge`, {
@@ -155,12 +160,12 @@ export default function Page() {
                 setRowSelection={setRowSelection}
                 onMerge={handleMergeChunks}
             />
-            {open && (
+            {selectedChunk && (
                 <QuestionStrategyDialog
                     type={'multiple'}
                     open={open}
                     setOpen={setOpen}
-                    chunks={selectedChunks}
+                    chunks={[{ id: selectedChunk.id, name: selectedChunk.name }]}
                     mutateChunks={refresh}
                 />
             )}

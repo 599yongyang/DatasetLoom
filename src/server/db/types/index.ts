@@ -15,7 +15,7 @@ export enum ChatVisibilityType {
     PRIVATE = 'PRIVATE'
 }
 
-export enum QuestionContextType {
+export enum ContextType {
     TEXT = 'TEXT',
     IMAGE = 'IMAGE'
 }
@@ -26,4 +26,9 @@ export enum ModelConfigType {
     COT = 'COT',
     TOOL = 'TOOL',
     EMBED = 'EMBED'
+}
+
+export enum EvalSourceType {
+    HUMAN = 'HUMAN',
+    AI = 'AI'
 }

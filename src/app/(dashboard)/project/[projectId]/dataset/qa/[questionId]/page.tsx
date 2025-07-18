@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useDatasetsInfo } from '@/hooks/query/use-datasets';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import DatasetDetail from '@/components/dataset/dataset-detail';
-import { ProjectRole } from 'src/server/db/types';
+import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 
@@ -50,7 +50,7 @@ export default function Page() {
             const data = response.data.data;
             setQid(data.id);
             setActiveAnswerId(data.DatasetSamples[0].id);
-            router.replace(`/project/${projectId}/datasets/${data.id}?dssId=${data.DatasetSamples[0].id}`);
+            router.replace(`/project/${projectId}/dataset/qa/${data.id}?dssId=${data.DatasetSamples[0].id}`);
         } else {
             toast.warning(`已经是${direction === 'next' ? '最后' : '第'}一条数据了`);
         }
@@ -91,10 +91,10 @@ export default function Page() {
                     setQid(nextDataset.id);
                     setActiveAnswerId(nextDataset.DatasetSamples[0].id);
                     router.replace(
-                        `/project/${projectId}/datasets/${nextDataset.id}?dssId=${nextDataset.DatasetSamples[0].id}`
+                        `/project/${projectId}/dataset/qa/${nextDataset.id}?dssId=${nextDataset.DatasetSamples[0].id}`
                     );
                 } else {
-                    router.push(`/project/${projectId}/datasets`);
+                    router.push(`/project/${projectId}/dataset/qa`);
                 }
                 return '删除成功';
             },
@@ -160,12 +160,7 @@ export default function Page() {
                 <MessageCircleQuestion className="w-6 h-6 mr-2" />
                 <MentionsTextarea className={'text-lg'} value={data.question} readOnly />
             </div>
-            <DatasetDetail
-                datasetSamples={data.DatasetSamples}
-                refresh={refresh}
-                dssId={activeAnswerId}
-                pp={data.PreferencePair}
-            />
+            <DatasetDetail questionInfo={data} refresh={refresh} dssId={activeAnswerId} />
         </div>
     );
 }

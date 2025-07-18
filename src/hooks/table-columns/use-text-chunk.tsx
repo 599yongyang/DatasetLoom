@@ -9,32 +9,26 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import type { ChunksVO } from '@/server/db/schema/chunks';
-import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
 import React, { useState } from 'react';
 import { ProjectRole } from 'src/server/db/types';
-import { WithPermission } from '../common/permission-wrapper';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChunkInfoSheet } from '@/components/chunks/chunk-info-sheet';
 import { useAtomValue } from 'jotai/index';
 import { selectedModelInfoAtom } from '@/atoms';
 import i18n from 'i18next';
+import { WithPermission } from '@/components/common/permission-wrapper';
 
-export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => void }) {
+export function useTextChunkTableColumns({
+    mutateChunks,
+    onOpenDialog
+}: {
+    mutateChunks: () => void;
+    onOpenDialog?: (chunk: ChunksVO) => void;
+}) {
     const { t } = useTranslation('chunk');
     const { projectId }: { projectId: string } = useParams();
+    const [open, setOpen] = useState(false);
     const model = useAtomValue(selectedModelInfoAtom);
-    const handleDeleteChunk = async (chunkId: string) => {
-        try {
-            const response = await axios.delete(`/api/project/${projectId}/chunks/${chunkId}`);
-            if (response.status === 200) {
-                toast.success('删除成功');
-                mutateChunks();
-            }
-        } catch (error) {
-            toast.error('删除失败');
-        }
-    };
-
     const handleAnalysis = async (chunkId: string) => {
         toast.promise(
             axios.put(`/api/project/${projectId}/chunks`, {
@@ -59,6 +53,17 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
         );
     };
 
+    const handleDeleteChunk = async (chunkId: string) => {
+        try {
+            const response = await axios.delete(`/api/project/${projectId}/chunks/${chunkId}`);
+            if (response.status === 200) {
+                toast.success('删除成功');
+                mutateChunks();
+            }
+        } catch (error) {
+            toast.error('删除失败');
+        }
+    };
     const columns: ColumnDef<ChunksVO>[] = [
         {
             id: 'select',
@@ -98,49 +103,49 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
                                 <span className="font-medium  text-sm">{item.name}</span>
                             </div>
 
-                            {item.Questions.length > 0 && (
-                                <TooltipProvider delayDuration={0}>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="flex items-center gap-1">
-                                                <Button
-                                                    variant="link"
-                                                    className="text-xs font-medium text-green-700   px-2 py-1 rounded"
-                                                >
-                                                    {t('question', { count: item.Questions.length })}
-                                                </Button>
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent
-                                            side="bottom"
-                                            className="max-w-[50vw] p-2 bg-white shadow-lg rounded-md border border-gray-200"
-                                        >
-                                            <div className="space-y-2">
-                                                <h4 className="text-xs font-semibold text-gray-700 mb-1">
-                                                    生成的问题列表
-                                                </h4>
-                                                {item.Questions.length > 0 ? (
-                                                    <ul className="space-y-1 max-h-[200px] overflow-y-auto">
-                                                        {item.Questions.map((question, index) => (
-                                                            <li
-                                                                key={index}
-                                                                className="text-xs text-gray-600 p-1 hover:bg-gray-50 rounded"
-                                                            >
-                                                                <div className="flex items-start gap-2">
-                                                                    <span className="text-gray-500">{index + 1}.</span>
-                                                                    <span>{question.question}</span>
-                                                                </div>
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                ) : (
-                                                    <p className="text-xs text-gray-500">暂无生成的问题</p>
-                                                )}
-                                            </div>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            )}
+                            {/*{item.Questions.length > 0 && (*/}
+                            {/*    <TooltipProvider delayDuration={0}>*/}
+                            {/*        <Tooltip>*/}
+                            {/*            <TooltipTrigger asChild>*/}
+                            {/*                <div className="flex items-center gap-1">*/}
+                            {/*                    <Button*/}
+                            {/*                        variant="link"*/}
+                            {/*                        className="text-xs font-medium text-green-700   px-2 py-1 rounded"*/}
+                            {/*                    >*/}
+                            {/*                        {t('question', { count: item.Questions.length })}*/}
+                            {/*                    </Button>*/}
+                            {/*                </div>*/}
+                            {/*            </TooltipTrigger>*/}
+                            {/*            <TooltipContent*/}
+                            {/*                side="bottom"*/}
+                            {/*                className="max-w-[50vw] p-2 bg-white shadow-lg rounded-md border border-gray-200"*/}
+                            {/*            >*/}
+                            {/*                <div className="space-y-2">*/}
+                            {/*                    <h4 className="text-xs font-semibold text-gray-700 mb-1">*/}
+                            {/*                        生成的问题列表*/}
+                            {/*                    </h4>*/}
+                            {/*                    {item.Questions.length > 0 ? (*/}
+                            {/*                        <ul className="space-y-1 max-h-[200px] overflow-y-auto">*/}
+                            {/*                            {item.Questions.map((question, index) => (*/}
+                            {/*                                <li*/}
+                            {/*                                    key={index}*/}
+                            {/*                                    className="text-xs text-gray-600 p-1 hover:bg-gray-50 rounded"*/}
+                            {/*                                >*/}
+                            {/*                                    <div className="flex items-start gap-2">*/}
+                            {/*                                        <span className="text-gray-500">{index + 1}.</span>*/}
+                            {/*                                        <span>{question.question}</span>*/}
+                            {/*                                    </div>*/}
+                            {/*                                </li>*/}
+                            {/*                            ))}*/}
+                            {/*                        </ul>*/}
+                            {/*                    ) : (*/}
+                            {/*                        <p className="text-xs text-gray-500">暂无生成的问题</p>*/}
+                            {/*                    )}*/}
+                            {/*                </div>*/}
+                            {/*            </TooltipContent>*/}
+                            {/*        </Tooltip>*/}
+                            {/*    </TooltipProvider>*/}
+                            {/*)}*/}
                         </div>
 
                         {/* 文本块内容 */}
@@ -230,27 +235,15 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             id: 'actions',
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,
             cell: ({ row }) => {
-                const [open, setOpen] = useState(false);
                 return (
                     <div className="flex flex-1 justify-center gap-1">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                             <Button variant="ghost" size="icon" onClick={() => handleAnalysis(row.original.id)}>
                                 <Tags />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => setOpen(true)}>
+                            <Button variant="ghost" size="icon" onClick={() => onOpenDialog?.(row.original)}>
                                 <FileQuestion />
                             </Button>
-
-                            {open && (
-                                <QuestionStrategyDialog
-                                    type={'single'}
-                                    open={open}
-                                    setOpen={setOpen}
-                                    chunks={[{ id: row.original.id, name: row.original.name }]}
-                                    mutateChunks={mutateChunks}
-                                />
-                            )}
-
                             <ChunkInfoSheet item={row.original} refresh={mutateChunks} />
                         </WithPermission>
                         <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
@@ -269,6 +262,5 @@ export function useChunksTableColumns({ mutateChunks }: { mutateChunks: () => vo
             }
         }
     ];
-
     return columns;
 }

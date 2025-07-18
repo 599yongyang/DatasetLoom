@@ -9,6 +9,12 @@ const config = {
     // compress: true,
     eslint: {
         ignoreDuringBuilds: true
+    },
+    webpack(config) {
+        config.externals.push({
+            canvas: 'commonjs canvas'
+        });
+        return config;
     }
     // webpack: (config, { dev }) => {
     //     if (config.cache && !dev) {

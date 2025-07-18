@@ -75,10 +75,18 @@ export const getMenuConfig = (projectId: string, user: CurrentUser): IMenu[] => 
             role: ProjectRole.VIEWER
         },
         {
-            title: 'datasets',
+            title: 'dataset.title',
             icon: Database,
-            to: `/project/${projectId}/datasets`,
-            role: ProjectRole.VIEWER
+            to: `/project/${projectId}/dataset/qa`,
+            role: ProjectRole.VIEWER,
+            children: [
+                {
+                    title: 'dataset.qa',
+                    icon: Database,
+                    to: `/project/${projectId}/dataset/qa`,
+                    role: ProjectRole.VIEWER
+                }
+            ]
         },
         {
             title: 'chat',

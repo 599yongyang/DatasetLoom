@@ -8,7 +8,7 @@ import { getModelConfigById } from '@/server/db/model-config';
 import { getDatasetsByPagination } from '@/server/db/dataset';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ModelConfigType, ProjectRole, QuestionContextType } from 'src/server/db/types';
+import { ModelConfigType, ProjectRole, ContextType } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 import { generateImageDatasetSample, generateTextDatasetSample } from '@/app/api/project/[projectId]/datasets/service';
@@ -46,8 +46,8 @@ export const POST = compose(
         }
 
         const contextTypeSupported =
-            (question.contextType === QuestionContextType.TEXT && model.type.includes(ModelConfigType.TEXT)) ||
-            (question.contextType === QuestionContextType.IMAGE && model.type.includes(ModelConfigType.VISION));
+            (question.contextType === ContextType.TEXT && model.type.includes(ModelConfigType.TEXT)) ||
+            (question.contextType === ContextType.IMAGE && model.type.includes(ModelConfigType.VISION));
 
         if (!contextTypeSupported) {
             return NextResponse.json({ error: 'Model does not support the question context type' }, { status: 400 });
@@ -61,7 +61,7 @@ export const POST = compose(
 
         let datasetSamples: Partial<DatasetSamples>;
 
-        if (question.contextType === QuestionContextType.TEXT) {
+        if (question.contextType === ContextType.TEXT) {
             datasetSamples = await generateTextDatasetSample(
                 question,
                 datasetStrategyParams,
@@ -69,7 +69,7 @@ export const POST = compose(
                 projectId,
                 model.modelName
             );
-        } else if (question.contextType === QuestionContextType.IMAGE) {
+        } else if (question.contextType === ContextType.IMAGE) {
             datasetSamples = await generateImageDatasetSample(
                 question,
                 datasetStrategyParams,

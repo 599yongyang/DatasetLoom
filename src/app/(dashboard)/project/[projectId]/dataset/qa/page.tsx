@@ -17,9 +17,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Pagination } from '@/components/data-table/pagination';
 import { useAtom } from 'jotai';
 import { datasetViewModeAtom } from '@/atoms';
-import { ProjectRole } from 'src/server/db/types';
+import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
-import { useDatasetTableColumns } from '@/components/dataset/table-columns';
+import { useDatasetTableColumns } from '@/hooks/table-columns/use-dataset';
 
 export default function Page() {
     const router = useRouter();
@@ -156,7 +156,7 @@ export default function Page() {
                                         className={' hover:cursor-pointer hover:underline'}
                                         onClick={() =>
                                             router.push(
-                                                `/project/${projectId}/datasets/${item.questionId}?dssId=${item.id}`
+                                                `/project/${projectId}/dataset/qa/${item.questionId}?dssId=${item.id}`
                                             )
                                         }
                                     >
@@ -207,7 +207,7 @@ export default function Page() {
                                         className={' hover:cursor-pointer hover:underline'}
                                         onClick={() =>
                                             router.push(
-                                                `/project/${projectId}/datasets/${item.questionId}?dssId=${item.datasetChosenId}`
+                                                `/project/${projectId}/dataset/qa/${item.questionId}?dssId=${item.datasetChosenId}`
                                             )
                                         }
                                     >

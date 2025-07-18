@@ -63,7 +63,7 @@ export default function ImageBlockList() {
                                 <div
                                     className=" w-full h-full object-contain"
                                     style={{
-                                        backgroundImage: `url(/api/view/${block.imageId})`,
+                                        backgroundImage: `url(/api/view/image/${block.imageId})`,
                                         backgroundPosition: `-${block.x}px -${block.y}px`,
                                         backgroundSize: 'auto',
                                         width: `${block.width}px`,

@@ -14,7 +14,10 @@
         "image": "图片分块"
     },
     "question": "问题管理",
-    "datasets": "数据集管理",
+    "dataset": {
+        "title": "数据集管理",
+        "qa": "QA数据集"
+    },
     "settings": {
         "title": "项目设置",
         "project_info": "基本信息",

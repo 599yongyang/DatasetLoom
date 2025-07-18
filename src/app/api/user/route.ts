@@ -17,7 +17,7 @@ const FileSchema = z.object({
         })
 });
 
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'avatar');
+const UPLOAD_DIR = path.join(process.cwd(), 'local-db', 'avatar');
 
 export async function POST(request: Request) {
     if (request.body === null) {
@@ -35,29 +35,27 @@ export async function POST(request: Request) {
         if (!name) {
             return NextResponse.json({ error: 'Name is required' }, { status: 400 });
         }
-        let url = '';
-        if (file) {
-            const validatedFile = FileSchema.safeParse({ file });
-            if (!validatedFile.success) {
-                const errorMessage = validatedFile.error.errors.map(error => error.message).join(', ');
-
-                return NextResponse.json({ error: errorMessage }, { status: 400 });
-            }
-            const originalFile = formData.get('file') as File;
-            const fileExt = path.extname(originalFile.name);
-            const newFileName = nanoid() + fileExt;
-            const buffer = Buffer.from(await file.arrayBuffer());
-            try {
-                await fs.access(UPLOAD_DIR);
-            } catch {
-                await fs.mkdir(UPLOAD_DIR, { recursive: true });
-            }
-            const filePath = path.join(UPLOAD_DIR, newFileName);
-            await fs.writeFile(filePath, buffer);
-            url = `/avatar/${encodeURIComponent(newFileName)}`;
+        if (!file) {
+            return NextResponse.json({ error: 'File is required' }, { status: 400 });
         }
+        const validatedFile = FileSchema.safeParse({ file });
+        if (!validatedFile.success) {
+            const errorMessage = validatedFile.error.errors.map(error => error.message).join(', ');
 
-        await updateUser(name, url, session.user.id);
+            return NextResponse.json({ error: errorMessage }, { status: 400 });
+        }
+        const originalFile = formData.get('file') as File;
+        const fileExt = path.extname(originalFile.name);
+        const newFileName = nanoid() + fileExt;
+        const buffer = Buffer.from(await file.arrayBuffer());
+        try {
+            await fs.access(UPLOAD_DIR);
+        } catch {
+            await fs.mkdir(UPLOAD_DIR, { recursive: true });
+        }
+        const filePath = path.join(UPLOAD_DIR, newFileName);
+        await fs.writeFile(filePath, buffer);
+        await updateUser(name, filePath, session.user.id);
         return NextResponse.json({ message: 'Profile saved successfully' });
     } catch (error) {
         console.error('Error saving user profile:', error);
