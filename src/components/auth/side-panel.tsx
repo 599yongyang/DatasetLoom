@@ -23,12 +23,22 @@ export function AuthSidePanel() {
 
                 <BoxReveal boxColor={'#c1ff72'} duration={0.6}>
                     <h2 className="mt-4 text-xl text-white/90">
-                        面向 <span className="font-semibold text-[#c1ff72]">LLM 数据集构建</span> 的专业工具
+                        面向 <span className="font-semibold text-[#c1ff72]">多模态 AI 模型数据集构建训练</span>{' '}
+                        的专业工具
                     </h2>
                 </BoxReveal>
 
                 <BoxReveal boxColor={'#c1ff72'} duration={0.6}>
                     <div className="mt-8 space-y-4 text-lg leading-relaxed text-white/90">
+                        <p className="flex items-start">
+                            <span className="mr-2 text-[#c1ff72]">→</span>
+                            <span>
+                                支持 <span className="font-semibold text-[#c1ff72]">文本</span>、{' '}
+                                <span className="font-semibold text-[#c1ff72]">图像</span>、{' '}
+                                <span className="font-semibold text-[#c1ff72]">视频</span>、{' '}
+                                <span className="font-semibold text-[#c1ff72]">音频</span> 等多模态任务
+                            </span>
+                        </p>
                         <p className="flex items-start">
                             <span className="mr-2 text-[#c1ff72]">→</span>
                             <span>
@@ -47,7 +57,7 @@ export function AuthSidePanel() {
                         <p className="flex items-start">
                             <span className="mr-2 text-[#c1ff72]">→</span>
                             <span>
-                                完整流程: <span className="font-semibold text-[#c1ff72]">文档上传</span> →{' '}
+                                完整流程: <span className="font-semibold text-[#c1ff72]">文件上传</span> →{' '}
                                 <span className="font-semibold text-[#c1ff72]">问题生成</span> →{' '}
                                 <span className="font-semibold text-[#c1ff72]">答案生成</span> →{' '}
                                 <span className="font-semibold text-[#c1ff72]">导出训练数据</span>

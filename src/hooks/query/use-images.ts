@@ -13,6 +13,7 @@ type ImagesParams = {
     pageIndex: number;
     pageSize: number;
     fileName: string;
+    block?: string;
 };
 
 export function useImages(params: ImagesParams) {
@@ -21,7 +22,8 @@ export function useImages(params: ImagesParams) {
         const paramsObj = {
             page: params.pageIndex + 1,
             size: params.pageSize,
-            ...(params.fileName && { fileName: params.fileName })
+            ...(params.fileName && { fileName: params.fileName }),
+            ...(params.block && { block: params.block })
         };
         return buildURL(`/api/project/${params.projectId}/images`, paramsObj);
     }, [params]);

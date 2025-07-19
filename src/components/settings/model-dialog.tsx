@@ -3,11 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { RefreshCw, Thermometer, Hash, ChevronsUpDown, Check } from 'lucide-react';
+import { RefreshCw, Thermometer, Hash, ChevronsUpDown, Check, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { Slider } from '@/components/ui/slider';
-import type { LlmModels, LlmProviders, ModelConfig } from '@prisma/client';
+import type { ModelConfig, ModelProviders, ModelRegistry } from '@prisma/client';
 import { ModelIcon } from '@lobehub/icons';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -16,9 +16,9 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { DEFAULT_MODEL_SETTINGS } from '@/constants/model';
-import { useModelConfigSelect } from '@/hooks/query/use-llm';
 import MultipleSelector, { type Option } from '@/components/ui/multiselect';
 import { ModelConfigType } from '@/server/db/types';
+import { useModelConfigSelect } from '@/hooks/query/use-model-config';
 
 const Ability: Option[] = [
     {
@@ -52,20 +52,21 @@ export function ModelDialog({
 }: {
     open: boolean;
     setOpen: (open: boolean) => void;
-    provider: LlmProviders;
+    provider: ModelProviders;
     model?: ModelConfig;
     refresh: () => void;
 }) {
     const { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('project');
-    const [modelList, setModelList] = useState<LlmModels[]>([]);
+    const [modelList, setModelList] = useState<ModelRegistry[]>([]);
     const [modelData, setModelData] = useState<ModelConfig>({} as ModelConfig);
     const [value, setValue] = useState('');
     const [search, setSearch] = useState('');
     const [modelOpen, setModelOpen] = useState(false);
-    const [selectedProvider, setSelectedProvider] = useState<LlmProviders>({} as LlmProviders);
+    const [selectedProvider, setSelectedProvider] = useState<ModelProviders>({} as ModelProviders);
     const { refresh: refreshModelSelect } = useModelConfigSelect(projectId);
     const [abilityValue, setAbilityValue] = useState<Option[]>([]);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const getProviderModels = () => {
         axios
             .get(`/api/ai/model?providerName=${provider.name}`)
@@ -77,9 +78,15 @@ export function ModelDialog({
             });
     };
 
+    useEffect(() => {
+        setSearch('');
+        setAbilityValue([]);
+    }, [open]);
+
     // 获取远程模型列表
     async function getNewModels() {
         try {
+            setIsRefreshing(true);
             const response = await axios.post('/api/ai/remote-models', {
                 providerName: provider.name,
                 interfaceType: provider.interfaceType,
@@ -93,6 +100,8 @@ export function ModelDialog({
             toast.error(message);
             console.error('获取模型失败:', error);
             return -1;
+        } finally {
+            setIsRefreshing(false);
         }
     }
 
@@ -125,6 +134,10 @@ export function ModelDialog({
     const handleSaveModel = () => {
         if (!modelData.modelId) {
             toast.warning('请选择模型');
+            return;
+        }
+        if (abilityValue.length === 0) {
+            toast.warning('请选择模型能力');
             return;
         }
         axios
@@ -265,9 +278,18 @@ export function ModelDialog({
                         </div>
 
                         <div className="md:col-span-2 flex items-end">
-                            <Button onClick={() => refreshProviderModels()}>
-                                <RefreshCw className="h-4 w-4" />
-                                {t('model_dialog.refresh_btn')}
+                            <Button disabled={isRefreshing} onClick={() => refreshProviderModels()}>
+                                {isRefreshing ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        刷新中...
+                                    </>
+                                ) : (
+                                    <>
+                                        <RefreshCw className="h-4 w-4" />
+                                        {t('model_dialog.refresh_btn')}
+                                    </>
+                                )}
                             </Button>
                         </div>
                     </div>

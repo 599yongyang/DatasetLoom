@@ -5,7 +5,7 @@ import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { NextResponse } from 'next/server';
 import type { ImageBlock } from '@prisma/client';
-import { createImageBlock, getImageBlockPagination } from '@/server/db/image-block';
+import { createImageBlock, deleteImageBlock, getImageBlockPagination } from '@/server/db/image-block';
 
 /**
  * 保存图像标注分块
@@ -24,7 +24,11 @@ export const POST = compose(
             return {
                 ...item,
                 projectId,
-                imageId
+                imageId,
+                x: Math.floor(item.x),
+                y: Math.floor(item.y),
+                width: Math.floor(item.width),
+                height: Math.floor(item.height)
             };
         });
 
@@ -51,6 +55,26 @@ export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Reques
         );
 
         return NextResponse.json(files);
+    } catch (error) {
+        console.error('Error obtaining file list:', error);
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : 'Error obtaining file list' },
+            { status: 500 }
+        );
+    }
+});
+
+export const DELETE = compose(AuthGuard(ProjectRole.ADMIN))(async (request: Request, context: ApiContext) => {
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        const type = searchParams.get('type');
+
+        if (!id || !type) {
+            return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
+        }
+        await deleteImageBlock(id, type);
+        return NextResponse.json({ message: 'Success' });
     } catch (error) {
         console.error('Error obtaining file list:', error);
         return NextResponse.json(

@@ -2,12 +2,11 @@
 
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SquareSplitVertical, Trash2, Upload } from 'lucide-react';
+import { Trash2, Upload } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
-import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { ProjectRole } from '@/server/db/types';
@@ -15,6 +14,8 @@ import { WithPermission } from '@/components/common/permission-wrapper';
 import { useImages } from '@/hooks/query/use-images';
 import UploadImageDialog from '@/components/images/upload-dialog';
 import { useImagesTableColumns } from '@/hooks/table-columns/use-image';
+import type { ImageFile } from '@prisma/client';
+import BlockImageDialog from '@/components/images/block-dialog';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
@@ -37,13 +38,17 @@ export default function Page() {
     });
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
-    const columns = useImagesTableColumns({ mutateImages: refreshFiles });
-    const [fileIds, setFileIds] = useState<string[]>([]);
+    const [blockOpen, setBlockOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<ImageFile | null>(null);
+    const handleOpenDialog = (image: ImageFile) => {
+        setSelectedImage(image);
+        setBlockOpen(true);
+    };
+    const columns = useImagesTableColumns({ mutateImages: refreshFiles, onOpenDialog: handleOpenDialog });
     const [uploadOpen, setUploadOpen] = useState(false);
-    const [open, setOpen] = useState(false);
-    const handleBatchDeleteDocuments = () => {
+    const handleBatchDeleteImage = () => {
         toast.promise(
-            axios.delete(`/api/project/${projectId}/documents`, {
+            axios.delete(`/api/project/${projectId}/images`, {
                 data: { documentIds: Object.keys(rowSelection) }
             }),
             {
@@ -81,33 +86,11 @@ export default function Page() {
                     </WithPermission>
                 </div>
                 <div className={'flex items-center gap-2'}>
-                    <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                        <ChunkStrategyDialog
-                            fileIds={fileIds}
-                            fileExt={''}
-                            open={open}
-                            onOpenChange={setOpen}
-                            refresh={refreshFiles}
-                        >
-                            <Button
-                                variant="outline"
-                                disabled={Object.keys(rowSelection).length == 0}
-                                className={'hover:cursor-pointer'}
-                                onClick={() => {
-                                    setFileIds(Object.keys(rowSelection));
-                                    setOpen(true);
-                                }}
-                            >
-                                <SquareSplitVertical size={30} />
-                                <span className="hidden lg:inline ">{t('chunk_btn')}</span>
-                            </Button>
-                        </ChunkStrategyDialog>
-                    </WithPermission>
                     <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                         <Button
                             variant="outline"
                             disabled={Object.keys(rowSelection).length == 0}
-                            onClick={handleBatchDeleteDocuments}
+                            onClick={handleBatchDeleteImage}
                             className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
                         >
                             <Trash2 size={30} />
@@ -126,6 +109,14 @@ export default function Page() {
                 setRowSelection={setRowSelection}
             />
             <UploadImageDialog open={uploadOpen} setOpen={setUploadOpen} refreshFiles={refreshFiles} />
+            {selectedImage && (
+                <BlockImageDialog
+                    open={blockOpen}
+                    setOpen={setBlockOpen}
+                    imageId={selectedImage.id}
+                    refresh={refreshFiles}
+                />
+            )}
         </div>
     );
 }

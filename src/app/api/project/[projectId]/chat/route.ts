@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import LLMClient from '@/lib/ai/core';
+import ModelClient from '@/lib/ai/core';
 import { getModelConfigById } from '@/server/db/model-config';
 import { deleteChatById, getChatById, saveChat, updateChatVisiblityById } from '@/server/db/chat';
 import { getMostRecentUserMessage } from '@/lib/utils';
@@ -35,13 +35,12 @@ export const POST = compose(
         if (!modelConfig) {
             return NextResponse.json({ error: 'Model config not found' }, { status: 400 });
         }
-        // 创建 LLM 客户端
-        const llmClient = new LLMClient(modelConfig);
 
+        const modelClient = new ModelClient(modelConfig);
         const chat = await getChatById(id);
 
         if (!chat) {
-            const title = await llmClient.generateTitleFromUserMessage(userMessage);
+            const title = await modelClient.generateTitleFromUserMessage(userMessage);
             await saveChat({ id, userId: user.id, title, projectId } as Chat);
         } else {
             if (chat.userId !== user.id) {
@@ -57,7 +56,7 @@ export const POST = compose(
         } as ChatMessages);
 
         // 返回流式响应
-        return await llmClient.chatStream(messages, id, userMessage);
+        return await modelClient.chatStream(messages, id, userMessage);
     } catch (error) {
         console.error('Failed to process stream chat request:', error);
         return NextResponse.json(

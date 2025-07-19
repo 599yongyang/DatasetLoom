@@ -4,13 +4,18 @@ import type { ImageFile } from '@prisma/client';
 import type { ImageWithImageBlock } from '@/server/db/schema/image-block';
 
 //获取图片列表
-export async function getImagePagination(projectId: string, page = 1, pageSize = 10, fileName: string) {
+export async function getImagePagination(projectId: string, page = 1, pageSize = 10, fileName: string, block: boolean) {
     try {
         const whereClause: any = {
             projectId
         };
         if (fileName) {
             whereClause.fileName = { contains: fileName };
+        }
+        if (Boolean(block)) {
+            whereClause.ImageBlock = {
+                some: {}
+            };
         }
         const [data, total] = await Promise.all([
             db.imageFile.findMany({

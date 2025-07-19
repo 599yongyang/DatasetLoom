@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useModelConfigSelect } from '@/hooks/query/use-llm';
 import { useParams } from 'next/navigation';
 import { ModelSelect } from '@/components/common/model-select';
+import { useModelConfigSelect } from '@/hooks/query/use-model-config';
 
 export function NavModelSelect() {
     let { projectId }: { projectId: string } = useParams();

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, MoreHorizontal, Ruler, MessageSquarePlus, Tag } from 'lucide-react';
+import { Trash2, MoreHorizontal, Ruler, MessageSquarePlus, Tag, SquareDashedMousePointer } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -18,6 +18,10 @@ import AddQuestionDialog from '@/components/images/add-question-dialog';
 import type { ImageWithImageBlock } from '@/server/db/schema/image-block';
 import BlockHighlight from '@/components/image-block/block-highlight';
 import PaginationC from '@/components/ui/pagination';
+import BlockImageDialog from '@/components/images/block-dialog';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 export default function ImageAggregationList() {
     const { projectId }: { projectId: string } = useParams();
@@ -34,19 +38,35 @@ export default function ImageAggregationList() {
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
-        fileName: searchQuery
+        fileName: searchQuery,
+        block: '1'
     });
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [questionDialog, setQuestionDialog] = useState(false);
+    const [blockImageDialog, setBlockImageDialog] = useState(false);
     const [currentImage, setCurrentImage] = useState<ImageWithImageBlock>();
 
     const handleDelete = (image: ImageWithImageBlock) => {
-        console.log('删除分块:', image);
+        axios
+            .delete(`/api/project/${projectId}/images/block?id=${image.id}&type=m`)
+            .then(() => {
+                toast.success('删除成功');
+                void refreshFiles();
+            })
+            .catch(error => {
+                toast.error('删除失败');
+                console.error(error);
+            });
     };
 
     const handleCreateQuestions = (image: ImageWithImageBlock) => {
         setCurrentImage(image);
         setQuestionDialog(true);
+    };
+
+    const handleBlockImage = (image: ImageWithImageBlock) => {
+        setCurrentImage(image);
+        setBlockImageDialog(true);
     };
 
     return (
@@ -74,6 +94,17 @@ export default function ImageAggregationList() {
                                     <Button size="sm" variant="secondary" onClick={() => handleCreateQuestions(image)}>
                                         <MessageSquarePlus className="w-4 h-4" />
                                     </Button>
+                                    <Button size="sm" variant="secondary" onClick={() => handleBlockImage(image)}>
+                                        <SquareDashedMousePointer className="w-4 h-4" />
+                                    </Button>
+                                    <ConfirmAlert
+                                        title={'确认要删除此图像中的所有标注分块嘛？'}
+                                        onConfirm={() => handleDelete(image)}
+                                    >
+                                        <Button size="sm" variant="secondary">
+                                            <Trash2 className="w-4 h-4 text-red-600" />
+                                        </Button>
+                                    </ConfirmAlert>
                                 </div>
                             </div>
 
@@ -81,24 +112,6 @@ export default function ImageAggregationList() {
                             <div className="p-3 space-y-2">
                                 <div className="flex items-start justify-between">
                                     <h3 className="font-medium text-sm truncate flex-1">{image.fileName}</h3>
-                                    <div className={'flex gap-2'}>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                                    <MoreHorizontal className="w-4 h-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem
-                                                    onClick={() => handleDelete(image)}
-                                                    className="text-red-600"
-                                                >
-                                                    <Trash2 className="w-4 h-4 mr-2" />
-                                                    删除
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
                                 </div>
 
                                 <div className=" flex justify-between text-xs text-gray-500 ">
@@ -135,6 +148,14 @@ export default function ImageAggregationList() {
                     width={currentImage.width}
                     height={currentImage.height}
                     block={currentImage.ImageBlock}
+                />
+            )}
+            {currentImage && (
+                <BlockImageDialog
+                    open={blockImageDialog}
+                    setOpen={setBlockImageDialog}
+                    imageId={currentImage.id}
+                    refresh={refreshFiles}
                 />
             )}
         </div>

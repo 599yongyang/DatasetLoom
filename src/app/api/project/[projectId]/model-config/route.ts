@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getModelConfig, saveModelConfig } from '@/server/db/model-config';
-import { getLlmProviderIds, saveLlmProvider } from '@/server/db/llm-providers';
 import { nanoid } from 'nanoid';
-import type { LlmProviders } from '@prisma/client';
+import type { ModelProviders } from '@prisma/client';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
 import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import { DEFAULT_PROVIDERS } from '@/constants/model';
+import { getModelProviderIds, saveModelProvider } from '@/server/db/model-providers';
 
 /**
  * 获取模型配置
@@ -23,7 +23,7 @@ export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Reques
         if (providerId) {
             providerIds.push(providerId);
         } else {
-            providerIds = await getLlmProviderIds(projectId);
+            providerIds = await getModelProviderIds(projectId);
         }
         const status = searchParams.get('status');
         let whereStatus = undefined;
@@ -64,7 +64,7 @@ export const POST = compose(
 
         if (isDefaultProvider) {
             const providerId = nanoid();
-            await saveLlmProvider({
+            await saveModelProvider({
                 id: providerId,
                 name: isDefaultProvider.name,
                 projectId,
@@ -72,7 +72,7 @@ export const POST = compose(
                 apiKey: '',
                 interfaceType: isDefaultProvider.interfaceType,
                 icon: isDefaultProvider.icon
-            } as LlmProviders);
+            } as ModelProviders);
             modelConfig.providerId = providerId;
         }
 

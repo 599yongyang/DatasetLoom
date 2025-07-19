@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createDatasetSample } from '@/server/db/dataset-samples';
 import { getQuestionById, updateQuestion } from '@/server/db/questions';
-import LLMClient from '@/lib/ai/core';
+import ModelClient from '@/lib/ai/core';
 import type { DatasetSamples, Questions } from '@prisma/client';
 import type { DatasetStrategyParams } from '@/types/dataset';
 import { getModelConfigById } from '@/server/db/model-config';
@@ -53,7 +53,7 @@ export const POST = compose(
             return NextResponse.json({ error: 'Model does not support the question context type' }, { status: 400 });
         }
 
-        const llmClient = new LLMClient({
+        const modelClient = new ModelClient({
             ...model,
             temperature: datasetStrategyParams.temperature,
             maxTokens: datasetStrategyParams.maxTokens
@@ -65,7 +65,7 @@ export const POST = compose(
             datasetSamples = await generateTextDatasetSample(
                 question,
                 datasetStrategyParams,
-                llmClient,
+                modelClient,
                 projectId,
                 model.modelName
             );
@@ -73,7 +73,7 @@ export const POST = compose(
             datasetSamples = await generateImageDatasetSample(
                 question,
                 datasetStrategyParams,
-                llmClient,
+                modelClient,
                 projectId,
                 model.modelName
             );

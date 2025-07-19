@@ -11,7 +11,7 @@ import { useAtom } from 'jotai';
 import { selectedProjectAtom } from '@/atoms';
 import { useTranslation } from 'react-i18next';
 import { useParams, usePathname, useRouter } from 'next/navigation';
-import { useModelConfigSelect } from '@/hooks/query/use-llm';
+import { useModelConfigSelect } from '@/hooks/query/use-model-config';
 import { useEffect, useState } from 'react';
 import { useGetProjects } from '@/hooks/query/use-project';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

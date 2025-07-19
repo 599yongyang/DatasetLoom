@@ -184,7 +184,7 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
                                                                             )}
                                                                             onClick={() =>
                                                                                 router.push(
-                                                                                    `/project/${dataset.projectId}/datasets/${dataset.questionId}?dssId=${dataset.id}`
+                                                                                    `/project/${dataset.projectId}/dataset/qa/${dataset.questionId}?dssId=${dataset.id}`
                                                                                 )
                                                                             }
                                                                         >

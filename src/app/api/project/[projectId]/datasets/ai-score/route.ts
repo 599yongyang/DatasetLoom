@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDatasetSampleById } from '@/server/db/dataset-samples';
 import { getAIScoringPrompt } from '@/lib/ai/prompts/ai-score';
 import { getModelConfigById } from '@/server/db/model-config';
-import LLMClient from '@/lib/ai/core';
+import ModelClient from '@/lib/ai/core';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { aiScoreSchema } from '@/lib/ai/prompts/schema';
 import { compose } from '@/lib/middleware/compose';
@@ -32,27 +32,26 @@ export const POST = compose(
         }
 
         const prompt = getAIScoringPrompt(dss.questions.contextData, dss.question, dss.answer);
-        // 创建LLM客户端
-        const llmClient = new LLMClient(model);
-        const { text } = await llmClient.chat(prompt);
-        const llmOutput = await doubleCheckModelOutput(text, aiScoreSchema);
-        console.log('llmOutput:', llmOutput);
+        const modelClient = new ModelClient(model);
+        const { text } = await modelClient.chat(prompt);
+        const modelOutput = await doubleCheckModelOutput(text, aiScoreSchema);
+        console.log('modelOutput:', modelOutput);
 
         await createDatasetEval({
             sampleId: dss.id,
             sampleType: dss.questions.contextType,
             model: model.modelName,
             type: EvalSourceType.AI,
-            factualAccuracyScore: llmOutput.scores.factualAccuracy,
-            logicalIntegrityScore: llmOutput.scores.logicalIntegrity,
-            expressionQualityScore: llmOutput.scores.expressionQuality,
-            safetyComplianceScore: llmOutput.scores.safetyCompliance,
-            compositeScore: llmOutput.scores.compositeScore,
-            factualInfo: llmOutput.diagnostics.factualInfo ?? '',
-            logicalInfo: llmOutput.diagnostics.logicalInfo ?? '',
-            expressionInfo: llmOutput.diagnostics.expressionInfo ?? '',
-            safetyInfo: llmOutput.diagnostics.safetyInfo ?? '',
-            compositeInfo: llmOutput.diagnostics.compositeInfo ?? ''
+            factualAccuracyScore: modelOutput.scores.factualAccuracy,
+            logicalIntegrityScore: modelOutput.scores.logicalIntegrity,
+            expressionQualityScore: modelOutput.scores.expressionQuality,
+            safetyComplianceScore: modelOutput.scores.safetyCompliance,
+            compositeScore: modelOutput.scores.compositeScore,
+            factualInfo: modelOutput.diagnostics.factualInfo ?? '',
+            logicalInfo: modelOutput.diagnostics.logicalInfo ?? '',
+            expressionInfo: modelOutput.diagnostics.expressionInfo ?? '',
+            safetyInfo: modelOutput.diagnostics.safetyInfo ?? '',
+            compositeInfo: modelOutput.diagnostics.compositeInfo ?? ''
         } as DatasetEvaluation);
 
         return NextResponse.json({ success: true });

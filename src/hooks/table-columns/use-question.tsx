@@ -149,6 +149,7 @@ function ActionCell({ question, projectId, mutateQuestions }: ActionCellProps) {
                     maxTokens: model.maxTokens
                 } as DatasetStrategyParams
             });
+            mutateQuestions();
         } else {
             setDsOpen(true);
         }
@@ -158,17 +159,19 @@ function ActionCell({ question, projectId, mutateQuestions }: ActionCellProps) {
         <>
             <div className="flex flex-1 justify-center gap-2">
                 <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                    <QuestionDialog item={question} getQuestions={mutateQuestions}>
-                        <Button variant="ghost" size="icon" aria-label="Edit">
-                            <SquarePen size={30} />
-                        </Button>
-                    </QuestionDialog>
+                    {question.contextType === ContextType.TEXT && (
+                        <QuestionDialog item={question} getQuestions={mutateQuestions}>
+                            <Button variant="ghost" size="icon" aria-label="Edit">
+                                <SquarePen size={30} />
+                            </Button>
+                        </QuestionDialog>
+                    )}
 
                     <Button variant="ghost" size="icon" onClick={handleGenAnswer} aria-label="Generate Answer">
                         <Wand size={30} />
                     </Button>
 
-                    {question.DatasetSamples.length > 1 && (
+                    {question.DatasetSamples.length > 1 && question.contextType === ContextType.TEXT && (
                         <Button
                             variant="ghost"
                             size="icon"

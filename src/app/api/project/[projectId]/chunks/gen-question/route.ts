@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import LLMClient from '@/lib/ai/core/index';
+import ModelClient from '@/lib/ai/core/index';
 import { getQuestionPrompt } from '@/lib/ai/prompts/question';
 import { saveQuestions } from '@/server/db/questions';
 import { getProject } from '@/server/db/projects';
@@ -54,8 +54,7 @@ export const POST = compose(
         // 获取项目 提示词配置 信息
         const { globalPrompt, questionPrompt } = project;
 
-        // 创建LLM客户端
-        const llmClient = new LLMClient({
+        const modelClient = new ModelClient({
             ...model,
             temperature: questionStrategy.temperature,
             maxTokens: questionStrategy.maxTokens
@@ -73,13 +72,13 @@ export const POST = compose(
             globalPrompt,
             questionPrompt
         });
-        const data = await llmClient.chat(prompt);
-        console.log('LLM Response:', data);
+        const data = await modelClient.chat(prompt);
+        console.log('Model Response:', data);
         const { text } = data;
-        console.log('LLM Output:', text);
-        const llmOutput = await doubleCheckModelOutput(text, questionsSchema);
-        console.log('LLM Output after double check:', llmOutput);
-        const questions = llmOutput.map(question => {
+        console.log('Model Output:', text);
+        const modelOutput = await doubleCheckModelOutput(text, questionsSchema);
+        console.log('Model Output after double check:', modelOutput);
+        const questions = modelOutput.map(question => {
             return {
                 realQuestion: question.question,
                 question: question.question,

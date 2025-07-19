@@ -24,7 +24,7 @@ const clientMap: ClientMap = {
 };
 const DefaultClient = OpenAICompatibleClient;
 
-export function createLLMClient(providerType: string, config: ModelConfigWithProvider): BaseClient {
+export function createModelClient(providerType: string, config: ModelConfigWithProvider): BaseClient {
     const normalizedType = providerType.toLowerCase();
     const ClientClass = clientMap[normalizedType] || DefaultClient;
 

@@ -1,6 +1,6 @@
 // import type { DatasetSamples, Questions } from '@prisma/client';
 // import { getQuestionsByIds } from '@/server/db/questions';
-// import LLMClient from '@/lib/ai/core';
+// import ModelClient from '@/lib/ai/core';
 // import { getModelConfigById } from '@/server/db/model-config';
 // import { getAnswerPrompt } from '@/lib/ai/prompts/answer';
 // import { nanoid } from 'nanoid';
@@ -28,7 +28,7 @@
 //         if (!model) {
 //             throw new Error(' model config not found');
 //         }
-//         const llmClient = new LLMClient({ ...model, ...step.data });
+//         const modelClient = new ModelClient({ ...model, ...step.data });
 //
 //         const ids = inputs.question.map((item: Questions) => {
 //             return item.id;
@@ -51,7 +51,7 @@
 //                 question: question.question
 //             });
 //             // 调用大模型生成答案
-//             const { text, reasoning } = await llmClient.chat(prompt);
+//             const { text, reasoning } = await modelClient.chat(prompt);
 //             const llmOutput = await doubleCheckModelOutput(text, answerSchema);
 //             // 创建新的数据集项
 //             const datasets = {

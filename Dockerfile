@@ -43,7 +43,9 @@ RUN mkdir -p /app/data/local-db /app/data/uploads /data && \
     chown -R node:node /app /data
 
 WORKDIR /app
+
 RUN npm install -g pnpm@latest
+
 # 根据数据库类型安装运行时依赖
 ARG DATABASE_TYPE=sqlite
 RUN if [ "$DATABASE_TYPE" = "sqlite" ]; then \
@@ -67,10 +69,10 @@ COPY --from=builder /app/.env .env
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV LOCAL_DB_PATH=/app/data/local-db
+
 # 切换到非 root 用户
 USER node
 
 EXPOSE 2088
 
-# 启动
-CMD ["sh", "-c", "npx prisma db push && pnpm run start"]
+CMD ["sh", "-c", "npx prisma generate && pnpm run start"]

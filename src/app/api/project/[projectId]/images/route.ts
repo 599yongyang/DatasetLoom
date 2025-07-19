@@ -11,7 +11,7 @@ import { createImageFile, delImageByIds, getImagePagination, updateImageFile } f
 import type { ImageFile } from '@prisma/client';
 import sharp from 'sharp';
 import { getModelConfigByType } from '@/server/db/model-config';
-import LLMClient from '@/lib/ai/core';
+import ModelClient from '@/lib/ai/core';
 import type { ModelConfigWithProvider } from '@/lib/ai/core/types';
 import { IMAGE_ANALYSIS_PROMPT } from '@/lib/ai/prompts/vision';
 import { doubleCheckModelOutput } from '@/lib/utils';
@@ -30,7 +30,8 @@ export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Reques
             projectId,
             parseInt(searchParams.get('page') ?? '1'),
             parseInt(searchParams.get('size') ?? '10'),
-            searchParams.get('fileName') ?? ''
+            searchParams.get('fileName') ?? '',
+            Boolean(searchParams.get('block')) ?? false
         );
 
         return NextResponse.json(files);
@@ -108,12 +109,12 @@ export const POST = compose(
                 files.push(fileInfo);
 
                 if (modelConfigList.length > 0) {
-                    const llmClient = new LLMClient(modelConfigList[0] as ModelConfigWithProvider);
-                    const { text } = await llmClient.vision(fileBuffer, IMAGE_ANALYSIS_PROMPT);
-                    const llmOutput = await doubleCheckModelOutput(text, ImageRecognitionResultSchema);
+                    const modelClient = new ModelClient(modelConfigList[0] as ModelConfigWithProvider);
+                    const { text } = await modelClient.vision(fileBuffer, IMAGE_ANALYSIS_PROMPT);
+                    const modelOutput = await doubleCheckModelOutput(text, ImageRecognitionResultSchema);
                     await updateImageFile(fileInfo.id, {
-                        tags: llmOutput.entities ? llmOutput.entities.join(',') : '',
-                        ocrText: llmOutput.text || '',
+                        tags: modelOutput.entities ? modelOutput.entities.join(',') : '',
+                        ocrText: modelOutput.text || '',
                         status: 'DONE'
                     } as ImageFile);
                 }

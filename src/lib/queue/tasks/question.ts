@@ -3,7 +3,7 @@
 // import { questionsSchema } from '@/lib/ai/prompts/schema';
 // import { doubleCheckModelOutput } from '@/lib/utils';
 // import { saveQuestions } from '@/server/db/questions';
-// import LLMClient from '@/lib/ai/core';
+// import ModelClient from '@/lib/ai/core';
 // import { getModelConfigById } from '@/server/db/model-config';
 // import { nanoid } from 'nanoid';
 // import { getChunkByIds } from '@/server/db/chunks';
@@ -31,7 +31,7 @@
 //         const chunks = await getChunkByIds(chunkerIds);
 //
 //         const model = await getModelConfigById(step.data.modelConfigId as string);
-//         const llmClient = new LLMClient({ ...model, ...step.data } as ModelConfigWithProvider);
+//         const modelClient = new ModelClient({ ...model, ...step.data } as ModelConfigWithProvider);
 //         let questionList: Questions[] = [];
 //         for (const chunk of chunks) {
 //             const prompt = getQuestionPrompt({
@@ -39,7 +39,7 @@
 //                 tags: chunk.tags || '',
 //                 number: step.data.questionCountType === 'auto' ? undefined : (step.data.questionCount as number)
 //             });
-//             const { text } = await llmClient.chat(prompt);
+//             const { text } = await modelClient.chat(prompt);
 //             const llmOutput = await doubleCheckModelOutput(text, questionsSchema);
 //             const questions = llmOutput.map(question => {
 //                 return {

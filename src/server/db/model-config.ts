@@ -40,7 +40,7 @@ export async function copyModelConfig(newProjectId: string, copyProjectId: strin
     try {
         await db.$transaction(async tx => {
             // Step 1: 获取源项目下的所有 provider
-            const providers = await tx.llmProviders.findMany({
+            const providers = await tx.modelProviders.findMany({
                 where: { projectId: copyProjectId }
             });
 
@@ -52,7 +52,7 @@ export async function copyModelConfig(newProjectId: string, copyProjectId: strin
             const providerCreateOperations = providers.map(provider => {
                 const newProviderId = nanoid();
                 providerIdMap[provider.id] = newProviderId;
-                return tx.llmProviders.create({
+                return tx.modelProviders.create({
                     data: {
                         ...provider,
                         id: newProviderId,

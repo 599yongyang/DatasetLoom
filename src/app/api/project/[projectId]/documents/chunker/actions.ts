@@ -1,7 +1,7 @@
 import type { Chunks } from '@prisma/client';
 import type { ModelConfigWithProvider } from '@/lib/ai/core/types';
 import type { Language } from '@/lib/ai/prompts/type';
-import LLMClient from '@/lib/ai/core';
+import ModelClient from '@/lib/ai/core';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { documentAnalysisSchema } from '@/lib/ai/prompts/schema';
 import { updateChunkById } from '@/server/db/chunks';
@@ -31,28 +31,28 @@ export async function processChunks(options: ProcessChunksOptions) {
             domainTreePrompt
         });
 
-        // 2. 调用LLM
-        const llmClient = new LLMClient(model);
-        const { text } = await llmClient.chat(prompt);
-        // console.debug('LLM响应:', text);
+        // 2. 调用大模型
+        const modelClient = new ModelClient(model);
+        const { text } = await modelClient.chat(prompt);
+        // console.debug('模型响应:', text);
 
         // 3. 验证和解析输出
-        const llmOutput = await doubleCheckModelOutput(text, documentAnalysisSchema);
-        // console.debug('解析后的输出:', llmOutput);
+        const modelOutput = await doubleCheckModelOutput(text, documentAnalysisSchema);
+        // console.debug('解析后的输出:', modelOutput);
         const chunk = {
             id: chunkId,
             projectId,
-            summary: llmOutput.summary,
-            domain: llmOutput.domain,
-            subDomain: llmOutput.subDomain,
-            tags: Array.isArray(llmOutput.tags) ? llmOutput.tags.join(',') : '',
+            summary: modelOutput.summary,
+            domain: modelOutput.domain,
+            subDomain: modelOutput.subDomain,
+            tags: Array.isArray(modelOutput.tags) ? modelOutput.tags.join(',') : '',
             language
         } as Chunks;
 
         // 5. 保存结果
         await updateChunkById(chunkId, chunk);
-        if (llmOutput.entities && llmOutput.relations) {
-            return insertChunkGraph(chunkId, llmOutput.entities, llmOutput.relations);
+        if (modelOutput.entities && modelOutput.relations) {
+            return insertChunkGraph(chunkId, modelOutput.entities, modelOutput.relations);
         }
     } catch (error) {
         console.error('处理分块时出错:', error);

@@ -1,6 +1,6 @@
 import type { DatasetSamples } from '@prisma/client';
 import type { DatasetStrategyParams } from '@/types/dataset';
-import type LLMClient from '@/lib/ai/core';
+import type ModelClient from '@/lib/ai/core';
 import { getProject } from '@/server/db/projects';
 import { getAnswerPrompt } from '@/lib/ai/prompts/answer';
 import type { AnswerStyle, DetailLevel, Language } from '@/lib/ai/prompts/type';
@@ -15,7 +15,7 @@ import type { QuestionsDTO } from '@/server/db/schema/questions';
 export async function generateTextDatasetSample(
     question: QuestionsDTO,
     params: DatasetStrategyParams,
-    llmClient: LLMClient,
+    modelClient: ModelClient,
     projectId: string,
     modelName: string
 ): Promise<Partial<DatasetSamples>> {
@@ -34,18 +34,18 @@ export async function generateTextDatasetSample(
         answerPrompt: project.answerPrompt
     });
 
-    const { text, reasoning } = await llmClient.chat(prompt);
-    const llmOutput = await doubleCheckModelOutput(text, answerSchema);
+    const { text, reasoning } = await modelClient.chat(prompt);
+    const modelOutput = await doubleCheckModelOutput(text, answerSchema);
 
     return {
         projectId,
         question: question.question,
-        answer: llmOutput.answer,
+        answer: modelOutput.answer,
         model: modelName,
         cot: reasoning ?? '',
         referenceLabel: question.label || '',
-        evidence: llmOutput.evidence ? JSON.stringify(llmOutput.evidence) : '',
-        confidence: llmOutput.confidence,
+        evidence: modelOutput.evidence ? JSON.stringify(modelOutput.evidence) : '',
+        confidence: modelOutput.confidence,
         questionId: question.id,
         isPrimaryAnswer: question.DatasetSamples.length <= 0
     };
@@ -54,7 +54,7 @@ export async function generateTextDatasetSample(
 export async function generateImageDatasetSample(
     question: QuestionsDTO,
     params: DatasetStrategyParams,
-    llmClient: LLMClient,
+    modelClient: ModelClient,
     projectId: string,
     modelName: string
 ): Promise<Partial<DatasetSamples>> {
@@ -64,18 +64,18 @@ export async function generateImageDatasetSample(
     if (!imageFile) throw new Error('Image file not found');
 
     const buffer: Buffer = readFileSync(imageFile.url);
-    const { text } = await llmClient.vision(buffer, prompt);
-    const llmOutput = await doubleCheckModelOutput(text, answerSchema);
+    const { text } = await modelClient.vision(buffer, prompt);
+    const modelOutput = await doubleCheckModelOutput(text, answerSchema);
 
     return {
         projectId,
         question: question.question,
-        answer: llmOutput.answer,
+        answer: modelOutput.answer,
         model: modelName,
         cot: '',
         referenceLabel: question.label || '',
-        evidence: llmOutput.evidence ? JSON.stringify(llmOutput.evidence) : '',
-        confidence: llmOutput.confidence,
+        evidence: modelOutput.evidence ? JSON.stringify(modelOutput.evidence) : '',
+        confidence: modelOutput.confidence,
         questionId: question.id,
         isPrimaryAnswer: question.DatasetSamples.length <= 0
     };

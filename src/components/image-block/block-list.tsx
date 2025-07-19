@@ -17,6 +17,9 @@ import AddQuestionDialog from '@/components/images/add-question-dialog';
 import type { ImageBlock } from '@prisma/client';
 import { useImageBlocks } from '@/hooks/query/use-image-block';
 import PaginationC from '@/components/ui/pagination';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 export default function ImageBlockList() {
     const { projectId }: { projectId: string } = useParams();
@@ -41,7 +44,16 @@ export default function ImageBlockList() {
     const [questionDialog, setQuestionDialog] = useState(false);
 
     const handleDelete = (block: ImageBlockWithImage) => {
-        console.log('删除分块:', block);
+        axios
+            .delete(`/api/project/${projectId}/images/block?id=${block.id}&type=s`)
+            .then(() => {
+                toast.success('删除成功');
+                void refreshFiles();
+            })
+            .catch(error => {
+                toast.error('删除失败');
+                console.error(error);
+            });
     };
 
     const handleCreateQuestions = (block: ImageBlockWithImage) => {
@@ -61,21 +73,32 @@ export default function ImageBlockList() {
                             {/* 图片预览 */}
                             <div className="aspect-video bg-gray-100 relative overflow-hidden">
                                 <div
-                                    className=" w-full h-full object-contain"
+                                    className="absolute left-1/2 top-1/2"
                                     style={{
+                                        width: `${block.width}px`,
+                                        height: `${block.height}px`,
+                                        transform: 'translate(-50%, -50%)',
+                                        clipPath: `inset(0 0 0 0)`,
                                         backgroundImage: `url(/api/view/image/${block.imageId})`,
                                         backgroundPosition: `-${block.x}px -${block.y}px`,
-                                        backgroundSize: 'auto',
-                                        width: `${block.width}px`,
-                                        height: `${block.height}px`
+                                        backgroundSize: 'revert',
+                                        backgroundRepeat: 'no-repeat'
                                     }}
                                 ></div>
 
-                                {/*悬停操作*/}
+                                {/* 悬停操作 */}
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                     <Button size="sm" variant="secondary" onClick={() => handleCreateQuestions(block)}>
                                         <MessageSquarePlus className="w-4 h-4" />
                                     </Button>
+                                    <ConfirmAlert
+                                        title="确认要删除此标注分块嘛？"
+                                        onConfirm={() => handleDelete(block)}
+                                    >
+                                        <Button size="sm" variant="secondary">
+                                            <Trash2 className="w-4 h-4 text-red-600" />
+                                        </Button>
+                                    </ConfirmAlert>
                                 </div>
                             </div>
 
@@ -83,24 +106,24 @@ export default function ImageBlockList() {
                             <div className="p-3 space-y-2">
                                 <div className="flex items-start justify-between">
                                     <h3 className="font-medium text-sm truncate flex-1">{block.label}</h3>
-                                    <div className={'flex gap-2'}>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                                    <MoreHorizontal className="w-4 h-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem
-                                                    onClick={() => handleDelete(block)}
-                                                    className="text-red-600"
-                                                >
-                                                    <Trash2 className="w-4 h-4 mr-2" />
-                                                    删除
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
+                                    {/*<div className={'flex gap-2'}>*/}
+                                    {/*    <DropdownMenu>*/}
+                                    {/*        <DropdownMenuTrigger asChild>*/}
+                                    {/*            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">*/}
+                                    {/*                <MoreHorizontal className="w-4 h-4" />*/}
+                                    {/*            </Button>*/}
+                                    {/*        </DropdownMenuTrigger>*/}
+                                    {/*        <DropdownMenuContent align="end">*/}
+                                    {/*            <DropdownMenuItem*/}
+                                    {/*                onClick={() => handleDelete(block)}*/}
+                                    {/*                className="text-red-600"*/}
+                                    {/*            >*/}
+                                    {/*                <Trash2 className="w-4 h-4 mr-2" />*/}
+                                    {/*                删除*/}
+                                    {/*            </DropdownMenuItem>*/}
+                                    {/*        </DropdownMenuContent>*/}
+                                    {/*    </DropdownMenu>*/}
+                                    {/*</div>*/}
                                 </div>
 
                                 <div className=" flex justify-between text-xs text-gray-500 ">

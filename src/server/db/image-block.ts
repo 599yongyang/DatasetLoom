@@ -25,6 +25,9 @@ export async function getImageBlockPagination(projectId: string, page = 1, pageS
                 include: {
                     image: true
                 },
+                orderBy: {
+                    createdAt: 'desc'
+                },
                 skip: (page - 1) * pageSize,
                 take: pageSize
             }),
@@ -45,4 +48,17 @@ export async function getBlockCoordinates(blockId: string) {
         where: { id: blockId },
         select: { x: true, y: true, width: true, height: true, label: true }
     });
+}
+
+export async function deleteImageBlock(id: string, type: string) {
+    try {
+        if (type === 's') {
+            return await db.imageBlock.delete({ where: { id } });
+        } else {
+            return await db.imageBlock.deleteMany({ where: { imageId: id } });
+        }
+    } catch (error) {
+        console.error('Failed to delete imageBlock by id in database');
+        throw error;
+    }
 }

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { checkLlmProviders, getLlmProviders, saveLlmProvider } from '@/server/db/llm-providers';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
 import { ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
+import { checkModelProviders, getModelProviders, saveModelProvider } from '@/server/db/model-providers';
 
 /**
  * 获取模型服务商列表
@@ -12,7 +12,7 @@ import { AuditLog } from '@/lib/middleware/audit-log';
 export const GET = compose(AuthGuard(ProjectRole.ADMIN))(async (request: Request, context: ApiContext) => {
     try {
         const { projectId } = context;
-        const result = await getLlmProviders(projectId);
+        const result = await getModelProviders(projectId);
         return NextResponse.json(result);
     } catch (error) {
         console.error('Database query error:', error);
@@ -39,12 +39,12 @@ export const POST = compose(
         }
         provider.projectId = projectId;
         if (type === 'add') {
-            const check = await checkLlmProviders(projectId, provider.name);
+            const check = await checkModelProviders(projectId, provider.name);
             if (check) {
                 return NextResponse.json({ error: 'The providerInfo already exists' }, { status: 400 });
             }
         }
-        const res = await saveLlmProvider(provider);
+        const res = await saveModelProvider(provider);
         return NextResponse.json(res);
     } catch (error) {
         console.error('Error updating model configuration:', error);

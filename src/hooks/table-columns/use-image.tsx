@@ -15,11 +15,16 @@ import { IconCircleCheckFilled, IconLoader } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import { SquareDashedMousePointer } from 'lucide-react';
 
-export function useImagesTableColumns({ mutateImages }: { mutateImages: () => void }) {
-    const router = useRouter();
+export function useImagesTableColumns({
+    mutateImages,
+    onOpenDialog
+}: {
+    mutateImages: () => void;
+    onOpenDialog?: (image: ImageFile) => void;
+}) {
     const { t } = useTranslation('document');
     const { projectId }: { projectId: string } = useParams();
-    const deleteDocument = (fileId: string) => {
+    const deleteImage = (fileId: string) => {
         toast.promise(
             axios.delete(`/api/project/${projectId}/images`, {
                 data: { imagesIds: [fileId] }
@@ -175,12 +180,7 @@ export function useImagesTableColumns({ mutateImages }: { mutateImages: () => vo
                 return (
                     <div className="flex flex-1 justify-center gap-2">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                            <Button
-                                variant="ghost"
-                                onClick={() => {
-                                    router.push(`/project/${projectId}/knowledge/image/${row.original.id}`);
-                                }}
-                            >
+                            <Button variant="ghost" onClick={() => onOpenDialog?.(row.original)}>
                                 <SquareDashedMousePointer />
                             </Button>
                         </WithPermission>
@@ -189,7 +189,7 @@ export function useImagesTableColumns({ mutateImages }: { mutateImages: () => vo
                             <ConfirmAlert
                                 title={t('delete_title')}
                                 message={row.original.fileName}
-                                onConfirm={() => deleteDocument(row.original.id)}
+                                onConfirm={() => deleteImage(row.original.id)}
                             />
                         </WithPermission>
                     </div>

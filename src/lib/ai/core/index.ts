@@ -1,14 +1,13 @@
 import type { ConfigOptions, ModelConfigWithProvider } from './types';
 import type { BaseClient } from '../providers/base';
-import { createLLMClient } from './factory';
+import { createModelClient } from './factory';
 import type { CoreUserMessage, Message, UIMessage } from 'ai';
 import type { Schema } from 'zod';
-import { IMAGE_ANALYSIS_PROMPT } from '@/lib/ai/prompts/vision';
 
 /**
- * 统一 LLM 客户端入口
+ * 统一大模型客户端入口
  */
-export default class LLMClient {
+export default class ModelClient {
     private client: BaseClient;
 
     /**
@@ -17,7 +16,7 @@ export default class LLMClient {
      */
     constructor(config: ModelConfigWithProvider) {
         const providerType = config.provider?.interfaceType || 'openAICompatible';
-        this.client = createLLMClient(providerType, config);
+        this.client = createModelClient(providerType, config);
     }
 
     async vision(image: string | Uint8Array | ArrayBuffer | Buffer, prompt: string) {

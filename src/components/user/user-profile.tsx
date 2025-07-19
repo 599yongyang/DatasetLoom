@@ -19,7 +19,7 @@ export function UserProfile({ open, setOpen }: { open: boolean; setOpen: (open: 
     const [{ files }, { openFileDialog, getInputProps }] = useFileUpload({
         accept: 'image/*'
     });
-    const currentImage = files[0]?.preview || `/api/view/avatar/${user?.id}`;
+    const currentImage = files[0]?.preview || (user.avatar ? `/api/view/avatar/${user?.id}` : '');
     const handelSubmit = async () => {
         const formData = new FormData();
         if (files[0]?.file) {

@@ -177,12 +177,11 @@ export default function DatasetDetail({
                         )}
                         {questionInfo.contextType === ContextType.IMAGE && questionInfo.contextId && (
                             <img
-                                src={`/api/view/${questionInfo.contextId}`}
+                                src={`/api/view/image/${questionInfo.contextId}`}
                                 alt={questionInfo.contextName}
                                 className="w-full h-full object-contain"
                             />
                         )}
-                        {/*{activeAnswer?.chunkContent && <Markdown>{activeAnswer.chunkContent}</Markdown>}*/}
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

@@ -43,7 +43,7 @@ model Projects {
   ModelConfig      ModelConfig[]
   Documents        Documents[]
   WorkFlow         WorkFlow[]
-  LlmProviders     LlmProviders[]
+  ModelProviders   ModelProviders[]
   PreferencePair   PreferencePair[]
   ParserConfig     ParserConfig[]
   Chat             Chat[]
@@ -224,7 +224,7 @@ model PreferencePair {
 }
 
 // 大模型服务商表
-model LlmProviders {
+model ModelProviders {
   id            String        @id
   project       Projects      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId     String
@@ -239,7 +239,7 @@ model LlmProviders {
 }
 
 // 模型列表
-model LlmModels {
+model ModelRegistry {
   id           String   @id @default(nanoid())
   modelId      String
   modelName    String
@@ -250,8 +250,8 @@ model LlmModels {
 
 // 项目模型配置
 model ModelConfig {
-  id          String       @id @default(nanoid())
-  provider    LlmProviders @relation(fields: [providerId], references: [id])
+  id          String         @id @default(nanoid())
+  provider    ModelProviders @relation(fields: [providerId], references: [id])
   providerId  String
   modelId     String
   modelName   String
@@ -260,11 +260,11 @@ model ModelConfig {
   maxTokens   Int
   topP        Float?
   topK        Float?
-  status      Boolean      @default(true)
-  isDefault   Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  Project     Projects     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  status      Boolean        @default(true)
+  isDefault   Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  Project     Projects       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   String
   ModelUsage  ModelUsage[]
 }
@@ -404,4 +404,5 @@ model ImageBlock {
   y         Float
   width     Float
   height    Float
+  createdAt DateTime  @default(now())
 }

@@ -11,13 +11,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
 import * as React from 'react';
 import axios from 'axios';
-import type { LlmProviders, ModelConfig } from '@prisma/client';
+import type { ModelProviders, ModelConfig } from '@prisma/client';
 import { ModelIcon, ModelTag, ProviderIcon } from '@lobehub/icons';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import PasswordInput from '@/components/ui/password-input';
 import { ModelDialog } from '@/components/settings/model-dialog';
-import { useGetModelConfig, useModelConfigSelect } from '@/hooks/query/use-llm';
+import { useGetModelConfig, useModelConfigSelect } from '@/hooks/query/use-model-config';
 import { nanoid } from 'nanoid';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProviderDialog } from '@/components/settings/provider-dialog';
@@ -32,8 +32,8 @@ const IconMap = {
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
 
-    const [selectedProvider, setSelectedProvider] = useState<LlmProviders>({} as LlmProviders);
-    const [providerList, setProviderList] = useState<LlmProviders[]>([]);
+    const [selectedProvider, setSelectedProvider] = useState<ModelProviders>({} as ModelProviders);
+    const [providerList, setProviderList] = useState<ModelProviders[]>([]);
     const [isChange, setIsChange] = useState(false);
     const [openModel, setOpenModel] = useState<boolean>(false);
     const [openProvider, setOpenProvider] = useState(false);
@@ -71,7 +71,7 @@ export default function Page() {
                 toast.error('删除失败');
             });
     };
-    const handelChangeProvider = (provider: LlmProviders) => {
+    const handelChangeProvider = (provider: ModelProviders) => {
         setSelectedProvider(provider);
         setIsChange(false);
     };
@@ -287,16 +287,18 @@ export default function Page() {
                     </div>
                 </div>
             </ScrollArea>
-            <ModelDialog
-                open={openModel}
-                setOpen={setOpenModel}
-                provider={selectedProvider}
-                model={model}
-                refresh={() => {
-                    getProvidersList();
-                    void refreshModelConfig();
-                }}
-            />
+            {selectedProvider && (
+                <ModelDialog
+                    open={openModel}
+                    setOpen={setOpenModel}
+                    provider={selectedProvider}
+                    model={model}
+                    refresh={() => {
+                        getProvidersList();
+                        void refreshModelConfig();
+                    }}
+                />
+            )}
             <ProviderDialog open={openProvider} setOpen={setOpenProvider} refresh={getProvidersList} />
         </div>
     );

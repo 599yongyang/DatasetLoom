@@ -8,7 +8,7 @@ import { ModelProvider, ProviderIcon } from '@lobehub/icons';
 import { Popover, PopoverTrigger } from '../ui/popover';
 import { PopoverContent } from '@/components/ui/popover';
 import { useEffect, useState } from 'react';
-import type { LlmProviders } from '@prisma/client';
+import type { ModelProviders } from '@prisma/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -39,8 +39,8 @@ export function ProviderDialog({
         apiUrl: '',
         interfaceType: 'openAICompatible',
         projectId: projectId
-    } as LlmProviders;
-    const [provider, setProvider] = useState<LlmProviders>(defaultProvider);
+    } as ModelProviders;
+    const [provider, setProvider] = useState<ModelProviders>(defaultProvider);
     const handleChange = (field: string, value: string | number) => {
         setProvider(prev => ({ ...prev, [field]: value }));
     };
