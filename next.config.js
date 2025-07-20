@@ -10,21 +10,17 @@ const config = {
     eslint: {
         ignoreDuringBuilds: true
     },
-    webpack(config) {
+    webpack(config, { dev }) {
         config.externals.push({
             canvas: 'commonjs canvas'
         });
+        if (config.cache && !dev) {
+            config.cache = Object.freeze({
+                type: 'memory'
+            });
+        }
         return config;
     }
-    // webpack: (config, { dev }) => {
-    //     if (config.cache && !dev) {
-    //         config.cache = Object.freeze({
-    //             type: 'memory'
-    //         });
-    //     }
-    //     // Important: return the modified config
-    //     return config;
-    // }
 };
 
 export default config;

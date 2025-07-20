@@ -17,7 +17,9 @@ export enum ChatVisibilityType {
 
 export enum ContextType {
     TEXT = 'TEXT',
-    IMAGE = 'IMAGE'
+    IMAGE = 'IMAGE',
+    VIDEO = 'VIDEO',
+    AUDIO = 'AUDIO'
 }
 
 export enum ModelConfigType {

@@ -8,6 +8,7 @@ import { db } from '@/server/db/db';
  * @param input
  * @param type
  * @param confirmed
+ * @param contextType
  */
 export async function getDatasetsByPagination(
     projectId: string,
@@ -15,18 +16,20 @@ export async function getDatasetsByPagination(
     pageSize = 10,
     input: string = '',
     type: string = '',
-    confirmed: boolean | undefined
+    confirmed: boolean | undefined,
+    contextType: string
 ) {
     try {
         if (type === 'pp') {
             const whereClause: any = {
                 projectId,
-                prompt: { contains: input }
+                prompt: { contains: input },
+                question: {
+                    ...(contextType !== 'all' && { contextType }),
+                    ...(confirmed !== undefined && { confirmed })
+                }
             };
 
-            if (confirmed !== undefined) {
-                whereClause.question = { confirmed };
-            }
             const [data, total] = await Promise.all([
                 db.preferencePair.findMany({
                     where: whereClause,
@@ -51,11 +54,12 @@ export async function getDatasetsByPagination(
         } else {
             let whereClause: any = {
                 projectId,
-                question: { contains: input }
+                question: { contains: input },
+                questions: {
+                    ...(contextType !== 'all' && { contextType }),
+                    ...(confirmed !== undefined && { confirmed })
+                }
             };
-            if (confirmed !== undefined) {
-                whereClause.questions = { confirmed };
-            }
 
             if (type === 'sft') {
                 whereClause.isPrimaryAnswer = true;
@@ -87,107 +91,66 @@ export async function getDatasetsByPagination(
     }
 }
 
-export async function exportDatasetRaw(projectId: string, confirmedOnly: boolean, cot: boolean = true) {
-    try {
-        const questions = await db.questions.findMany({
-            where: {
-                projectId,
+export async function getExportDatasetWithRawOrSFT({
+    projectId,
+    contextType,
+    dataType,
+    confirmedOnly,
+    includeCOT
+}: {
+    projectId: string;
+    contextType: string;
+    dataType: string;
+    confirmedOnly: boolean;
+    includeCOT?: boolean;
+}) {
+    return db.datasetSamples.findMany({
+        where: {
+            projectId,
+            questions: {
                 confirmed: confirmedOnly ? true : undefined,
-                DatasetSamples: {
-                    some: {}
-                }
+                contextType
             },
-            select: {
-                question: true,
-                DatasetSamples: {
-                    select: {
-                        answer: true,
-                        cot,
-                        model: true
-                    }
+            isPrimaryAnswer: dataType === 'sft'
+        },
+        select: {
+            question: true,
+            answer: true,
+            cot: includeCOT,
+            questions: {
+                select: {
+                    contextId: true,
+                    realQuestion: true
                 }
             }
-        });
-        return questions.map(q => ({
-            question: q.question,
-            answers: q.DatasetSamples.map(d => ({
-                text: d.answer,
-                model: d.model,
-                ...(cot ? { cot: d.cot ?? '' } : {})
-            }))
-        }));
-    } catch (error) {
-        console.error('Failed to export datasets Raw in database');
-        throw error;
-    }
+        }
+    });
 }
 
-export async function exportDatasetSFT(projectId: string, confirmedOnly: boolean, cot: boolean = true) {
+export async function getExportDatasetWithDPO(projectId: string, contextType: string, confirmedOnly: boolean) {
     try {
-        const questions = await db.questions.findMany({
+        return await db.preferencePair.findMany({
             where: {
                 projectId,
-                confirmed: confirmedOnly ? true : undefined,
-                DatasetSamples: {
-                    some: {
-                        isPrimaryAnswer: true
-                    }
+                question: {
+                    confirmed: confirmedOnly ? true : undefined,
+                    contextType
                 }
             },
             select: {
-                question: true,
-                DatasetSamples: {
+                prompt: true,
+                chosen: true,
+                rejected: true,
+                question: {
                     select: {
-                        answer: true,
-                        cot,
-                        confidence: true,
-                        model: true
+                        contextId: true,
+                        realQuestion: true
                     }
                 }
             }
         });
-        return questions.map(q => ({
-            instruction: q.question,
-            output: q.DatasetSamples[0]?.answer ?? '',
-            confidence: q.DatasetSamples[0]?.confidence ?? 0,
-            ...(cot ? { cot: q.DatasetSamples[0]?.cot ?? '' } : {})
-        }));
     } catch (error) {
-        console.error('Failed to export datasets SFT in database');
-        throw error;
-    }
-}
-
-export async function exportDatasetDPO(projectId: string, confirmedOnly: boolean) {
-    try {
-        const questions = await db.questions.findMany({
-            where: {
-                projectId,
-                confirmed: confirmedOnly ? true : undefined,
-                PreferencePair: {
-                    isNot: null
-                }
-            },
-            select: {
-                question: true,
-                PreferencePair: {
-                    select: {
-                        chosen: true,
-                        rejected: true
-                    }
-                }
-            }
-        });
-        return questions.map(question => {
-            const pair = question.PreferencePair;
-            return {
-                prompt: question.question,
-                chosen: pair?.chosen ?? '',
-                rejected: pair?.rejected ?? ''
-            };
-        });
-    } catch (error) {
-        console.error('Failed to export datasets DPO in database');
+        console.error('Failed to export datasets in database');
         throw error;
     }
 }

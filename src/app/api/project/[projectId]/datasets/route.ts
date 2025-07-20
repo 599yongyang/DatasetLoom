@@ -110,6 +110,7 @@ export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Reques
         const input = searchParams.get('input') ?? '';
         const type = searchParams.get('type') ?? '';
         const status = searchParams.get('confirmed');
+        const contextType = searchParams.get('contextType') || 'all';
         let confirmed: boolean | undefined = undefined;
         if (status === 'confirmed') {
             confirmed = true;
@@ -118,7 +119,7 @@ export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Reques
         }
 
         // 调用数据获取函数
-        const datasets = await getDatasetsByPagination(projectId, page, size, input, type, confirmed);
+        const datasets = await getDatasetsByPagination(projectId, page, size, input, type, confirmed, contextType);
 
         // 返回成功响应
         return NextResponse.json(datasets);

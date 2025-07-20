@@ -2,6 +2,7 @@
 import { nanoid } from 'nanoid';
 import { db } from '@/server/db/db';
 import type { ModelConfig } from '@prisma/client';
+import type { ModelConfigType } from '@/lib/data-dictionary';
 
 export async function getModelConfig(providerId: string[], status: boolean | undefined) {
     try {
@@ -161,7 +162,7 @@ export async function updateModelConfigDefault(id: string) {
     }
 }
 
-export async function getModelConfigByType(projectId: string, type: string | 'tool' | 'vision' | 'cot') {
+export async function getModelConfigByType(projectId: string, type: ModelConfigType) {
     try {
         return await db.modelConfig.findMany({ where: { projectId, type }, include: { provider: true } });
     } catch (error) {

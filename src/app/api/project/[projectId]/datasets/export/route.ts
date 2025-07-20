@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { exportDatasetDPO, exportDatasetRaw, exportDatasetSFT } from '@/server/db/dataset';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
 import { ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
+import { exportDataset, getExportDataset } from '@/app/api/project/[projectId]/datasets/export/serivce';
+import fs from 'fs/promises';
 
 /**
  * 获取导出数据集
@@ -16,21 +17,39 @@ export const POST = compose(
     try {
         const { projectId } = context;
 
-        const { dataType, confirmedOnly, includeCOT } = await request.json();
+        const { contextType, fileFormat, dataType, confirmedOnly, includeCOT, exportType } = await request.json();
+        if (exportType === 'HF') {
+            const dataset = await getExportDataset({
+                contextType,
+                fileFormat,
+                dataType,
+                confirmedOnly,
+                projectId,
+                exportType
+            });
+            return NextResponse.json(dataset);
+        }
 
-        if (dataType === 'raw') {
-            const datasets = await exportDatasetRaw(projectId, confirmedOnly, includeCOT);
-            return NextResponse.json(datasets);
+        const result = await exportDataset({
+            projectId,
+            contextType,
+            fileFormat,
+            dataType,
+            confirmedOnly,
+            includeCOT,
+            exportType
+        });
+
+        if (result.filePath) {
+            const file = await fs.readFile(result.filePath);
+            return new NextResponse(file, {
+                headers: {
+                    'Content-Type': 'application/zip',
+                    'Content-Disposition': `attachment; filename=${result.filename}`
+                }
+            });
         }
-        if (dataType === 'sft') {
-            const datasets = await exportDatasetSFT(projectId, confirmedOnly, includeCOT);
-            return NextResponse.json(datasets);
-        }
-        if (dataType === 'dpo') {
-            const datasets = await exportDatasetDPO(projectId, confirmedOnly);
-            return NextResponse.json(datasets);
-        }
-        return NextResponse.json({});
+        return NextResponse.json(result);
     } catch (error) {
         console.error('获取数据集失败:', error);
         return NextResponse.json(

@@ -11,6 +11,7 @@ type UseDatasetsParams = {
     input: string;
     type: string;
     confirmed: string;
+    contextType: string;
 };
 
 interface DatasetListResponse {
@@ -28,7 +29,8 @@ export function useDatasets(params: UseDatasetsParams) {
             size: params.pageSize,
             ...(params.input && { input: params.input }),
             type: params.type,
-            confirmed: params.confirmed
+            confirmed: params.confirmed,
+            contextType: params.contextType
         };
 
         return buildURL(`/api/project/${params.projectId}/datasets`, paramsObj);

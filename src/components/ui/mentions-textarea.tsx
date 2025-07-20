@@ -1,6 +1,7 @@
 import { Mention, MentionsInput, type SuggestionDataItem } from 'react-mentions';
 import React from 'react';
 import { stringToColor } from '@/lib/utils';
+import type { Property } from 'csstype';
 
 interface MentionsTextareaProps {
     value: string;
@@ -9,6 +10,7 @@ interface MentionsTextareaProps {
     readOnly?: boolean;
     placeholder?: string;
     className?: string;
+    cursor?: Property.Cursor;
 }
 
 export default function MentionsTextarea({
@@ -16,8 +18,9 @@ export default function MentionsTextarea({
     onChange,
     data = [],
     readOnly = false,
-    placeholder = '输入问题，按@提及其他标注',
-    className = ''
+    placeholder = '直接输入问题，或者按@提及指定标注进行提问',
+    className = '',
+    cursor = 'default'
 }: MentionsTextareaProps) {
     // 自定义提及渲染
     const renderSuggestion = (suggestion: SuggestionDataItem, highlightedDisplay: React.ReactNode) => {
@@ -47,14 +50,16 @@ export default function MentionsTextarea({
                 <MentionsInput
                     value={value}
                     readOnly
-                    disabled
                     className={className}
                     style={{
                         highlighter: {
                             padding: 0
                         },
                         input: {
-                            padding: 0
+                            padding: 0,
+                            border: 'none',
+                            outline: 'none',
+                            cursor
                         },
                         suggestions: {
                             display: 'none'

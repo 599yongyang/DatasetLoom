@@ -10,19 +10,22 @@ import { type Questions } from '@prisma/client';
  * @param {number} pageSize - 每页大小
  * @param answered
  * @param input
+ * @param contextType
  */
 export async function getQuestions(
     projectId: string,
-    page = 1,
-    pageSize = 10,
+    page: number = 1,
+    pageSize: number = 10,
     answered: boolean | undefined,
-    input: string
+    input: string,
+    contextType: string
 ) {
     try {
         const whereClause = {
             projectId,
             ...(answered !== undefined && { answered: answered }), // 确保 answered 是布尔值
-            OR: [{ question: { contains: input } }, { label: { contains: input } }]
+            OR: [{ question: { contains: input } }, { label: { contains: input } }],
+            ...(contextType !== 'all' && { contextType: contextType })
         };
 
         const [data, total] = await Promise.all([

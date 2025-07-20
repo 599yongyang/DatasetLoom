@@ -6,7 +6,6 @@ import { AuthGuard } from '@/lib/middleware/auth-guard';
 import { ProjectRole, ContextType } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
-import { getBlockCoordinates } from '@/server/db/image-block';
 import { replaceMentionsWithCoordinates } from '@/lib/utils/mentions';
 
 /**
@@ -26,7 +25,8 @@ export const GET = compose(AuthGuard(ProjectRole.VIEWER))(async (request: Reques
             parseInt(searchParams.get('page') ?? '1'),
             parseInt(searchParams.get('size') ?? '10'),
             answered,
-            searchParams.get('input') ?? ''
+            searchParams.get('input') ?? '',
+            searchParams.get('contextType') ?? 'all'
         );
 
         return NextResponse.json(questions);

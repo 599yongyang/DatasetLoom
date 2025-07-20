@@ -15,6 +15,7 @@ import { DataTable } from '@/components/questions/data-table';
 import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useQuestionTableColumns } from '@/hooks/table-columns/use-question';
+import { ContextTypeMap } from '@/lib/data-dictionary';
 
 export default function Page() {
     let { projectId }: { projectId: string } = useParams();
@@ -22,6 +23,7 @@ export default function Page() {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [answerFilter, setAnswerFilter] = useState('all');
+    const [contextType, setContextType] = useState('all');
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -36,7 +38,8 @@ export default function Page() {
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
         answerFilter,
-        searchQuery
+        searchQuery,
+        contextType
     });
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
@@ -81,6 +84,30 @@ export default function Page() {
         <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="sticky top-0 z-10 bg-background/80 s flex items-center justify-between gap-2">
                 <div className={'flex gap-2 w-1/2'}>
+                    <div className="group relative">
+                        <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
+                            分类
+                        </label>
+                        <Select
+                            value={contextType}
+                            onValueChange={value => {
+                                setContextType(value);
+                                setPagination({ ...pagination, pageIndex: 0 });
+                            }}
+                        >
+                            <SelectTrigger className="w-[200px]">
+                                <SelectValue placeholder="状态" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">全部</SelectItem>
+                                {Object.entries(ContextTypeMap).map(([key, value]) => (
+                                    <SelectItem key={key} value={key}>
+                                        {value}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <Input
                         className="w-1/3"
                         value={searchQuery}

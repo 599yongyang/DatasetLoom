@@ -80,3 +80,10 @@ export async function delImageByIds(fileId: string[]) {
         throw error;
     }
 }
+
+export async function getImageFileUrl(contextId: string) {
+    return db.imageFile.findUnique({
+        where: { id: contextId },
+        select: { url: true }
+    });
+}

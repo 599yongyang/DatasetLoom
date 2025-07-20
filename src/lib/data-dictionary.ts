@@ -62,10 +62,12 @@ export const projectRoleColorMap = {
     VIEWER: 'bg-green-100 text-green-800'
 };
 
-export type QuestionType = 'TEXT' | 'IMAGE';
-export const questionTypeMap: Record<QuestionType, string> = {
+export type UIContextType = 'TEXT' | 'IMAGE';
+export const ContextTypeMap: Record<UIContextType, string> = {
     TEXT: '文档',
     IMAGE: '图像'
 };
 
 export type ModelConfigType = 'COT' | 'EMBED' | 'TEXT' | 'TOOL' | 'VISION' | 'ALL';
+
+export type DatasetExportType = 'LOCAL_GENERAL' | 'LLAMA_FACTORY' | 'HF';

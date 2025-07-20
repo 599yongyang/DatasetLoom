@@ -9,6 +9,7 @@ type UseQuestionsParams = {
     pageSize: number;
     answerFilter: string;
     searchQuery: string;
+    contextType: string;
 };
 
 interface Response {
@@ -24,7 +25,8 @@ export default function useQuestions(params: UseQuestionsParams) {
             page: params.pageIndex + 1,
             size: params.pageSize,
             ...(params.answerFilter && { status: params.answerFilter }),
-            ...(params.searchQuery && { input: params.searchQuery })
+            ...(params.searchQuery && { input: params.searchQuery }),
+            ...(params.contextType && { contextType: params.contextType })
         };
 
         return buildURL(`/api/project/${params.projectId}/questions`, paramsObj);

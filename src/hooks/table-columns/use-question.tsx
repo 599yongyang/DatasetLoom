@@ -6,8 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 import { useParams } from 'next/navigation';
 import React, { useState } from 'react';
-import { ProjectRole, ContextType } from 'src/server/db/types';
-import { type QuestionType, questionTypeMap } from '@/lib/data-dictionary';
+import { ContextType, ProjectRole } from 'src/server/db/types';
 import { useAtomValue } from 'jotai/index';
 import { selectedModelInfoAtom } from '@/atoms';
 import { useGenerateDataset } from '@/hooks/use-generate-dataset';
@@ -21,6 +20,7 @@ import { DatasetStrategyDialog } from '@/components/dataset/dataset-strategy-dia
 import { PreferencePairDialog } from '@/components/preference-pair/preference-pair-dialog';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { ContextTypeMap, type UIContextType } from '@/lib/data-dictionary';
 
 export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: () => void }) {
     const { t } = useTranslation('question');
@@ -75,7 +75,7 @@ export function useQuestionTableColumns({ mutateQuestions }: { mutateQuestions: 
             header: t('table_columns.type'),
             cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground">
-                    {questionTypeMap[row.original.contextType as QuestionType]}
+                    {ContextTypeMap[row.original.contextType as UIContextType]}
                 </Badge>
             )
         },

@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 import { getFileMD5, getProjectRoot } from '@/lib/utils/file';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { ProjectRole } from 'src/server/db/types';
+import { ModelConfigType, ProjectRole } from 'src/server/db/types';
 import type { ApiContext } from '@/types/api-context';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import { createImageFile, delImageByIds, getImagePagination, updateImageFile } from '@/server/db/image-file';
@@ -82,7 +82,7 @@ export const POST = compose(
         const uploadDir = path.join(projectPath, 'files');
         const formData = await request.formData();
 
-        const modelConfigList = await getModelConfigByType(projectId, 'vision');
+        const modelConfigList = await getModelConfigByType(projectId, ModelConfigType.VISION);
         // 文件处理
         const files = [];
         for (const [fieldName, fieldValue] of formData.entries()) {

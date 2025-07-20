@@ -20,6 +20,8 @@ import { datasetViewModeAtom } from '@/atoms';
 import { ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useDatasetTableColumns } from '@/hooks/table-columns/use-dataset';
+import MentionsTextarea from '@/components/ui/mentions-textarea';
+import { ContextTypeMap } from '@/lib/data-dictionary';
 
 export default function Page() {
     const router = useRouter();
@@ -27,6 +29,7 @@ export default function Page() {
     const { projectId } = useParams<{ projectId: string }>();
     const [filterConfirmed, setFilterConfirmed] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [contextType, setContextType] = useState('all');
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -46,7 +49,8 @@ export default function Page() {
         status: filterConfirmed,
         input: searchQuery,
         type: viewMode,
-        confirmed: filterConfirmed
+        confirmed: filterConfirmed,
+        contextType
     });
 
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
@@ -55,7 +59,31 @@ export default function Page() {
     return (
         <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="sticky top-0 z-10 bg-background/80 flex items-center justify-between gap-2">
-                <div className={'flex gap-2 w-1/2'}>
+                <div className={'flex gap-2'}>
+                    <div className="group relative">
+                        <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
+                            分类
+                        </label>
+                        <Select
+                            value={contextType}
+                            onValueChange={value => {
+                                setContextType(value);
+                                setPagination({ ...pagination, pageIndex: 0 });
+                            }}
+                        >
+                            <SelectTrigger className="w-[130px]">
+                                <SelectValue placeholder="状态" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">全部</SelectItem>
+                                {Object.entries(ContextTypeMap).map(([key, value]) => (
+                                    <SelectItem key={key} value={key}>
+                                        {value}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="group relative">
                         <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
                             展示模式
@@ -86,9 +114,29 @@ export default function Page() {
                             </SelectContent>
                         </Select>
                     </div>
-
+                    <div className="group relative">
+                        <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
+                            状态
+                        </label>
+                        <Select
+                            value={filterConfirmed}
+                            onValueChange={value => {
+                                setFilterConfirmed(value);
+                                setPagination({ ...pagination, pageIndex: 0 });
+                            }}
+                        >
+                            <SelectTrigger className="w-[130px]">
+                                <SelectValue placeholder="状态" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">{t('select_item.all')}</SelectItem>
+                                <SelectItem value="confirmed">{t('select_item.confirmed')}</SelectItem>
+                                <SelectItem value="unconfirmed">{t('select_item.unconfirmed')}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <Input
-                        className="w-1/3"
+                        className="w-60"
                         value={searchQuery}
                         onChange={e => {
                             setSearchQuery(e.target.value);
@@ -96,22 +144,6 @@ export default function Page() {
                         }}
                         placeholder={t('search')}
                     />
-                    <Select
-                        value={filterConfirmed}
-                        onValueChange={value => {
-                            setFilterConfirmed(value);
-                            setPagination({ ...pagination, pageIndex: 0 });
-                        }}
-                    >
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="状态" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">{t('select_item.all')}</SelectItem>
-                            <SelectItem value="confirmed">{t('select_item.confirmed')}</SelectItem>
-                            <SelectItem value="unconfirmed">{t('select_item.unconfirmed')}</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
                 <div className={'flex items-center'}>
                     <span className={'text-muted-foreground text-sm'}>
@@ -153,25 +185,29 @@ export default function Page() {
                             <CardHeader>
                                 <CardTitle className="text-lg leading-tight">
                                     <div
-                                        className={' hover:cursor-pointer hover:underline'}
                                         onClick={() =>
                                             router.push(
                                                 `/project/${projectId}/dataset/qa/${item.questionId}?dssId=${item.id}`
                                             )
                                         }
                                     >
-                                        {item.question}
+                                        <MentionsTextarea value={item.question} readOnly cursor={'pointer'} />
                                     </div>
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <CardDescription className="text-sm leading-relaxed">{item.answer}</CardDescription>
                                 <div className="gap-2 space-x-2 py-2 flex flex-wrap">
-                                    {item.referenceLabel?.split(',').map((label, index) => (
-                                        <Badge key={index} variant="secondary" className="text-xs whitespace-nowrap">
-                                            {label}
-                                        </Badge>
-                                    ))}
+                                    {item.referenceLabel !== '' &&
+                                        item.referenceLabel?.split(',').map((label, index) => (
+                                            <Badge
+                                                key={index}
+                                                variant="secondary"
+                                                className="text-xs whitespace-nowrap"
+                                            >
+                                                {label}
+                                            </Badge>
+                                        ))}
                                 </div>
                                 <div className="flex justify-between items-center mt-4">
                                     <div className={'flex items-center gap-2'}>
