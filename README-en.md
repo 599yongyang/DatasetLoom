@@ -177,6 +177,7 @@ The service runs by default at: 👉 [http://localhost:2088](http://localhost:20
 
 ```bash
 pnpm run build
+pnpm run db:deploy
 pnpm run start
 ```
 

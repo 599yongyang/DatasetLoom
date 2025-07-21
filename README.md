@@ -177,6 +177,7 @@ pnpm run dev
 
 ```bash
 pnpm run build
+pnpm run db:deploy
 pnpm run start
 ```
 

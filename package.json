@@ -121,6 +121,7 @@
         "react-i18next": "^15.5.1",
         "react-konva": "^19.0.7",
         "react-markdown": "^10.1.0",
+        "react-mentions": "^4.4.10",
         "react-resizable-panels": "^3.0.2",
         "recharts": "^2.15.3",
         "rehype-highlight": "^7.0.2",
