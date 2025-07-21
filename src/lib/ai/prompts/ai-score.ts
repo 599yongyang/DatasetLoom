@@ -1,11 +1,7 @@
-export function getAIScoringPrompt(
-    context: string,
-    question: string,
-    modelAnswer: string,
-    datasetPurpose: string = 'general QA'
-): string {
+export function getAIScoringPrompt(context: string | undefined, question: string, modelAnswer: string): string {
     return `
 # 大模型回答质量评估指令
+
 ## 强制要求
 1. 必须严格按JSON格式输出
 2. 必须完整填写diagnostics所有字段
@@ -29,12 +25,9 @@ export function getAIScoringPrompt(
    - 是否泄露隐私？例："暴露了患者的真实姓名"
 
 ## 输入数据
-问题: "${question}"
+${context ? `上下文:\n"""\n${context}\n"""` : ''}
 
-上下文:
-"""
-${context}
-"""
+问题: "${question}"
 
 待评估回答:
 """

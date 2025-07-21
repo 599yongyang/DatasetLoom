@@ -42,7 +42,7 @@ export default function StepTwo({
 }) {
     const { projectId }: { projectId: string } = useParams();
     const router = useRouter();
-    const { t } = useTranslation(['chunk', 'document']);
+    const { t } = useTranslation(['chunk', 'knowledge']);
     const tChunk = (key: string) => t(`chunk:${key}`);
     const tDocument = (key: string) => t(`document:${key}`);
     const getAvailableServices = () => {

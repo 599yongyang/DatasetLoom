@@ -12,7 +12,7 @@ export function UploadFilesNew({
     options: FileUploadOptions;
     setLocalFiles: React.Dispatch<React.SetStateAction<File[]>>;
 }) {
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
     const maxSize = 100 * 1024 * 1024; // 10MB default
     options.maxSize ??= maxSize;
     const [

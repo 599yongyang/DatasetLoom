@@ -171,7 +171,7 @@ function ActionCell({ question, projectId, mutateQuestions }: ActionCellProps) {
                         <Wand size={30} />
                     </Button>
 
-                    {question.DatasetSamples.length > 1 && question.contextType === ContextType.TEXT && (
+                    {question.DatasetSamples.length > 1 && (
                         <Button
                             variant="ghost"
                             size="icon"

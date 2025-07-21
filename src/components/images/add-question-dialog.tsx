@@ -41,7 +41,7 @@ export default function AddQuestionDialog({
     height: number;
     block: ImageBlock[];
 }) {
-    if (block.length === 0) return null;
+    // if (block.length === 0) return null;
     const { projectId } = useParams();
     const [modelValue, setModelValue] = useState('');
     const [newQuestion, setNewQuestion] = useState('');
@@ -233,6 +233,7 @@ export default function AddQuestionDialog({
                                                     value={modelValue}
                                                     setValue={setModelValue}
                                                     filter={ModelConfigType.VISION}
+                                                    className={'w-full'}
                                                 />
                                             </div>
                                         </div>

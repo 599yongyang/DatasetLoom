@@ -22,7 +22,7 @@ export function useImagesTableColumns({
     mutateImages: () => void;
     onOpenDialog?: (image: ImageFile) => void;
 }) {
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
     const { projectId }: { projectId: string } = useParams();
     const deleteImage = (fileId: string) => {
         toast.promise(
@@ -69,7 +69,7 @@ export function useImagesTableColumns({
         },
         {
             accessorKey: 'image',
-            header: '缩略图',
+            header: t('image_table_columns.image'),
             cell: ({ row }) => (
                 <div className={'w-10 h-10'}>
                     <img
@@ -82,8 +82,8 @@ export function useImagesTableColumns({
             )
         },
         {
-            accessorKey: 'fileName',
-            header: t('table_columns.file_name'),
+            accessorKey: 'image_name',
+            header: t('image_table_columns.image_name'),
             cell: ({ row }) => (
                 <div className="text-foreground max-w-[30vw] px-0 text-left">
                     <TooltipProvider delayDuration={0}>
@@ -106,12 +106,12 @@ export function useImagesTableColumns({
 
         {
             accessorKey: 'size',
-            header: '图像大小',
+            header: t('image_table_columns.size'),
             cell: ({ row }) => <div>{formatBytes(row.original.size)}</div>
         },
         {
-            accessorKey: 'w',
-            header: '图像尺寸',
+            accessorKey: 'dimensions',
+            header: t('image_table_columns.dimensions'),
             cell: ({ row }) => (
                 <div>
                     {row.original.width} X {row.original.height}
@@ -119,8 +119,8 @@ export function useImagesTableColumns({
             )
         },
         {
-            accessorKey: 'chunkCount',
-            header: 'OCR',
+            accessorKey: 'ocr',
+            header: t('image_table_columns.ocr'),
             cell: ({ row }) => (
                 <div className="text-foreground max-w-[30vw] px-0 text-left">
                     <TooltipProvider delayDuration={0}>
@@ -141,8 +141,8 @@ export function useImagesTableColumns({
             enableHiding: false
         },
         {
-            accessorKey: 'tags',
-            header: '对象标签',
+            accessorKey: 'object',
+            header: t('image_table_columns.object'),
             cell: ({ row }) => (
                 <div className={'space-x-1'}>
                     {row.original.tags !== '' &&
@@ -156,7 +156,7 @@ export function useImagesTableColumns({
         },
         {
             accessorKey: 'status',
-            header: '解析状态',
+            header: 'Status',
             cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground px-1.5">
                     {row.original.status === 'DONE' ? (
@@ -170,12 +170,12 @@ export function useImagesTableColumns({
         },
         {
             accessorKey: 'createdAt',
-            header: t('table_columns.createdAt'),
+            header: t('image_table_columns.createdAt'),
             cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
         },
         {
             id: 'actions',
-            header: () => <div className="text-center">{t('table_columns.actions')}</div>,
+            header: () => <div className="text-center">{t('image_table_columns.actions')}</div>,
             cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-2">

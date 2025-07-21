@@ -40,7 +40,14 @@ export default function BlockHighlight({
                     </defs>
 
                     {/* 暗化背景 */}
-                    <rect width="100%" height="100%" fill="rgba(0,0,0,0.5)" mask={`url(#highlight-mask-${imageId})`} />
+                    {block.length && (
+                        <rect
+                            width="100%"
+                            height="100%"
+                            fill="rgba(0,0,0,0.5)"
+                            mask={`url(#highlight-mask-${imageId})`}
+                        />
+                    )}
 
                     {/* 标注框 */}
                     {block.map(item => (

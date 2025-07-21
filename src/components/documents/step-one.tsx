@@ -21,7 +21,7 @@ export default function StepOne({
     };
     handleChange: (field: string, value: any) => void;
 }) {
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
 
     const {
         list: webFileUrls,

@@ -18,7 +18,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments: () => void }) {
     const router = useRouter();
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
     const { projectId }: { projectId: string } = useParams();
     const deleteDocument = (fileId: string) => {
         toast.promise(
@@ -163,7 +163,7 @@ export function useDocumentsTableColumns({ mutateDocuments }: { mutateDocuments:
     return columns;
 }
 
-const formatSourceType = (type: string, t: TFunction<'document'>): string => {
+const formatSourceType = (type: string, t: TFunction<'knowledge'>): string => {
     switch (type) {
         case 'local':
             return t('source_type.local');

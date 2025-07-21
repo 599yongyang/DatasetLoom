@@ -2,8 +2,8 @@
     "search": "Search for file name...",
     "file_ext": "File Type",
     "file_ext_all": "All",
-    "delete_btn": "Delete selected data",
-    "chunk_btn": "Chunk selected data",
+    "delete_btn": "Delete Selected Data",
+    "chunk_btn": "Chunk Selected Data",
     "upload_btn": "Upload",
     "graph_btn": "View Graph",
     "delete_title": "Are you sure you want to delete this file ?",
@@ -79,5 +79,15 @@
         "rm_all_btn": "Remove all files",
         "cancel_btn": "Cancel",
         "confirm_upload_btn": "Start uploading"
+    },
+    "image_table_columns": {
+        "image": "Image",
+        "image_name": "Name",
+        "size": "Size",
+        "dimensions": "Dimensions",
+        "ocr": "OCR",
+        "object": "Object",
+        "createdAt": "CreatedAt",
+        "actions": "Actions"
     }
 }

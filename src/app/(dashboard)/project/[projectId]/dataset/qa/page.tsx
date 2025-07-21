@@ -62,30 +62,6 @@ export default function Page() {
                 <div className={'flex gap-2'}>
                     <div className="group relative">
                         <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
-                            分类
-                        </label>
-                        <Select
-                            value={contextType}
-                            onValueChange={value => {
-                                setContextType(value);
-                                setPagination({ ...pagination, pageIndex: 0 });
-                            }}
-                        >
-                            <SelectTrigger className="w-[130px]">
-                                <SelectValue placeholder="状态" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">全部</SelectItem>
-                                {Object.entries(ContextTypeMap).map(([key, value]) => (
-                                    <SelectItem key={key} value={key}>
-                                        {value}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="group relative">
-                        <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
                             展示模式
                         </label>
                         <Select value={viewMode} onValueChange={value => setViewMode(value)}>
@@ -111,6 +87,30 @@ export default function Page() {
                                         只展示已标注偏好的 QA 对
                                     </span>
                                 </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="group relative">
+                        <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
+                            分类
+                        </label>
+                        <Select
+                            value={contextType}
+                            onValueChange={value => {
+                                setContextType(value);
+                                setPagination({ ...pagination, pageIndex: 0 });
+                            }}
+                        >
+                            <SelectTrigger className="w-[130px]">
+                                <SelectValue placeholder="状态" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">全部</SelectItem>
+                                {Object.entries(ContextTypeMap).map(([key, value]) => (
+                                    <SelectItem key={key} value={key}>
+                                        {value}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
@@ -247,7 +247,7 @@ export default function Page() {
                                             )
                                         }
                                     >
-                                        {item.prompt}
+                                        <MentionsTextarea value={item.prompt} readOnly />
                                     </div>
                                 </CardTitle>
                             </CardHeader>

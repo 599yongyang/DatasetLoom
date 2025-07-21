@@ -41,7 +41,7 @@ const fileType = [
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
     const router = useRouter();
     const [fileName, setFileName] = useState('');
     const [fileExt, setFileExt] = useState('');

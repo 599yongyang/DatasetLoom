@@ -5,6 +5,7 @@ import { useGetPreferencePair } from '@/hooks/query/use-preferencePair';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'sonner';
+import MentionsTextarea from '@/components/ui/mentions-textarea';
 
 export function PreferencePairDialog({
     open,
@@ -78,7 +79,9 @@ export function PreferencePairDialog({
                 </DialogHeader>
 
                 <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
-                    <div className="text-center text-lg font-medium text-foreground">{preferencePair[0]?.question}</div>
+                    <div className="text-center text-lg font-medium text-foreground">
+                        <MentionsTextarea value={preferencePair[0]?.question || ''} readOnly />
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         {preferencePair.map((item, index) => (

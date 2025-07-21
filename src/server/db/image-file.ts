@@ -12,11 +12,11 @@ export async function getImagePagination(projectId: string, page = 1, pageSize =
         if (fileName) {
             whereClause.fileName = { contains: fileName };
         }
-        if (Boolean(block)) {
-            whereClause.ImageBlock = {
-                some: {}
-            };
-        }
+        // if (Boolean(block)) {
+        //     whereClause.ImageBlock = {
+        //         some: {}
+        //     };
+        // }
         const [data, total] = await Promise.all([
             db.imageFile.findMany({
                 where: whereClause,

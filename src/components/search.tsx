@@ -31,7 +31,9 @@ export function Search({ ...props }: ButtonProps & DialogProps) {
     const { i18n, t } = useTranslation('common');
 
     const changeLanguage = (lng: string) => {
+        console.log('changeLanguage', lng);
         i18n.changeLanguage(lng);
+        console.log(i18n.language);
     };
 
     React.useEffect(() => {

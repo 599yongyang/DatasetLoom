@@ -15,26 +15,32 @@ import { Atom, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { WithPermission } from '@/components/common/permission-wrapper';
-import { ContextType, ProjectRole } from '@/server/db/types';
+import { ContextType, ModelConfigType, ProjectRole } from '@/server/db/types';
 import { useParams } from 'next/navigation';
 import { useDatasetEvalList } from '@/hooks/query/use-dataset-eval';
 import { useAtomValue } from 'jotai/index';
 import { selectedModelInfoAtom } from '@/atoms';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ModelTag } from '@lobehub/icons';
+import type { UIContextType } from '@/lib/data-dictionary';
 
-export const AIScoreDashboard = ({ dssId }: { dssId: string }) => {
+export const AIScoreDashboard = ({ dssId, contextType }: { dssId: string; contextType: UIContextType }) => {
     const { projectId }: { projectId: string } = useParams();
     const [isScoring, setIsScoring] = useState(false);
     const { data: datasetEvalList, refresh } = useDatasetEvalList({
         projectId,
         sampleId: dssId,
-        sampleType: ContextType.TEXT
+        sampleType: contextType
     });
     const model = useAtomValue(selectedModelInfoAtom);
 
     const handleAIScore = () => {
+        if (!checkModel()) {
+            toast.warning('请选择支持对应能力的模型进行评分');
+            return;
+        }
         setIsScoring(true);
+
         toast.promise(
             axios.post(`/api/project/${projectId}/datasets/ai-score`, {
                 dssId: dssId,
@@ -59,6 +65,16 @@ export const AIScoreDashboard = ({ dssId }: { dssId: string }) => {
                 }
             }
         );
+    };
+
+    const checkModel = () => {
+        if (contextType === ContextType.IMAGE) {
+            return model.type.includes(ModelConfigType.VISION);
+        }
+        if (contextType === ContextType.TEXT) {
+            return model.type.includes(ModelConfigType.TEXT);
+        }
+        return false;
     };
 
     // Process evaluation data for each model

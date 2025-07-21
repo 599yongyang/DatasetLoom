@@ -29,7 +29,7 @@ export interface UploadFormDataType {
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
     const router = useRouter();
     const { data: parserConfigList } = useGetParserConfig(projectId);
     const chunkConfigHash = useAtomValue(chunkConfigHashAtom);

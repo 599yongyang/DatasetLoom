@@ -24,7 +24,7 @@ export function UploadFiles({
     refreshFiles?: () => void;
 }) {
     const { projectId } = useParams();
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
     const [documentWorkFlow, setDocumentWorkFlow] = useAtom(documentWorkFlowAtom);
     const maxSize = 100 * 1024 * 1024; // 10MB default
 

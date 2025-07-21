@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 export default function ServiceConfigPage() {
     const { projectId }: { projectId: string } = useParams();
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
     const { data: parserConfigList, refresh } = useGetParserConfig(projectId);
     const defaultParser = parserConfigList.find(config => config.serviceId === PARSER_SERVICE_LIST[0]?.id);
     const [selectedParser, setSelectedParser] = useState(PARSER_SERVICE_LIST[0]);

@@ -18,12 +18,14 @@ export function ModelSelect({
     value,
     setValue,
     showConfigButton = true,
-    filter
+    filter,
+    className
 }: {
     value: string;
     setValue: (value: string) => void;
     showConfigButton?: boolean;
     filter?: ModelConfigType;
+    className?: string;
 }) {
     let { projectId } = useParams();
     const router = useRouter();
@@ -41,7 +43,12 @@ export function ModelSelect({
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={open} className=" w-full justify-between">
+                <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className={cn('justify-between', className)}
+                >
                     {modelConfigList
                         .filter(modelConfig => !filter || modelConfig.type.includes(filter))
                         .find(modelConfig => modelConfig.id === value) ? (
@@ -59,7 +66,7 @@ export function ModelSelect({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[400px] p-0">
+            <PopoverContent className="w-full p-0">
                 <Command shouldFilter={false}>
                     <CommandInput value={search} placeholder="搜索模型..." onValueChange={setSearch} />
                     <CommandList>

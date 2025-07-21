@@ -72,7 +72,10 @@ export default function Page() {
                                 <TableCell>
                                     <div className="flex items-center gap-3">
                                         <Avatar>
-                                            <AvatarImage src={member.user.avatar} alt={member.user.name} />
+                                            <AvatarImage
+                                                src={`/api/view/avatar/${member.user.id}`}
+                                                alt={member.user.name}
+                                            />
                                             <AvatarFallback>
                                                 {' '}
                                                 {member.user.name?.slice(0, 1).toUpperCase()}

@@ -7,11 +7,14 @@ import { doubleCheckModelOutput } from '@/lib/utils';
 import { aiScoreSchema } from '@/lib/ai/prompts/schema';
 import { compose } from '@/lib/middleware/compose';
 import { AuthGuard } from '@/lib/middleware/auth-guard';
-import { EvalSourceType, ProjectRole } from 'src/server/db/types';
+import { ContextType, EvalSourceType, ProjectRole } from 'src/server/db/types';
 import { AuditLog } from '@/lib/middleware/audit-log';
 import type { ApiContext } from '@/types/api-context';
 import { createDatasetEval, getDatasetEvalList } from '@/server/db/dataset-evaluation';
 import type { DatasetEvaluation } from '@prisma/client';
+import { getImageFileById } from '@/server/db/image-file';
+import { readFileSync } from 'fs';
+import { modelEvaluation } from '@/app/api/project/[projectId]/datasets/ai-score/service';
 
 /**
  * AI 评分
@@ -31,11 +34,23 @@ export const POST = compose(
             return NextResponse.json({ error: 'The model does not exist' }, { status: 404 });
         }
 
-        const prompt = getAIScoringPrompt(dss.questions.contextData, dss.question, dss.answer);
+        // 准备prompt
+        const contextData = dss.questions.contextType === ContextType.IMAGE ? undefined : dss.questions.contextData;
+        const prompt = getAIScoringPrompt(contextData, dss.questions.realQuestion, dss.answer);
+
+        // 初始化模型客户端
         const modelClient = new ModelClient(model);
-        const { text } = await modelClient.chat(prompt);
-        const modelOutput = await doubleCheckModelOutput(text, aiScoreSchema);
-        console.log('modelOutput:', modelOutput);
+        let modelOutput: typeof aiScoreSchema._type;
+
+        // 根据内容类型处理
+        if (dss.questions.contextType === ContextType.IMAGE) {
+            const imageFile = await getImageFileById(dss.questions.contextId);
+            if (!imageFile) throw new Error('Image file not found');
+            const buffer = readFileSync(imageFile.url);
+            modelOutput = await modelEvaluation(modelClient, prompt, buffer);
+        } else {
+            modelOutput = await modelEvaluation(modelClient, prompt);
+        }
 
         await createDatasetEval({
             sampleId: dss.id,

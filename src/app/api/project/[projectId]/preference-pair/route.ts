@@ -43,7 +43,7 @@ export const POST = compose(
         const pp = await request.json();
         const check = await checkPreferencePair(projectId, pp.questionId);
         if (check) {
-            await updatePreferencePair(pp);
+            await updatePreferencePair({ ...pp, id: check.id });
         } else {
             await insertPreferencePair(pp);
         }

@@ -27,8 +27,13 @@ export default function DatasetDetail({
     dssId: string;
     refresh: () => void;
 }) {
-    const { DatasetSamples: datasetSamples, pp }: { DatasetSamples: DatasetSamples[]; pp: PreferencePair } =
-        questionInfo;
+    const {
+        DatasetSamples: datasetSamples,
+        PreferencePair: pp
+    }: {
+        DatasetSamples: DatasetSamples[];
+        PreferencePair: PreferencePair;
+    } = questionInfo;
     if (!datasetSamples[0]) return null;
     const [activeAnswerId, setActiveAnswerId] = useState(dssId);
     const [activeAnswer, setActiveAnswer] = useState<DatasetSamples>(datasetSamples[0]);
@@ -82,21 +87,20 @@ export default function DatasetDetail({
             </div>
 
             <Accordion type="multiple" defaultValue={['ai-score', 'cot', 'label', 'evidence']} className="w-full">
+                {/*AI 评分*/}
+                <AccordionItem value={'ai-score'} className="py-2">
+                    <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Atom className="w-5 h-5 text-sky-600" />
+                            <span>大模型回答质量评估</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <AIScoreDashboard dssId={activeAnswer?.id} contextType={questionInfo.contextType} />
+                    </AccordionContent>
+                </AccordionItem>
                 {questionInfo.contextType === ContextType.TEXT && (
                     <>
-                        {/*AI 评分*/}
-                        <AccordionItem value={'ai-score'} className="py-2">
-                            <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
-                                <div className="flex items-center gap-3">
-                                    <Atom className="w-5 h-5 text-sky-600" />
-                                    <span>大模型回答质量评估</span>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                <AIScoreDashboard dssId={activeAnswer?.id} />
-                            </AccordionContent>
-                        </AccordionItem>
-
                         {/*思维链*/}
                         <AccordionItem value={'cot'} className="py-2">
                             <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
@@ -242,9 +246,17 @@ function AnswerCard({
         if (type === 'chosen') {
             newPP.chosen = answer;
             newPP.datasetChosenId = answerId;
+            if (newPP.rejected === answer && newPP.datasetRejectId === answerId) {
+                newPP.rejected = '';
+                newPP.datasetRejectId = '';
+            }
         } else if (type === 'rejected') {
             newPP.rejected = answer;
             newPP.datasetRejectId = answerId;
+            if (newPP.chosen === answer && newPP.datasetChosenId === answerId) {
+                newPP.chosen = '';
+                newPP.datasetChosenId = '';
+            }
         }
 
         try {

@@ -12,7 +12,7 @@ declare module 'i18next' {
             dashboard: typeof resources.zh.dashboard;
             question: typeof resources.zh.question;
             dataset: typeof resources.zh.dataset;
-            document: typeof resources.zh.document;
+            knowledge: typeof resources.zh.knowledge;
             chunk: typeof resources.zh.chunk;
         };
     }

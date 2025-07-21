@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { cn } from '@/lib/utils';
+import { cn, onWheel } from '@/lib/utils';
 import * as React from 'react';
 import { DEFAULT_MODEL_SETTINGS } from '@/constants/model';
 import MultipleSelector, { type Option } from '@/components/ui/multiselect';
@@ -231,7 +231,7 @@ export function ModelDialog({
                                                 placeholder="搜索模型..."
                                                 onValueChange={setSearch}
                                             />
-                                            <CommandList>
+                                            <CommandList onWheel={onWheel}>
                                                 <CommandEmpty>没有找到相关模型...</CommandEmpty>
                                                 <CommandGroup>
                                                     {modelList

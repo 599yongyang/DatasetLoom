@@ -19,7 +19,7 @@ import BlockImageDialog from '@/components/images/block-dialog';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
-    const { t } = useTranslation('document');
+    const { t } = useTranslation('knowledge');
 
     const [fileName, setFileName] = useState('');
     const [pagination, setPagination] = useState({

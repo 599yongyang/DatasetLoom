@@ -21,6 +21,7 @@ import {
     AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import { DEFAULT_PROVIDERS } from '@/constants/model';
+import { onWheel } from '@/lib/utils';
 
 export function ProviderDialog({
     open,
@@ -93,7 +94,7 @@ export function ProviderDialog({
                                         <ImagePlusIcon size={16} aria-hidden="true" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-80 h-100 overflow-y-auto">
+                                <PopoverContent className="w-80 h-100 overflow-y-auto" onWheel={onWheel}>
                                     <div className={'grid grid-cols-5 gap-4 p-2.5'}>
                                         {Object.values(ModelProvider).map(item => (
                                             <div

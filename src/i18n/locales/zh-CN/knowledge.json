@@ -79,5 +79,15 @@
         "rm_all_btn": "删除所有文件",
         "confirm_upload_btn": "开始上传",
         "cancel_btn": "取消"
+    },
+    "image_table_columns": {
+        "image": "图像",
+        "image_name": "图像名称",
+        "size": "大小",
+        "dimensions": "尺寸",
+        "ocr": "OCR",
+        "object": "图像对象",
+        "createdAt": "创建时间",
+        "actions": "操作"
     }
 }

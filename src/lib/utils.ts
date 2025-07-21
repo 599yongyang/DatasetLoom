@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 import type { CoreAssistantMessage, CoreToolMessage, UIMessage } from 'ai';
+import * as React from 'react';
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any */
 export function cn(...inputs: ClassValue[]) {
@@ -168,3 +169,16 @@ export function stringToColor(str: string, alpha: number = 1.0): string {
     const hue = Math.abs(hash) % 360;
     return `hsla(${hue}, 70%, 50%, ${alpha})`;
 }
+
+export const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const el = e.currentTarget;
+    if (e.deltaY > 0 && el.scrollTop >= el.scrollHeight - el.clientHeight) {
+        return;
+    }
+    if (e.deltaY < 0 && el.scrollTop <= 0) {
+        return;
+    }
+    e.preventDefault();
+    el.scrollTop += e.deltaY;
+};

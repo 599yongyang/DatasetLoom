@@ -10,6 +10,7 @@ export interface ProjectMember {
     role: ProjectRole;
     joinedAt: string;
     user: {
+        id: string;
         name: string;
         email: string;
         avatar?: string;

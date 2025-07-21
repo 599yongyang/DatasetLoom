@@ -11,7 +11,9 @@ export async function getDatasetSampleById(id: string) {
     try {
         return await db.datasetSamples.findUnique({
             where: { id },
-            include: { questions: { select: { contextType: true, contextData: true } } }
+            include: {
+                questions: { select: { contextType: true, contextData: true, realQuestion: true, contextId: true } }
+            }
         });
     } catch (error) {
         console.error('Failed to get datasets by id in database');

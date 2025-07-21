@@ -97,7 +97,6 @@ export function ProjectSelect() {
                 <PopoverContent className="w-[200px] p-0">
                     <Command shouldFilter={false}>
                         <CommandInput
-                            placeholder={t('search_project')}
                             className="h-9"
                             onValueChange={e => {
                                 setFilter(e.trim().toLowerCase());
