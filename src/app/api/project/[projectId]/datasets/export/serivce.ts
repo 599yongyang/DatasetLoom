@@ -64,10 +64,8 @@ export async function exportDataset(params: ExportParams) {
         await addJsonToArchive(archive, datasetFilename, formattedData);
 
         if (exportType === 'LLAMA_FACTORY') {
-            console.log('LLAMA_FACTORY');
             // 添加数据集信息文件
             const datasetInfo = getDatasetInfo(dataType, fileFormat, datasetFilename);
-            console.log(datasetInfo, 'datasetInfo');
             if (datasetInfo) {
                 await addJsonToArchive(archive, 'dataset_info.json', datasetInfo);
             }

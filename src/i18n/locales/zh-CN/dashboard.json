@@ -7,7 +7,7 @@
         "cot": "COT 数据集"
     },
     "domain_chart": {
-        "title": "知识库领域分布",
+        "title": "文档库领域分布",
         "desc": "各领域的占比情况",
         "level1": "一级领域",
         "level2": "二级领域",

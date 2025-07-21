@@ -1,6 +1,7 @@
 'use server';
 import { db } from '@/server/db/db';
 import type { Chunks } from '@prisma/client';
+import { ContextType } from '@/server/db/types';
 
 export async function saveChunks(chunks: Chunks[]) {
     try {
@@ -86,7 +87,16 @@ export async function getChunksPagination(
 
 export async function deleteChunkByIds(chunkId: string[]) {
     try {
-        return await db.chunks.deleteMany({ where: { id: { in: chunkId } } });
+        await db.$transaction(async tx => {
+            await tx.questions.deleteMany({
+                where: {
+                    contextId: { in: chunkId },
+                    contextType: ContextType.TEXT
+                }
+            });
+
+            await db.chunks.deleteMany({ where: { id: { in: chunkId } } });
+        });
     } catch (error) {
         console.error('Failed to delete chunks by id in database');
         throw error;

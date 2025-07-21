@@ -10,7 +10,7 @@ import { AuditLog } from '@/lib/middleware/audit-log';
 import { createImageFile, delImageByIds, getImagePagination, updateImageFile } from '@/server/db/image-file';
 import type { ImageFile } from '@prisma/client';
 import sharp from 'sharp';
-import { getModelConfigByType } from '@/server/db/model-config';
+import { getModelConfigById, getModelConfigByType } from '@/server/db/model-config';
 import ModelClient from '@/lib/ai/core';
 import type { ModelConfigWithProvider } from '@/lib/ai/core/types';
 import { IMAGE_ANALYSIS_PROMPT } from '@/lib/ai/prompts/vision';
@@ -76,13 +76,20 @@ export const POST = compose(
 )(async (request: Request, context: ApiContext) => {
     try {
         const { projectId } = context;
+        const { searchParams } = new URL(request.url);
+        const mid = searchParams.get('mid');
+        if (!mid) {
+            return NextResponse.json({ error: '请选择模型' }, { status: 400 });
+        }
+        const modelConfig = await getModelConfigById(mid);
+        if (!modelConfig) {
+            return NextResponse.json({ error: '模型配置不存在' }, { status: 500 });
+        }
 
         const projectRoot = await getProjectRoot();
         const projectPath = path.join(projectRoot, projectId);
         const uploadDir = path.join(projectPath, 'files');
         const formData = await request.formData();
-
-        const modelConfigList = await getModelConfigByType(projectId, ModelConfigType.VISION);
         // 文件处理
         const files = [];
         for (const [fieldName, fieldValue] of formData.entries()) {
@@ -108,16 +115,9 @@ export const POST = compose(
                 } as ImageFile);
                 files.push(fileInfo);
 
-                if (modelConfigList.length > 0) {
-                    const modelClient = new ModelClient(modelConfigList[0] as ModelConfigWithProvider);
-                    const { text } = await modelClient.vision(fileBuffer, IMAGE_ANALYSIS_PROMPT);
-                    const modelOutput = await doubleCheckModelOutput(text, ImageRecognitionResultSchema);
-                    await updateImageFile(fileInfo.id, {
-                        tags: modelOutput.entities ? modelOutput.entities.join(',') : '',
-                        ocrText: modelOutput.text || '',
-                        status: 'DONE'
-                    } as ImageFile);
-                }
+                setTimeout(() => {
+                    processImageAnalysis(fileInfo.id, modelConfig, fileBuffer);
+                }, 0);
             }
         }
 
@@ -134,3 +134,18 @@ export const POST = compose(
         );
     }
 });
+
+const processImageAnalysis = async (id: string, modelConfig: ModelConfigWithProvider, fileBuffer: Buffer) => {
+    try {
+        const modelClient = new ModelClient(modelConfig);
+        const { text } = await modelClient.vision(fileBuffer, IMAGE_ANALYSIS_PROMPT);
+        const modelOutput = await doubleCheckModelOutput(text, ImageRecognitionResultSchema);
+        await updateImageFile(id, {
+            tags: modelOutput.entities ? modelOutput.entities.join(',') : '',
+            ocrText: modelOutput.text || '',
+            status: 'DONE'
+        } as ImageFile);
+    } catch (error) {
+        console.error('Error during image analysis:', error);
+    }
+};

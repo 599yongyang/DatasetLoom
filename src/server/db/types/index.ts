@@ -34,3 +34,9 @@ export enum EvalSourceType {
     HUMAN = 'HUMAN',
     AI = 'AI'
 }
+
+export enum ParseStatusType {
+    PENDING = 'PENDING',
+    DONE = 'DONE',
+    FAILED = 'FAILED'
+}

@@ -77,7 +77,7 @@ i18n.use(LanguageDetector)
         fallbackLng: 'zh',
         defaultNS: 'common',
         ns,
-        debug: true,
+        debug: false,
         interpolation: {
             escapeValue: false
         }

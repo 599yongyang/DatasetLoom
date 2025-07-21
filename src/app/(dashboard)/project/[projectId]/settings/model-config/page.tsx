@@ -22,12 +22,7 @@ import { nanoid } from 'nanoid';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProviderDialog } from '@/components/settings/provider-dialog';
 import { DEFAULT_PROVIDERS } from '@/constants/model';
-
-const IconMap = {
-    TOOL: <Hammer className={'text-yellow-600'} size={20} />,
-    VISION: <ScanEye className={'text-green-500'} size={20} />,
-    COT: <BrainCog className={'text-blue-500'} size={20} />
-};
+import { ModelTypeIconMap } from '@/components/icons';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
@@ -245,7 +240,8 @@ export default function Page() {
                                             <div className="flex items-center gap-3">
                                                 {model.type.split(',').map(type => (
                                                     <React.Fragment key={type}>
-                                                        {IconMap[type as keyof typeof IconMap] || null}
+                                                        {ModelTypeIconMap[type as keyof typeof ModelTypeIconMap] ||
+                                                            null}
                                                     </React.Fragment>
                                                 ))}
                                             </div>

@@ -101,7 +101,7 @@ export function useGenerateQuestion() {
 
             try {
                 const response = await baseGenerateQuestion(
-                    `/api/project/${projectId}/chunks/${chunk.id}/questions`,
+                    `/api/project/${projectId}/chunks/gen-question`,
                     { chunkId: chunk.id, questionStrategy },
                     source,
                     chunk.name

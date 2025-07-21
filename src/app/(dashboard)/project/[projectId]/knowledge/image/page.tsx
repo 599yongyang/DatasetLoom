@@ -9,13 +9,15 @@ import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
 import { toast } from 'sonner';
 import axios from 'axios';
-import { ProjectRole } from '@/server/db/types';
+import { ModelConfigType, ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useImages } from '@/hooks/query/use-images';
 import UploadImageDialog from '@/components/images/upload-dialog';
 import { useImagesTableColumns } from '@/hooks/table-columns/use-image';
 import type { ImageFile } from '@prisma/client';
 import BlockImageDialog from '@/components/images/block-dialog';
+import { useAtomValue } from 'jotai/index';
+import { selectedModelInfoAtom } from '@/atoms';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
@@ -46,10 +48,11 @@ export default function Page() {
     };
     const columns = useImagesTableColumns({ mutateImages: refreshFiles, onOpenDialog: handleOpenDialog });
     const [uploadOpen, setUploadOpen] = useState(false);
+    const model = useAtomValue(selectedModelInfoAtom);
     const handleBatchDeleteImage = () => {
         toast.promise(
             axios.delete(`/api/project/${projectId}/images`, {
-                data: { documentIds: Object.keys(rowSelection) }
+                data: { imagesIds: Object.keys(rowSelection) }
             }),
             {
                 loading: '数据删除中',
@@ -79,7 +82,15 @@ export default function Page() {
                     />
 
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                        <Button onClick={() => setUploadOpen(true)}>
+                        <Button
+                            onClick={() => {
+                                if (model.type.includes(ModelConfigType.VISION)) {
+                                    setUploadOpen(true);
+                                } else {
+                                    toast.warning('请选择支持视觉能力模型');
+                                }
+                            }}
+                        >
                             <Upload size={30} />
                             {t('upload_btn')}
                         </Button>
@@ -108,7 +119,14 @@ export default function Page() {
                 rowSelection={rowSelection}
                 setRowSelection={setRowSelection}
             />
-            <UploadImageDialog open={uploadOpen} setOpen={setUploadOpen} refreshFiles={refreshFiles} />
+            {uploadOpen && (
+                <UploadImageDialog
+                    open={uploadOpen}
+                    setOpen={setUploadOpen}
+                    refreshFiles={refreshFiles}
+                    modeId={model.id}
+                />
+            )}
             {selectedImage && (
                 <BlockImageDialog
                     open={blockOpen}

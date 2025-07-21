@@ -7,7 +7,7 @@
         "cot": "COT Datasets"
     },
     "domain_chart": {
-        "title": "Knowledge Base Domain Distribution",
+        "title": "Document Domain Distribution",
         "desc": "Proportion of each domain",
         "level1": "Primary Domain",
         "level2": "Secondary Domain",

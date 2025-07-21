@@ -46,6 +46,14 @@ export function DataTable<TData extends QuestionsDTO, TValue>({
     const table = useReactTable({
         data,
         columns,
+        getRowId: row => {
+            const id = (row as { id: unknown }).id;
+            if (id === undefined || id === null) {
+                console.warn('Row ID is undefined or null. Using fallback ID.');
+                return 'fallback-id';
+            }
+            return id.toString();
+        },
         getRowCanExpand: row => Boolean(row.original.DatasetSamples.length > 0),
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),

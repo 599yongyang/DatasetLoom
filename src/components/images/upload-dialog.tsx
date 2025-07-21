@@ -8,15 +8,18 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogT
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function UploadImageDialog({
     open,
     setOpen,
-    refreshFiles
+    refreshFiles,
+    modeId
 }: {
     open: boolean;
     setOpen: (open: boolean) => void;
     refreshFiles: () => void;
+    modeId: string;
 }) {
     const { projectId }: { projectId: string } = useParams();
     const maxSizeMB = 5;
@@ -36,11 +39,16 @@ export default function UploadImageDialog({
             getInputProps
         }
     ] = useFileUpload({
-        accept: 'image/svg+xml,image/png,image/jpeg,image/jpg,image/gif',
+        accept: 'image/svg+xml,image/png,image/jpeg,image/jpg',
         maxSize,
         multiple: true,
         maxFiles
     });
+
+    useEffect(() => {
+        clearFiles();
+    }, [open]);
+
     const handleUpload = async () => {
         if (files.length === 0) {
             toast.error('请先选择文件');
@@ -53,7 +61,7 @@ export default function UploadImageDialog({
         });
 
         try {
-            toast.promise(axios.post(`/api/project/${projectId}/images`, formData), {
+            toast.promise(axios.post(`/api/project/${projectId}/images?mid=${modeId}`, formData), {
                 loading: `上传文件中...`,
                 success: data => {
                     setOpen(false);
@@ -95,7 +103,7 @@ export default function UploadImageDialog({
                                 <ImageIcon className="size-4 opacity-60" />
                             </div>
                             <p className="mb-1.5 text-sm font-medium">Drop your images here</p>
-                            <p className="text-muted-foreground text-xs">SVG, PNG, JPG or GIF (max. {maxSizeMB}MB)</p>
+                            <p className="text-muted-foreground text-xs">SVG, PNG, JPG (max. {maxSizeMB}MB)</p>
                             <Button variant="outline" className="mt-4" onClick={openFileDialog}>
                                 <UploadIcon className="-ms-1 opacity-60" aria-hidden="true" />
                                 选择图片

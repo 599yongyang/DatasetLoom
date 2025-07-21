@@ -87,6 +87,7 @@
         "dimensions": "Dimensions",
         "ocr": "OCR",
         "object": "Object",
+        "status": "Status",
         "createdAt": "CreatedAt",
         "actions": "Actions"
     }

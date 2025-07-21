@@ -32,7 +32,7 @@ export default function StepOne({
     const { list: webUrls, add: addWebUrls, remove: removeWebUrls, update: updateWebUrls } = useInputList(['']);
     const uploadOptions: FileUploadOptions = {
         multiple: true,
-        accept: '.docx,.doc,.pdf,.md,.epub,.txt,.pptx, .ppt, .xlsx, .xls, .jpeg, .jpg, .png',
+        accept: '.docx,.doc,.pdf,.md,.epub,.txt,.pptx, .ppt, .xlsx, .xls',
         maxFiles: 10,
         maxSize: 100 * 1024 * 1024
     };

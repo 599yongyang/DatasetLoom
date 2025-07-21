@@ -7,13 +7,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
-import { ProjectRole } from '@/server/db/types';
+import { ParseStatusType, ProjectRole } from '@/server/db/types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { ImageFile } from '@prisma/client';
 import { IconCircleCheckFilled, IconLoader } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
 import { SquareDashedMousePointer } from 'lucide-react';
+import { ParseStatusTypeMap, type UIParseStatusType } from '@/lib/data-dictionary';
 
 export function useImagesTableColumns({
     mutateImages,
@@ -156,15 +157,15 @@ export function useImagesTableColumns({
         },
         {
             accessorKey: 'status',
-            header: 'Status',
+            header: t('image_table_columns.status'),
             cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground px-1.5">
-                    {row.original.status === 'DONE' ? (
+                    {row.original.status === ParseStatusType.DONE ? (
                         <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
                     ) : (
                         <IconLoader />
                     )}
-                    {row.original.status}
+                    {ParseStatusTypeMap[row.original.status as UIParseStatusType]}
                 </Badge>
             )
         },

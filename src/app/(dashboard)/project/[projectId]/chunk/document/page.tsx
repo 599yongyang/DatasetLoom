@@ -162,7 +162,7 @@ export default function Page() {
             />
             {selectedChunk && (
                 <QuestionStrategyDialog
-                    type={'multiple'}
+                    type={'single'}
                     open={open}
                     setOpen={setOpen}
                     chunks={[{ id: selectedChunk.id, name: selectedChunk.name }]}

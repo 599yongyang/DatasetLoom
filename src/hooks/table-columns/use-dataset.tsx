@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 import { ProjectRole } from '@/server/db/types';
-import { WithPermission } from '../../components/common/permission-wrapper';
+import { WithPermission } from '@/components/common/permission-wrapper';
 import type { DatasetSamples } from '@prisma/client';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { ModelTag } from '@lobehub/icons';
@@ -21,7 +21,7 @@ export function useDatasetTableColumns({ mutateDatasets }: { mutateDatasets: () 
     const { projectId }: { projectId: string } = useParams();
 
     const deleteDataset = async (id: string) => {
-        const res = await axios.delete(`/api/project/${projectId}/dataset/qa/${id}`);
+        const res = await axios.delete(`/api/project/${projectId}/datasets/${id}`);
         if (res.status === 200) {
             toast.success('删除成功');
             void mutateDatasets();

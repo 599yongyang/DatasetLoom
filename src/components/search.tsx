@@ -31,9 +31,7 @@ export function Search({ ...props }: ButtonProps & DialogProps) {
     const { i18n, t } = useTranslation('common');
 
     const changeLanguage = (lng: string) => {
-        console.log('changeLanguage', lng);
         i18n.changeLanguage(lng);
-        console.log(i18n.language);
     };
 
     React.useEffect(() => {
@@ -67,7 +65,7 @@ export function Search({ ...props }: ButtonProps & DialogProps) {
             <Button
                 variant="outline"
                 className={cn(
-                    'relative h-8 w-full justify-start rounded-[0.5rem] bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:w-64 md:w-80 lg:w-96',
+                    'relative h-8 w-full justify-start rounded-[0.5rem] bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:w-34 md:w-50 lg:w-66',
                     'transition-all duration-200',
                     'hover:bg-muted/80'
                 )}

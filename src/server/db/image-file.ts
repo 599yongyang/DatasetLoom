@@ -2,6 +2,7 @@
 import { db } from '@/server/db/db';
 import type { ImageFile } from '@prisma/client';
 import type { ImageWithImageBlock } from '@/server/db/schema/image-block';
+import { ContextType } from '@/server/db/types';
 
 //获取图片列表
 export async function getImagePagination(projectId: string, page = 1, pageSize = 10, fileName: string, block: boolean) {
@@ -74,7 +75,18 @@ export async function updateImageFile(id: string, data: ImageFile) {
 
 export async function delImageByIds(fileId: string[]) {
     try {
-        return await db.imageFile.deleteMany({ where: { id: { in: fileId } } });
+        await db.$transaction(async tx => {
+            await tx.questions.deleteMany({
+                where: {
+                    contextId: { in: fileId },
+                    contextType: ContextType.IMAGE
+                }
+            });
+
+            await tx.imageFile.deleteMany({
+                where: { id: { in: fileId } }
+            });
+        });
     } catch (error) {
         console.error('Failed to delete imageFile by id in database');
         throw error;

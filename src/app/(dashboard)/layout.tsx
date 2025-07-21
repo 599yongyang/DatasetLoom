@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                                 <Separator orientation="vertical" className="mr-2 hidden h-4 sm:block" />
                                 <NavBreadcrumb className="hidden sm:flex" user={session.user as CurrentUser} />
                             </div>
-                            <div className="ml-auto flex flex-1 items-center space-x-2 px-2 sm:px-4 md:max-w-100 lg:max-w-3xl">
+                            <div className="ml-auto flex flex-1 items-center justify-end space-x-2 px-2 sm:px-4 md:max-w-100 lg:max-w-3xl">
                                 <NavModelSelect />
                                 <Search />
                                 <Link href="https://github.com/599yongyang/DatasetLoom" target="_blank">

@@ -44,7 +44,7 @@ export default function StepTwo({
     const router = useRouter();
     const { t } = useTranslation(['chunk', 'knowledge']);
     const tChunk = (key: string) => t(`chunk:${key}`);
-    const tDocument = (key: string) => t(`document:${key}`);
+    const tDocument = (key: string) => t(`knowledge:${key}`);
     const getAvailableServices = () => {
         return PARSER_SERVICES.filter(service => {
             if (!service.supportedInputs.includes(uploadFormData.sourceType)) return false;

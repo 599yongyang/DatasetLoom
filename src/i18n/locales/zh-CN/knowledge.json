@@ -87,6 +87,7 @@
         "dimensions": "尺寸",
         "ocr": "OCR",
         "object": "图像对象",
+        "status": "解析状态",
         "createdAt": "创建时间",
         "actions": "操作"
     }

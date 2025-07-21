@@ -1,3 +1,6 @@
+import { BrainCog, Hammer, ScanEye } from 'lucide-react';
+import * as React from 'react';
+
 type IconProps = React.HTMLAttributes<SVGElement>;
 
 export const Icons = {
@@ -778,4 +781,10 @@ z"
             </defs>
         </svg>
     )
+};
+
+export const ModelTypeIconMap = {
+    TOOL: <Hammer className={'text-yellow-600'} size={20} />,
+    VISION: <ScanEye className={'text-green-500'} size={20} />,
+    COT: <BrainCog className={'text-blue-500'} size={20} />
 };

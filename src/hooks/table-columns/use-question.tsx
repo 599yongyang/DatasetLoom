@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 import { useParams } from 'next/navigation';
 import React, { useState } from 'react';
-import { ContextType, ProjectRole } from 'src/server/db/types';
+import { ContextType, ModelConfigType, ProjectRole } from 'src/server/db/types';
 import { useAtomValue } from 'jotai/index';
 import { selectedModelInfoAtom } from '@/atoms';
 import { useGenerateDataset } from '@/hooks/use-generate-dataset';
@@ -138,6 +138,10 @@ function ActionCell({ question, projectId, mutateQuestions }: ActionCellProps) {
 
     const handleGenAnswer = async () => {
         if (question.contextType === ContextType.IMAGE) {
+            if (!model.type.includes(ModelConfigType.VISION)) {
+                toast.warning('请选择支持视觉能力模型');
+                return;
+            }
             await generateSingleDataset({
                 projectId,
                 questionId: question.id,

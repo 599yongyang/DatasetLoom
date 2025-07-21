@@ -1,4 +1,5 @@
 import { CheckCircle2Icon, CircleX, Clock, LoaderIcon } from 'lucide-react';
+import { ParseStatusType } from '@/server/db/types';
 
 export const chunkTypeOptions = [
     { value: 'auto', label: '自动', desc: '自动进行分块设置' },
@@ -71,3 +72,10 @@ export const ContextTypeMap: Record<UIContextType, string> = {
 export type ModelConfigType = 'COT' | 'EMBED' | 'TEXT' | 'TOOL' | 'VISION' | 'ALL';
 
 export type DatasetExportType = 'LOCAL_GENERAL' | 'LLAMA_FACTORY' | 'HF';
+
+export type UIParseStatusType = 'PENDING' | 'DONE' | 'FAILED';
+export const ParseStatusTypeMap: Record<UIParseStatusType, string> = {
+    PENDING: '解析中',
+    DONE: '完成',
+    FAILED: '错误'
+};
