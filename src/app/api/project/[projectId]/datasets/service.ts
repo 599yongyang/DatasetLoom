@@ -65,6 +65,7 @@ export async function generateImageDatasetSample(
 
     const buffer: Buffer = readFileSync(imageFile.url);
     const { text } = await modelClient.vision(buffer, prompt);
+    console.log(text, 'modelRes');
     const modelOutput = await doubleCheckModelOutput(text, answerSchema);
 
     return {

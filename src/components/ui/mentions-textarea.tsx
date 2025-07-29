@@ -1,7 +1,6 @@
 import { Mention, MentionsInput, type SuggestionDataItem } from 'react-mentions';
 import React from 'react';
 import { stringToColor } from '@/lib/utils';
-import type { Property } from 'csstype';
 
 interface MentionsTextareaProps {
     value: string;
@@ -10,7 +9,7 @@ interface MentionsTextareaProps {
     readOnly?: boolean;
     placeholder?: string;
     className?: string;
-    cursor?: Property.Cursor;
+    cursor?: string;
 }
 
 export default function MentionsTextarea({

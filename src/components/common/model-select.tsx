@@ -35,8 +35,10 @@ export function ModelSelect({ value, setValue, showConfigButton = true, filter, 
 
     // Filter models based on the filter prop
     const filteredModels = useMemo(() => {
-        return search ? modelConfigList.filter(modelConfig => modelConfig.modelName.includes(search)) : modelConfigList;
-    }, [modelConfigList, search]);
+        return modelConfigList
+            .filter(modelConfig => !filter || modelConfig.type.includes(filter))
+            .filter(modelConfig => modelConfig.modelName.includes(search));
+    }, [modelConfigList, search, filter]);
 
     // Group models by provider
     const groupedModels = useMemo(() => {

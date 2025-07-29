@@ -163,13 +163,11 @@ function ActionCell({ question, projectId, mutateQuestions }: ActionCellProps) {
         <>
             <div className="flex flex-1 justify-center gap-2">
                 <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                    {question.contextType === ContextType.TEXT && (
-                        <QuestionDialog item={question} getQuestions={mutateQuestions}>
-                            <Button variant="ghost" size="icon" aria-label="Edit">
-                                <SquarePen size={30} />
-                            </Button>
-                        </QuestionDialog>
-                    )}
+                    <QuestionDialog item={question} refresh={mutateQuestions}>
+                        <Button variant="ghost" size="icon" aria-label="Edit">
+                            <SquarePen size={30} />
+                        </Button>
+                    </QuestionDialog>
 
                     <Button variant="ghost" size="icon" onClick={handleGenAnswer} aria-label="Generate Answer">
                         <Wand size={30} />

@@ -3,11 +3,12 @@ services:
         build:
             context: .
             args:
-                DATABASE_TYPE: sqlite
+                - DATABASE_TYPE=${DATABASE_TYPE:-sqlite}
+                - USE_MIRROR=${USE_MIRROR:-true}
         image: dataset-loom:latest
         init: true
         ports:
-            - '2088:2088'
+            - '${HOST_PORT:-2088}:${CONTAINER_PORT:-2088}'
         environment:
             - NODE_ENV=production
             - DATABASE_URL=file:/data/db.sqlite

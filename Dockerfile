@@ -1,62 +1,74 @@
+# ==============================
 # 构建阶段
+# ==============================
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# 根据数据库类型安装构建依赖
+# 构建参数
 ARG DATABASE_TYPE=sqlite
-RUN if [ "$DATABASE_TYPE" = "sqlite" ]; then \
-      apk add --no-cache python3 py3-pip build-base git sqlite; \
-    else \
-      apk add --no-cache python3 py3-pip build-base git; \
-    fi
+ARG USE_MIRROR=true
 
-# 设置 Python 环境变量
-ENV PYTHON=/usr/bin/python3
-ENV NEXT_TELEMETRY_DISABLED=1
+# 替换 Alpine 国内源（加速 apk）
+RUN if [ "$USE_MIRROR" = "true" ]; then \
+    sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories; \
+  fi
 
-# 复制包管理文件和 Prisma 相关文件
+# 安装构建依赖（精简：仅需 python3 sqlite）
+RUN apk add --no-cache python3 && \
+  if [ "$DATABASE_TYPE" = "sqlite" ]; then \
+    apk add --no-cache sqlite; \
+  fi
+
+# 设置 npm 镜像源（淘宝）
+RUN if [ "$USE_MIRROR" = "true" ]; then \
+    npm config set registry https://registry.npmmirror.com; \
+  fi && \
+  npm install -g pnpm@latest
+
+# 复制依赖文件
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
 
-# 安装 pnpm
-RUN npm install -g pnpm@latest
-
-# 安装依赖
-RUN pnpm fetch && \
-    pnpm install -r --offline --frozen-lockfile
+# 安装所有依赖（包括 devDependencies）
+RUN pnpm install --no-frozen-lockfile
 
 # 复制源码
 COPY . .
 
-# 构建 Next.js 应用
+# 构建前：生成 Prisma Client
+RUN npx prisma generate --no-hints
+
+# 构建应用
 RUN pnpm run build
 
-# 清理构建缓存
+# 清理缓存
 RUN rm -rf /app/.next/cache
 
+
+# ==============================
 # 运行阶段
+# ==============================
 FROM node:20-alpine
 
-# 创建所有需要的目录并设置权限
+# 创建数据目录
 RUN mkdir -p /app/data/local-db /app/data/uploads /data && \
     chown -R node:node /app /data
 
 WORKDIR /app
 
-RUN npm install -g pnpm@latest
-
-# 根据数据库类型安装运行时依赖
+# 安装运行时依赖
 ARG DATABASE_TYPE=sqlite
-RUN if [ "$DATABASE_TYPE" = "sqlite" ]; then \
+
+RUN npm install -g pnpm@latest && \
+    if [ "$DATABASE_TYPE" = "sqlite" ]; then \
       apk add --no-cache sqlite && \
-      mkdir -p /data && \
       touch /data/db.sqlite && \
       chown -R node:node /data && \
-      chmod -R 664 /data/db.sqlite; \
+      chmod 664 /data/db.sqlite; \
     fi
 
-# 从构建阶段拷贝必要文件
+# 复制构建产物
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json .
@@ -65,7 +77,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/.env .env
 
-# 设置环境变量
+RUN chown -R node:node ./node_modules
+
+# 环境变量
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV LOCAL_DB_PATH=/app/data/local-db
@@ -75,4 +89,5 @@ USER node
 
 EXPOSE 2088
 
-CMD ["sh", "-c", "npx prisma generate && pnpm run start"]
+# 启动命令：先 deploy 迁移，再启动应用
+CMD ["sh", "-c", "npx prisma migrate deploy && pnpm run start"]

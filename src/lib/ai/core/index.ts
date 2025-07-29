@@ -27,12 +27,7 @@ export default class ModelClient {
                     {
                         type: 'image',
                         image: image
-                    }
-                ]
-            },
-            {
-                role: 'user',
-                content: [
+                    },
                     {
                         type: 'text',
                         text: prompt

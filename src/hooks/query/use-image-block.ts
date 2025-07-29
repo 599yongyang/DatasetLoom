@@ -2,6 +2,8 @@ import useSWR from 'swr';
 import { buildURL, fetcher } from '@/lib/utils';
 import { useMemo } from 'react';
 import type { ImageBlockWithImage } from '@/server/db/schema/image-block';
+import type { UIContextType } from '@/lib/data-dictionary';
+import { ContextType } from '@/server/db/types';
 
 interface Response {
     data: ImageBlockWithImage[];
@@ -34,6 +36,19 @@ export function useImageBlocks(params: ImagesParams) {
     return {
         data: data?.data || [],
         total: data?.total || 0,
+        isLoading: !error && !data,
+        isError: !!error,
+        refresh: mutate
+    };
+}
+
+export function useImageBlocksByImageId(projectId: string, imageId: string, type: UIContextType) {
+    const { data, error, mutate } = useSWR(
+        type === ContextType.IMAGE ? `/api/project/${projectId}/images/${imageId}` : undefined,
+        fetcher
+    );
+    return {
+        data: data || [],
         isLoading: !error && !data,
         isError: !!error,
         refresh: mutate

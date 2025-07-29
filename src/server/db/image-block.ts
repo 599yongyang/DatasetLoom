@@ -50,6 +50,10 @@ export async function getBlockCoordinates(blockId: string) {
     });
 }
 
+export async function getBlockListByImageId(imageId: string) {
+    return db.imageBlock.findMany({ where: { imageId } });
+}
+
 export async function deleteImageBlock(id: string, type: string) {
     try {
         if (type === 's') {

@@ -111,7 +111,7 @@ export async function getExportDatasetWithRawOrSFT({
                 confirmed: confirmedOnly ? true : undefined,
                 contextType
             },
-            isPrimaryAnswer: dataType === 'sft'
+            ...(dataType === 'sft' ? { isPrimaryAnswer: true } : {})
         },
         select: {
             question: true,

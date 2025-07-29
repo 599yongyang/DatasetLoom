@@ -4,19 +4,13 @@ import { useEffect, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Star, ThumbsUp, ThumbsDown, Tag, Brain, Quote, FileText, Atom } from 'lucide-react';
+import { Star, Tag, Brain, Quote, FileText, Atom } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Markdown } from '@/components/chat/markdown';
-import { Textarea } from '@/components/ui/textarea';
-import { ModelTag } from '@lobehub/icons';
 import type { DatasetSamples, PreferencePair } from '@prisma/client';
-import axios from 'axios';
-import { toast } from 'sonner';
-import { nanoid } from 'nanoid';
 import { AIScoreDashboard } from '@/components/dataset/ai-score-chart';
-import { ContextType, ProjectRole } from 'src/server/db/types';
-import { WithPermission } from '../common/permission-wrapper';
+import { ContextType } from 'src/server/db/types';
+import AnswerCard from '@/components/dataset/answer-card';
 
 export default function DatasetDetail({
     questionInfo,
@@ -190,148 +184,5 @@ export default function DatasetDetail({
                 </AccordionItem>
             </Accordion>
         </>
-    );
-}
-
-function AnswerCard({
-    activeAnswer,
-    pp,
-    count,
-    refresh
-}: {
-    activeAnswer: DatasetSamples;
-    pp: PreferencePair;
-    count: number;
-    refresh: () => void;
-}) {
-    const getPreferenceBadge = (id: string) => {
-        if (!pp) return null;
-        if (id === pp.datasetChosenId) {
-            return (
-                <Badge className="bg-green-500 hover:bg-green-600">
-                    <ThumbsUp className="w-3 h-3 mr-1" /> 偏好
-                </Badge>
-            );
-        } else if (id === pp.datasetRejectId) {
-            return (
-                <Badge variant="destructive">
-                    <ThumbsDown className="w-3 h-3 mr-1" /> 拒绝
-                </Badge>
-            );
-        }
-        return null;
-    };
-
-    const handlePP = async (type: 'chosen' | 'rejected') => {
-        if (!activeAnswer) {
-            toast.error('当前答案为空，无法操作');
-            return;
-        }
-
-        const { projectId, questionId, question, id: answerId, answer } = activeAnswer;
-
-        // 初始化 pp 对象
-        const newPP = {
-            id: pp?.id ?? nanoid(),
-            projectId,
-            questionId,
-            prompt: question,
-            chosen: pp?.chosen ?? '',
-            rejected: pp?.rejected ?? '',
-            datasetChosenId: pp?.datasetChosenId ?? '',
-            datasetRejectId: pp?.datasetRejectId ?? ''
-        } as PreferencePair;
-
-        // 设置对应字段
-        if (type === 'chosen') {
-            newPP.chosen = answer;
-            newPP.datasetChosenId = answerId;
-            if (newPP.rejected === answer && newPP.datasetRejectId === answerId) {
-                newPP.rejected = '';
-                newPP.datasetRejectId = '';
-            }
-        } else if (type === 'rejected') {
-            newPP.rejected = answer;
-            newPP.datasetRejectId = answerId;
-            if (newPP.chosen === answer && newPP.datasetChosenId === answerId) {
-                newPP.chosen = '';
-                newPP.datasetChosenId = '';
-            }
-        }
-
-        try {
-            await axios.post(`/api/project/${projectId}/preference-pair`, newPP);
-            toast.success('设置成功');
-            refresh();
-        } catch (error) {
-            console.error('设置失败:', error);
-            toast.error('设置失败，请重试');
-        }
-    };
-
-    const handlePrimaryAnswer = () => {
-        axios
-            .put(`/api/project/${activeAnswer.projectId}/datasets/primary-answer`, {
-                dssId: activeAnswer.id,
-                questionId: activeAnswer.questionId
-            })
-            .then(_ => {
-                toast.success('设置成功');
-                refresh();
-            })
-            .catch(error => {
-                console.error('设置失败:', error);
-                toast.error('设置失败');
-            });
-    };
-
-    return (
-        <div className="border rounded-lg shadow-sm  overflow-hidden">
-            <div className="p-4 ">
-                <Textarea value={activeAnswer.answer} readOnly className="w-full h-32 resize-none   focus:ring-0" />
-            </div>
-            <div className="flex flex-wrap justify-between items-center p-4 gap-2">
-                <div className="flex flex-wrap gap-2">
-                    {activeAnswer.isPrimaryAnswer && (
-                        <Badge>
-                            <Star className="w-3 h-3 mr-1" /> 主答案
-                        </Badge>
-                    )}
-                    {getPreferenceBadge(activeAnswer.id)}
-                    <ModelTag model={activeAnswer.model} type={'color'} />
-                    <p className="text-gray-500 text-sm">置信度: {activeAnswer.confidence * 100}%</p>
-                </div>
-                <WithPermission required={ProjectRole.EDITOR} projectId={activeAnswer.projectId}>
-                    <div className="flex gap-2 flex-wrap">
-                        {count > 1 && !activeAnswer.isPrimaryAnswer && (
-                            <Button variant="outline" size="sm" onClick={handlePrimaryAnswer} className="gap-1">
-                                <Star className="w-4 h-4" /> 设置为主答案
-                            </Button>
-                        )}
-
-                        {pp?.datasetChosenId !== activeAnswer.id && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handlePP('chosen')}
-                                className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
-                            >
-                                <ThumbsUp className="w-4 h-4" /> 标为偏好
-                            </Button>
-                        )}
-                        {pp?.datasetRejectId !== activeAnswer.id && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handlePP('rejected')}
-                                className="gap-1 text-red-700 border-red-300 hover:bg-red-50"
-                            >
-                                <ThumbsDown className="w-4 h-4" /> 标为拒绝
-                            </Button>
-                        )}
-                    </div>
-                </WithPermission>
-            </div>
-        </div>
     );
 }
