@@ -1,5 +1,5 @@
 {
-    "search": "Search for chunk name or content...",
+    "search": "Search for chunk name...",
     "info": " {{selected}} chunks selected， {{count}} chunks",
     "batch_delete_btn": "Delete Selected Data",
     "gen_btn": "Batch Generation",

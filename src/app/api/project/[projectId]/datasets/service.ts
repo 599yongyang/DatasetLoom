@@ -6,7 +6,6 @@ import { getAnswerPrompt } from '@/lib/ai/prompts/answer';
 import type { AnswerStyle, DetailLevel, Language } from '@/lib/ai/prompts/type';
 import { doubleCheckModelOutput } from '@/lib/utils';
 import { answerSchema } from '@/lib/ai/prompts/schema';
-import { nanoid } from 'nanoid';
 import { genImageAnswerPrompt } from '@/lib/ai/prompts/vision';
 import { getImageFileById } from '@/server/db/image-file';
 import { readFileSync } from 'fs';

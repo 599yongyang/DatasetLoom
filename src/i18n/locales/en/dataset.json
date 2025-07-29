@@ -1,9 +1,19 @@
 {
     "search": "Search dataset...",
-    "select_item": {
+    "query_state_item": {
+        "title": "State",
         "all": "All Dataset",
         "confirmed": "Confirmed",
         "unconfirmed": "Unconfirmed"
+    },
+    "query_show_item": {
+        "title": "Display Mode",
+        "raw": "View All Data",
+        "raw_desc": "Show all QA pairs",
+        "sft": "For SFT Training",
+        "sft_desc": "Show only the preferred answer for each question",
+        "dpo": "For DPO/KTO",
+        "dpo_desc": "Show only QA pairs with preference annotations"
     },
     "info": "{{total}} dataset in total, {{confirmedCount}} confirmed",
     "export_btn": "Export",

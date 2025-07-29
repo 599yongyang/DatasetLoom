@@ -25,11 +25,14 @@
         "next": "转到下一页",
         "last": "转到最后一页"
     },
-    "fonts": {
-        "inter": "Inter",
-        "manrope": "Manrope"
-    },
     "update": "更新",
     "documentation": "文档",
-    "search": "搜索"
+    "search": "搜索",
+    "messages": {
+        "operate_success": "操作成功",
+        "operate_fail": "操作失败",
+        "delete_loading": "正在删除 {{count}} 条数据...",
+        "delete_success": "成功删除 {{count}} 条数据",
+        "delete_fail": "删除问题失败"
+    }
 }

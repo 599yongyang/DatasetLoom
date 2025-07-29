@@ -2,14 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, MoreHorizontal, Ruler, MessageSquarePlus, Tag, SquareDashedMousePointer } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-
+import { Trash2, Ruler, MessageSquarePlus, Tag, SquareDashedMousePointer } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { Badge } from '@/components/ui/badge';
@@ -22,10 +15,12 @@ import BlockImageDialog from '@/components/images/block-dialog';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
-export default function ImageAggregationList() {
+export default function ImageAggregationList({ searchQuery }: { searchQuery: string }) {
+    const { t: tCommon } = useTranslation('common');
+
     const { projectId }: { projectId: string } = useParams();
-    const [searchQuery, setSearchQuery] = useState('');
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -38,8 +33,7 @@ export default function ImageAggregationList() {
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
-        fileName: searchQuery,
-        block: '1'
+        fileName: searchQuery
     });
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [questionDialog, setQuestionDialog] = useState(false);
@@ -50,11 +44,11 @@ export default function ImageAggregationList() {
         axios
             .delete(`/api/project/${projectId}/images/block?id=${image.id}&type=m`)
             .then(() => {
-                toast.success('删除成功');
+                toast.success(tCommon('messages.operate_success'));
                 void refreshFiles();
             })
             .catch(error => {
-                toast.error('删除失败');
+                toast.error(tCommon('messages.operate_fail'));
                 console.error(error);
             });
     };

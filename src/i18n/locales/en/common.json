@@ -31,5 +31,12 @@
     },
     "update": "Update",
     "search": "search",
-    "documentation": "documentation"
+    "documentation": "documentation",
+    "messages": {
+        "operate_success": "Operation successful",
+        "operate_fail": "Operation failed",
+        "delete_loading": "Deleting {{count}} items...",
+        "delete_success": "Successfully deleted {{count}} items",
+        "delete_fail": "Failed to delete the item(s)"
+    }
 }

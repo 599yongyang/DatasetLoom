@@ -203,7 +203,7 @@ export default function AddQuestionDialog({
                                     <div className="space-y-3">
                                         <div>
                                             <Label htmlFor="new-question">添加新问题</Label>
-                                            <div className="mt-2 relative max-h-[100px] overflow-y-auto">
+                                            <div className="mt-2 relative">
                                                 <MentionsTextarea
                                                     value={newQuestion}
                                                     className={' border rounded-md p-2 w-full min-h-[100px] '}

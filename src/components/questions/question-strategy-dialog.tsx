@@ -10,13 +10,11 @@ import { QuestionStrategyForm } from '@/components/questions/question-strategy-f
 import { defaultQuestionsStrategyConfig } from '@/types/question';
 
 export function QuestionStrategyDialog({
-    type,
     open,
     setOpen,
     chunks,
     mutateChunks
 }: {
-    type: 'single' | 'multiple';
     open: boolean;
     setOpen: (open: boolean) => void;
     chunks: SelectedChunk[];
@@ -36,17 +34,13 @@ export function QuestionStrategyDialog({
         maxTokens: model.maxTokens
     });
     const handleGenerateQuestion = async () => {
-        if (type === 'single') {
-            if (chunks && chunks[0]) {
-                await generateSingleQuestion({
-                    projectId,
-                    contextId: chunks[0].id,
-                    fileName: chunks[0].name,
-                    questionStrategy
-                });
-            } else {
-                return;
-            }
+        if (chunks.length === 1 && chunks[0]) {
+            await generateSingleQuestion({
+                projectId,
+                contextId: chunks[0].id,
+                fileName: chunks[0].name,
+                questionStrategy
+            });
         } else {
             await generateMultipleQuestion(projectId, chunks, questionStrategy);
         }

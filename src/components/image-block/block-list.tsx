@@ -2,14 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, MoreHorizontal, MapPin, Ruler, MessageSquarePlus } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-
+import { Trash2, MapPin, Ruler, MessageSquarePlus } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import type { ImageBlockWithImage } from '@/server/db/schema/image-block';
@@ -20,10 +13,12 @@ import PaginationC from '@/components/ui/pagination';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
-export default function ImageBlockList() {
+export default function ImageBlockList({ searchQuery }: { searchQuery: string }) {
+    const { t: tCommon } = useTranslation('common');
+
     const { projectId }: { projectId: string } = useParams();
-    const [searchQuery, setSearchQuery] = useState('');
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -47,11 +42,11 @@ export default function ImageBlockList() {
         axios
             .delete(`/api/project/${projectId}/images/block?id=${block.id}&type=s`)
             .then(() => {
-                toast.success('删除成功');
+                toast.success(tCommon('messages.operate_success'));
                 void refreshFiles();
             })
             .catch(error => {
-                toast.error('删除失败');
+                toast.error(tCommon('messages.operate_fail'));
                 console.error(error);
             });
     };

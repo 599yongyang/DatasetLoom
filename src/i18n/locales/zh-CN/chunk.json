@@ -1,5 +1,5 @@
 {
-    "search": "搜索文本块名称或内容...",
+    "search": "搜索分块名称...",
     "info": "已选择 {{selected}} 个文本块，共 {{count}} 个文本块",
     "batch_delete_btn": "删除所选文本块",
     "gen_btn": "为所选文本块生成问题",

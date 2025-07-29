@@ -32,7 +32,7 @@ export function useModelConfigSelect(projectId: string) {
             setModelConfigList(data);
             const selectedModelInfo = data.length > 0 ? data[0] : {};
             setSelectedModelInfo(selectedModelInfo as ModelConfig);
-        }, 1000);
+        }, 0);
     }
     return {
         data: data || [],

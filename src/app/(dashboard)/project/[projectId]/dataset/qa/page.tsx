@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileUp, MoreHorizontal, Star, ThumbsDown, ThumbsUp, Trash2, X } from 'lucide-react';
+import { FileUp, MoreHorizontal, Star, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
@@ -62,7 +62,7 @@ export default function Page() {
                 <div className={'flex gap-2'}>
                     <div className="group relative">
                         <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
-                            展示模式
+                            {t('query_show_item.title')}
                         </label>
                         <Select value={viewMode} onValueChange={value => setViewMode(value)}>
                             <SelectTrigger className="**:data-desc:hidden w-40">
@@ -70,21 +70,21 @@ export default function Page() {
                             </SelectTrigger>
                             <SelectContent className=" [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
                                 <SelectItem value="all">
-                                    查看全部数据
+                                    {t('query_show_item.raw')}
                                     <span className="text-muted-foreground mt-1 block text-xs" data-desc>
-                                        展示所有 QA 对
+                                        {t('query_show_item.raw_desc')}
                                     </span>
                                 </SelectItem>
                                 <SelectItem value="sft">
-                                    用于 SFT 训练
+                                    {t('query_show_item.sft')}
                                     <span className="text-muted-foreground mt-1 block text-xs" data-desc>
-                                        只展示每个问题的首选答案
+                                        {t('query_show_item.sft_desc')}
                                     </span>
                                 </SelectItem>
                                 <SelectItem value="pp">
-                                    用于 DPO/KTO
+                                    {t('query_show_item.dpo')}
                                     <span className="text-muted-foreground mt-1 block text-xs" data-desc>
-                                        只展示已标注偏好的 QA 对
+                                        {t('query_show_item.dpo_desc')}
                                     </span>
                                 </SelectItem>
                             </SelectContent>
@@ -116,7 +116,7 @@ export default function Page() {
                     </div>
                     <div className="group relative">
                         <label className="bg-background text-foreground absolute start-1 top-0 z-10 block -translate-y-1/2 px-2 text-xs font-medium group-has-disabled:opacity-50">
-                            状态
+                            {t('query_state_item.title')}
                         </label>
                         <Select
                             value={filterConfirmed}
@@ -126,12 +126,12 @@ export default function Page() {
                             }}
                         >
                             <SelectTrigger className="w-[130px]">
-                                <SelectValue placeholder="状态" />
+                                <SelectValue placeholder={t('query_state_item.title')} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">{t('select_item.all')}</SelectItem>
-                                <SelectItem value="confirmed">{t('select_item.confirmed')}</SelectItem>
-                                <SelectItem value="unconfirmed">{t('select_item.unconfirmed')}</SelectItem>
+                                <SelectItem value="all">{t('query_state_item.all')}</SelectItem>
+                                <SelectItem value="confirmed">{t('query_state_item.confirmed')}</SelectItem>
+                                <SelectItem value="unconfirmed">{t('query_state_item.unconfirmed')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

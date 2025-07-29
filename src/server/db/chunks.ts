@@ -95,7 +95,7 @@ export async function deleteChunkByIds(chunkId: string[]) {
                 }
             });
 
-            await db.chunks.deleteMany({ where: { id: { in: chunkId } } });
+            await tx.chunks.deleteMany({ where: { id: { in: chunkId } } });
         });
     } catch (error) {
         console.error('Failed to delete chunks by id in database');

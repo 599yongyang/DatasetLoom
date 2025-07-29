@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Grid3X3, Images, Search } from 'lucide-react';
-
 import ImageBlockList from '@/components/image-block/block-list';
 import ImageAggregationList from '@/components/image-block/aggregation-list';
+import { useTranslation } from 'react-i18next';
 
 type ViewMode = 'block' | 'aggregation';
 
 export default function ImageBlocksList() {
+    const { t } = useTranslation('chunk');
     const [viewMode, setViewMode] = useState<ViewMode>('aggregation');
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -24,7 +25,7 @@ export default function ImageBlocksList() {
                         <div className="relative flex-1 max-w-sm">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <Input
-                                placeholder="搜索分块名称..."
+                                placeholder={t('search')}
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 className="pl-10"
@@ -33,7 +34,7 @@ export default function ImageBlocksList() {
                     </div>
 
                     {/* 视图切换 */}
-                    <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                    <div className="flex items-center gap-2 rounded-lg p-1">
                         <Button
                             variant={viewMode === 'aggregation' ? 'default' : 'ghost'}
                             size="sm"
@@ -56,7 +57,11 @@ export default function ImageBlocksList() {
             {/* 内容区域 */}
             <div>
                 <ScrollArea className="h-[80vh]">
-                    {viewMode === 'block' ? <ImageBlockList /> : <ImageAggregationList />}
+                    {viewMode === 'block' ? (
+                        <ImageBlockList searchQuery={searchQuery} />
+                    ) : (
+                        <ImageAggregationList searchQuery={searchQuery} />
+                    )}
                 </ScrollArea>
             </div>
         </div>
