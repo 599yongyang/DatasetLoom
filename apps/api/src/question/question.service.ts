@@ -3,7 +3,7 @@ import {CreateQuestionDto} from './dto/create-question.dto';
 import {QueryQuestionDto} from '@/question/dto/query-question.dto';
 import {PrismaService} from '@/common/prisma/prisma.service';
 import {Prisma, Questions} from '@prisma/client';
-import {ContextType} from '@/common/prisma/enum';
+import {ContextType} from '@repo/shared-types';
 
 
 @Injectable()

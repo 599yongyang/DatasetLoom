@@ -7,9 +7,9 @@ import {Badge} from '@/components/ui/badge';
 import {Star, Tag, Brain, Quote, FileText, Atom} from 'lucide-react';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '../ui/table';
 import {Markdown} from '@/components/chat/markdown';
-import type {DatasetSamples, PreferencePair} from '@prisma/client';
+import type {DatasetSamples, PreferencePair} from '@/types/interfaces';
 import {AIScoreDashboard} from '@/components/dataset/ai-score-chart';
-import {ContextType} from '@prisma-enum';
+import {ContextType} from '@repo/shared-types';
 import AnswerCard from '@/components/dataset/answer-card';
 import {BACKEND_URL} from "@/constants/config";
 

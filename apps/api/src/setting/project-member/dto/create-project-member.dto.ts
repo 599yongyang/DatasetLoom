@@ -1,5 +1,5 @@
 import {IsArray, IsEnum} from "class-validator";
-import {ProjectRole} from "@/common/prisma/enum";
+import {ProjectRole} from "@repo/shared-types";
 import {BaseDto} from "@/common/dto/base.dto";
 import { ApiProperty } from '@nestjs/swagger';
 

@@ -8,7 +8,7 @@ import {formatBytes} from '@/hooks/use-file-upload';
 import {Badge} from '@/components/ui/badge';
 import {useImages} from '@/hooks/query/use-images';
 import AddQuestionDialog from '@/components/images/add-question-dialog';
-import type {ImageWithImageBlock} from '@prisma-type';
+import type {ImageWithImageBlock} from '@/types/interfaces';
 import BlockHighlight from '@/components/image-block/block-highlight';
 import PaginationC from '@/components/ui/pagination';
 import BlockImageDialog from '@/components/images/block-dialog';

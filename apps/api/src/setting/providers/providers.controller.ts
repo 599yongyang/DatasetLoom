@@ -41,7 +41,7 @@ export class ProvidersController {
             const list = data.map(item => {
                 return {
                     ...item,
-                    apiKey: item.apiKey && CryptoUtil.decrypt(item.apiKey)
+                    apiKey: item.apiKey ? CryptoUtil.decrypt(item.apiKey) : ''
                 };
             });
             return ResponseUtil.success(list);

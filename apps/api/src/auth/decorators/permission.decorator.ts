@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 
 export const ROLES_KEY = 'roles';
 export const Permission = (role: ProjectRole) =>

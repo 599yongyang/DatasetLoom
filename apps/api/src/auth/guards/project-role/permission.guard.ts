@@ -7,7 +7,7 @@ import {
     UnauthorizedException
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ROLES_KEY } from '@/auth/decorators/permission.decorator';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';

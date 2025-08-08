@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/atoms';
-import type { Questions } from '@prisma/client';
+import type { Questions } from '@/types/interfaces';
 import { DatasetStrategyForm } from '@/components/dataset/dataset-strategy-form';
 import { type DatasetStrategyParams, defaultDatasetStrategyConfig } from '@/types/dataset';
 import { useGenerateDataset } from '@/hooks/use-generate-dataset';

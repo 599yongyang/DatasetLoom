@@ -6,7 +6,7 @@ import { GenQuestionDto } from '@/chunk/image-chunk/dto/gen-question.dto';
 import { QueryImageChunkDto } from '@/chunk/image-chunk/dto/query-image-chunk.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 
 @ApiTags('图像分块')
 @Controller(':projectId/image-chunk')

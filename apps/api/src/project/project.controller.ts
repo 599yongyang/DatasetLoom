@@ -5,7 +5,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { ResponseUtil } from '@/utils/response.util';
 import { User } from '@/auth/decorators/user.decorator';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('项目')

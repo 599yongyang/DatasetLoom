@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {PrismaService} from '@/common/prisma/prisma.service';
 import {createWriteStream} from 'fs';
 import {ExportQaDatasetDto} from '@/dataset/qa/dto/export-qa-dataset.dto';
-import {ContextType} from '@/common/prisma/enum';
+import {ContextType} from '@repo/shared-types';
 import {basename, join} from 'path';
 import {tmpdir} from 'os';
 import fs from 'fs/promises';

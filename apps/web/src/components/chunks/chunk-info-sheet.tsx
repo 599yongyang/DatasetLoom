@@ -21,8 +21,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Textarea } from '@/components/ui/textarea';
 import { Edit } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import {Chunks} from "@prisma/client";
-import apiClient from "@/lib/axios";
+import { Chunks } from '@/types/interfaces';
+import apiClient from '@/lib/axios';
 
 const formSchema = z.object({
     id: z.string(),
@@ -42,10 +42,10 @@ const parseTagsToTagArray = (tagsString?: string): Tag[] => {
 };
 
 export function ChunkInfoSheet({
-    item,
-    refresh,
-    children
-}: {
+                                   item,
+                                   refresh,
+                                   children
+                               }: {
     item: Chunks;
     refresh: () => void;
     children?: ReactNode;

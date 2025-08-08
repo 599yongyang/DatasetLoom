@@ -8,7 +8,7 @@ import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/compon
 import {memo} from 'react';
 import equal from 'fast-deep-equal';
 import {toast} from 'sonner';
-import type {ChatMessageVote} from '@prisma/client';
+import type {ChatMessageVote} from '@/types/interfaces';
 import {useParams} from 'next/navigation';
 import apiClient from "@/lib/axios";
 

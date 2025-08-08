@@ -1,7 +1,7 @@
 import useSWR from 'swr';
-import {useMemo} from 'react';
-import {buildURL, fetcher} from '@/lib/utils';
-import {type DatasetSamples} from '@prisma/client';
+import { useMemo } from 'react';
+import { buildURL, fetcher } from '@/lib/utils';
+import { DatasetSamples } from '@/types/interfaces';
 
 type UseDatasetsParams = {
     projectId: string;
@@ -27,16 +27,16 @@ export function useDatasets(params: UseDatasetsParams) {
         const paramsObj = {
             page: params.pageIndex + 1,
             size: params.pageSize,
-            ...(params.query && {query: params.query}),
+            ...(params.query && { query: params.query }),
             showType: params.showType,
-            ...(params.confirmed !== 'all' && {confirmed: params.confirmed}),
-            ...(params.contextType !== 'all' && {contextType: params.contextType}),
+            ...(params.confirmed !== 'all' && { confirmed: params.confirmed }),
+            ...(params.contextType !== 'all' && { contextType: params.contextType })
         };
 
         return buildURL(`/${params.projectId}/qa-dataset`, paramsObj);
     }, [params]);
 
-    const {data, error, mutate} = useSWR<DatasetListResponse>(url, fetcher, {
+    const { data, error, mutate } = useSWR<DatasetListResponse>(url, fetcher, {
         keepPreviousData: true, // 切换分页时保持旧数据展示
         revalidateOnFocus: true
     });
@@ -51,8 +51,8 @@ export function useDatasets(params: UseDatasetsParams) {
     };
 }
 
-export function useDatasetsInfo({projectId, questionId}: { projectId: string; questionId: string }) {
-    const {data, error, isLoading, mutate} = useSWR(`/${projectId}/qa-dataset/${questionId}`, fetcher);
+export function useDatasetsInfo({ projectId, questionId }: { projectId: string; questionId: string }) {
+    const { data, error, isLoading, mutate } = useSWR(`/${projectId}/qa-dataset/${questionId}`, fetcher);
 
     return {
         datasets: data?.data || {},

@@ -6,7 +6,7 @@ import { QueryProjectMemberDto } from '@/setting/project-member/dto/query-projec
 import { UsersService } from '@/users/users.service';
 import { User } from '@/auth/decorators/user.decorator';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('项目成员管理')

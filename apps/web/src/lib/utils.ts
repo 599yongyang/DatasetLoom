@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import * as React from 'react';
 import apiClient from '@/lib/axios';
-import { ProjectRole } from '@prisma-enum';
+import { ProjectRole } from '@repo/shared-types';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));

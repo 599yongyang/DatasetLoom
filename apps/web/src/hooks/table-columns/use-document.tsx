@@ -9,12 +9,12 @@ import {useParams, useRouter} from 'next/navigation';
 import {formatBytes} from '@/hooks/use-file-upload';
 import {ConfirmAlert} from '@/components/common/confirm-alert';
 import {ChunkStrategyDialog} from '@/components/chunks/chunk-strategy-dialog';
-import {ProjectRole} from '@prisma-enum';
+import {ProjectRole} from '@repo/shared-types';
 import {WithPermission} from '@/components/common/permission-wrapper';
 import type {TFunction} from 'i18next';
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 import apiClient from "@/lib/axios";
-import { DocumentsWithCount } from '@prisma-type';
+import { DocumentsWithCount } from '@/types/interfaces';
 
 export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: () => void }) {
     const router = useRouter();

@@ -7,13 +7,13 @@ import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
-import { ProjectRole } from '@prisma-enum';
+import { ProjectRole } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
-import type { DatasetSamples } from '@prisma/client';
+import type { DatasetSamples } from '@/types/interfaces/dataset';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { ModelTag } from '@lobehub/icons';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
-import apiClient from "@/lib/axios";
+import apiClient from '@/lib/axios';
 
 export function useDatasetTableColumns({ mutateDatasets }: { mutateDatasets: () => void }) {
     const { t } = useTranslation('dataset');

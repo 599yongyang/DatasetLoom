@@ -3,7 +3,7 @@ import {CreateProjectDto} from './dto/create-project.dto';
 import {UpdateProjectDto} from './dto/update-project.dto';
 import {PrismaService} from '@/common/prisma/prisma.service';
 import {nanoid} from 'nanoid';
-import {ProjectRole} from '@/common/prisma/enum';
+import {ProjectRole} from '@repo/shared-types';
 import {DEFAULT_PROVIDERS} from "@/constants/model";
 
 @Injectable()

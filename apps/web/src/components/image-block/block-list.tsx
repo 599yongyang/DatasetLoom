@@ -1,25 +1,24 @@
 'use client';
 
-import React, {useMemo, useState} from 'react';
-import {Button} from '@/components/ui/button';
-import {Trash2, MapPin, Ruler, MessageSquarePlus} from 'lucide-react';
-import {useParams} from 'next/navigation';
-import {formatBytes} from '@/hooks/use-file-upload';
-import type {ImageBlockWithImage, ImageWithImageBlock} from '@prisma-type';
+import React, { useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Trash2, MapPin, Ruler, MessageSquarePlus } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { formatBytes } from '@/hooks/use-file-upload';
+import type { ImageBlockWithImage, ImageWithImageBlock, ImageBlock } from '@/types/interfaces';
 import AddQuestionDialog from '@/components/images/add-question-dialog';
-import type {ImageBlock} from '@prisma/client';
-import {useImageBlocks} from '@/hooks/query/use-image-block';
+import { useImageBlocks } from '@/hooks/query/use-image-block';
 import PaginationC from '@/components/ui/pagination';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
-import {toast} from 'sonner';
-import {useTranslation} from 'react-i18next';
-import apiClient from "@/lib/axios";
-import {BACKEND_URL} from "@/constants/config";
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import apiClient from '@/lib/axios';
+import { BACKEND_URL } from '@/constants/config';
 
-export default function ImageBlockList({searchQuery}: { searchQuery: string }) {
-    const {t: tCommon} = useTranslation('common');
+export default function ImageBlockList({ searchQuery }: { searchQuery: string }) {
+    const { t: tCommon } = useTranslation('common');
 
-    const {projectId}: { projectId: string } = useParams();
+    const { projectId }: { projectId: string } = useParams();
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -85,14 +84,14 @@ export default function ImageBlockList({searchQuery}: { searchQuery: string }) {
                                 <div
                                     className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                     <Button size="sm" variant="secondary" onClick={() => handleCreateQuestions(block)}>
-                                        <MessageSquarePlus className="w-4 h-4"/>
+                                        <MessageSquarePlus className="w-4 h-4" />
                                     </Button>
                                     <ConfirmAlert
                                         title="确认要删除此标注分块嘛？"
                                         onConfirm={() => handleDelete(block)}
                                     >
                                         <Button size="sm" variant="secondary">
-                                            <Trash2 className="w-4 h-4 text-red-600"/>
+                                            <Trash2 className="w-4 h-4 text-red-600" />
                                         </Button>
                                     </ConfirmAlert>
                                 </div>
@@ -124,10 +123,10 @@ export default function ImageBlockList({searchQuery}: { searchQuery: string }) {
 
                                 <div className=" flex justify-between text-xs text-gray-500 ">
                                     <div className="flex items-center gap-1">
-                                        <MapPin className="w-3 h-3"/>({block.x}, {block.y})
+                                        <MapPin className="w-3 h-3" />({block.x}, {block.y})
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <Ruler className="w-3 h-3"/>
+                                        <Ruler className="w-3 h-3" />
                                         {block.width} × {block.height}
                                     </div>
                                     <div className="flex items-center justify-between">
@@ -139,7 +138,7 @@ export default function ImageBlockList({searchQuery}: { searchQuery: string }) {
                     );
                 })}
             </div>
-            <PaginationC pagination={pagination} setPagination={setPagination} pageCount={pageCount}/>
+            <PaginationC pagination={pagination} setPagination={setPagination} pageCount={pageCount} />
             {currentBlock && (
                 <AddQuestionDialog
                     questionDialog={questionDialog}
@@ -150,7 +149,7 @@ export default function ImageBlockList({searchQuery}: { searchQuery: string }) {
                         fileName: currentBlock.image.fileName,
                         width: currentBlock.image.width,
                         height: currentBlock.image.height,
-                        ImageBlock: [{...currentBlock} as ImageBlock],
+                        ImageBlock: [{ ...currentBlock } as ImageBlock]
                     } as ImageWithImageBlock}
                 />
             )}

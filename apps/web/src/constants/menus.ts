@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 import type { IMenu } from '@/schema/menu';
-import { ProjectRole } from '@prisma-enum';
+import { ProjectRole } from '@repo/shared-types';
 import { UserInfo } from '@/lib/session';
 import { hasPermission } from '@/lib/utils';
 

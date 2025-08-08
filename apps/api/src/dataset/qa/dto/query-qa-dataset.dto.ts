@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
 import { PaginationDto } from '@/common/dto/pagination.dto';
-import { ContextType } from '@/common/prisma/enum';
+import { ContextType } from '@repo/shared-types';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class QueryQaDatasetDto extends PaginationDto {

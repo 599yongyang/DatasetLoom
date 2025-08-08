@@ -15,7 +15,7 @@ import {Input} from '../ui/input';
 import PasswordInput from '@/components/ui/password-input';
 import {type RemoteRepositoryData, uploadToHuggingFace} from '@/lib/utils/hugging-face';
 import {ContextTypeMap, type DatasetExportType} from '@/lib/data-dictionary';
-import {ContextType} from '@prisma-enum';
+import {ContextType} from '@repo/shared-types';
 import {txtExampleData} from '@/constants/export-example/text';
 import {imageExampleData} from '@/constants/export-example/image';
 import apiClient from "@/lib/axios";

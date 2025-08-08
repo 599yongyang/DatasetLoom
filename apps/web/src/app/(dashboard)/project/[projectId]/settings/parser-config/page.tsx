@@ -11,7 +11,7 @@ import * as React from 'react';
 import {PARSER_SERVICE_LIST} from '@/constants/parser';
 import PasswordInput from '@/components/ui/password-input';
 import {Separator} from '@/components/ui/separator';
-import type {ParserConfig} from '@prisma/client';
+import type {ParserConfig} from '@/types/interfaces';
 import {Badge} from '@/components/ui/badge';
 import {useGetParserConfig} from '@/hooks/query/use-parser-config';
 import {toast} from 'sonner';

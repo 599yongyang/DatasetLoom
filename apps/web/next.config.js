@@ -1,17 +1,25 @@
 import dotenvFlow from 'dotenv-flow';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 // 读取根目录的 .env 文件
 dotenvFlow.config({ path: '../../' });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'standalone',
+    outputFileTracingRoot: path.join(__dirname, '../../'),
     env: {
         NEXT_PUBLIC_BACKEND_BASE_URL: process.env.NEXT_PUBLIC_BACKEND_BASE_URL,
         NEXT_PUBLIC_BACKEND_API_URL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
-        NEXT_PUBLIC_SESSION_SECRET_KEY: process.env.NEXT_PUBLIC_SESSION_SECRET_KEY,
+        NEXT_PUBLIC_SESSION_SECRET_KEY: process.env.NEXT_PUBLIC_SESSION_SECRET_KEY
     },
     eslint: {
-        ignoreDuringBuilds: true,
+        ignoreDuringBuilds: true
     },
     webpack(config, { dev }) {
         config.externals.push({ canvas: 'commonjs canvas' });
@@ -19,7 +27,7 @@ const nextConfig = {
             config.cache = Object.freeze({ type: 'memory' });
         }
         return config;
-    },
+    }
 };
 
 export default nextConfig;

@@ -10,7 +10,7 @@ import { ModelConfigService } from '@/setting/model-config/model-config.service'
 import { ProjectService } from '@/project/project.service';
 import { TagRelGenerator } from '@/chunk/document-chunk/generators/tag-rel.generator';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('文档分块')

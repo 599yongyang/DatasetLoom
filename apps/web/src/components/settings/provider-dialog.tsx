@@ -8,7 +8,7 @@ import {ModelProvider, ProviderIcon} from '@lobehub/icons';
 import {Popover, PopoverTrigger} from '../ui/popover';
 import {PopoverContent} from '@/components/ui/popover';
 import {useEffect, useState} from 'react';
-import type {ModelProviders} from '@prisma/client';
+import type {ModelProviders} from '@/types/interfaces';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {toast} from 'sonner';
 import {

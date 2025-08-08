@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import {buildURL, fetcher} from '@/lib/utils';
 import {useMemo} from 'react';
-import {Chunks} from "@prisma/client";
+import {Chunks} from "@/types/interfaces";
 
 interface Response {
     data: Chunks[];

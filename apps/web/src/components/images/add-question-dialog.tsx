@@ -12,11 +12,11 @@ import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
 import {ModelSelect} from '@/components/common/model-select';
 import BlockHighlight from '@/components/image-block/block-highlight';
 import {useParams} from 'next/navigation';
-import {ModelConfigType, ContextType} from '@prisma-enum';
+import {ModelConfigType, ContextType} from '@repo/shared-types';
 import {toast} from 'sonner';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 import apiClient from "@/lib/axios";
-import type {ImageWithImageBlock} from "@prisma-type";
+import type {ImageWithImageBlock} from "@/types/interfaces";
 
 interface Question {
     id: string;

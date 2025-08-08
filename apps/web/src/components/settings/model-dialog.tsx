@@ -6,7 +6,7 @@ import {Label} from '@/components/ui/label';
 import {RefreshCw, Thermometer, Hash, ChevronsUpDown, Check, Loader2} from 'lucide-react';
 import {useParams} from 'next/navigation';
 import {Slider} from '@/components/ui/slider';
-import type {ModelConfig, ModelProviders, ModelRegistry} from '@prisma/client';
+import type {ModelConfig, ModelProviders, ModelRegistry} from '@/types/interfaces';
 import {ModelIcon} from '@lobehub/icons';
 import {toast} from 'sonner';
 import {useTranslation} from 'react-i18next';
@@ -14,12 +14,11 @@ import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '@/components/ui/command';
 import {cn, onWheel} from '@/lib/utils';
 import * as React from 'react';
-import {DEFAULT_MODEL_SETTINGS} from '../../../../api/src/constants/model';
+import {DEFAULT_MODEL_SETTINGS} from '@/constants/model';
 import MultipleSelector, {type Option} from '@/components/ui/multiselect';
-import {ModelConfigType} from '@prisma-enum';
+import {ModelConfigType} from '@repo/shared-types';
 import {useModelConfigSelect} from '@/hooks/query/use-model-config';
 import apiClient from "@/lib/axios";
-import {useSWRConfig} from "swr";
 
 const Ability: Option[] = [
     {

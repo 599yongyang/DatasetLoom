@@ -1,12 +1,12 @@
 import type {ColumnDef} from '@tanstack/react-table';
-import type {QuestionsWithDatasetSample} from '@prisma-type';
+import type {QuestionsWithDatasetSample} from '@/types/interfaces';
 import {useTranslation} from 'react-i18next';
 import {Badge} from '@/components/ui/badge';
 import {Checkbox} from '@/components/ui/checkbox';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 import {useParams} from 'next/navigation';
 import React, {useState} from 'react';
-import {ContextType, ModelConfigType, ProjectRole} from '@prisma-enum';
+import {ContextType, ModelConfigType, ProjectRole} from '@repo/shared-types';
 import {useAtomValue} from 'jotai/index';
 import {selectedModelInfoAtom} from '@/atoms';
 import {useGenerateDataset} from '@/hooks/use-generate-dataset';

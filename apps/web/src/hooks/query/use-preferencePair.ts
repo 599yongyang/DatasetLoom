@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import type { DatasetSamples } from '@prisma/client';
+import type { DatasetSamples } from '@/types/interfaces';
 import { fetcher } from '@/lib/utils';
 
 export function useGetPreferencePair(projectId: string, questionId: string) {

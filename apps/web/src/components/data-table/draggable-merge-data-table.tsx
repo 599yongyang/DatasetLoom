@@ -40,7 +40,7 @@ import {
     AlertDialogTitle
 } from '@/components/ui/alert-dialog';
 import type { DragOverEvent } from '@dnd-kit/core/dist/types';
-import { ProjectRole } from '@prisma-enum'
+import { ProjectRole } from '@repo/shared-types'
 import { WithPermission } from '../common/permission-wrapper';
 import { useParams } from 'next/navigation';
 

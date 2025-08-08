@@ -1,8 +1,8 @@
 import useSWR from 'swr';
-import {buildURL, fetcher} from '@/lib/utils';
-import type {ProjectsWithCounts} from '@prisma-type';
-import type {ProjectRole} from '@prisma-enum';
-import React, {useEffect, useMemo, useRef} from 'react';
+import { buildURL, fetcher } from '@/lib/utils';
+import type { ProjectsWithCounts } from '@/types/interfaces';
+import type { ProjectRole } from '@repo/shared-types';
+import { useEffect, useMemo, useRef } from 'react';
 
 export interface ProjectMember {
     id: string;
@@ -22,7 +22,7 @@ interface Response {
 }
 
 export function useGetProjects() {
-    const {data, error, isLoading, mutate} = useSWR<ProjectsWithCounts[]>('/project', fetcher);
+    const { data, error, isLoading, mutate } = useSWR<ProjectsWithCounts[]>('/project', fetcher);
     // const { update } = useSession();
 
     const prevProjectIds = useRef<string[]>([]);
@@ -62,13 +62,13 @@ export function useGetProjectMember(params: GetProjectMemberParams) {
         const paramsObj = {
             page: params.pageIndex + 1,
             size: params.pageSize,
-            ...(params.query && {query: params.query}),
+            ...(params.query && { query: params.query })
         };
 
         return buildURL(`/${params.projectId}/project-member`, paramsObj);
     }, [params]);
 
-    const {data, error, mutate} = useSWR<Response>(url, fetcher, {
+    const { data, error, mutate } = useSWR<Response>(url, fetcher, {
         keepPreviousData: true, // 切换分页时保持旧数据展示
         revalidateOnFocus: true
     });

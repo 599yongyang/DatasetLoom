@@ -1,25 +1,25 @@
 'use client';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
-import {useState} from 'react';
-import {Button} from '@/components/ui/button';
-import {ArrowLeft, ChevronLeft, ChevronRight, MessageCircleQuestion, Save, SaveOff, Trash2} from 'lucide-react';
-import {Progress} from '@/components/ui/progress';
-import {toast} from 'sonner';
-import {Loading} from '@/components/common/loading';
-import {useTranslation} from 'react-i18next';
-import {useDatasetsInfo} from '@/hooks/query/use-datasets';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, ChevronLeft, ChevronRight, MessageCircleQuestion, Save, SaveOff, Trash2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
+import { Loading } from '@/components/common/loading';
+import { useTranslation } from 'react-i18next';
+import { useDatasetsInfo } from '@/hooks/query/use-datasets';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import DatasetDetail from '@/components/dataset/dataset-detail';
-import {ProjectRole} from '@prisma-enum';
-import {WithPermission} from '@/components/common/permission-wrapper';
+import { ProjectRole } from '@repo/shared-types';
+import { WithPermission } from '@/components/common/permission-wrapper';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
-import apiClient from "@/lib/axios";
+import apiClient from '@/lib/axios';
 
 export default function Page() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const {t} = useTranslation('dataset');
-    const {projectId, questionId} = useParams<{ projectId: string; questionId: string }>();
+    const { t } = useTranslation('dataset');
+    const { projectId, questionId } = useParams<{ projectId: string; questionId: string }>();
     const dssId = searchParams.get('dssId');
     const [qId, setQid] = useState<string>(questionId as string);
     const [activeAnswerId, setActiveAnswerId] = useState<string>(dssId as string);
@@ -40,7 +40,7 @@ export default function Page() {
     if (isLoading)
         return (
             <div className={'flex items-center justify-center p-60'}>
-                <Loading variant={'infinite'} className={'w-10 h-10 '}/>
+                <Loading variant={'infinite'} className={'w-10 h-10 '} />
             </div>
         );
 
@@ -58,7 +58,7 @@ export default function Page() {
 
     const handleConfirm = async (confirmed: boolean) => {
         try {
-            const response = await apiClient.patch(`/${projectId}/question/setConfirm`, {id: qId, confirmed});
+            const response = await apiClient.patch(`/${projectId}/question/setConfirm`, { id: qId, confirmed });
             if (response.status !== 200) {
                 toast.success(`${confirmed ? '确认' : '取消'}失败`);
                 return;
@@ -112,7 +112,7 @@ export default function Page() {
                     onClick={() => router.back()}
                     className="flex items-center gap-1 border-gray-300 hover:bg-gray-100"
                 >
-                    <ArrowLeft className="w-4 h-4"/>
+                    <ArrowLeft className="w-4 h-4" />
                     <span className="hidden sm:inline">返回列表</span>
                 </Button>
                 <div className="text-sm text-muted-foreground">
@@ -124,10 +124,10 @@ export default function Page() {
                 </div>
                 <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                     <Button variant="ghost" size="icon" onClick={() => handleNavigate('prev')}>
-                        <ChevronLeft className="h-4 w-4"/>
+                        <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleNavigate('next')}>
-                        <ChevronRight className="h-4 w-4"/>
+                        <ChevronRight className="h-4 w-4" />
                     </Button>
                     <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                         <ConfirmAlert
@@ -136,7 +136,7 @@ export default function Page() {
                             onConfirm={handleDelete}
                         >
                             <Button variant="destructive" className="flex items-center gap-2 text-white">
-                                <Trash2/>
+                                <Trash2 />
                                 删除
                             </Button>
                         </ConfirmAlert>
@@ -144,24 +144,24 @@ export default function Page() {
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                         {confirmed ? (
                             <Button variant={'outline'} onClick={() => handleConfirm(false)}>
-                                <SaveOff/>
+                                <SaveOff />
                                 取消保留
                             </Button>
                         ) : (
                             <Button className="flex items-center gap-2" onClick={() => handleConfirm(true)}>
-                                <Save/>
+                                <Save />
                                 确认保留
                             </Button>
                         )}
                     </WithPermission>
                 </div>
             </div>
-            <Progress value={(confirmedCount / total) * 100} className="mb-6"/>
+            <Progress value={(confirmedCount / total) * 100} className="mb-6" />
             <div className="text-2xl font-bold  flex-1 flex items-center">
-                <MessageCircleQuestion className="w-6 h-6 mr-2"/>
-                <MentionsTextarea className={'text-lg'} value={data.question} readOnly/>
+                <MessageCircleQuestion className="w-6 h-6 mr-2" />
+                <MentionsTextarea className={'text-lg'} value={data.question} readOnly />
             </div>
-            <DatasetDetail questionInfo={data} refresh={refresh} dssId={activeAnswerId}/>
+            <DatasetDetail questionInfo={data} refresh={refresh} dssId={activeAnswerId} />
         </div>
     );
 }

@@ -6,17 +6,15 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { useAtom, useSetAtom } from 'jotai';
-import { documentWorkFlowAtom } from '@/atoms/workflow';
-import apiClient from "@/lib/axios";
+import apiClient from '@/lib/axios';
 
 export function UploadFiles({
-    type,
-    initialFiles,
-    maxFiles,
-    onClose,
-    refreshFiles
-}: {
+                                type,
+                                initialFiles,
+                                maxFiles,
+                                onClose,
+                                refreshFiles
+                            }: {
     type: 'document' | 'workflow';
     initialFiles?: FileMetadata[];
     maxFiles: number;
@@ -25,7 +23,6 @@ export function UploadFiles({
 }) {
     const { projectId } = useParams();
     const { t } = useTranslation('knowledge');
-    const [documentWorkFlow, setDocumentWorkFlow] = useAtom(documentWorkFlowAtom);
     const maxSize = 100 * 1024 * 1024; // 10MB default
 
     const [
@@ -49,20 +46,11 @@ export function UploadFiles({
     });
 
     const handleRemoveFile = (id: string) => {
-        if (type === 'workflow' && documentWorkFlow) {
-            setDocumentWorkFlow(prev => ({
-                ...prev,
-                data: prev?.data?.filter(d => d.id !== id) ?? null
-            }));
-        }
         removeFile(id);
     };
 
     const handleClear = () => {
         clearFiles();
-        if (type === 'workflow') {
-            setDocumentWorkFlow({ data: [] });
-        }
     };
 
     const handleUpload = async () => {
@@ -83,11 +71,6 @@ export function UploadFiles({
                     if (type === 'document') {
                         if (onClose) onClose();
                         if (refreshFiles) refreshFiles();
-                    } else {
-                        setDocumentWorkFlow(prev => ({
-                            ...prev,
-                            data: data.data.files
-                        }));
                     }
 
                     return `成功上传 ${data.data.files.length} 个文件`;
@@ -148,7 +131,8 @@ export function UploadFiles({
                                 className="bg-background flex items-center justify-between gap-2 rounded-lg border p-2 pe-3"
                             >
                                 <div className="flex items-center gap-3 overflow-hidden">
-                                    <div className="flex aspect-square size-10 shrink-0 items-center justify-center rounded border">
+                                    <div
+                                        className="flex aspect-square size-10 shrink-0 items-center justify-center rounded border">
                                         <FileIcons file={file.file as File} />
                                     </div>
                                     <div className="flex min-w-0 flex-col gap-0.5">

@@ -12,7 +12,7 @@ import equal from 'fast-deep-equal';
 import { cn } from '@/lib/utils';
 import { MessageReasoning } from './message-reasoning';
 import type { UseChatHelpers } from '@ai-sdk/react';
-import type { ChatMessageVote } from '@prisma/client';
+import type { ChatMessageVote } from '@/types/interfaces';
 
 const PurePreviewMessage = ({
     chatId,

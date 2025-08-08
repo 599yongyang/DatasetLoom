@@ -12,13 +12,12 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ModelSelect } from '@/components/common/model-select';
 import { useAtomValue, useSetAtom } from 'jotai/index';
 import { modelConfigListAtom } from '@/atoms';
-import { datasetWorkFlowAtom } from '@/atoms/workflow';
 
 export function DatasetStrategyForm({
-    type,
-    datasetStrategy,
-    setDatasetStrategy
-}: {
+                                        type,
+                                        datasetStrategy,
+                                        setDatasetStrategy
+                                    }: {
     type: 'question' | 'workflow';
     datasetStrategy: DatasetStrategyParams;
     setDatasetStrategy: React.Dispatch<React.SetStateAction<DatasetStrategyParams>>;
@@ -28,7 +27,6 @@ export function DatasetStrategyForm({
     const tProject = (key: string) => t(`project:${key}`);
 
     const modelConfigList = useAtomValue(modelConfigListAtom);
-    const setDatasetWorkFlow = useSetAtom(datasetWorkFlowAtom);
     const [modelValue, setModelValue] = useState('');
 
     const handleChange = (field: keyof DatasetStrategyParams, value: string | number | boolean) => {
@@ -38,14 +36,6 @@ export function DatasetStrategyForm({
         }));
     };
 
-    useEffect(() => {
-        let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === modelValue);
-        if (modelConfig) {
-            const { modelName, id: modelConfigId, temperature, maxTokens } = modelConfig;
-            setDatasetWorkFlow(prev => ({ ...prev, modelName, modelConfigId, temperature, maxTokens }));
-            // setModelName(modelName);
-        }
-    }, [modelValue]);
 
     return (
         <div className="space-y-3">
@@ -60,13 +50,15 @@ export function DatasetStrategyForm({
                         value={datasetStrategy.type}
                         onValueChange={value => handleChange('type', value)}
                     >
-                        <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
+                        <div
+                            className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem value={'default'} className="after:absolute after:inset-0" />
                                 <Label>{tDataset('strategy_form.model_type.default')}</Label>
                             </div>
                         </div>
-                        <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
+                        <div
+                            className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                             <div className="flex items-center gap-2">
                                 <RadioGroupItem value={'custom'} className="after:absolute after:inset-0" />
                                 <Label>{tDataset('strategy_form.model_type.custom')}</Label>
@@ -126,13 +118,15 @@ export function DatasetStrategyForm({
                     value={datasetStrategy.citation.toString()}
                     onValueChange={value => handleChange('citation', value === 'true')}
                 >
-                    <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
+                    <div
+                        className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                         <div className="flex items-center gap-2">
                             <RadioGroupItem value={'true'} className="after:absolute after:inset-0" />
                             <Label>{tDataset('strategy_form.citation_option.yes')}</Label>
                         </div>
                     </div>
-                    <div className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
+                    <div
+                        className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                         <div className="flex items-center gap-2">
                             <RadioGroupItem value={'false'} className="after:absolute after:inset-0" />
                             <Label>{tDataset('strategy_form.citation_option.no')}</Label>

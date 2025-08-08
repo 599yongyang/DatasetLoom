@@ -7,6 +7,16 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    
+    app.useGlobalPipes(new ValidationPipe({
+        transform: true,
+        whitelist: true
+    }));
+
+    app.enableCors();
+    app.setGlobalPrefix('api');
+    app.useGlobalPipes(new ValidationPipe());
+    app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
     // Swagger 配置
     const config = new DocumentBuilder()
@@ -18,17 +28,7 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('swagger', app, document);
 
-    app.useGlobalPipes(new ValidationPipe({
-        transform: true,
-        whitelist: true
-    }));
-
-    app.enableCors();
-    app.setGlobalPrefix('api');
-    app.useGlobalPipes(new ValidationPipe());
-    app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
-
-    const port = process.env.PORT || 3000;
+    const port = process.env.API_PORT || 3088;
     await app.listen(port);
 
     console.log(`🚀 Application is running on: http://localhost:${port}`);

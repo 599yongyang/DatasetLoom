@@ -3,7 +3,7 @@ import { DashboardService } from './dashboard.service';
 import { ResponseUtil } from '@/utils/response.util';
 import { ModelUsageService } from '@/model-usage/model-usage.service';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('看板')

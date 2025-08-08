@@ -1,4 +1,4 @@
-import { ContextType } from '@/common/prisma/enum';
+import { ContextType } from '@repo/shared-types';
 import * as archiver from 'archiver';
 import { join } from 'path';
 import { tmpdir } from 'os';

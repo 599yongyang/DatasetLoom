@@ -1,18 +1,17 @@
-import {BetweenVerticalStart, Brain, Hash, ListFilter, Palette, Thermometer, Users} from 'lucide-react';
-import {Label} from '@/components/ui/label';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
-import {Input} from '@/components/ui/input';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {difficultyMap, styleMap} from '@/constants/prompt';
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
-import {Slider} from '@/components/ui/slider';
-import React, {useEffect, useState} from 'react';
-import {useTranslation} from 'react-i18next';
-import {ModelSelect} from '@/components/common/model-select';
-import {useAtomValue, useSetAtom} from 'jotai/index';
-import {modelConfigListAtom} from '@/atoms';
-import {questionsWorkFlowAtom} from '@/atoms/workflow';
-import {QuestionStrategyParams} from '@/types/question';
+import { BetweenVerticalStart, Brain, Hash, ListFilter, Palette, Thermometer, Users } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { difficultyMap, styleMap } from '@/constants/prompt';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Slider } from '@/components/ui/slider';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ModelSelect } from '@/components/common/model-select';
+import { useAtomValue, useSetAtom } from 'jotai/index';
+import { modelConfigListAtom } from '@/atoms';
+import { QuestionStrategyParams } from '@/types/question';
 
 export function QuestionStrategyForm({
                                          type,
@@ -23,32 +22,24 @@ export function QuestionStrategyForm({
     questionStrategy: QuestionStrategyParams;
     setQuestionStrategy: React.Dispatch<React.SetStateAction<QuestionStrategyParams>>;
 }) {
-    const {t} = useTranslation(['question', 'project']);
+    const { t } = useTranslation(['question', 'project']);
     const tQuestion = (key: string) => t(`question:${key}`);
     const tProject = (key: string) => t(`project:${key}`);
     const modelConfigList = useAtomValue(modelConfigListAtom);
     const [modelValue, setModelValue] = useState('');
-    const setQuestionsWorkFlow = useSetAtom(questionsWorkFlowAtom);
     const handleChange = (field: keyof QuestionStrategyParams, value: string | number) => {
         setQuestionStrategy(prev => ({
             ...prev,
             [field]: value
         }));
     };
-    useEffect(() => {
-        let modelConfig = modelConfigList.find(modelConfig => modelConfig.id === modelValue);
-        if (modelConfig) {
-            const {modelName, id: modelConfigId, temperature, maxTokens} = modelConfig;
-            setQuestionsWorkFlow(prev => ({...prev, modelName, modelConfigId, temperature, maxTokens}));
-            // setModelName(modelName);
-        }
-    }, [modelValue]);
+
     return (
         <div className="space-y-4 pt-2">
             {type === 'workflow' && (
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Brain className="h-4 w-4 text-muted-foreground"/>
+                        <Brain className="h-4 w-4 text-muted-foreground" />
                         <Label className="font-medium text-base">{tQuestion('strategy_form.model')}</Label>
                     </div>
                     <RadioGroup
@@ -59,14 +50,14 @@ export function QuestionStrategyForm({
                         <div
                             className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                             <div className="flex items-center gap-2">
-                                <RadioGroupItem value={'default'} className="after:absolute after:inset-0"/>
+                                <RadioGroupItem value={'default'} className="after:absolute after:inset-0" />
                                 <Label>{tQuestion('strategy_form.model_type.default')}</Label>
                             </div>
                         </div>
                         <div
                             className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                             <div className="flex items-center gap-2">
-                                <RadioGroupItem value={'custom'} className="after:absolute after:inset-0"/>
+                                <RadioGroupItem value={'custom'} className="after:absolute after:inset-0" />
                                 <Label>{tQuestion('strategy_form.model_type.custom')}</Label>
                             </div>
                         </div>
@@ -75,12 +66,12 @@ export function QuestionStrategyForm({
             )}
             {questionStrategy.type === 'custom' && (
                 <div className="px-1">
-                    <ModelSelect value={modelValue} setValue={setModelValue}/>
+                    <ModelSelect value={modelValue} setValue={setModelValue} />
                 </div>
             )}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <BetweenVerticalStart className="h-4 w-4 text-muted-foreground"/>
+                    <BetweenVerticalStart className="h-4 w-4 text-muted-foreground" />
                     <Label className="font-medium ">{tQuestion('strategy_form.question_count')}</Label>
                 </div>
                 <RadioGroup
@@ -91,14 +82,14 @@ export function QuestionStrategyForm({
                     <div
                         className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                         <div className="flex items-center gap-2">
-                            <RadioGroupItem value={'auto'} className="after:absolute after:inset-0"/>
+                            <RadioGroupItem value={'auto'} className="after:absolute after:inset-0" />
                             <Label>{tQuestion('strategy_form.questionCount_type.auto')}</Label>
                         </div>
                     </div>
                     <div
                         className="border-input has-data-[state=checked]:border-primary/50 relative flex flex-col items-start gap-4 rounded-md border p-3 shadow-xs outline-none">
                         <div className="flex items-center gap-2">
-                            <RadioGroupItem value={'custom'} className="after:absolute after:inset-0"/>
+                            <RadioGroupItem value={'custom'} className="after:absolute after:inset-0" />
                             <Label>{tQuestion('strategy_form.questionCount_type.custom')}</Label>
                         </div>
                     </div>
@@ -116,12 +107,12 @@ export function QuestionStrategyForm({
             )}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-muted-foreground"/>
+                    <Palette className="h-4 w-4 text-muted-foreground" />
                     <Label className="font-medium ">{tQuestion('strategy_form.genre')}</Label>
                 </div>
                 <Select value={questionStrategy.genre} onValueChange={value => handleChange('genre', value)}>
                     <SelectTrigger className={'w-45'}>
-                        <SelectValue/>
+                        <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         {Object.entries(styleMap).map(([key, value]) => (
@@ -134,12 +125,12 @@ export function QuestionStrategyForm({
             </div>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <ListFilter className="h-4 w-4 text-muted-foreground"/>
+                    <ListFilter className="h-4 w-4 text-muted-foreground" />
                     <Label className="font-medium ">{tQuestion('strategy_form.difficulty')}</Label>
                 </div>
                 <Select value={questionStrategy.difficulty} onValueChange={value => handleChange('difficulty', value)}>
                     <SelectTrigger className={'w-45'}>
-                        <SelectValue/>
+                        <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         {Object.entries(difficultyMap).map(([key, value]) => (
@@ -153,7 +144,7 @@ export function QuestionStrategyForm({
 
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-muted-foreground"/>
+                    <Users className="h-4 w-4 text-muted-foreground" />
                     <Label className="font-medium ">{tQuestion('strategy_form.audience')}</Label>
                 </div>
                 <Input
@@ -172,7 +163,7 @@ export function QuestionStrategyForm({
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <Thermometer className="h-4 w-4 text-muted-foreground"/>
+                                    <Thermometer className="h-4 w-4 text-muted-foreground" />
                                     <Label className="font-medium">{tProject('model_dialog.temperature')}</Label>
                                 </div>
                                 <span className="font-medium  text-primary">{questionStrategy.temperature}</span>
@@ -197,7 +188,7 @@ export function QuestionStrategyForm({
                         <div className="space-y-3 pt-2">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <Hash className="h-4 w-4 text-muted-foreground"/>
+                                    <Hash className="h-4 w-4 text-muted-foreground" />
                                     <Label className="font-medium "> {tProject('model_dialog.max_token')}</Label>
                                 </div>
                                 <span className="font-medium text-lg text-primary">{questionStrategy.maxTokens}</span>

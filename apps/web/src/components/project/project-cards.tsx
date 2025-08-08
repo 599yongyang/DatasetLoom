@@ -1,21 +1,21 @@
 'use client';
-import {Badge} from '@/components/ui/badge';
-import {Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
-import {Button} from '@/components/ui/button';
-import type {ProjectsWithCounts} from '@prisma-type';
-import {Database, MessageCircleQuestion} from 'lucide-react';
-import {useRouter} from 'next/navigation';
-import {useTranslation} from 'react-i18next';
-import {toast} from 'sonner';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
-import {useAtom} from 'jotai/index';
-import {selectedProjectAtom} from '@/atoms';
-import {WithPermission} from '../common/permission-wrapper';
-import {ProjectRole} from '@prisma-enum'
-import apiClient from "@/lib/axios";
+import { Badge } from '@/components/ui/badge';
+import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ProjectsWithCounts } from '@/types/interfaces';
+import { Database, MessageCircleQuestion } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import { useAtom } from 'jotai/index';
+import { selectedProjectAtom } from '@/atoms';
+import { WithPermission } from '../common/permission-wrapper';
+import { ProjectRole } from '@repo/shared-types';
+import apiClient from '@/lib/axios';
 
-export function ProjectCards({projects, getProjects}: { projects: ProjectsWithCounts[]; getProjects: () => void }) {
-    const {t} = useTranslation('project');
+export function ProjectCards({ projects, getProjects }: { projects: ProjectsWithCounts[]; getProjects: () => void }) {
+    const { t } = useTranslation('project');
     const [selectedProject, setSelectedProject] = useAtom(selectedProjectAtom);
     const router = useRouter();
     const deleteProject = (id: string) => {
@@ -49,11 +49,11 @@ export function ProjectCards({projects, getProjects}: { projects: ProjectsWithCo
 
                         <CardAction className="flex flex-col gap-2">
                             <Badge variant="outline">
-                                <MessageCircleQuestion/>
+                                <MessageCircleQuestion />
                                 {project._count.Questions} {t('questions')}
                             </Badge>
                             <Badge variant="outline">
-                                <Database/>
+                                <Database />
                                 {project._count.DatasetSamples} {t('datasets')}
                             </Badge>
                         </CardAction>

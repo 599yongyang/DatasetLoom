@@ -10,7 +10,7 @@ import {zodResolver} from '@hookform/resolvers/zod';
 import {toast} from 'sonner';
 import {useTranslation} from 'react-i18next';
 import {useEffect} from 'react';
-import {ProjectRole} from '@prisma-enum'
+import {ProjectRole} from '@repo/shared-types'
 import {WithPermission} from '@/components/common/permission-wrapper';
 import apiClient from "@/lib/axios";
 

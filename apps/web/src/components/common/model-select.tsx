@@ -6,7 +6,7 @@ import { useAtomValue } from 'jotai';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { ModelIcon } from '@lobehub/icons';
 import type { ModelConfigType } from '@/lib/data-dictionary';
-import type { ModelConfig } from '@prisma/client';
+import type { ModelConfig } from '@/types/interfaces';
 
 import { cn, onWheel } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

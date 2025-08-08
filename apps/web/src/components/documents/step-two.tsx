@@ -6,7 +6,7 @@ import {useParams, useRouter} from 'next/navigation';
 import {Alert, AlertDescription} from '@/components/ui/alert';
 import {Badge} from '@/components/ui/badge';
 import {Separator} from '@/components/ui/separator';
-import type {ParserConfig} from '@prisma/client';
+import type {ParserConfig} from '@/types/interfaces';
 import {RadioGroup, RadioGroupItem} from '../ui/radio-group';
 import {Label} from '@/components/ui/label';
 import {useTranslation} from 'react-i18next';

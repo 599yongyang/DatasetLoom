@@ -1,5 +1,5 @@
 import {IsEnum, IsNotEmpty, IsOptional, IsString} from 'class-validator';
-import {ContextType} from "@/common/prisma/enum";
+import {ContextType} from "@repo/shared-types";
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateQuestionDto {

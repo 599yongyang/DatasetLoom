@@ -1,6 +1,6 @@
 import { IsArray, IsEnum, IsNotEmpty } from 'class-validator';
 import { BaseDto } from '@/common/dto/base.dto';
-import { ContextType } from '@/common/prisma/enum';
+import { ContextType } from '@repo/shared-types';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateQuestionDto extends BaseDto {

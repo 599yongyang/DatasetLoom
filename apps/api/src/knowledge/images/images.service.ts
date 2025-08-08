@@ -5,7 +5,7 @@ import {FileUtil} from '@/utils/file.util';
 import {PrismaService} from '@/common/prisma/prisma.service';
 import sizeOf from 'image-size';
 import {QueryImageDto} from '@/knowledge/images/dto/query-image.dto';
-import {ContextType} from '@/common/prisma/enum';
+import {ContextType} from '@repo/shared-types';
 import {ModelConfigWithProvider} from "@/common/prisma/type";
 import {doubleCheckModelOutput} from "@/utils/model.util";
 import {AIService} from "@/common/ai/ai.service";

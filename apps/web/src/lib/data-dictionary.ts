@@ -1,5 +1,4 @@
 import { CheckCircle2Icon, CircleX, Clock, LoaderIcon } from 'lucide-react';
-import { ParseStatusType } from '@prisma-enum';
 
 export const chunkTypeOptions = [
     { value: 'auto', label: '自动', desc: '自动进行分块设置' },

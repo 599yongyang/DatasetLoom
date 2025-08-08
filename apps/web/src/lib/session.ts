@@ -3,7 +3,7 @@
 import { jwtVerify, SignJWT } from 'jose';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { ProjectRole } from '@prisma-enum';
+import { ProjectRole } from '@repo/shared-types';
 
 export type UserInfo = {
     id: string;

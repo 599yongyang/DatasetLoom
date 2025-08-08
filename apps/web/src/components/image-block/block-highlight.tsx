@@ -1,7 +1,7 @@
 import {stringToColor} from '@/lib/utils';
 import React from 'react';
 import {BACKEND_URL} from "@/constants/config";
-import type {ImageWithImageBlock} from "@prisma-type";
+import type {ImageWithImageBlock} from "@/types/interfaces";
 
 export default function BlockHighlight({image}: { image: ImageWithImageBlock; }) {
     const {id, url, fileName, ImageBlock: block, width, height} = image;

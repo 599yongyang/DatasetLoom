@@ -1,13 +1,13 @@
-import {fetcher} from '@/lib/utils';
+import { fetcher } from '@/lib/utils';
 import useSWRInfinite from 'swr/infinite';
-import type {Chat} from '@prisma/client';
+import type { Chat } from '@/types/interfaces';
 import useSWR from 'swr';
 
 export function useGetChatHistory(projectId: string) {
     const getKey = (pageIndex: number, previousPageData: ChatHistory | null) =>
         getChatHistoryPaginationKey(pageIndex, previousPageData, projectId);
 
-    const {data, setSize, isValidating, isLoading, mutate} = useSWRInfinite<ChatHistory>(getKey, fetcher, {
+    const { data, setSize, isValidating, isLoading, mutate } = useSWRInfinite<ChatHistory>(getKey, fetcher, {
         fallbackData: []
     });
 
@@ -21,7 +21,7 @@ export function useGetChatHistory(projectId: string) {
 }
 
 export function useGetChatById(id: string, projectId: string) {
-    const {data, error, isLoading, mutate} = useSWR(`/${projectId}/chat/info?id=${id}`, fetcher);
+    const { data, error, isLoading, mutate } = useSWR(`/${projectId}/chat/info?id=${id}`, fetcher);
     return {
         data: data || [],
         isLoading: !error && !data,
@@ -31,7 +31,7 @@ export function useGetChatById(id: string, projectId: string) {
 }
 
 export function useGetMessagesByChatId(chatId: string, projectId: string) {
-    const {data, error, isLoading, mutate} = useSWR(`/${projectId}/chat/messages?chatId=${chatId}`, fetcher);
+    const { data, error, isLoading, mutate } = useSWR(`/${projectId}/chat/messages?chatId=${chatId}`, fetcher);
     return {
         data: data || [],
         isLoading: !error && !data,

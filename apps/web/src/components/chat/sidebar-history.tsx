@@ -19,7 +19,7 @@ import {SidebarGroup, SidebarGroupContent, SidebarMenu, useSidebar} from '@/comp
 import {ChatItem} from './sidebar-history-item';
 import {LoaderIcon} from './icons';
 import {useGetChatHistory} from '@/hooks/query/use-chat';
-import type {Chat} from '@prisma/client';
+import type {Chat} from '@/types/interfaces';
 import apiClient from "@/lib/axios";
 
 type GroupedChats = {

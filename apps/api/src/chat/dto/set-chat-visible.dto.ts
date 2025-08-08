@@ -1,5 +1,5 @@
 import { IsString } from 'class-validator';
-import { ChatVisibilityType } from '@/common/prisma/enum';
+import { ChatVisibilityType } from '@repo/shared-types';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SetChatVisibleDto {

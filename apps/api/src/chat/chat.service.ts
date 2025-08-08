@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {PrismaService} from "@/common/prisma/prisma.service";
 import {Chat, ChatMessages} from '@prisma/client';
-import {ChatVisibilityType} from "@/common/prisma/enum";
+import {ChatVisibilityType} from "@repo/shared-types";
 
 
 type PaginationParams = {

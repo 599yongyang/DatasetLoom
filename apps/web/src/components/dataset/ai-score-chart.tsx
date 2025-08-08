@@ -9,12 +9,12 @@ import {
     Legend,
     Tooltip
 } from 'recharts';
-import type {DatasetEvaluation} from '@prisma/client';
+import type {DatasetEvaluation} from '@/types/interfaces';
 import {Button} from '@/components/ui/button';
 import {Atom, Plus} from 'lucide-react';
 import {toast} from 'sonner';
 import {WithPermission} from '@/components/common/permission-wrapper';
-import {ContextType, ModelConfigType, ProjectRole} from '@prisma-enum';
+import {ContextType, ModelConfigType, ProjectRole} from '@repo/shared-types';
 import {useParams} from 'next/navigation';
 import {useDatasetEvalList} from '@/hooks/query/use-dataset-eval';
 import {useAtomValue} from 'jotai/index';

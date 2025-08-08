@@ -22,7 +22,7 @@ import { ExportQaDatasetDto } from '@/dataset/qa/dto/export-qa-dataset.dto';
 import { ExportDatasetService } from '@/dataset/qa/export-dataset.service';
 import { createReadStream } from 'node:fs';
 import { PreferencePairDto } from '@/dataset/qa/dto/preference-pair.dto';
-import { ContextType, ModelConfigType, ProjectRole } from '@/common/prisma/enum';
+import { ContextType, ModelConfigType, ProjectRole } from '@repo/shared-types';
 import { ModelConfigService } from '@/setting/model-config/model-config.service';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';

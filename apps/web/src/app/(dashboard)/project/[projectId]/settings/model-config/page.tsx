@@ -10,7 +10,7 @@ import {Separator} from '@/components/ui/separator';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Label} from '@/components/ui/label';
 import * as React from 'react';
-import type {ModelProviders, ModelConfig} from '@prisma/client';
+import type {ModelProviders, ModelConfig} from '@/types/interfaces';
 import {ModelIcon, ProviderIcon} from '@lobehub/icons';
 import {useParams} from 'next/navigation';
 import {toast} from 'sonner';

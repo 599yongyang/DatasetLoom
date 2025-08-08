@@ -3,7 +3,7 @@ import { ModelConfigService } from './model-config.service';
 import { SaveModelConfigDto } from './dto/save-model-config.dto';
 import { ResponseUtil } from '@/utils/response.util';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('模型服务配置')

@@ -1,9 +1,9 @@
-import {toast} from 'sonner';
-import axios, {type CancelTokenSource} from 'axios';
-import {i18n} from '@/i18n';
-import type {DatasetStrategyParams} from '@/types/dataset';
-import type {Questions} from '@prisma/client';
-import apiClient from "@/lib/axios";
+import { toast } from 'sonner';
+import axios, { type CancelTokenSource } from 'axios';
+import { i18n } from '@/i18n';
+import type { DatasetStrategyParams } from '@/types/dataset';
+import type { Questions } from '@/types/interfaces';
+import apiClient from '@/lib/axios';
 
 // 封装通用的请求处理逻辑
 async function baseGenerateDataset(url: string, data: any, cancelSource: CancelTokenSource, questionInfo: string) {
@@ -15,7 +15,7 @@ async function baseGenerateDataset(url: string, data: any, cancelSource: CancelT
             onClick: () => {
                 cancelSource.cancel('用户取消了操作');
                 toast.dismiss(loadingToastId);
-                toast.info('已取消生成', {position: 'top-right'});
+                toast.info('已取消生成', { position: 'top-right' });
             }
         }
     });
@@ -25,14 +25,14 @@ async function baseGenerateDataset(url: string, data: any, cancelSource: CancelT
             cancelToken: cancelSource.token
         });
 
-        toast.success('生成成功', {id: loadingToastId});
+        toast.success('生成成功', { id: loadingToastId });
         return response.data;
     } catch (error) {
         if (axios.isCancel(error)) {
-            toast.info('已取消生成', {id: loadingToastId, position: 'top-right'});
+            toast.info('已取消生成', { id: loadingToastId, position: 'top-right' });
         } else {
             const message = error instanceof Error ? error.message : '生成失败';
-            toast.error(message, {id: loadingToastId, position: 'top-right'});
+            toast.error(message, { id: loadingToastId, position: 'top-right' });
         }
         throw error;
     }
@@ -85,13 +85,13 @@ export function useGenerateDataset() {
                 onClick: () => {
                     sources.forEach(source => source.cancel('用户取消了操作'));
                     toast.dismiss(loadingToastId);
-                    toast.info('已取消所有生成请求', {position: 'top-right'});
+                    toast.info('已取消所有生成请求', { position: 'top-right' });
                 }
             }
         });
 
         const updateLoadingToast = () => {
-            toast.loading(`正在处理请求 (${completed}/${total})...`, {id: loadingToastId});
+            toast.loading(`正在处理请求 (${completed}/${total})...`, { id: loadingToastId });
         };
 
         const processRequest = async (question: Questions) => {
@@ -110,7 +110,7 @@ export function useGenerateDataset() {
 
                 completed++;
                 updateLoadingToast();
-                toast.success(`${question.question} 完成`, {position: 'top-right'});
+                toast.success(`${question.question} 完成`, { position: 'top-right' });
                 return response;
             } catch (error) {
                 completed++;

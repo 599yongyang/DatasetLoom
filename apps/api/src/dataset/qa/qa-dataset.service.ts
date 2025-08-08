@@ -4,7 +4,7 @@ import {QueryQaDatasetDto} from '@/dataset/qa/dto/query-qa-dataset.dto';
 import {DatasetSamples, Prisma, Questions} from '@prisma/client';
 import {PrismaService} from '@/common/prisma/prisma.service';
 import {ResponseUtil} from "@/utils/response.util";
-import {ContextType, EvalSourceType} from "@/common/prisma/enum";
+import {ContextType, EvalSourceType} from "@repo/shared-types";
 import {QuestionService} from "@/question/question.service";
 import {TextDatasetGenerator} from "@/dataset/qa/generators/text-dataset.generator";
 import {DatasetSampleWithQuestion, ModelConfigWithProvider, QuestionsWithDatasetSample} from "@/common/prisma/type";

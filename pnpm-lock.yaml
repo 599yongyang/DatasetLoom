@@ -95,6 +95,9 @@ importers:
       '@prisma/client':
         specifier: 6.13.0
         version: 6.13.0(prisma@6.13.0)(typescript@5.8.3)
+      '@repo/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       ai:
         specifier: ^4.3.19
         version: 4.3.19(react@19.1.1)(zod@4.0.14)
@@ -122,6 +125,9 @@ importers:
       epub2:
         specifier: ^3.0.2
         version: 3.0.2(ts-toolbelt@9.6.0)
+      express:
+        specifier: ^5.1.0
+        version: 5.1.0
       html-to-text:
         specifier: ^9.0.5
         version: 9.0.5
@@ -372,6 +378,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.4
         version: 1.2.7(@types/react-dom@19.1.1)(@types/react@19.1.0)(react-dom@19.1.1)(react@19.1.1)
+      '@repo/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@tabler/icons-react':
         specifier: ^3.31.0
         version: 3.34.1(react@19.1.1)
@@ -631,6 +640,12 @@ importers:
       typescript-eslint:
         specifier: ^8.37.0
         version: 8.38.0(eslint@9.32.0)(typescript@5.8.3)
+
+  packages/shared-types:
+    devDependencies:
+      typescript:
+        specifier: ^5.0.0
+        version: 5.8.3
 
   packages/typescript-config: {}
 

@@ -9,7 +9,7 @@ import {ProjectService} from '@/project/project.service';
 import {doubleCheckModelOutput} from '@/utils/model.util';
 import {Chunks, Prisma, Questions} from '@prisma/client';
 import {QuestionService} from '@/question/question.service';
-import {ContextType} from '@/common/prisma/enum';
+import {ContextType} from '@repo/shared-types';
 import {ModelConfigWithProvider} from '@/common/prisma/type';
 import {AIService} from "@/common/ai/ai.service";
 import {getQuestionPrompt} from "@/common/ai/prompts/question";

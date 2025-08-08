@@ -11,7 +11,7 @@ import { Response } from 'express';
 import { SetChatVoteDto } from '@/chat/dto/set-chat-vote.dto';
 import { SetChatVisibleDto } from '@/chat/dto/set-chat-visible.dto';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('模型对话')
@@ -153,7 +153,7 @@ export class ChatController {
     @ApiOperation({ summary: '修改会话可见性' })
     @Permission(ProjectRole.OWNER)
     async setVisible(@Body() setChatVisibleDto: SetChatVisibleDto) {
-        const { chatId, visibility } = setChatVisibleDto;
+        const { chatId } = setChatVisibleDto;
         const chat = await this.chatService.getInfoById(chatId);
 
         if (!chat) {

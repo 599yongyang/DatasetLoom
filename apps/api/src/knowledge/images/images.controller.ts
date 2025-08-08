@@ -16,7 +16,7 @@ import { QueryImageDto } from '@/knowledge/images/dto/query-image.dto';
 import { ModelConfigService } from '@/setting/model-config/model-config.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 
 @ApiTags('图像库')
 @Controller(':projectId/images')

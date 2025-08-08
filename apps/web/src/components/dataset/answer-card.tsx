@@ -1,6 +1,6 @@
 'use client';
 
-import type {DatasetSamples, PreferencePair} from '@prisma/client';
+import type {DatasetSamples, PreferencePair} from '@/types/interfaces';
 import {Badge} from '@/components/ui/badge';
 import {Edit, Save, Star, ThumbsDown, ThumbsUp, X} from 'lucide-react';
 import {toast} from 'sonner';
@@ -8,7 +8,7 @@ import {nanoid} from 'nanoid';
 import {Textarea} from '@/components/ui/textarea';
 import {ModelTag} from '@lobehub/icons';
 import {WithPermission} from '@/components/common/permission-wrapper';
-import {ProjectRole} from '@prisma-enum';
+import {ProjectRole} from '@repo/shared-types';
 import {Button} from '@/components/ui/button';
 import {useState} from 'react';
 import {cn} from '@/lib/utils';

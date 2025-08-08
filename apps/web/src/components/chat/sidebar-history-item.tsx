@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { CheckCircleFillIcon, LockIcon, MoreHorizontalIcon, ShareIcon, TrashIcon } from './icons';
 import {memo, useState} from 'react';
-import type { Chat } from '@prisma/client';
+import type { Chat } from '@/types/interfaces';
 import { useParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import { ChatVisibilityType } from '@prisma-enum';
+import { ChatVisibilityType } from '@repo/shared-types';
 import { Users } from 'lucide-react';
 import * as React from "react";
 import {getSession, Session} from "@/lib/session";

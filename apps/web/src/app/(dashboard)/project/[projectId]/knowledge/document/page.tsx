@@ -11,7 +11,7 @@ import {DataTable} from '@/components/data-table/data-table';
 import {useDocuments} from '@/hooks/query/use-documents';
 import {ChunkStrategyDialog} from '@/components/chunks/chunk-strategy-dialog';
 import {toast} from 'sonner';
-import {ProjectRole} from '@prisma-enum';
+import {ProjectRole} from '@repo/shared-types';
 import {WithPermission} from '@/components/common/permission-wrapper';
 import {useDocumentsTableColumns} from '@/hooks/table-columns/use-document';
 import apiClient from "@/lib/axios";

@@ -10,15 +10,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@prisma/client": [
-        "../api/node_modules/@prisma/client"
-      ],
-      "@prisma-enum": [
-        "../api/src/common/prisma/enum"
-      ],
-      "@prisma-type": [
-        "../api/src/common/prisma/type"
       ]
     }
   },

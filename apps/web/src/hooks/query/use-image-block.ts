@@ -1,9 +1,9 @@
 import useSWR from 'swr';
 import { buildURL, fetcher } from '@/lib/utils';
 import { useMemo } from 'react';
-import type { ImageBlockWithImage } from '@prisma-type';
+import type { ImageBlockWithImage } from '@/types/interfaces';
 import type { UIContextType } from '@/lib/data-dictionary';
-import { ContextType } from '@prisma-enum';
+import { ContextType } from '@repo/shared-types';
 
 interface Response {
     data: ImageBlockWithImage[];

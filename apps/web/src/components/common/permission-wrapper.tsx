@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ProjectRole } from '@prisma-enum';
+import type { ProjectRole } from '@repo/shared-types';
 import { useAtomValue } from 'jotai/index';
 import { userInfoAtom } from '@/atoms';
 import { hasPermission } from '@/lib/utils';

@@ -1,5 +1,5 @@
 import { atomWithStorage } from 'jotai/utils';
-import type { ModelConfig } from '@prisma/client';
+import type { ModelConfig } from '@/types/interfaces';
 import { atom } from 'jotai';
 import { UserInfo } from '@/lib/session';
 

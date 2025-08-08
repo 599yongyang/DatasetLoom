@@ -9,7 +9,7 @@ import {availableRoles, projectRoleDescMap, projectRoleMap} from '@/lib/data-dic
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {useParams} from 'next/navigation';
-import {ProjectRole} from '@prisma-enum'
+import {ProjectRole} from '@repo/shared-types'
 import apiClient from "@/lib/axios";
 
 export function ChangeMemberRoleDialog({

@@ -6,7 +6,7 @@ import { ResponseUtil } from '@/utils/response.util';
 import { QueryQuestionDto } from '@/question/dto/query-question.dto';
 import { Questions } from '@prisma/client';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('问题管理')

@@ -99,7 +99,8 @@
     "usehooks-ts": "^3.1.1",
     "vaul": "^1.1.2",
     "word-extractor": "^1.0.4",
-    "zod": "^3.24.3"
+    "zod": "^3.24.3",
+    "@repo/shared-types": "workspace:*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

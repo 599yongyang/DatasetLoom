@@ -17,7 +17,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/compo
 import {Pagination} from '@/components/data-table/pagination';
 import {useAtom} from 'jotai';
 import {datasetViewModeAtom} from '@/atoms';
-import {ProjectRole} from '@prisma-enum';
+import {ProjectRole} from '@repo/shared-types';
 import {WithPermission} from '@/components/common/permission-wrapper';
 import {useDatasetTableColumns} from '@/hooks/table-columns/use-dataset';
 import MentionsTextarea from '@/components/ui/mentions-textarea';

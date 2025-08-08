@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { z } from 'zod';
-import { ProjectRole } from '@prisma-enum';
+import { ProjectRole } from '@repo/shared-types';
 
 const LucideIconSchema = z.custom<LucideIcon>(
     data => {

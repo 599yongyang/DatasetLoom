@@ -1,38 +1,28 @@
 'use client';
 
-import {notFound, useParams, useRouter} from 'next/navigation';
-import type {UIMessage} from 'ai';
-import {SidebarHistory} from '@/components/chat/sidebar-history';
+import { notFound, useParams, useRouter } from 'next/navigation';
+import type { UIMessage } from 'ai';
+import { SidebarHistory } from '@/components/chat/sidebar-history';
 import * as React from 'react';
-import {ResizableHandle, ResizablePanel, ResizablePanelGroup} from '@/components/ui/resizable';
-import {Button} from '@/components/ui/button';
-import {Chat} from '@/components/chat/chat';
-import {useGetChatById, useGetMessagesByChatId} from '@/hooks/query/use-chat';
-import type {ChatMessages} from '@prisma/client';
-import {getSession, Session} from "@/lib/session";
-import {useState} from "react";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { Button } from '@/components/ui/button';
+import { Chat } from '@/components/chat/chat';
+import { useGetChatById, useGetMessagesByChatId } from '@/hooks/query/use-chat';
+import type { ChatMessages } from '@/types/interfaces';
+import { useAtomValue } from 'jotai/index';
+import { userInfoAtom } from '@/atoms';
 
 export default function Page() {
-    const {projectId, id}: { projectId: string; id: string } = useParams();
+    const { projectId, id }: { projectId: string; id: string } = useParams();
     const router = useRouter();
-    const [session, setSession] = useState<Session | null>();
-
-    React.useEffect(() => {
-        const fetchSession = async () => {
-            const sessionData = await getSession();
-            setSession(sessionData);
-        };
-
-        fetchSession();
-    }, []);
-
-    const {data: chat} = useGetChatById(id, projectId);
+    const userInfo = useAtomValue(userInfoAtom);
+    const { data: chat } = useGetChatById(id, projectId);
 
     if (!chat) {
         notFound();
     }
 
-    const {data: messagesData} = useGetMessagesByChatId(id, projectId);
+    const { data: messagesData } = useGetMessagesByChatId(id, projectId);
 
     function convertToUIMessages(messages: Array<ChatMessages>): Array<UIMessage> {
         return messages.map(message => ({
@@ -58,14 +48,14 @@ export default function Page() {
                             新建对话
                         </Button>
                     </div>
-                    <SidebarHistory/>
+                    <SidebarHistory />
                 </ResizablePanel>
-                <ResizableHandle withHandle/>
+                <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={80}>
                     <Chat
                         id={chat.id}
                         initialMessages={convertToUIMessages(messagesData)}
-                        isReadonly={session?.user?.id !== chat.userId}
+                        isReadonly={userInfo.id !== chat.userId}
                     />
                 </ResizablePanel>
             </ResizablePanelGroup>

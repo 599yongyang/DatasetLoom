@@ -15,7 +15,7 @@ import {getMenuConfig} from '@/constants/menus';
 import {useParams, usePathname} from 'next/navigation';
 import Link from 'next/link';
 import {Store} from 'lucide-react';
-import {ProjectRole} from '@prisma-enum';
+import {ProjectRole} from '@repo/shared-types';
 import {UserInfo} from "@/lib/session";
 import {IMenu} from "@/schema/menu";
 

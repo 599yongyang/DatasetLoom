@@ -6,7 +6,7 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {Loader2, XCircle, CheckCircle} from 'lucide-react';
 import {chunkConfigHashAtom} from '@/atoms';
-import type {Chunks} from '@prisma/client';
+import type {Chunks} from '@/types/interfaces';
 import {Markdown} from '@/components/chat/markdown';
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
 import {useSetAtom} from 'jotai';

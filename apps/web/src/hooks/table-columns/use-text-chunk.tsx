@@ -1,22 +1,22 @@
-import type {ColumnDef} from '@tanstack/react-table';
-import {useTranslation} from 'react-i18next';
-import {Badge} from '@/components/ui/badge';
-import {Button} from '@/components/ui/button';
-import {FileQuestion, Hash, Tags, Trash2} from 'lucide-react';
-import {toast} from 'sonner';
-import {Checkbox} from '@/components/ui/checkbox';
-import {useParams} from 'next/navigation';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
+import type { ColumnDef } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { FileQuestion, Hash, Tags, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useParams } from 'next/navigation';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
 import React from 'react';
-import {ProjectRole} from '@prisma-enum'
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
-import {ChunkInfoSheet} from '@/components/chunks/chunk-info-sheet';
-import {useAtomValue} from 'jotai/index';
-import {selectedModelInfoAtom} from '@/atoms';
+import { ProjectRole } from '@repo/shared-types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChunkInfoSheet } from '@/components/chunks/chunk-info-sheet';
+import { useAtomValue } from 'jotai/index';
+import { selectedModelInfoAtom } from '@/atoms';
 import i18n from 'i18next';
-import {WithPermission} from '@/components/common/permission-wrapper';
-import {Chunks} from "@prisma/client";
-import apiClient from "@/lib/axios";
+import { WithPermission } from '@/components/common/permission-wrapper';
+import { Chunks } from '@/types/interfaces';
+import apiClient from '@/lib/axios';
 
 export function useTextChunkTableColumns({
                                              mutateChunks,
@@ -25,8 +25,8 @@ export function useTextChunkTableColumns({
     mutateChunks: () => void;
     onOpenDialog?: (chunk: Chunks) => void;
 }) {
-    const {t} = useTranslation('chunk');
-    const {projectId}: { projectId: string } = useParams();
+    const { t } = useTranslation('chunk');
+    const { projectId }: { projectId: string } = useParams();
     const model = useAtomValue(selectedModelInfoAtom);
     const handleAnalysis = async (chunkId: string) => {
         toast.promise(
@@ -63,7 +63,7 @@ export function useTextChunkTableColumns({
     const columns: ColumnDef<Chunks>[] = [
         {
             id: 'select',
-            header: ({table}) => (
+            header: ({ table }) => (
                 <div className="flex items-center justify-center">
                     <Checkbox
                         checked={
@@ -74,7 +74,7 @@ export function useTextChunkTableColumns({
                     />
                 </div>
             ),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className="flex items-center justify-center">
                     <Checkbox
                         checked={row.getIsSelected()}
@@ -88,14 +88,14 @@ export function useTextChunkTableColumns({
         {
             id: 'content',
             header: t('table_columns.info'),
-            cell: ({row}) => {
+            cell: ({ row }) => {
                 const item = row.original;
                 return (
                     <div>
                         {/* 文件名和分块信息 */}
                         <div className="flex items-center gap-2 mb-2">
                             <div className="flex items-center gap-2">
-                                <Hash className="h-3 w-3 text-gray-400"/>
+                                <Hash className="h-3 w-3 text-gray-400" />
                                 <span className="font-medium  text-sm">{item.name}</span>
                             </div>
 
@@ -179,7 +179,7 @@ export function useTextChunkTableColumns({
         {
             id: 'metadata',
             header: t('table_columns.metadata'),
-            cell: ({row}) => {
+            cell: ({ row }) => {
                 const item = row.original;
                 return (
                     <div className="py-1 space-y-1">
@@ -231,17 +231,17 @@ export function useTextChunkTableColumns({
         {
             id: 'actions',
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,
-            cell: ({row}) => {
+            cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-1">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                             <Button variant="ghost" size="icon" onClick={() => handleAnalysis(row.original.id)}>
-                                <Tags/>
+                                <Tags />
                             </Button>
                             <Button variant="ghost" size="icon" onClick={() => onOpenDialog?.(row.original)}>
-                                <FileQuestion/>
+                                <FileQuestion />
                             </Button>
-                            <ChunkInfoSheet item={row.original} refresh={mutateChunks}/>
+                            <ChunkInfoSheet item={row.original} refresh={mutateChunks} />
                         </WithPermission>
                         <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                             <ConfirmAlert
@@ -250,7 +250,7 @@ export function useTextChunkTableColumns({
                                 onConfirm={() => handleDeleteChunk(row.original.id)}
                             >
                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-red-500">
-                                    <Trash2/>
+                                    <Trash2 />
                                 </Button>
                             </ConfirmAlert>
                         </WithPermission>

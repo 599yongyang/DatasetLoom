@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import type { ChatHistory } from '@/components/chat/sidebar-history';
 import { useGetChatHistory } from '@/hooks/query/use-chat';
-import { ChatVisibilityType } from '@prisma-enum';
+import { ChatVisibilityType } from '@repo/shared-types';
 import apiClient from "@/lib/axios";
 
 export function useChatVisibility({

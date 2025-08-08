@@ -8,25 +8,24 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
-import {Button} from '@/components/ui/button';
-import {Badge} from '@/components/ui/badge';
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
-import {Textarea} from '@/components/ui/textarea';
-import {useForm} from 'react-hook-form';
-import {z} from 'zod';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {toast} from 'sonner';
-import {useParams} from 'next/navigation';
-import React, {type ReactNode, useEffect, useState} from 'react';
-import {useTranslation} from 'react-i18next';
-import {type Tag, TagInput} from 'emblor';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { useParams } from 'next/navigation';
+import React, { type ReactNode, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { type Tag, TagInput } from 'emblor';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
-import {useImageBlocksByImageId} from '@/hooks/query/use-image-block';
-import type {UIContextType} from '@/lib/data-dictionary';
-import {ContextType} from '@prisma-enum';
-import type {ImageBlock} from '@prisma/client';
-import {QuestionsWithDatasetSample} from "@prisma-type";
-import apiClient from "@/lib/axios";
+import { useImageBlocksByImageId } from '@/hooks/query/use-image-block';
+import type { UIContextType } from '@/lib/data-dictionary';
+import { ContextType } from '@repo/shared-types';
+import type { ImageBlock, QuestionsWithDatasetSample } from '@/types/interfaces';
+import apiClient from '@/lib/axios';
 
 const formSchema = z.object({
     id: z.string(),
@@ -48,9 +47,9 @@ export function QuestionDialog({
     refresh: () => void;
     children?: ReactNode;
 }) {
-    const {projectId}: { projectId: string } = useParams();
-    const {t} = useTranslation('question');
-    const {data: imageBlocks = []} = useImageBlocksByImageId(
+    const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('question');
+    const { data: imageBlocks = [] } = useImageBlocksByImageId(
         projectId,
         item.contextId,
         item.contextType as UIContextType
@@ -131,7 +130,7 @@ export function QuestionDialog({
                 <FormField
                     control={form.control}
                     name="question"
-                    render={({field}) => (
+                    render={({ field }) => (
                         <FormItem>
                             <FormLabel>{t('dialog.question')}</FormLabel>
                             <FormControl>
@@ -142,7 +141,7 @@ export function QuestionDialog({
                                     className="min-h-[100px] w-full rounded-md border p-2"
                                 />
                             </FormControl>
-                            <FormMessage/>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />
@@ -153,13 +152,13 @@ export function QuestionDialog({
             <FormField
                 control={form.control}
                 name="question"
-                render={({field}) => (
+                render={({ field }) => (
                     <FormItem>
                         <FormLabel>{t('dialog.question')}</FormLabel>
                         <FormControl>
-                            <Textarea {...field} className="min-h-[100px]"/>
+                            <Textarea {...field} className="min-h-[100px]" />
                         </FormControl>
-                        <FormMessage/>
+                        <FormMessage />
                     </FormItem>
                 )}
             />
@@ -180,7 +179,7 @@ export function QuestionDialog({
                         </Button>
                         {item.DatasetSamples.length > 0 && (
                             <Badge variant="outline" className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3">
-                                {t('answer_count', {count: item.DatasetSamples.length})}
+                                {t('answer_count', { count: item.DatasetSamples.length })}
                             </Badge>
                         )}
                     </div>
@@ -199,7 +198,7 @@ export function QuestionDialog({
                         <FormField
                             control={form.control}
                             name="label"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem {...field}>
                                     <FormLabel>{t('dialog.tag')}</FormLabel>
                                     <FormControl>
@@ -221,7 +220,7 @@ export function QuestionDialog({
                                             setActiveTagIndex={setActiveTagIndex}
                                         />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />

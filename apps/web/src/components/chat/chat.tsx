@@ -9,7 +9,7 @@ import {MultimodalInput} from '@/components/chat/multimodal-input';
 import {Messages} from '@/components/chat/messages';
 import {toast} from 'sonner';
 import {unstable_serialize} from 'swr/infinite';
-import type {ChatMessageVote} from '@prisma/client';
+import type {ChatMessageVote} from '@/types/interfaces';
 import {nanoid} from 'nanoid';
 import type {ChatHistory} from '@/components/chat/sidebar-history';
 import {getChatHistoryPaginationKey} from '@/hooks/query/use-chat';

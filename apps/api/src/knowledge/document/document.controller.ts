@@ -19,7 +19,7 @@ import { ParserConfigService } from '@/setting/parser-config/parser-config.servi
 import type { Parser } from '@/utils/parser/types';
 import { DocumentChunkGraphService } from '@/chunk/document-chunk/document-chunk-graph.service';
 import { Permission } from '@/auth/decorators/permission.decorator';
-import { ProjectRole } from '@/common/prisma/enum';
+import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('文档库')
