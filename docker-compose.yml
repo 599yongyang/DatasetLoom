@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3088:3088"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/dsl.sqlite
+    env_file:
+      - ./.env
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3088/api" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    build:
+      context: .
+      dockerfile: web.Dockerfile
+    ports:
+      - "2088:2088"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./.env
+    depends_on:
+      - api
