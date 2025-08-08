@@ -33,7 +33,8 @@ export class ProjectMemberController {
     @Get()
     @ApiOperation({ summary: '获取项目成员列表' })
     @Permission(ProjectRole.OWNER)
-    async getList(@Query() queryDto: QueryProjectMemberDto) {
+    async getList(@Param('projectId') projectId: string, @Query() queryDto: QueryProjectMemberDto) {
+        queryDto.projectId = projectId;
         const data = await this.projectMemberService.getListPagination(queryDto);
         return ResponseUtil.success(data);
     }

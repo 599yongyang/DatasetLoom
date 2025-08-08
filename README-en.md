@@ -1,4 +1,4 @@
-# DatasetLoom
+# DatasetLoom — Intelligent Dataset Platform for Multimodal Large Model Training
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=TypeScript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-black?logo=nextdotjs&logoColor=white)
@@ -8,112 +8,82 @@
 ![Turborepo](https://img.shields.io/badge/Turborepo-3578E5?logo=turborepo&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-> An intelligent dataset construction and evaluation platform for **multimodal large model training**, built with **Next.js + NestJS**, supporting end-to-end workflows including image-text Q&A, image captioning, DPO datasets, model scoring, and training corpus export.
+> 🚀 An intelligent platform for building and evaluating **multimodal training datasets**, supporting image-text QA, image captioning, DPO datasets, AI scoring, and training corpus export.
 
-![DatasetLoom Logo](/assets/logo.svg)
+<div align="center">
+  <img src="./assets/logo.svg" alt="DatasetLoom Logo" width="80%" />
+</div>
+
+<div align="center">
+  🌐 <a href="README.md">简体中文</a> | <strong>English</strong>
+</div>
 
 ---
 
-[[简体中文](README.md) | [English](README-en.md)]
+## 🌟 Project Overview
 
----
+**DatasetLoom** is a high-quality **dataset construction platform for multimodal AI training**, designed for AI engineers, researchers, and teams.
 
-## 🧩 Project Overview
+Built on a modern **Monorepo architecture** with **Next.js + NestJS + Turborepo**, it enables clean separation between frontend and backend, with high maintainability and extensibility. The platform supports a full pipeline from document parsing and image annotation to model evaluation and corpus export, empowering efficient creation of training data for SFT, DPO, VQA, Image Captioning, and more.
 
-**DatasetLoom** is a **high-quality multimodal training dataset construction platform** designed for AI engineers, researchers, and teams.
-
-Built on a modern **Turborepo + pnpm** monorepo architecture, it decouples the frontend (Next.js) and backend (NestJS) for independent development and deployment.
-
-The platform supports various LLM and multimodal model training tasks, including:
-- Supervised Fine-Tuning (SFT)
-- Preference Alignment (DPO)
-- Image Captioning
-- Visual Question Answering (VQA)
-- Model Output Scoring (AI Evaluation)
-- Multi-model Comparison (GPT-4V, LLaVA, CLIP, etc.)
+🎯 Key Capabilities:
+- Supervised Fine-Tuning (SFT) corpus generation
+- Preference alignment (DPO) dataset construction
+- Visual Question Answering (VQA) and image captioning
+- AI-powered output scoring and model comparison
+- Support for GPT-4V, LLaVA, Qwen-VL, and other multimodal models
+- Multi-user collaboration with role-based access control
 
 ---
 
 ## ✨ Core Features
 
-| Category | Description |
+| Feature | Description |
 |--------|-------------|
-| **Frontend-Backend Separation** | Independent frontend (Next.js) and backend (NestJS) development with clean, documented APIs |
-| **Multimodal Dataset Creation** | Support for generating multimodal training data including images, text, and image-text Q&A |
-| **Model Evaluation & Scoring** | AI-powered scoring, multi-model comparison, and quality assessment |
-| **Document Parsing** | Upload and process PDF, Word, Markdown, TXT files; extract chunks and knowledge |
-| **Image Annotation & Chunking** | Region-based image labeling, image captioning, and VQA generation |
-| **User & Permission Management** | Login, registration, role-based access control (Admin, Collaborator, Viewer) |
-| **Data Persistence** | All data automatically saved to the database |
-| **Training Corpus Export** | Export datasets in JSON, CSV, or HuggingFace Dataset formats |
-| **API Documentation** | Backend integrates Swagger; visit `/api-docs` to view and test all APIs |
+| **Multimodal Data Support** | Upload and parse images, PDF, Word, Markdown, TXT, and more |
+| **Smart Document Chunking** | Auto-split documents by paragraph, heading, or semantic boundaries |
+| **Image Annotation & Generation** | Region labeling, image captioning, and VQA generation |
+| **AI Scoring System** | Automatically score model outputs using LLMs, with multi-model comparison |
+| **DPO/SFT Dataset Builder** | Configurable strategies to generate preference pairs or instruction-tuning data |
+| **User & Permission Management** | Role-based access (Admin, Collaborator, Guest) |
+| **Training Corpus Export** | Export datasets in JSON, CSV, or HuggingFace Dataset format |
+| **API Documentation** | Fully documented REST APIs via Swagger at `/api-docs` |
+| **Multi-Database Support** | SQLite (default), MySQL, PostgreSQL, SQL Server |
 
 ---
 
-## 📸 Screenshots
+## 📸 Preview Screenshots
 
 | Login Page | Project List |
-|-----------|--------------|
-| ![Login Screenshot](/assets/screenshot/login.png) | ![Project List Screenshot](/assets/screenshot/project-list.png) |
-| Knowledge Base | Chunking Strategy |
-| ![Knowledge Base Screenshot](/assets/screenshot/document-list.png) | ![Chunking Strategy Screenshot](/assets/screenshot/document-chunker.png) |
-| Chunk List | Chunk Merge |
-| ![Chunk List Screenshot](/assets/screenshot/chunk-list.png) | ![Chunk Merge Screenshot](/assets/screenshot/chunk-merge.png) |
-| Question Generation Strategy | Question List |
-| ![Question Strategy Screenshot](/assets/screenshot/question-strategy.png) | ![Question List Screenshot](/assets/screenshot/question-list.png) |
-| Dataset Generation Strategy | Dataset List |
-| ![Dataset Strategy Screenshot](/assets/screenshot/dataset-strategy.png) | ![Dataset List Screenshot](/assets/screenshot/dataset-list.png) |
-| Dataset Details | Dataset Export |
-| ![Dataset Details Screenshot](/assets/screenshot/dataset-info.png) | ![Dataset Export Screenshot](/assets/screenshot/dataset-export.png) |
+|----------|--------------|
+| ![Login](./assets/screenshot/login.png) | ![Project List](./assets/screenshot/project-list.png) |
 
-> 🔍 **API Documentation Preview**:  
-> After launching the backend service, visit [http://localhost:3088/api-docs](http://localhost:3088/api-docs) to access the auto-generated Swagger documentation.
+| Document Management | Chunking Strategy |
+|---------------------|-------------------|
+| ![Document List](./assets/screenshot/document-list.png) | ![Chunker](./assets/screenshot/document-chunker.png) |
+
+| Question List | Dataset Export |
+|--------------|----------------|
+| ![Questions](./assets/screenshot/question-list.png) | ![Export](./assets/screenshot/dataset-export.png) |
+
+> 🔍 **API Docs**: [http://localhost:3088/api-docs](http://localhost:3088/api-docs)
 
 ---
 
-## 📦 Database Support
+## 🛠 Tech Stack
 
-DatasetLoom supports the following SQL database engines, allowing flexible selection based on your deployment needs:
-
-| Database | Description |
-|---------|-------------|
-| ✅ SQLite | Default local development database; no setup required, ideal for rapid prototyping |
-| ✅ MySQL | Suitable for medium-scale deployments with connection pooling and index optimization |
-| ✅ PostgreSQL | Recommended for production; supports JSONB, full-text search, and semantic vector storage |
-| ✅ SQL Server | Enterprise-grade deployment support, ideal for high-security environments (e.g., finance, healthcare) |
-
-### 🛠 How to Switch Databases
-
-Modify the `provider` field in `prisma/schema.prisma`:
-
-```prisma
-datasource db {
-  provider = "sqlite" // Options: "postgresql", "mysql", "sqlserver"
-  url      = env("DATABASE_URL")
-}
-```
-
-### 🔁 Example DATABASE_URL Configurations (`.env` file):
-
-```env
-# SQLite (default)
-DATABASE_URL="file:./dev.db"
-
-# MySQL
-DATABASE_URL="mysql://user:password@localhost:3306/dbname"
-
-# PostgreSQL (recommended for production)
-DATABASE_URL="postgresql://user:password@localhost:5432/dbname?schema=public"
-
-# SQL Server
-DATABASE_URL="sqlserver://localhost:1433;database=db_practice;user=admin;password=pass;encrypt=true"
-```
-
-> ⚠️ Different databases have slight variations in field length limits, indexing, and JSON type support. Please refer to the Prisma documentation for compatibility details.
+| Layer | Technology |
+|------|------------|
+| Frontend | Next.js App Router + React 18 + Tailwind CSS |
+| Backend | NestJS + TypeScript + RESTful API + Swagger |
+| ORM | Prisma |
+| Build Tool | Turborepo + pnpm |
+| Database | SQLite / MySQL / PostgreSQL / SQL Server |
+| Deployment | Docker + Docker Compose |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Development)
 
 ### 1. Clone the Repository
 
@@ -122,22 +92,47 @@ git clone https://github.com/599yongyang/DatasetLoom.git
 cd DatasetLoom
 ```
 
-### 2. Create Environment File
+### 2. Set Up Environment Variables
 
 ```bash
 cp .env.example .env
 ```
 
-### 3. Install Dependencies
+> Edit `.env` to configure your `DATABASE_URL` (see "Database Support" below).
+
+### 3. Install pnpm (Package Manager)
+
+This project uses [pnpm](https://pnpm.io/) — a **fast, disk-efficient package manager** with built-in monorepo support.
+
+Install it via npm:
+```bash
+npm install -g pnpm
+```
+
+Or enable via corepack (Node.js 16.13+):
+```bash
+corepack enable
+corepack prepare pnpm@latest --activate
+```
+
+> 💡 Verify with `pnpm --version`
+
+### 4. Install Dependencies
 
 ```bash
 pnpm install
 ```
 
-### 4. Start Development Server
+### 5. Initialize Database
 
 ```bash
-# Start both frontend and backend (recommended)
+pnpm turbo prisma:migrate --filter=api
+```
+
+### 6. Start Development Server
+
+```bash
+# Recommended: Start both frontend and backend
 pnpm run dev
 
 # Or start separately
@@ -145,41 +140,117 @@ pnpm --filter=web dev
 pnpm --filter=api dev
 ```
 
-- Frontend: 👉 [http://localhost:2088](http://localhost:2088)
-- Backend API: 👉 [http://localhost:3088](http://localhost:3088)
-- API Docs: 👉 [http://localhost:3088/api-docs](http://localhost:3088/api-docs)
+- 🌐 Frontend: [http://localhost:2088](http://localhost:2088)
+- 🔌 Backend API: [http://localhost:3088](http://localhost:3088)
+- 📄 API Docs: [http://localhost:3088/api-docs](http://localhost:3088/api-docs)
 
-#### Build and Preview Production Environment:
+---
+
+## 🐳 Docker Deployment (Recommended for Production)
+
+Full Docker support is provided for easy deployment.
+
+### 1. Prepare Environment File
 
 ```bash
-pnpm run build
-pnpm run db:deploy
-pnpm run start
+cp .env.example .env
+```
+
+> Optionally edit `.env` (e.g., database connection).
+
+### 2. Build and Start
+
+```bash
+docker compose up -d --build
+```
+
+### 3. Access Services
+
+- 🌐 Frontend: [http://localhost:2088](http://localhost:2088)
+- 🔌 Backend API: [http://localhost:3088](http://localhost:3088)
+- 📄 API Docs: [http://localhost:3088/api-docs](http://localhost:3088/api-docs)
+
+---
+
+## 🗄️ Database Support
+
+DatasetLoom supports multiple SQL databases via Prisma.
+
+| Database | Recommended Use |
+|---------|-----------------|
+| ✅ SQLite | Local development, no setup required |
+| ✅ MySQL | Mid-scale deployments, mature ecosystem |
+| ✅ PostgreSQL | **Recommended for production**, supports JSONB, full-text search, vectors |
+| ✅ SQL Server | Enterprise-grade security and compliance |
+
+### How to Switch
+
+Edit `apps/api/prisma/schema.prisma`:
+
+```prisma
+datasource db {
+  provider = "postgresql"  // Options: "mysql", "sqlite", "sqlserver"
+  url      = env("DATABASE_URL")
+}
+```
+
+Set connection string in `.env`:
+
+```env
+# PostgreSQL (Recommended)
+DATABASE_URL="postgresql://user:password@db:5432/datasetloom?schema=public"
+
+# MySQL
+DATABASE_URL="mysql://user:password@localhost:3306/datasetloom"
+
+# SQLite (Default)
+DATABASE_URL="file:./dev.sqlite"
 ```
 
 ---
 
-## 🧠 Use Cases
+## 🧠 Typical Use Cases
 
 | Scenario | Description |
 |--------|-------------|
-| Training Data Generation | Rapidly build instruction-tuning and preference-alignment corpora |
-| Model Performance Evaluation | Evaluate model understanding and generation using custom test sets |
-| Educational & Research Data Curation | Parse textbooks, papers, slides to generate Q&A pairs, summaries, exercises |
-| Domain-Specific Knowledge (Medical/Legal) | Build vertical-domain Q&A and conversational datasets from specialized documents |
-| Team Collaboration & Project Management | Role-based permissions for collaborative dataset creation |
-| Multimodal Training Data | Generate training data from images, audio, video for multimodal understanding |
+| **AI Training Data Generation** | Rapidly build SFT/DPO datasets for fine-tuning LLMs or multimodal models |
+| **Academic & Research Data Curation** | Parse papers, textbooks, and generate Q&A pairs, summaries, exercises |
+| **Domain-Specific Knowledge Bases** | Structured Q&A for healthcare, legal, finance, and other verticals |
+| **Model Evaluation & Benchmarking** | Compare outputs from GPT-4V, LLaVA, Qwen-VL, etc. |
+| **Team Collaboration** | Multi-user annotation with role-based permissions |
+| **Multimodal Understanding** | Joint image-text processing for aligned training data |
 
 ---
 
 ## 🤝 Contributing
 
-Pull requests and issue reports are welcome!
+Issues and PRs are welcome!
 
-If you like this project, please give it a ⭐ star and share it with others who might benefit!
+### Contribution Steps:
+1. Fork the project
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Commit and push your changes
+4. Open a Pull Request
+
+💡 Before submitting:
+```bash
+pnpm run format
+pnpm run typecheck
+```
 
 ---
 
 ## 📜 License
 
-This project is licensed under the [MIT License](LICENSE). You are free to modify, distribute, and use it commercially.
+This project is licensed under the [MIT License](LICENSE), free for use, modification, and commercial purposes.
+
+---
+
+## 🌟 Support the Project
+
+If you find DatasetLoom helpful, please give it a ⭐ **Star**!  
+Your support helps keep the project maintained and evolving. 💙
+
+> GitHub: [https://github.com/599yongyang/DatasetLoom](https://github.com/599yongyang/DatasetLoom)
+
+---

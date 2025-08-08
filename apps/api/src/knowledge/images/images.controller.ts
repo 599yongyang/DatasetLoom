@@ -46,7 +46,8 @@ export class ImagesController {
     @Get()
     @ApiOperation({ summary: '获取图像库列表' })
     @Permission(ProjectRole.VIEWER)
-    async getList(@Query() queryDto: QueryImageDto) {
+    async getList(@Param('projectId') projectId: string, @Query() queryDto: QueryImageDto) {
+        queryDto.projectId = projectId;
         const data = await this.imagesService.getListPagination(queryDto);
         return ResponseUtil.success(data);
     }

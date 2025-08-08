@@ -63,7 +63,8 @@ export class QADatasetController {
     @Get()
     @ApiOperation({ summary: '获取QA数据集' })
     @Permission(ProjectRole.VIEWER)
-    async getList(@Query() queryDto: QueryQaDatasetDto) {
+    async getList(@Param('projectId') projectId: string, @Query() queryDto: QueryQaDatasetDto) {
+        queryDto.projectId = projectId;
         const data = await this.qaService.getListPagination(queryDto);
         return ResponseUtil.success(data);
     }

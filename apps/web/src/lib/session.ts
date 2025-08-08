@@ -122,3 +122,29 @@ export async function updateUserInfo({ avatar, name }: { avatar: string; name: s
 
     await createSession(newPayload);
 }
+
+
+export async function updateUserPermissions(permissions: Array<{
+    projectId: string;
+    role: ProjectRole;
+}>) {
+    const cookie = (await cookies()).get('session')?.value;
+    if (!cookie) return null;
+
+    const { payload } = await jwtVerify<Session>(
+        cookie,
+        encodedKey
+    );
+
+    if (!payload) throw new Error('Session not found');
+
+    const newPayload: Session = {
+        user: {
+            ...payload.user,
+            permissions
+        },
+        accessToken: payload.accessToken,
+        refreshToken: payload.refreshToken
+    };
+    await createSession(newPayload);
+}

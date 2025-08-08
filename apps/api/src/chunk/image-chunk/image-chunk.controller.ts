@@ -34,7 +34,8 @@ export class ImageChunkController {
     @ApiOperation({ summary: '获取列表' })
     @Permission(ProjectRole.VIEWER)
     @Get()
-    async getList(@Query() queryDto: QueryImageChunkDto) {
+    async getList(@Param('projectId') projectId: string, @Query() queryDto: QueryImageChunkDto) {
+        queryDto.projectId = projectId;
         const data = await this.imageChunkService.getListPagination(queryDto);
         return ResponseUtil.success(data);
     }

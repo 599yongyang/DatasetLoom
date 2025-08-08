@@ -1,23 +1,25 @@
 'use client';
-import {Button} from '@/components/ui/button';
-import {Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle} from '@/components/ui/dialog';
-import {Input} from '@/components/ui/input';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {useForm} from 'react-hook-form';
-import {z} from 'zod';
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
-import {Textarea} from '@/components/ui/textarea';
-import {toast} from 'sonner';
-import {useRouter} from 'next/navigation';
-import {useTranslation} from 'react-i18next';
-import {useState} from 'react';
-import {Check, ChevronsUpDown} from 'lucide-react';
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
-import {cn} from '@/lib/utils';
-import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from '@/components/ui/command';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import * as React from 'react';
-import {useGetProjects} from '@/hooks/query/use-project';
-import apiClient from "@/lib/axios";
+import { useGetProjects } from '@/hooks/query/use-project';
+import apiClient from '@/lib/axios';
+import { updateUserPermissions } from '@/lib/session';
+import { ProjectRole } from '@repo/shared-types';
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -27,10 +29,10 @@ const formSchema = z.object({
     copyId: z.string()
 });
 
-export function ProjectDialog({open, setOpen}: { open: boolean; setOpen: (open: boolean) => void }) {
+export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
     const router = useRouter();
-    const {t} = useTranslation('project');
-    const {projects: projectList, refresh} = useGetProjects();
+    const { t } = useTranslation('project');
+    const { projects: projectList, refresh } = useGetProjects();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -42,16 +44,14 @@ export function ProjectDialog({open, setOpen}: { open: boolean; setOpen: (open: 
     const [selectOpen, setSelectOpen] = useState(false);
     const [filter, setFilter] = React.useState('');
 
-    // const { update } = useSession();
-
     function onSubmit(values: z.infer<typeof formSchema>) {
         toast.promise(apiClient.post('/project/create', values), {
             loading: '创建项目中',
-            success: async data => {
-                router.push(`/project/${data.data.id}/settings/model-config`);
+            success: async res => {
+                router.push(`/project/${res.data.data.id}/settings/model-config`);
                 setOpen(false);
                 void refresh();
-                // await update({ projectId: data.data.id });
+                await updateUserPermissions([{ projectId: res.data.data.id, role: ProjectRole.ADMIN }]);
                 return '创建成功';
             },
             error: error => {
@@ -71,26 +71,26 @@ export function ProjectDialog({open, setOpen}: { open: boolean; setOpen: (open: 
                         <FormField
                             control={form.control}
                             name="name"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>{t('project_dialog.name')}</FormLabel>
                                     <FormControl>
                                         <Input {...field} />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="description"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>{t('project_dialog.description')}</FormLabel>
                                     <FormControl>
                                         <Textarea {...field} />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -98,7 +98,7 @@ export function ProjectDialog({open, setOpen}: { open: boolean; setOpen: (open: 
                             <FormField
                                 control={form.control}
                                 name="copyId"
-                                render={({field}) => (
+                                render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{t('project_dialog.reuse')}</FormLabel>
                                         <FormControl>
@@ -115,7 +115,7 @@ export function ProjectDialog({open, setOpen}: { open: boolean; setOpen: (open: 
                                                             ? projectList.find(project => project.id === field.value)
                                                                 ?.name
                                                             : t('search_info')}
-                                                        <ChevronsUpDown className="opacity-50"/>
+                                                        <ChevronsUpDown className="opacity-50" />
                                                     </Button>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-[370px] p-0">
@@ -166,7 +166,7 @@ export function ProjectDialog({open, setOpen}: { open: boolean; setOpen: (open: 
                                                 </PopoverContent>
                                             </Popover>
                                         </FormControl>
-                                        <FormMessage/>
+                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />

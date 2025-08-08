@@ -91,7 +91,8 @@ export class DocumentController {
     @Get()
     @ApiOperation({ summary: '获取文档库列表' })
     @Permission(ProjectRole.VIEWER)
-    async getList(@Query() queryDto: QueryDocumentDto) {
+    async getList(@Param('projectId') projectId: string, @Query() queryDto: QueryDocumentDto) {
+        queryDto.projectId = projectId;
         const data = await this.documentService.getListPagination(queryDto);
         return ResponseUtil.success(data);
     }

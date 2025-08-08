@@ -7,7 +7,7 @@ services:
       - "3088:3088"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:/app/data/dsl.sqlite
+      - DATABASE_URL=file:/app/data/datasetloom.sqlite
     env_file:
       - ./.env
     volumes:

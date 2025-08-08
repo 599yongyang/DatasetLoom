@@ -1,20 +1,20 @@
 'use client';
 
-import React, {useState} from 'react';
-import {UserRoundPlusIcon, X} from 'lucide-react';
+import React, { useState } from 'react';
+import { UserRoundPlusIcon, X } from 'lucide-react';
 
-import {Button} from '@/components/ui/button';
-import {Dialog, DialogContent, DialogHeader, DialogTitle} from '@/components/ui/dialog';
-import {Input} from '@/components/ui/input';
-import {Label} from '@/components/ui/label';
-import {useInputList} from '@/hooks/use-input-list';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {availableRoles, projectRoleMap} from '@/lib/data-dictionary';
-import {ProjectRole} from '@repo/shared-types'
-import {SubmitButton} from '@/components/common/submit-button';
-import {toast} from 'sonner';
-import {useParams} from 'next/navigation';
-import apiClient from "@/lib/axios";
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useInputList } from '@/hooks/use-input-list';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { availableRoles, projectRoleMap } from '@/lib/data-dictionary';
+import { ProjectRole } from '@repo/shared-types';
+import { SubmitButton } from '@/components/common/submit-button';
+import { toast } from 'sonner';
+import { useParams } from 'next/navigation';
+import apiClient from '@/lib/axios';
 
 export function ProjectMemberDialog({
                                         open,
@@ -25,28 +25,23 @@ export function ProjectMemberDialog({
     setOpen: (open: boolean) => void;
     refresh: () => void;
 }) {
-    const {projectId} = useParams();
+    const { projectId } = useParams();
     const [isSuccessful, setIsSuccessful] = useState(false);
-    const {list: emails, add: addEmails, remove: removeEmails, update: updateEmails} = useInputList(['']);
+    const { list: emails, add: addEmails, remove: removeEmails, update: updateEmails } = useInputList(['']);
     const [role, setRole] = useState(ProjectRole.VIEWER);
-    // const { update } = useSession();
     const handleSubmit = () => {
         if (!emails.filter(email => email.trim() !== '').length) {
             toast.error('请填写邮箱');
             return;
         }
         toast.promise(
-            apiClient.post(`/${projectId}/project-member/create`, {
-                emails,
-                role
-            }),
+            apiClient.post(`/${projectId}/project-member/create`, { emails, role }),
             {
                 loading: '保存中',
                 success: async data => {
                     setIsSuccessful(true);
                     setOpen(false);
                     refresh();
-                    // await update({ refresh: true });
                     return '操作成功';
                 },
                 error: error => {
@@ -64,7 +59,7 @@ export function ProjectMemberDialog({
                         className="flex size-11 shrink-0 items-center justify-center rounded-full border"
                         aria-hidden="true"
                     >
-                        <UserRoundPlusIcon className="opacity-80" size={16}/>
+                        <UserRoundPlusIcon className="opacity-80" size={16} />
                     </div>
                     <DialogHeader>
                         <DialogTitle className="text-left">添加项目成员</DialogTitle>
@@ -88,7 +83,7 @@ export function ProjectMemberDialog({
                                         />
                                         {emails.length > 1 && (
                                             <Button variant="outline" size={'icon'} onClick={() => removeEmails(index)}>
-                                                <X/>
+                                                <X />
                                             </Button>
                                         )}
                                     </div>
@@ -105,7 +100,7 @@ export function ProjectMemberDialog({
                             <div className="space-y-3">
                                 <Select value={role} onValueChange={value => setRole(value as ProjectRole)}>
                                     <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="选择权限等级"/>
+                                        <SelectValue placeholder="选择权限等级" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {availableRoles.map(role => (

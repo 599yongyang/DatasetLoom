@@ -61,7 +61,8 @@ export class DocumentChunkController {
     @Get()
     @ApiOperation({ summary: '获取文档分块列表' })
     @Permission(ProjectRole.VIEWER)
-    async getList(@Query() queryDto: QueryDocumentChunkDto) {
+    async getList(@Param('projectId') projectId: string, @Query() queryDto: QueryDocumentChunkDto) {
+        queryDto.projectId = projectId;
         const data = await this.documentChunkService.getListPagination(queryDto);
         return ResponseUtil.success(data);
     }
