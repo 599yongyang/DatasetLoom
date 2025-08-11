@@ -126,7 +126,7 @@ pnpm install
 ### 5. Initialize Database
 
 ```bash
-pnpm turbo prisma:migrate --filter=api
+pnpm --filter=api prisma:migrate
 ```
 
 ### 6. Start Development Server

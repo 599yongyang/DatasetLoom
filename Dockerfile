@@ -26,7 +26,7 @@ COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 # 安装依赖
-RUN pnpm config set registry https://registry.npmmirror.com && pnpm install --frozen-lockfile
+RUN pnpm config set registry https://registry.npmmirror.com && pnpm install --frozen-lockfile --ignore-scripts
 
 # 复制源代码
 COPY --from=pruner /app/out/full/ .

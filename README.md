@@ -124,7 +124,7 @@ pnpm install
 ### 5. 初始化数据库
 
 ```bash
-pnpm turbo prisma:migrate --filter=api
+pnpm --filter=api prisma:migrate
 ```
 
 ### 6. 启动开发服务
