@@ -138,13 +138,18 @@ export async function updateUserPermissions(permissions: Array<{
 
     if (!payload) throw new Error('Session not found');
 
+    const newPermissions = [...payload.user.permissions, ...permissions];
+
     const newPayload: Session = {
         user: {
             ...payload.user,
-            permissions
+            permissions: newPermissions
         },
         accessToken: payload.accessToken,
         refreshToken: payload.refreshToken
     };
+
     await createSession(newPayload);
+    return newPayload.user;
 }
+

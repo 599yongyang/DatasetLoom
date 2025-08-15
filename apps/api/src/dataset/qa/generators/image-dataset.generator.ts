@@ -1,22 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { ModelConfigWithProvider, QuestionsWithDatasetSample } from '@/common/prisma/type';
-import { CreateQaDatasetDto } from '../dto/create-qa-dataset.dto';
 import { doubleCheckModelOutput } from '@/utils/model.util';
 import { ImagesService } from '@/knowledge/images/images.service';
 import { readFileSync } from 'fs';
-import {genImageAnswerPrompt} from "@/common/ai/prompts/vision";
-import {AIService} from "@/common/ai/ai.service";
-import {answerSchema} from "@/common/ai/prompts/schema";
+import { genImageAnswerPrompt } from '@/common/ai/prompts/vision';
+import { AIService } from '@/common/ai/ai.service';
+import { answerSchema } from '@/common/ai/prompts/schema';
+import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
 @Injectable()
 export class ImageDatasetGenerator {
     constructor(
         private readonly aiService: AIService,
-        private readonly imagesService: ImagesService,
-    ) {}
+        private readonly imagesService: ImagesService
+    ) {
+    }
 
-    async generate(createQaDto: CreateQaDatasetDto, model: ModelConfigWithProvider, question: QuestionsWithDatasetSample) {
-        const prompt = genImageAnswerPrompt(question.realQuestion, question.contextData, createQaDto.language);
+    async generate(createQaDto: AiGenDto, model: ModelConfigWithProvider, question: QuestionsWithDatasetSample) {
+        const prompt = genImageAnswerPrompt(question.realQuestion, question.contextData);
 
         const imageFile = await this.imagesService.getInfoById(question.contextId);
         if (!imageFile) throw new Error('Image file not found');
@@ -36,7 +37,7 @@ export class ImageDatasetGenerator {
             evidence: modelOutput.evidence ? JSON.stringify(modelOutput.evidence) : '',
             confidence: modelOutput.confidence,
             questionId: question.id,
-            isPrimaryAnswer: question.DatasetSamples.length <= 0,
+            isPrimaryAnswer: question.DatasetSamples.length <= 0
         };
     }
 }

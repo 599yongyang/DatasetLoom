@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
     generateText,
     streamText,
@@ -6,14 +6,14 @@ import {
     type LanguageModel,
     type Message,
     type CoreUserMessage,
-    appendResponseMessages,
+    appendResponseMessages
 } from 'ai';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {MessageUtil} from '@/common/ai/utils';
-import {IAIProvider} from '../interfaces/ai-provider.interface';
-import {ChatMessages, ModelUsage} from "@prisma/client";
-import {ChatService} from "@/chat/chat.service";
-import {ModelUsageService} from "@/model-usage/model-usage.service";
+import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { MessageUtil } from '@/common/ai/utils';
+import { IAIProvider } from '../interfaces/ai-provider.interface';
+import { ChatMessages, ModelUsage } from '@prisma/client';
+import { ChatService } from '@/chat/chat.service';
+import { ModelUsageService } from '@/model-usage/model-usage.service';
 
 @Injectable()
 export abstract class BaseAIProvider implements IAIProvider {
@@ -35,13 +35,14 @@ export abstract class BaseAIProvider implements IAIProvider {
         this.modelUsageService = modelUsageService;
     }
 
-    async chat(messages: UIMessage[] | CoreUserMessage[], options?: any) {
+    async chat(messages: UIMessage[] | CoreUserMessage[], systemPrompt?: string, options?: any) {
         const model = this.getModel();
         const result = await generateText({
             model,
+            system: systemPrompt,
             messages: messages,
             temperature: options?.temperature ?? this.config.temperature ?? 0.7,
-            maxTokens: options?.maxTokens ?? this.config.maxTokens ?? 8192,
+            maxTokens: options?.maxTokens ?? this.config.maxTokens ?? 8192
         });
 
         // 保存模型使用情况
@@ -51,7 +52,7 @@ export abstract class BaseAIProvider implements IAIProvider {
                 modelConfigId: this.config.id,
                 promptTokens: result.usage.promptTokens,
                 completionTokens: result.usage.completionTokens,
-                totalTokens: result.usage.totalTokens,
+                totalTokens: result.usage.totalTokens
             } as ModelUsage);
         }
 
@@ -63,20 +64,20 @@ export abstract class BaseAIProvider implements IAIProvider {
             {
                 role: 'user',
                 content: [
-                    {type: 'image', image: image},
-                    {type: 'text', text: prompt},
-                ],
-            },
+                    { type: 'image', image: image },
+                    { type: 'text', text: prompt }
+                ]
+            }
         ];
         return await this.chat(messages);
     }
 
     async generateTitle(message: Message): Promise<string> {
         const model = this.getModel();
-        const {text: title} = await generateText({
+        const { text: title } = await generateText({
             model,
             system: `Generate a short title (max 80 chars) based on the user's message. No quotes or colons.`,
-            prompt: JSON.stringify(message),
+            prompt: JSON.stringify(message)
         });
         return title;
     }
@@ -89,7 +90,7 @@ export abstract class BaseAIProvider implements IAIProvider {
             messages,
             temperature: options.temperature ?? this.config.temperature ?? 0.7,
             maxTokens: options.maxTokens ?? this.config.maxTokens ?? 8192,
-            onFinish: async ({response}) => {
+            onFinish: async ({ response }) => {
                 if (!chatStorageService) {
                     console.warn('ChatStorageService not available, skipping message save');
                     return;

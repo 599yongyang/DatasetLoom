@@ -92,12 +92,6 @@ export const getMenuConfig = (projectId: string, user: UserInfo): IMenu[] => {
             to: `/project/${projectId}/chat`,
             role: ProjectRole.VIEWER
         },
-        // {
-        //     title: 'workflow',
-        //     icon: Workflow,
-        //     to: `/project/${projectId}/workflow`,
-        //     role: ProjectRole.VIEWER
-        // },
         {
             title: 'settings.title',
             icon: Settings,
@@ -131,7 +125,7 @@ export const getMenuConfig = (projectId: string, user: UserInfo): IMenu[] => {
                 {
                     title: 'settings.prompt_config',
                     icon: SquareTerminal,
-                    to: `/project/${projectId}/settings/prompt-config`,
+                    to: `/project/${projectId}/settings/prompt-template`,
                     role: ProjectRole.ADMIN
                 }
             ]

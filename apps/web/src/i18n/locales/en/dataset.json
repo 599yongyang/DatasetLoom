@@ -38,23 +38,5 @@
         "model": "Use Model",
         "createdAt": "CreatedAt",
         "chunk": "Chunk"
-    },
-    "strategy_dialog_title": "Answer Generation Configuration",
-    "confirm_btn": "Submit",
-    "cancel_btn": "Cancel",
-    "strategy_form": {
-        "model": "Model",
-        "model_type": {
-            "default": "Default",
-            "custom": "Custom"
-        },
-        "answer_style": "Answer Style",
-        "detail_level": "Detail Level",
-        "citation": "Citation",
-        "citation_option": {
-            "yes": "Yes",
-            "no": "No"
-        },
-        "more_setting": "More Setting"
     }
 }

@@ -2,7 +2,7 @@ import { IsString } from 'class-validator';
 import { BaseDto } from '@/common/dto/base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class GenQuestionDto extends BaseDto {
+export class GenQuestionImageDto extends BaseDto {
 
     @ApiProperty({ description: '图像标识' })
     @IsString()

@@ -1,14 +1,14 @@
 'use client';
 
-import {AlertCircleIcon, ImageIcon, UploadIcon, XIcon} from 'lucide-react';
+import { AlertCircleIcon, ImageIcon, UploadIcon, XIcon } from 'lucide-react';
 
-import {formatBytes, useFileUpload} from '@/hooks/use-file-upload';
-import {Button} from '@/components/ui/button';
-import {Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog';
-import {toast} from 'sonner';
-import {useParams} from 'next/navigation';
-import {useEffect} from 'react';
-import apiClient from "@/lib/axios";
+import { formatBytes, useFileUpload } from '@/hooks/use-file-upload';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
+import apiClient from '@/lib/axios';
 
 export default function UploadImageDialog({
                                               open,
@@ -21,13 +21,13 @@ export default function UploadImageDialog({
     refreshFiles: () => void;
     modeId: string;
 }) {
-    const {projectId}: { projectId: string } = useParams();
+    const { projectId }: { projectId: string } = useParams();
     const maxSizeMB = 5;
     const maxSize = maxSizeMB * 1024 * 1024; // 5MB default
     const maxFiles = 6;
 
     const [
-        {files, isDragging, errors},
+        { files, isDragging, errors },
         {
             handleDragEnter,
             handleDragLeave,
@@ -59,23 +59,18 @@ export default function UploadImageDialog({
         files.forEach(file => {
             formData.append('files', file.file as File);
         });
-
-        try {
-            toast.promise(apiClient.post(`/${projectId}/images/upload?mid=${modeId}`, formData), {
-                loading: `上传文件中...`,
-                success: data => {
-                    setOpen(false);
-                    refreshFiles();
-                    return `成功上传 ${data.data.files.length} 个文件`;
-                },
-                error: error => {
-                    return error.response?.data?.message || '上传文件失败';
-                }
-            });
-        } catch (e) {
-            console.error(e);
-            toast.error('上传失败');
-        }
+        toast.promise(apiClient.post(`/${projectId}/images/upload?mid=${modeId}`, formData), {
+            loading: `上传文件中...`,
+            success: res => {
+                setOpen(false);
+                refreshFiles();
+                return `成功上传 ${res.data.data.length} 个文件`;
+            },
+            error: error => {
+                console.error('Error:', error);
+                return error.response?.data?.message || '上传文件失败';
+            }
+        });
     };
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -94,18 +89,18 @@ export default function UploadImageDialog({
                         data-files={files.length > 0 || undefined}
                         className="border-input data-[dragging=true]:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 relative flex min-h-52 flex-col items-center overflow-hidden rounded-xl border border-dashed p-4 transition-colors not-data-[files]:justify-center has-[input:focus]:ring-[3px]"
                     >
-                        <input {...getInputProps()} className="sr-only" aria-label="Upload image file"/>
+                        <input {...getInputProps()} className="sr-only" aria-label="Upload image file" />
                         <div className="flex flex-col items-center justify-center px-4 py-3 text-center">
                             <div
                                 className="bg-background mb-2 flex size-11 shrink-0 items-center justify-center rounded-full border"
                                 aria-hidden="true"
                             >
-                                <ImageIcon className="size-4 opacity-60"/>
+                                <ImageIcon className="size-4 opacity-60" />
                             </div>
                             <p className="mb-1.5 text-sm font-medium">Drop your images here</p>
                             <p className="text-muted-foreground text-xs">SVG, PNG, JPG (max. {maxSizeMB}MB)</p>
                             <Button variant="outline" className="mt-4" onClick={openFileDialog}>
-                                <UploadIcon className="-ms-1 opacity-60" aria-hidden="true"/>
+                                <UploadIcon className="-ms-1 opacity-60" aria-hidden="true" />
                                 选择图片
                             </Button>
                         </div>
@@ -113,7 +108,7 @@ export default function UploadImageDialog({
 
                     {errors.length > 0 && (
                         <div className="text-destructive flex items-center gap-1 text-xs" role="alert">
-                            <AlertCircleIcon className="size-3 shrink-0"/>
+                            <AlertCircleIcon className="size-3 shrink-0" />
                             <span>{errors[0]}</span>
                         </div>
                     )}
@@ -149,7 +144,7 @@ export default function UploadImageDialog({
                                         onClick={() => removeFile(file.id)}
                                         aria-label="Remove file"
                                     >
-                                        <XIcon aria-hidden="true"/>
+                                        <XIcon aria-hidden="true" />
                                     </Button>
                                 </div>
                             ))}

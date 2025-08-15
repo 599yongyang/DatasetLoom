@@ -21,7 +21,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
-    "db:studio": "npx prisma studio",
+    "db:studio": "dotenv -e ../../.env -- npx prisma studio",
     "db:push": "npx prisma db push"
   },
   "dependencies": {

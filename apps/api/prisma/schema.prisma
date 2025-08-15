@@ -55,6 +55,7 @@ model Projects {
   Chat             Chat[]
   ImageFile        ImageFile[]
   ImageBlock       ImageBlock[]
+  PromptTemplate   PromptTemplate[]
 }
 
 // 项目成员表
@@ -373,4 +374,18 @@ model ImageBlock {
   width     Float
   height    Float
   createdAt DateTime  @default(now())
+}
+
+// 提示模板
+model PromptTemplate {
+  id          String   @id @default(nanoid())
+  name        String
+  description String?
+  type        String
+  content     String? // 模板内容
+  variables   Json? // 变量配置
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  project     Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
 }

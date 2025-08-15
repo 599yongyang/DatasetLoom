@@ -1,9 +1,8 @@
-import { Controller, Get, Body, Param, Delete, Query, Put, Post, ParseArrayPipe, Patch } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Query, Post, ParseArrayPipe, Patch } from '@nestjs/common';
 import { DocumentChunkService } from './document-chunk.service';
 import { UpdateDocumentChunkDto } from './dto/update-document-chunk.dto';
 import { ResponseUtil } from '@/utils/response.util';
 import { QueryDocumentChunkDto } from '@/chunk/document-chunk/dto/query-document-chunk.dto';
-import { GenQuestionDto } from '@/chunk/document-chunk/dto/gen-question.dto';
 import { CreateDocumentChunkDto } from '@/chunk/document-chunk/dto/create-document-chunk.dto';
 import { GenTagRelDto } from '@/chunk/document-chunk/dto/gen-tag-rel.dto';
 import { ModelConfigService } from '@/setting/model-config/model-config.service';
@@ -12,6 +11,7 @@ import { TagRelGenerator } from '@/chunk/document-chunk/generators/tag-rel.gener
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
 @ApiTags('文档分块')
 @Controller(':projectId/documentChunk')
@@ -96,8 +96,11 @@ export class DocumentChunkController {
     @Post('gen-question')
     @ApiOperation({ summary: '为文本块生成问题' })
     @Permission(ProjectRole.EDITOR)
-    async genQuestion(@Param('projectId') projectId: string, @Body() genQuestionDto: GenQuestionDto) {
+    async genQuestion(@Param('projectId') projectId: string, @Body() genQuestionDto: AiGenDto) {
         genQuestionDto.projectId = projectId;
+        if (!genQuestionDto.templateId) {
+            return ResponseUtil.badRequest('Template ID is required');
+        }
         const data = await this.documentChunkService.genQuestion(genQuestionDto);
         return ResponseUtil.success(data);
     }

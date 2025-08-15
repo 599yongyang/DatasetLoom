@@ -1,36 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { ModelConfigWithProvider, QuestionsWithDatasetSample } from '@/common/prisma/type';
-import { CreateQaDatasetDto } from '../dto/create-qa-dataset.dto';
 import { doubleCheckModelOutput } from '@/utils/model.util';
-import { ProjectService } from '@/project/project.service';
-import {getAnswerPrompt} from "@/common/ai/prompts/answer";
-import {AIService} from "@/common/ai/ai.service";
-import {answerSchema} from "@/common/ai/prompts/schema";
+import { AIService } from '@/common/ai/ai.service';
+import { answerSchema } from '@/common/ai/prompts/schema';
+import { PromptTemplateService } from '@/setting/prompt-template/prompt-template.service';
+import Handlebars from 'handlebars';
+import { answerSystemPrompt } from '@/common/ai/prompts/system';
+import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
 @Injectable()
 export class TextDatasetGenerator {
     constructor(
         private readonly aiService: AIService,
-        private readonly projectService: ProjectService,
-    ) {}
+        private readonly promptTemplateService: PromptTemplateService
+    ) {
+    }
 
-    async generate(createQaDto: CreateQaDatasetDto, model: ModelConfigWithProvider, question: QuestionsWithDatasetSample) {
-        const project = await this.projectService.getInfoById(createQaDto.projectId);
-        if (!project) throw new Error('Project not found');
+    async generate(createQaDto: AiGenDto, model: ModelConfigWithProvider, question: QuestionsWithDatasetSample) {
+        if (!createQaDto.templateId) throw new Error('templateId not found');
+        const promptTemplate = await this.promptTemplateService.getInfoById(createQaDto.templateId, createQaDto.projectId);
+        if (!promptTemplate) throw new Error('promptTemplate not found');
 
-        const prompt = getAnswerPrompt({
+
+        const template = Handlebars.compile(promptTemplate.content);
+        const prompt = template({
+            ...createQaDto.variablesData,
             context: question.contextData,
-            question: question.question,
-            detailLevel: createQaDto.detailLevel,
-            citation: createQaDto.citation,
-            answerStyle: createQaDto.answerStyle,
-            tags: question.label?.split(',') ?? [],
-            language: createQaDto.language,
-            globalPrompt: project.globalPrompt,
-            answerPrompt: project.answerPrompt,
+            question: question.question
         });
 
-        const { text, reasoning } = await this.aiService.chat(model, prompt);
+
+        const { text, reasoning } = await this.aiService.chat(model, prompt, answerSystemPrompt);
         const modelOutput = await doubleCheckModelOutput(text, answerSchema);
 
         return {
@@ -43,7 +43,7 @@ export class TextDatasetGenerator {
             evidence: modelOutput.evidence ? JSON.stringify(modelOutput.evidence) : '',
             confidence: modelOutput.confidence,
             questionId: question.id,
-            isPrimaryAnswer: question.DatasetSamples.length <= 0,
+            isPrimaryAnswer: question.DatasetSamples.length <= 0
         };
     }
 }

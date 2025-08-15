@@ -20,6 +20,8 @@ import { useGetProjects } from '@/hooks/query/use-project';
 import apiClient from '@/lib/axios';
 import { updateUserPermissions } from '@/lib/session';
 import { ProjectRole } from '@repo/shared-types';
+import { useSetAtom } from 'jotai/index';
+import { userInfoAtom } from '@/atoms';
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -43,6 +45,7 @@ export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open
     });
     const [selectOpen, setSelectOpen] = useState(false);
     const [filter, setFilter] = React.useState('');
+    const setUserInfo = useSetAtom(userInfoAtom);
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         toast.promise(apiClient.post('/project/create', values), {
@@ -51,7 +54,11 @@ export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open
                 router.push(`/project/${res.data.data.id}/settings/model-config`);
                 setOpen(false);
                 void refresh();
-                await updateUserPermissions([{ projectId: res.data.data.id, role: ProjectRole.ADMIN }]);
+                const userInfo = await updateUserPermissions([{
+                    projectId: res.data.data.id,
+                    role: ProjectRole.ADMIN
+                }]);
+                setUserInfo(userInfo!);
                 return '创建成功';
             },
             error: error => {

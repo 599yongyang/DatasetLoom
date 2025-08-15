@@ -10,24 +10,26 @@ import { useChunks } from '@/hooks/query/use-chunks';
 import { toast } from 'sonner';
 import { DraggableMergeDataTable } from '@/components/data-table/draggable-merge-data-table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { QuestionStrategyDialog } from '@/components/questions/question-strategy-dialog';
-import { ProjectRole } from '@repo/shared-types';
+import { ProjectRole, PromptTemplateType } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useTextChunkTableColumns } from '@/hooks/table-columns/use-text-chunk';
-import type { SelectedChunk } from '@/hooks/use-generate-question';
+import { useGenerateQuestion } from '@/hooks/generate/use-generate-question';
 import { Chunks } from '@/types/interfaces';
 import apiClient from '@/lib/axios';
+import { GenerateStrategyDialog } from '@/components/common/generate-strategy-dialog';
+import { usePagination } from '@/hooks/use-pagination';
+import { GenerateItem, StrategyParamsType } from '@/types/generate';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const { t: tCommon } = useTranslation('common');
     const { t: tChunk } = useTranslation('chunk');
-
+    const { generateSingleQuestion, generateMultipleQuestion } = useGenerateQuestion();
     const [fileName, setFileName] = useState('');
     const [status, setStatus] = useState('all');
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10
+    const { pagination, setPagination } = usePagination({
+        defaultPageSize: 10,
+        resetDeps: [status, fileName]
     });
     const { chunks, total, refresh } = useChunks({
         projectId,
@@ -38,14 +40,10 @@ export default function Page() {
         query: fileName
     });
 
-    useEffect(() => {
-        setPagination({ ...pagination, pageIndex: 0 });
-    }, [status, fileName]);
-
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
     const [open, setOpen] = useState(false);
-    const [selectedChunks, setSelectedChunks] = useState<SelectedChunk[]>([]);
+    const [selectedChunks, setSelectedChunks] = useState<GenerateItem[]>([]);
     const handleOpenDialog = (chunk: Chunks) => {
         setSelectedChunks([{ id: chunk.id, name: chunk.name }]);
         setOpen(true);
@@ -96,8 +94,17 @@ export default function Page() {
         );
     };
 
-    const handelGenerateQuestions = async () => {
-        setOpen(true);
+
+    const handleGenerate = async (strategyParams: StrategyParamsType) => {
+        if (selectedChunks.length === 1 && selectedChunks[0]) {
+            await generateSingleQuestion({
+                projectId, item: selectedChunks[0], questionStrategy: strategyParams
+            });
+        } else {
+            await generateMultipleQuestion(projectId, selectedChunks, strategyParams);
+        }
+        setOpen(false);
+        void refresh();
     };
 
     return (
@@ -143,7 +150,9 @@ export default function Page() {
                             variant="outline"
                             className={'hover:cursor-pointer'}
                             disabled={Object.keys(rowSelection).length == 0}
-                            onClick={handelGenerateQuestions}
+                            onClick={() => {
+                                setOpen(true);
+                            }}
                         >
                             <FileQuestion size={30} />
                             <span className="hidden lg:inline ">{tChunk('gen_btn')}</span>
@@ -162,7 +171,8 @@ export default function Page() {
                 onMerge={handleMergeChunks}
             />
             {selectedChunks.length > 0 && (
-                <QuestionStrategyDialog open={open} setOpen={setOpen} chunks={selectedChunks} mutateChunks={refresh} />
+                <GenerateStrategyDialog open={open} setOpen={setOpen} promptTemplateType={PromptTemplateType.QUESTION}
+                                        handleGenerate={handleGenerate} />
             )}
         </div>
     );

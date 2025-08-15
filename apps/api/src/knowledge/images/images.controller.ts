@@ -1,7 +1,7 @@
 import {
     Controller,
     Delete,
-    Get,
+    Get, HttpCode,
     Param,
     ParseArrayPipe,
     Post,
@@ -28,6 +28,7 @@ export class ImagesController {
     @ApiOperation({ summary: '上传图像' })
     @Permission(ProjectRole.EDITOR)
     @UseInterceptors(FilesInterceptor('files'))
+    @HttpCode(200)
     async uploadFile(@Param('projectId') projectId: string, @Query('mid') mid: string, @UploadedFiles() files: Array<Express.Multer.File>) {
         // 验证是否有上传文件
         if (!files || files.length === 0) {

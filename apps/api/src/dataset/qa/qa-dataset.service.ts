@@ -1,5 +1,4 @@
 import {Injectable} from '@nestjs/common';
-import {CreateQaDatasetDto} from './dto/create-qa-dataset.dto';
 import {QueryQaDatasetDto} from '@/dataset/qa/dto/query-qa-dataset.dto';
 import {DatasetSamples, Prisma, Questions} from '@prisma/client';
 import {PrismaService} from '@/common/prisma/prisma.service';
@@ -10,6 +9,8 @@ import {TextDatasetGenerator} from "@/dataset/qa/generators/text-dataset.generat
 import {DatasetSampleWithQuestion, ModelConfigWithProvider, QuestionsWithDatasetSample} from "@/common/prisma/type";
 import {PreferencePairDto} from "@/dataset/qa/dto/preference-pair.dto";
 import {EvaluationGenerator} from "@/dataset/qa/generators/evaluation.generator";
+import { ImageDatasetGenerator } from '@/dataset/qa/generators/image-dataset.generator';
+import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
 @Injectable()
 export class QaDatasetService {
@@ -17,17 +18,18 @@ export class QaDatasetService {
     constructor(private readonly prisma: PrismaService,
                 private readonly questionService: QuestionService,
                 private readonly textDatasetGenerator: TextDatasetGenerator,
+                private readonly imageDatasetGenerator: ImageDatasetGenerator,
                 private readonly evaluationGenerator: EvaluationGenerator) {
     }
 
-    async createDatasetSample(question: QuestionsWithDatasetSample, model: ModelConfigWithProvider, createQaDto: CreateQaDatasetDto) {
+    async createDatasetSample(question: QuestionsWithDatasetSample, model: ModelConfigWithProvider, createQaDto: AiGenDto) {
         try {
 
             let datasetSamples: Partial<DatasetSamples>;
             if (question.contextType === ContextType.TEXT) {
                 datasetSamples = await this.textDatasetGenerator.generate(createQaDto, model, question);
             } else if (question.contextType === ContextType.IMAGE) {
-                datasetSamples = await this.textDatasetGenerator.generate(createQaDto, model, question);
+                datasetSamples = await this.imageDatasetGenerator.generate(createQaDto, model, question);
             } else {
                 return ResponseUtil.badRequest('Unsupported context type');
             }
@@ -35,7 +37,7 @@ export class QaDatasetService {
             const datasetSample = await this.prisma.datasetSamples.create({
                 data: datasetSamples as DatasetSamples,
             });
-            await this.questionService.update(createQaDto.questionId, {answered: true} as Questions);
+            await this.questionService.update(createQaDto.itemId, {answered: true} as Questions);
             return datasetSample;
 
         } catch (error) {

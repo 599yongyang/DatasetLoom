@@ -1,39 +1,48 @@
-import { LabelPromptOptions } from './type';
 import { languageMap } from '../constants/prompt-config.constant';
 
+export type Language = 'zh-CN' | 'en';
+
+export interface LabelPromptOptions {
+    text: string;
+    language?: Language;
+    globalPrompt?: string;
+    domainTreePrompt?: string;
+}
+
+
 export function getLabelPrompt(options: LabelPromptOptions) {
-  const { text, language = 'zh', globalPrompt, domainTreePrompt } = options;
+    const { text, language = 'zh', globalPrompt, domainTreePrompt } = options;
 
-  const safeGlobalPrompt = globalPrompt ? `- 请始终遵守以下规则：${sanitizeRule(globalPrompt)}` : '';
-  const safeDomainTreePrompt = domainTreePrompt
-    ? `- 在生成标签时，请参考以下分类体系：${sanitizeRule(domainTreePrompt)}`
-    : '';
+    const safeGlobalPrompt = globalPrompt ? `- 请始终遵守以下规则：${sanitizeRule(globalPrompt)}` : '';
+    const safeDomainTreePrompt = domainTreePrompt
+        ? `- 在生成标签时，请参考以下分类体系：${sanitizeRule(domainTreePrompt)}`
+        : '';
 
-  const outputLanguage = languageMap[language] || '中文';
+    const outputLanguage = languageMap[language] || '中文';
 
-  const exampleJson = JSON.stringify(
-    {
-      domain: '科技',
-      subDomain: '人工智能',
-      tags: ['人工智能', '芯片', '云计算', '阿里巴巴', '投资'],
-      summary: '阿里巴巴加大AI芯片研发投入，提升云计算竞争力。',
-      entities: [
-        { id: 'alibaba_group', type: 'organization', name: '阿里巴巴集团' },
-        { id: 'aliyun', type: 'organization', name: '阿里云' },
-        { id: 'ai_chip', type: 'technology', name: 'AI芯片' },
-        { id: 'ai_inference_chip', type: 'technology', name: 'AI推理芯片' },
-      ],
-      relations: [
-        { source: 'alibaba_group', target: 'ai_chip', relation: '投资研发' },
-        { source: 'aliyun', target: 'ai_inference_chip', relation: '应用' },
-        { source: 'ai_chip', target: 'ai_inference_chip', relation: '包含' },
-      ],
-    },
-    null,
-    2,
-  );
+    const exampleJson = JSON.stringify(
+        {
+            domain: '科技',
+            subDomain: '人工智能',
+            tags: ['人工智能', '芯片', '云计算', '阿里巴巴', '投资'],
+            summary: '阿里巴巴加大AI芯片研发投入，提升云计算竞争力。',
+            entities: [
+                { id: 'alibaba_group', type: 'organization', name: '阿里巴巴集团' },
+                { id: 'aliyun', type: 'organization', name: '阿里云' },
+                { id: 'ai_chip', type: 'technology', name: 'AI芯片' },
+                { id: 'ai_inference_chip', type: 'technology', name: 'AI推理芯片' }
+            ],
+            relations: [
+                { source: 'alibaba_group', target: 'ai_chip', relation: '投资研发' },
+                { source: 'aliyun', target: 'ai_inference_chip', relation: '应用' },
+                { source: 'ai_chip', target: 'ai_inference_chip', relation: '包含' }
+            ]
+        },
+        null,
+        2
+    );
 
-  return `
+    return `
 # 角色使命
 你是一个专业的文档分析师，擅长从复杂文本中提取关键信息，并生成可用于知识图谱构建的结构化元数据。
 
@@ -105,5 +114,5 @@ ${exampleJson}
 }
 
 function sanitizeRule(rule: string): string {
-  return rule?.trim().replace(/\s+/g, ' ') || '';
+    return rule?.trim().replace(/\s+/g, ' ') || '';
 }

@@ -26,24 +26,5 @@
     "delete_title": "Are you sure you want to delete this question？",
     "toast": {
         "gen_ing": "Dataset Generating..."
-    },
-    "strategy_dialog_title": "Questions Generation Configuration",
-    "confirm_btn": "Submit",
-    "cancel_btn": "Cancel",
-    "strategy_form": {
-        "model": "Model",
-        "model_type": {
-            "default": "Default",
-            "custom": "Custom"
-        },
-        "question_count": "Question Count",
-        "questionCount_type": {
-            "auto": "Auto",
-            "custom": "Custom"
-        },
-        "genre": "Genre",
-        "difficulty": "Difficulty",
-        "audience": "Audience",
-        "more_setting": "More Setting"
     }
 }

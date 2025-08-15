@@ -12,7 +12,6 @@ import {
     ParseArrayPipe
 } from '@nestjs/common';
 import { QaDatasetService } from './qa-dataset.service';
-import { CreateQaDatasetDto } from './dto/create-qa-dataset.dto';
 import { UpdateQaDatasetDto } from './dto/update-qa-dataset.dto';
 import { ResponseUtil } from '@/utils/response.util';
 import { QueryQaDatasetDto } from '@/dataset/qa/dto/query-qa-dataset.dto';
@@ -26,6 +25,7 @@ import { ContextType, ModelConfigType, ProjectRole } from '@repo/shared-types';
 import { ModelConfigService } from '@/setting/model-config/model-config.service';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
 @ApiTags('QA 数据集')
 @Controller(':projectId/qa-dataset')
@@ -39,9 +39,9 @@ export class QADatasetController {
     @Post('create')
     @ApiOperation({ summary: '创建数据集' })
     @Permission(ProjectRole.EDITOR)
-    async create(@Param('projectId') projectId: string, @Body() createQaDto: CreateQaDatasetDto) {
+    async create(@Param('projectId') projectId: string, @Body() createQaDto: AiGenDto) {
         createQaDto.projectId = projectId;
-        const question = await this.questionService.getInfoById(createQaDto.questionId);
+        const question = await this.questionService.getInfoById(createQaDto.itemId);
         if (!question) {
             return ResponseUtil.notFound('Question not found');
         }

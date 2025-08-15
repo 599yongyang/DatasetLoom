@@ -1,29 +1,29 @@
 'use client';
 
-import {useEffect, useState} from 'react';
-import {Search, Plus, Key, Globe, Edit, Trash2} from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Switch} from '@/components/ui/switch';
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
-import {Separator} from '@/components/ui/separator';
-import {ScrollArea} from '@/components/ui/scroll-area';
-import {Label} from '@/components/ui/label';
+import { useEffect, useState } from 'react';
+import { Search, Plus, Key, Globe, Edit, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Label } from '@/components/ui/label';
 import * as React from 'react';
-import type {ModelProviders, ModelConfig} from '@/types/interfaces';
-import {ModelIcon, ProviderIcon} from '@lobehub/icons';
-import {useParams} from 'next/navigation';
-import {toast} from 'sonner';
+import type { ModelProviders, ModelConfig } from '@/types/interfaces';
+import { ModelIcon, ProviderIcon } from '@lobehub/icons';
+import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 import PasswordInput from '@/components/ui/password-input';
-import {ModelDialog} from '@/components/settings/model-dialog';
-import {useGetModelConfig, useModelConfigSelect} from '@/hooks/query/use-model-config';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
-import {ProviderDialog} from '@/components/settings/provider-dialog';
-import {ModelTypeIconMap} from '@/components/icons';
-import apiClient from "@/lib/axios";
+import { ModelDialog } from '@/components/settings/model-dialog';
+import { useGetModelConfig, useModelConfigSelect } from '@/hooks/query/use-model-config';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import { ProviderDialog } from '@/components/settings/provider-dialog';
+import { ModelTypeIconMap } from '@/components/icons';
+import apiClient from '@/lib/axios';
 
 export default function Page() {
-    const {projectId}: { projectId: string } = useParams();
+    const { projectId }: { projectId: string } = useParams();
 
     const [selectedProvider, setSelectedProvider] = useState<ModelProviders>({} as ModelProviders);
     const [providerList, setProviderList] = useState<ModelProviders[]>([]);
@@ -32,17 +32,17 @@ export default function Page() {
     const [openProvider, setOpenProvider] = useState(false);
     const [model, setModel] = useState<ModelConfig>({} as ModelConfig);
 
-    const {data: modelConfig, refresh: refreshModelConfig} = useGetModelConfig(projectId, selectedProvider.id);
-    const {refresh} = useModelConfigSelect(projectId);
-    const getProvidersList = () => {
+    const { data: modelConfig, refresh: refreshModelConfig } = useGetModelConfig(projectId, selectedProvider.id);
+    const { refresh } = useModelConfigSelect(projectId);
+    const getProvidersList = (initialProvider?: ModelProviders) => {
         apiClient.get(`/${projectId}/providers`).then(response => {
             setProviderList(response.data.data);
-            setSelectedProvider(response.data.data[0]);
+            setSelectedProvider(initialProvider || response.data.data[0]);
         });
     };
     const deleteModel = (modeId: string) => {
         apiClient.delete(`/${projectId}/model-config/${modeId}`)
-            .then(response => {
+            .then(_ => {
                 toast.success('删除成功');
                 void refreshModelConfig();
                 void refresh();
@@ -60,15 +60,15 @@ export default function Page() {
     }, []);
 
     const handleChange = (field: string, value: string) => {
-        setSelectedProvider(prev => ({...prev, [field]: value}));
+        setSelectedProvider(prev => ({ ...prev, [field]: value }));
         setIsChange(true);
     };
 
     const handleSave = async () => {
-        apiClient.patch(`/${projectId}/providers/update`, {...selectedProvider})
+        apiClient.patch(`/${projectId}/providers/update`, { ...selectedProvider })
             .then(res => {
                 toast.success('保存成功');
-                getProvidersList();
+                getProvidersList(selectedProvider);
                 setIsChange(false);
             })
             .catch(error => {
@@ -77,7 +77,7 @@ export default function Page() {
     };
 
     const handleModelStatusChange = (status: boolean, modelId: string) => {
-        apiClient.patch(`/${projectId}/model-config/setStatus`, {id: modelId, status})
+        apiClient.patch(`/${projectId}/model-config/setStatus`, { id: modelId, status })
             .then(res => {
                 toast.success('切换成功');
                 void refreshModelConfig();
@@ -94,15 +94,15 @@ export default function Page() {
             <div className="w-66  border-r  ">
                 <div className="p-4">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"/>
-                        <Input type="text" placeholder="搜索服务商..." className="pl-10 pr-10"/>
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input type="text" placeholder="搜索服务商..." className="pl-10 pr-10" />
                         <Button
                             size="sm"
                             variant="ghost"
                             className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
                             onClick={() => setOpenProvider(true)}
                         >
-                            <Plus className="h-4 w-4"/>
+                            <Plus className="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
@@ -120,7 +120,7 @@ export default function Page() {
                                 onClick={() => handelChangeProvider(provider)}
                             >
                                 <div className="flex items-center space-x-3">
-                                    <ProviderIcon key={provider.icon} provider={provider.icon} size={22}/>
+                                    <ProviderIcon key={provider.icon} provider={provider.icon} size={22} />
                                     <span className="text-sm font-medium text-gray-700">{provider.name}</span>
                                 </div>
                                 {/*<Switch/>*/}
@@ -134,7 +134,7 @@ export default function Page() {
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3">
-                            <ProviderIcon key={selectedProvider.icon} provider={selectedProvider.icon} size={30}/>
+                            <ProviderIcon key={selectedProvider.icon} provider={selectedProvider.icon} size={30} />
                             <h1 className="text-2xl font-bold text-gray-900">{selectedProvider.name}</h1>
                         </div>
                         <div className="flex items-center space-x-4">
@@ -146,16 +146,16 @@ export default function Page() {
                             )}
                         </div>
                     </div>
-                    <Separator/>
+                    <Separator />
                     <div className="pt-4 pb-6 space-y-4 relative z-10">
                         <div className="space-y-1">
                             <div className="flex items-center gap-2 mb-1.5">
-                                <Key className="h-4 w-4 text-muted-foreground"/>
+                                <Key className="h-4 w-4 text-muted-foreground" />
                                 <Label htmlFor="apiKey" className="font-medium text-base">
                                     API Key
                                 </Label>
                             </div>
-                            <div style={{position: 'relative'}}>
+                            <div style={{ position: 'relative' }}>
                                 <PasswordInput
                                     value={selectedProvider?.apiKey ?? ''}
                                     onChange={value => handleChange('apiKey', value)}
@@ -164,7 +164,7 @@ export default function Page() {
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-center gap-2 mb-1.5">
-                                <Globe className="h-4 w-4 text-muted-foreground"/>
+                                <Globe className="h-4 w-4 text-muted-foreground" />
                                 <Label className="font-medium text-base">API 地址</Label>
                             </div>
                             <div className="relative">
@@ -210,7 +210,7 @@ export default function Page() {
                                             className="flex items-center justify-between p-2.5 border rounded-lg"
                                         >
                                             <div className="flex items-center space-x-3">
-                                                <ModelIcon model={model.modelId} type={'color'} size={22}/>
+                                                <ModelIcon model={model.modelId} type={'color'} size={22} />
                                                 <div>
                                                     <h4 className="font-medium text-gray-900">{model.modelName}</h4>
                                                     <p className="text-sm text-gray-500">{model.modelId}</p>
@@ -239,7 +239,7 @@ export default function Page() {
                                                         setModel(model);
                                                     }}
                                                 >
-                                                    <Edit/>
+                                                    <Edit />
                                                 </Button>
                                                 <ConfirmAlert
                                                     title={'确定要删除此模型配置吗？'}
@@ -250,7 +250,7 @@ export default function Page() {
                                                         size="icon"
                                                         className={`text-red-500 hover:cursor-pointer hover:text-red-500`}
                                                     >
-                                                        <Trash2/>
+                                                        <Trash2 />
                                                     </Button>
                                                 </ConfirmAlert>
                                             </div>
@@ -271,7 +271,7 @@ export default function Page() {
                     refresh={refreshModelConfig}
                 />
             )}
-            <ProviderDialog open={openProvider} setOpen={setOpenProvider} refresh={getProvidersList}/>
+            <ProviderDialog open={openProvider} setOpen={setOpenProvider} refresh={getProvidersList} />
         </div>
     );
 }

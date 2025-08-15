@@ -2,11 +2,11 @@ import { Body, Controller, Delete, Get, Param, ParseArrayPipe, Post, Query } fro
 import { ImageChunkService } from './image-chunk.service';
 import { CreateImageChunkDto } from './dto/create-image-chunk.dto';
 import { ResponseUtil } from '@/utils/response.util';
-import { GenQuestionDto } from '@/chunk/image-chunk/dto/gen-question.dto';
 import { QueryImageChunkDto } from '@/chunk/image-chunk/dto/query-image-chunk.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ProjectRole } from '@repo/shared-types';
+import { GenQuestionImageDto } from '@/chunk/image-chunk/dto/gen-question.dto';
 
 @ApiTags('图像分块')
 @Controller(':projectId/image-chunk')
@@ -26,7 +26,7 @@ export class ImageChunkController {
     @Permission(ProjectRole.EDITOR)
     @ApiOperation({ summary: '生成问题' })
     @Post('gen-question')
-    async genQuestion(@Body() genQuestionDto: GenQuestionDto) {
+    async genQuestion(@Body() genQuestionDto: GenQuestionImageDto) {
         const data = await this.imageChunkService.genQuestion(genQuestionDto);
         return ResponseUtil.success(data);
     }

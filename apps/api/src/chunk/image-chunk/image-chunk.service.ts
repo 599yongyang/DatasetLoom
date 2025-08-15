@@ -2,7 +2,6 @@ import {Injectable} from '@nestjs/common';
 import {CreateImageChunkDto} from './dto/create-image-chunk.dto';
 import {PrismaService} from "@/common/prisma/prisma.service";
 import {readFileSync} from "fs";
-import {GenQuestionDto} from "@/chunk/image-chunk/dto/gen-question.dto";
 import {ModelConfigService} from '@/setting/model-config/model-config.service';
 import {doubleCheckModelOutput} from "@/utils/model.util";
 import {z} from "zod";
@@ -11,6 +10,7 @@ import {QueryImageChunkDto} from "@/chunk/image-chunk/dto/query-image-chunk.dto"
 import {Prisma} from "@prisma/client";
 import {AIService} from "@/common/ai/ai.service";
 import {genImageQuestionPrompt} from "@/common/ai/prompts/vision";
+import { GenQuestionImageDto } from '@/chunk/image-chunk/dto/gen-question.dto';
 
 @Injectable()
 export class ImageChunkService {
@@ -37,7 +37,7 @@ export class ImageChunkService {
         return this.prisma.imageBlock.createMany({data});
     }
 
-    async genQuestion(genQuestionDto: GenQuestionDto) {
+    async genQuestion(genQuestionDto: GenQuestionImageDto) {
         const {imageId, modelId, prompt} = genQuestionDto;
         const modelConfig = await this.modelConfigService.getModelConfigById(modelId);
         if (!modelConfig) {

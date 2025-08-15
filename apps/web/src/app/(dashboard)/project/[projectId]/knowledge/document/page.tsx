@@ -15,29 +15,7 @@ import {ProjectRole} from '@repo/shared-types';
 import {WithPermission} from '@/components/common/permission-wrapper';
 import {useDocumentsTableColumns} from '@/hooks/table-columns/use-document';
 import apiClient from "@/lib/axios";
-
-const fileType = [
-    {
-        value: 'pdf',
-        label: 'PDF'
-    },
-    {
-        value: 'txt',
-        label: 'TXT'
-    },
-    {
-        value: 'doc',
-        label: 'DOC'
-    },
-    {
-        value: 'md',
-        label: 'MD'
-    },
-    {
-        value: 'epub',
-        label: 'EPUB'
-    }
-];
+import { fileTypeOption } from '@/lib/data-dictionary';
 
 export default function Page() {
     const {projectId}: { projectId: string } = useParams();
@@ -105,7 +83,7 @@ export default function Page() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">{t('file_ext_all')}</SelectItem>
-                            {fileType.map(item => (
+                            {fileTypeOption.map(item => (
                                 <SelectItem key={item.value} value={item.value}>
                                     {item.label}
                                 </SelectItem>

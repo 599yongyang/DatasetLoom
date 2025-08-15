@@ -1,27 +1,27 @@
-import {Inject, Injectable, Logger} from '@nestjs/common';
-import {PrismaService} from '@/common/prisma/prisma.service';
-import {QueryDocumentChunkDto} from '@/chunk/document-chunk/dto/query-document-chunk.dto';
-import {UpdateDocumentChunkDto} from '@/chunk/document-chunk/dto/update-document-chunk.dto';
-import {GenQuestionDto} from '@/chunk/document-chunk/dto/gen-question.dto';
-import {ResponseUtil} from '@/utils/response.util';
-import {ModelConfigService} from '@/setting/model-config/model-config.service';
-import {ProjectService} from '@/project/project.service';
-import {doubleCheckModelOutput} from '@/utils/model.util';
-import {Chunks, Prisma, Questions} from '@prisma/client';
-import {QuestionService} from '@/question/question.service';
-import {ContextType} from '@repo/shared-types';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {AIService} from "@/common/ai/ai.service";
-import {getQuestionPrompt} from "@/common/ai/prompts/question";
-import {questionsSchema} from "@/common/ai/prompts/schema";
-import {CACHE_MANAGER} from "@nestjs/cache-manager";
-import {Cache} from "cache-manager"
-import {CreateDocumentChunkDto} from "@/chunk/document-chunk/dto/create-document-chunk.dto";
-import {createHash} from "crypto";
-import {DocumentService} from "@/knowledge/document/document.service";
-import {chunker} from "@/utils/chunker";
-import {nanoid} from "nanoid";
-import {FileUtil} from "@/utils/file.util";
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '@/common/prisma/prisma.service';
+import { QueryDocumentChunkDto } from '@/chunk/document-chunk/dto/query-document-chunk.dto';
+import { UpdateDocumentChunkDto } from '@/chunk/document-chunk/dto/update-document-chunk.dto';
+import { ResponseUtil } from '@/utils/response.util';
+import { ModelConfigService } from '@/setting/model-config/model-config.service';
+import { doubleCheckModelOutput } from '@/utils/model.util';
+import { Chunks, Prisma, Questions } from '@prisma/client';
+import { QuestionService } from '@/question/question.service';
+import { ContextType } from '@repo/shared-types';
+import { AIService } from '@/common/ai/ai.service';
+import { questionsSchema } from '@/common/ai/prompts/schema';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { CreateDocumentChunkDto } from '@/chunk/document-chunk/dto/create-document-chunk.dto';
+import { createHash } from 'crypto';
+import { DocumentService } from '@/knowledge/document/document.service';
+import { chunker } from '@/utils/chunker';
+import { nanoid } from 'nanoid';
+import { FileUtil } from '@/utils/file.util';
+import { PromptTemplateService } from '@/setting/prompt-template/prompt-template.service';
+import Handlebars from 'handlebars';
+import { questionSystemPrompt } from '@/common/ai/prompts/system';
+import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
 @Injectable()
 export class DocumentChunkService {
@@ -31,32 +31,38 @@ export class DocumentChunkService {
                 private readonly aiService: AIService,
                 private readonly documentService: DocumentService,
                 private readonly modelConfigService: ModelConfigService,
-                private readonly projectService: ProjectService,
+                private readonly promptTemplateService: PromptTemplateService,
                 private readonly questionService: QuestionService,
                 @Inject(CACHE_MANAGER) private cacheManager: Cache) {
     }
 
 
     async create(createDocumentChunkDto: CreateDocumentChunkDto) {
-        const {fileIds, strategy, separators, chunkSize, chunkOverlap, projectId} = createDocumentChunkDto;
-        const chunkConfigHash = this.generateChunkConfigHash({fileIds, strategy, separators, chunkSize, chunkOverlap});
+        const { fileIds, strategy, separators, chunkSize, chunkOverlap, projectId } = createDocumentChunkDto;
+        const chunkConfigHash = this.generateChunkConfigHash({
+            fileIds,
+            strategy,
+            separators,
+            chunkSize,
+            chunkOverlap
+        });
         const cachedChunks = await this.cacheManager.get<Chunks[]>(`preview-chunks:${projectId}:${chunkConfigHash}`);
         if (cachedChunks && cachedChunks.length > 0) {
-            return {chunkList: cachedChunks, hash: chunkConfigHash}
+            return { chunkList: cachedChunks, hash: chunkConfigHash };
         }
-        const chunkList = await this.genChunkData(createDocumentChunkDto)
+        const chunkList = await this.genChunkData(createDocumentChunkDto);
         await this.cacheManager.set(`preview-chunks:${projectId}:${chunkConfigHash}`, chunkList, 1000 * 60 * 5);
-        return {chunkList, hash: chunkConfigHash}
+        return { chunkList, hash: chunkConfigHash };
     }
 
     async chunkAndSave(createDocumentChunkDto: CreateDocumentChunkDto) {
-        const chunkList = await this.genChunkData(createDocumentChunkDto)
-        return this.prisma.chunks.createMany({data: chunkList});
+        const chunkList = await this.genChunkData(createDocumentChunkDto);
+        return this.prisma.chunks.createMany({ data: chunkList });
     }
 
 
     private async genChunkData(createDocumentChunkDto: CreateDocumentChunkDto) {
-        const {fileIds, strategy, separators, chunkSize, chunkOverlap, projectId} = createDocumentChunkDto;
+        const { fileIds, strategy, separators, chunkSize, chunkOverlap, projectId } = createDocumentChunkDto;
         const docs = await this.documentService.getByIds(fileIds);
         //将文件内容进行分块
         let chunkList: Chunks[] = [];
@@ -65,7 +71,7 @@ export class DocumentChunkService {
             if (!filePath) {
                 continue;
             }
-            const data = await chunker(filePath, strategy, {chunkSize, chunkOverlap, separators});
+            const data = await chunker(filePath, strategy, { chunkSize, chunkOverlap, separators });
             data.map((text, index) => {
                 chunkList.push({
                     id: nanoid(),
@@ -93,7 +99,7 @@ export class DocumentChunkService {
             throw new Error('缓存数据无效或已过期，请重新上传操作');
         }
         try {
-            return this.prisma.chunks.createMany({data: cachedChunks});
+            return this.prisma.chunks.createMany({ data: cachedChunks });
         } catch (error) {
             console.error('Failed to create chunks in database');
             throw error;
@@ -102,14 +108,14 @@ export class DocumentChunkService {
 
     async getListPagination(queryDto: QueryDocumentChunkDto) {
         try {
-            const {projectId, page, pageSize, status, fileIds, query} = queryDto;
+            const { projectId, page, pageSize, status, fileIds, query } = queryDto;
             const whereClause: Prisma.ChunksWhereInput = {
-                projectId,
+                projectId
             };
             // 处理状态过滤条件
             if (status === 'generated' || status === 'ungenerated') {
-                const questions = await this.questionService.getListByContextType(projectId, ContextType.TEXT)
-                const questionContextIds = questions.map(q => q.contextId)
+                const questions = await this.questionService.getListByContextType(projectId, ContextType.TEXT);
+                const questionContextIds = questions.map(q => q.contextId);
                 if (status === 'generated') {
                     whereClause.id = {
                         in: questionContextIds
@@ -121,28 +127,28 @@ export class DocumentChunkService {
                 }
             }
             if (fileIds && fileIds.length > 0) {
-                whereClause.documentId = {in: fileIds};
+                whereClause.documentId = { in: fileIds };
             }
             if (query) {
                 whereClause.OR = [
-                    {name: {contains: query}},
-                    {content: {contains: query}}
+                    { name: { contains: query } },
+                    { content: { contains: query } }
                 ];
             }
             const [data, total] = await Promise.all([
                 this.prisma.chunks.findMany({
                     where: whereClause,
                     orderBy: {
-                        createdAt: 'desc',
+                        createdAt: 'desc'
                     },
                     skip: (page - 1) * pageSize,
-                    take: pageSize,
+                    take: pageSize
                 }),
                 this.prisma.chunks.count({
-                    where: whereClause,
-                }),
+                    where: whereClause
+                })
             ]);
-            return {data, total};
+            return { data, total };
         } catch (error) {
             console.error('Failed to get chunks by pagination in database');
             throw error;
@@ -152,8 +158,8 @@ export class DocumentChunkService {
     getInfoById(id: string) {
         try {
             return this.prisma.chunks.findUnique({
-                where: {id},
-                include: {ChunkEntities: true},
+                where: { id },
+                include: { ChunkEntities: true }
             });
         } catch (error) {
             console.error('Failed to get chunks by id in database');
@@ -164,13 +170,13 @@ export class DocumentChunkService {
     update(id: string, updateDocumentChunkDto: UpdateDocumentChunkDto) {
         try {
             return this.prisma.chunks.update({
-                where: {id},
+                where: { id },
                 data: {
                     name: updateDocumentChunkDto.name,
                     content: updateDocumentChunkDto.content,
                     tags: updateDocumentChunkDto.tags,
-                    size: updateDocumentChunkDto.content.length,
-                },
+                    size: updateDocumentChunkDto.content.length
+                }
             });
         } catch (error) {
             console.error('Failed to update chunks by id in database');
@@ -183,12 +189,12 @@ export class DocumentChunkService {
             await this.prisma.$transaction(async tx => {
                 await tx.questions.deleteMany({
                     where: {
-                        contextId: {in: ids},
-                        contextType: ContextType.TEXT,
-                    },
+                        contextId: { in: ids },
+                        contextType: ContextType.TEXT
+                    }
                 });
 
-                await tx.chunks.deleteMany({where: {id: {in: ids}}});
+                await tx.chunks.deleteMany({ where: { id: { in: ids } } });
             });
         } catch (error) {
             console.error('Failed to delete chunks by id in database');
@@ -196,55 +202,39 @@ export class DocumentChunkService {
         }
     }
 
-    async genQuestion(genQuestionDto: GenQuestionDto) {
+    async genQuestion(genQuestionDto: AiGenDto) {
         try {
             const {
-                chunkId,
+                itemId,
                 projectId,
                 modelConfigId,
-                questionCountType,
-                questionCount,
-                difficulty,
-                audience,
-                genre,
-                language,
                 temperature,
                 maxTokens,
+                templateId,
+                variablesData
             } = genQuestionDto;
 
-            // 并行获取文本块内容和项目配置
-            const [chunk, project, model] = await Promise.all([
-                this.getInfoById(chunkId),
-                this.projectService.getInfoById(projectId),
-                this.modelConfigService.getModelConfigById(modelConfigId),
+            // 并行获取文本块内容和prompt 模板
+            const [chunk, promptTemplate, model] = await Promise.all([
+                this.getInfoById(itemId),
+                this.promptTemplateService.getInfoById(templateId!, projectId),
+                this.modelConfigService.getModelConfigById(modelConfigId)
             ]);
 
-            if (!chunk || !project || !model) {
+            if (!chunk || !promptTemplate || !model) {
                 return ResponseUtil.badRequest('not found');
             }
 
-            // 获取项目 提示词配置 信息
-            const {globalPrompt, questionPrompt} = project;
+            const template = Handlebars.compile(promptTemplate.content);
+            const prompt = template({ ...variablesData, context: chunk.content });
 
-            // 获取问题生成提示词
-            const prompt = getQuestionPrompt({
-                text: chunk.content,
-                tags: chunk.tags || '',
-                number: questionCountType === 'custom' ? questionCount : undefined,
-                difficulty: difficulty,
-                audience: audience,
-                genre: genre,
-                language: language,
-                globalPrompt,
-                questionPrompt,
-            });
             const data = await this.aiService.chat({
                 ...model,
                 temperature: temperature,
-                maxTokens: maxTokens,
-            } as ModelConfigWithProvider, prompt);
+                maxTokens: maxTokens
+            }, prompt, questionSystemPrompt);
             this.logger.log('Model Response:', data);
-            const {text} = data;
+            const { text } = data;
             this.logger.log('Model Output:', text);
             const modelOutput = await doubleCheckModelOutput(text, questionsSchema);
             this.logger.log('Model Output after double check:', modelOutput);
@@ -257,7 +247,7 @@ export class DocumentChunkService {
                     contextId: chunk.id,
                     contextData: chunk.content,
                     contextName: chunk.name,
-                    contextType: ContextType.TEXT,
+                    contextType: ContextType.TEXT
                 } as Questions;
             });
             // 保存问题到数据库
@@ -273,8 +263,8 @@ export class DocumentChunkService {
         try {
             // 获取 source 和 target chunk
             const [sourceChunk, targetChunk] = await Promise.all([
-                this.prisma.chunks.findUnique({where: {id: sourceId}}),
-                this.prisma.chunks.findUnique({where: {id: targetId}})
+                this.prisma.chunks.findUnique({ where: { id: sourceId } }),
+                this.prisma.chunks.findUnique({ where: { id: targetId } })
             ]);
 
             if (!sourceChunk || !targetChunk) {
@@ -292,14 +282,14 @@ export class DocumentChunkService {
             const result = await this.prisma.$transaction(async tx => {
                 // 更新目标 chunk 内容
                 const updatedTarget = await tx.chunks.update({
-                    where: {id: targetId},
-                    data: {content: mergedContent, size: mergedContent.length}
+                    where: { id: targetId },
+                    data: { content: mergedContent, size: mergedContent.length }
                 });
 
-                await tx.questions.updateMany({where: {contextId: sourceId}, data: {contextId: targetId}});
+                await tx.questions.updateMany({ where: { contextId: sourceId }, data: { contextId: targetId } });
 
                 // 删除 source chunk
-                await tx.chunks.delete({where: {id: sourceId}});
+                await tx.chunks.delete({ where: { id: sourceId } });
 
                 return {
                     mergedChunk: updatedTarget,
@@ -337,7 +327,6 @@ export class DocumentChunkService {
         // 生成哈希值（sha1 更短更合适）
         return createHash('sha1').update(str).digest('hex');
     }
-
 
 
 }

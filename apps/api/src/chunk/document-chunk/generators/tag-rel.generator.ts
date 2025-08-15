@@ -3,9 +3,8 @@ import {ModelConfigWithProvider} from '@/common/prisma/type';
 import {doubleCheckModelOutput} from '@/utils/model.util';
 import {AIService} from "@/common/ai/ai.service";
 import {documentAnalysisSchema} from "@/common/ai/prompts/schema";
-import {getLabelPrompt} from "@/common/ai/prompts/label";
+import { getLabelPrompt, Language } from '@/common/ai/prompts/label';
 import {Chunks, Projects} from '@prisma/client';
-import {Language} from "@/common/ai/prompts/type";
 import {PrismaService} from "@/common/prisma/prisma.service";
 import {DocumentChunkGraphService} from "@/chunk/document-chunk/document-chunk-graph.service";
 

@@ -1,8 +1,8 @@
-import {Injectable, Logger} from '@nestjs/common';
-import type {UIMessage, CoreUserMessage, Message} from 'ai';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {IAIProvider} from "@/common/ai/interfaces/ai-provider.interface";
-import {AIProviderFactory} from "@/common/ai/factories/ai-provider.factory";
+import { Injectable, Logger } from '@nestjs/common';
+import type { UIMessage, CoreUserMessage, Message } from 'ai';
+import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { IAIProvider } from '@/common/ai/interfaces/ai-provider.interface';
+import { AIProviderFactory } from '@/common/ai/factories/ai-provider.factory';
 
 
 @Injectable()
@@ -28,14 +28,12 @@ export class AIService {
     async chat(
         config: ModelConfigWithProvider,
         prompt: string | UIMessage[] | CoreUserMessage[],
+        systemPrompt?: string,
         options?: any
     ) {
         const provider = this.getProvider(config);
-        const messages = Array.isArray(prompt)
-            ? prompt
-            : [{role: 'user', content: prompt}] as UIMessage[];
-
-        return await provider.chat(messages, options);
+        const messages = Array.isArray(prompt) ? prompt : [{ role: 'user', content: prompt }] as UIMessage[];
+        return await provider.chat(messages, systemPrompt, options);
     }
 
     async vision(

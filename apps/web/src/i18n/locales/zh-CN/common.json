@@ -1,38 +1,46 @@
 {
-    "select_language": "选择语言",
-    "languages": {
-        "english": "英语",
-        "french": "法语",
-        "german": "德语",
-        "spanish": "西班牙语",
-        "portuguese": "葡萄牙语",
-        "russian": "俄语",
-        "japanese": "日语",
-        "korean": "韩语",
-        "chinese": "中文"
-    },
-    "themes": {
-        "system": "系统",
-        "light": "明亮",
-        "dark": "暗夜"
-    },
-    "pagination": {
-        "select_row": "已选择 {{row_count}} 行中的 {{selected_count}} 行",
-        "page_count": "第 {{current}} 页共 {{page}} 页",
-        "page_rows": "每页行数",
-        "first": "转到第一页",
-        "previous": "转到上一页",
-        "next": "转到下一页",
-        "last": "转到最后一页"
-    },
-    "update": "更新",
-    "documentation": "文档",
-    "search": "搜索",
-    "messages": {
-        "operate_success": "操作成功",
-        "operate_fail": "操作失败",
-        "delete_loading": "正在删除 {{count}} 条数据...",
-        "delete_success": "成功删除 {{count}} 条数据",
-        "delete_fail": "删除问题失败"
-    }
+  "select_language": "选择语言",
+  "languages": {
+    "english": "英语",
+    "french": "法语",
+    "german": "德语",
+    "spanish": "西班牙语",
+    "portuguese": "葡萄牙语",
+    "russian": "俄语",
+    "japanese": "日语",
+    "korean": "韩语",
+    "chinese": "中文"
+  },
+  "themes": {
+    "system": "系统",
+    "light": "明亮",
+    "dark": "暗夜"
+  },
+  "pagination": {
+    "select_row": "已选择 {{row_count}} 行中的 {{selected_count}} 行",
+    "page_count": "第 {{current}} 页共 {{page}} 页",
+    "page_rows": "每页行数",
+    "first": "转到第一页",
+    "previous": "转到上一页",
+    "next": "转到下一页",
+    "last": "转到最后一页"
+  },
+  "update": "更新",
+  "documentation": "文档",
+  "search": "搜索",
+  "messages": {
+    "operate_success": "操作成功",
+    "operate_fail": "操作失败",
+    "delete_loading": "正在删除 {{count}} 条数据...",
+    "delete_success": "成功删除 {{count}} 条数据",
+    "delete_fail": "删除问题失败"
+  },
+  "strategy_dialog": {
+    "title": "AI生成配置",
+    "ai_model": "AI 模型",
+    "prompt": "Prompt模板",
+    "more_setting": "更多设置"
+  },
+  "confirm_btn": "确认",
+  "cancel_btn": "取消"
 }

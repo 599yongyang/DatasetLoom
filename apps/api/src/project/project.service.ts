@@ -1,10 +1,11 @@
-import {Injectable} from '@nestjs/common';
-import {CreateProjectDto} from './dto/create-project.dto';
-import {UpdateProjectDto} from './dto/update-project.dto';
-import {PrismaService} from '@/common/prisma/prisma.service';
-import {nanoid} from 'nanoid';
-import {ProjectRole} from '@repo/shared-types';
-import {DEFAULT_PROVIDERS} from "@/constants/model";
+import { Injectable } from '@nestjs/common';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
+import { PrismaService } from '@/common/prisma/prisma.service';
+import { nanoid } from 'nanoid';
+import { ProjectRole } from '@repo/shared-types';
+import { DEFAULT_PROVIDERS } from '@/constants/model';
+import { InitPromptTemplate } from '@/common/init/prompt';
 
 @Injectable()
 export class ProjectService {
@@ -17,9 +18,12 @@ export class ProjectService {
 
 
             const providers = DEFAULT_PROVIDERS.map(provider => {
-                return {id: nanoid(), ...provider, projectId: projectId, apiKey: ''}
-            })
+                return { id: nanoid(), ...provider, projectId: projectId, apiKey: '' };
+            });
 
+            const initPromptTemplates = InitPromptTemplate.map(prompt => {
+                return { ...prompt, projectId: projectId };
+            });
 
             // 使用 Prisma 事务确保数据库操作的原子性
             const [project, projectMember] = await this.prisma.$transaction([
@@ -28,17 +32,19 @@ export class ProjectService {
                         id: projectId,
                         name: createProjectDto.name,
                         description: createProjectDto.description || '',
-                        ownerId: userId,
-                    },
+                        ownerId: userId
+                    }
                 }),
                 this.prisma.projectMember.create({
                     data: {
                         projectId: projectId,
                         userId: userId,
-                        role: ProjectRole.OWNER,
-                    },
+                        role: ProjectRole.OWNER
+                    }
                 }),
-                this.prisma.modelProviders.createMany({data: providers})
+                this.prisma.modelProviders.createMany({ data: providers }),
+                this.prisma.promptTemplate.createMany({ data: initPromptTemplates })
+
             ]);
 
             return project;
@@ -53,9 +59,9 @@ export class ProjectService {
             return await this.prisma.projects.findMany({
                 where: {
                     name: {
-                        contains: name,
+                        contains: name
                     },
-                    OR: [{ownerId: userId}, {members: {some: {userId: userId}}}],
+                    OR: [{ ownerId: userId }, { members: { some: { userId: userId } } }]
                 },
                 select: {
                     id: true,
@@ -68,13 +74,13 @@ export class ProjectService {
                         select: {
                             DatasetSamples: true,
                             Questions: true,
-                            ModelConfig: true,
-                        },
-                    },
+                            ModelConfig: true
+                        }
+                    }
                 },
                 orderBy: {
-                    createdAt: 'desc',
-                },
+                    createdAt: 'desc'
+                }
             });
         } catch (error) {
             console.error('Failed to get projects in database');
@@ -84,7 +90,7 @@ export class ProjectService {
 
     getInfoById(projectId: string) {
         try {
-            return this.prisma.projects.findUnique({where: {id: projectId}});
+            return this.prisma.projects.findUnique({ where: { id: projectId } });
         } catch (error) {
             console.error('Failed to get project by id in database');
             throw error;
@@ -94,8 +100,8 @@ export class ProjectService {
     update(id: string, updateProjectDto: UpdateProjectDto) {
         try {
             return this.prisma.projects.update({
-                where: {id},
-                data: {...updateProjectDto},
+                where: { id },
+                data: { ...updateProjectDto }
             });
         } catch (error) {
             console.error('Failed to update project in database');
@@ -105,7 +111,7 @@ export class ProjectService {
 
     async remove(id: string) {
         try {
-            await this.prisma.projects.delete({where: {id}});
+            await this.prisma.projects.delete({ where: { id } });
             return true;
         } catch (error) {
             return false;
@@ -117,8 +123,8 @@ export class ProjectService {
             const count = await this.prisma.projects.count({
                 where: {
                     name: name,
-                    ownerId: userId,
-                },
+                    ownerId: userId
+                }
             });
             return count > 0;
         } catch (error) {
@@ -132,7 +138,7 @@ export class ProjectService {
             await this.prisma.$transaction(async tx => {
                 // Step 1: 获取源项目下的所有 provider
                 const providers = await tx.modelProviders.findMany({
-                    where: {projectId: copyProjectId},
+                    where: { projectId: copyProjectId }
                 });
 
                 if (!providers.length) return;
@@ -149,8 +155,8 @@ export class ProjectService {
                             id: newProviderId,
                             projectId: newProjectId,
                             createdAt: new Date(),
-                            updatedAt: new Date(),
-                        },
+                            updatedAt: new Date()
+                        }
                     });
                 });
 
@@ -159,7 +165,7 @@ export class ProjectService {
                 // Step 3: 获取所有 modelConfigs（一次性批量获取）
                 const providerIds = providers.map(p => p.id);
                 const modelConfigs = await tx.modelConfig.findMany({
-                    where: {providerId: {in: providerIds}},
+                    where: { providerId: { in: providerIds } }
                 });
 
                 if (!modelConfigs.length) return;
@@ -175,8 +181,8 @@ export class ProjectService {
                             providerId: newProviderId,
                             projectId: newProjectId,
                             createdAt: new Date(),
-                            updatedAt: new Date(),
-                        },
+                            updatedAt: new Date()
+                        }
                     });
                 });
 
