@@ -41,7 +41,6 @@ export class PromptTemplateController {
     @ApiOperation({ summary: '获取提示词列表' })
     @Get('select')
     async select(@Param('projectId') projectId: string, @Query('type') type: string) {
-        console.log(type, projectId);
         const data = await this.promptTemplateService.select(projectId, type);
         return ResponseUtil.success(data);
     }
@@ -49,8 +48,9 @@ export class PromptTemplateController {
     @Patch()
     @ApiOperation({ summary: '更新提示词' })
     @Permission(ProjectRole.ADMIN)
-    update(@Body() updatePromptTemplateDto: UpdatePromptTemplateDto) {
-        return this.promptTemplateService.update(updatePromptTemplateDto);
+    async update(@Body() updatePromptTemplateDto: UpdatePromptTemplateDto) {
+        await this.promptTemplateService.update(updatePromptTemplateDto);
+        return ResponseUtil.success();
     }
 
     @Delete('delete')

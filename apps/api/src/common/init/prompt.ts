@@ -183,5 +183,29 @@ export const InitPromptTemplate = [
                 'step': 1
             }
         }
+    },
+    {
+        name: '生成图谱（系统默认）',
+        description: '这是系统默认生成图谱的prompt',
+        type: PromptTemplateType.LABEL,
+        content: `# 角色使命
+你是一个专业的文档分析师，擅长从复杂文本中提取关键信息，并生成可用于知识图谱构建的结构化元数据。
+
+## 待处理文本
+{{context}}
+
+## 分类体系参考
+- 科技
+  - 软件工程
+  - 网络安全
+  - 人工智能
+  - 数据库
+  - 系统架构
+- 医疗
+- 法律
+- 教育
+- 金融
+`,
+        variables: {}
     }
 ];

@@ -18,9 +18,10 @@ export class ImageChunkController {
     @Post('create')
     @ApiOperation({ summary: '创建图像分块' })
     @Permission(ProjectRole.EDITOR)
-    create(@Param('projectId') projectId: string, @Body() createImageChunkDto: CreateImageChunkDto) {
+    async create(@Param('projectId') projectId: string, @Body() createImageChunkDto: CreateImageChunkDto) {
         createImageChunkDto.projectId = projectId;
-        return this.imageChunkService.create(createImageChunkDto);
+        await this.imageChunkService.create(createImageChunkDto);
+        return ResponseUtil.success();
     }
 
     @Permission(ProjectRole.EDITOR)

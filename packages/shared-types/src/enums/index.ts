@@ -42,6 +42,7 @@ export enum ParseStatusType {
 }
 
 export enum PromptTemplateType {
+    LABEL = 'LABEL',
     QUESTION = 'QUESTION',
     ANSWER = 'ANSWER',
     OTHER = 'OTHER'

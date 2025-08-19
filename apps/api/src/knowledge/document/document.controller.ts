@@ -17,16 +17,22 @@ import { ParserFactory } from '@/utils/parser/parser-factory';
 import { ParserConfig } from '@prisma/client';
 import { ParserConfigService } from '@/setting/parser-config/parser-config.service';
 import type { Parser } from '@/utils/parser/types';
-import { DocumentChunkGraphService } from '@/chunk/document-chunk/document-chunk-graph.service';
+import { DocumentGraphService } from '@/knowledge/document/document-graph.service';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ModelConfigService } from '@/setting/model-config/model-config.service';
+import { TagRelGenerator } from '@/knowledge/document/generators/tag-rel.generator';
+import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
 @ApiTags('文档库')
 @Controller(':projectId/document')
 export class DocumentController {
-    constructor(private readonly documentService: DocumentService, private readonly parserConfigService: ParserConfigService,
-                private readonly chunkGraphService: DocumentChunkGraphService) {
+    constructor(private readonly documentService: DocumentService,
+                private readonly parserConfigService: ParserConfigService,
+                private readonly graphService: DocumentGraphService,
+                private readonly modelConfigService: ModelConfigService,
+                private readonly tagRelGenerator: TagRelGenerator) {
     }
 
 
@@ -101,7 +107,15 @@ export class DocumentController {
     @ApiOperation({ summary: '获取文档库关系图' })
     @Permission(ProjectRole.VIEWER)
     async graph(@Param('projectId') projectId: string, @Query('id') id: string) {
-        const data = await this.chunkGraphService.getChunkGraph(projectId, [id]);
+        const data = await this.graphService.getChunkGraph(projectId, [id]);
+        return ResponseUtil.success(data);
+    }
+
+    @Get('check-graph')
+    @ApiOperation({ summary: '检测是否有图谱数据' })
+    @Permission(ProjectRole.VIEWER)
+    async checkGraph(@Param('projectId') projectId: string, @Query('id') id: string) {
+        const data = await this.graphService.checkGraph(projectId, [id]);
         return ResponseUtil.success(data);
     }
 
@@ -117,5 +131,18 @@ export class DocumentController {
         return ResponseUtil.success(null, `${deletedCount} document(s) deleted successfully`);
     }
 
+    @Post('gen-tag-rel')
+    @ApiOperation({ summary: '为文档生成标签关系（用于图谱展示）' })
+    @Permission(ProjectRole.EDITOR)
+    async genTagAndRel(@Param('projectId') projectId: string, @Body() genTagRelDto: AiGenDto) {
+        genTagRelDto.projectId = projectId;
+        // 获取模型配置
+        const model = await this.modelConfigService.getModelConfigById(genTagRelDto.modelConfigId);
+        if (!model) {
+            return ResponseUtil.error('指定的模型配置不存在');
+        }
+        const data = await this.tagRelGenerator.generate(genTagRelDto, model);
+        return ResponseUtil.success(data);
+    }
 
 }

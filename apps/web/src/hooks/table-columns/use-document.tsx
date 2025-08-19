@@ -1,25 +1,27 @@
-import type {ColumnDef} from '@tanstack/react-table';
-import {useTranslation} from 'react-i18next';
-import {Badge} from '@/components/ui/badge';
-import {Button} from '@/components/ui/button';
-import {Waypoints} from 'lucide-react';
-import {toast} from 'sonner';
-import {Checkbox} from '@/components/ui/checkbox';
-import {useParams, useRouter} from 'next/navigation';
-import {formatBytes} from '@/hooks/use-file-upload';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
-import {ChunkStrategyDialog} from '@/components/chunks/chunk-strategy-dialog';
-import {ProjectRole} from '@repo/shared-types';
-import {WithPermission} from '@/components/common/permission-wrapper';
-import type {TFunction} from 'i18next';
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
-import apiClient from "@/lib/axios";
+import type { ColumnDef } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Waypoints } from 'lucide-react';
+import { toast } from 'sonner';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useParams } from 'next/navigation';
+import { formatBytes } from '@/hooks/use-file-upload';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
+import { ProjectRole } from '@repo/shared-types';
+import { WithPermission } from '@/components/common/permission-wrapper';
+import type { TFunction } from 'i18next';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import apiClient from '@/lib/axios';
 import { DocumentsWithCount } from '@/types/interfaces';
 
-export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: () => void }) {
-    const router = useRouter();
-    const {t} = useTranslation('knowledge');
-    const {projectId}: { projectId: string } = useParams();
+export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
+    mutateDocuments: () => void,
+    handelGraph: (id: string) => void;
+}) {
+    const { t } = useTranslation('knowledge');
+    const { projectId }: { projectId: string } = useParams();
     const deleteDocument = (fileId: string) => {
         toast.promise(apiClient.delete(`/${projectId}/document/delete?ids=${fileId}`),
             {
@@ -38,7 +40,7 @@ export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: (
     const columns: ColumnDef<DocumentsWithCount>[] = [
         {
             id: 'select',
-            header: ({table}) => (
+            header: ({ table }) => (
                 <div className="flex items-center justify-center">
                     <Checkbox
                         checked={
@@ -49,7 +51,7 @@ export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: (
                     />
                 </div>
             ),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className="flex items-center justify-center">
                     <Checkbox
                         checked={row.getIsSelected()}
@@ -63,7 +65,7 @@ export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: (
         {
             accessorKey: 'fileName',
             header: t('table_columns.file_name'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className="text-foreground max-w-[30vw] px-0 text-left">
                     <TooltipProvider delayDuration={0}>
                         <Tooltip>
@@ -85,13 +87,13 @@ export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: (
         {
             accessorKey: 'chunkCount',
             header: t('table_columns.chunk_count'),
-            cell: ({row}) => <div className="text-foreground px-0 text-left">{row.original._count.Chunks}</div>,
+            cell: ({ row }) => <div className="text-foreground px-0 text-left">{row.original._count.Chunks}</div>,
             enableHiding: false
         },
         {
             accessorKey: 'sourceType',
             header: t('table_columns.source_type'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div>
                     <Badge variant="outline" className="text-muted-foreground">
                         {formatSourceType(row.original.sourceType, t)}
@@ -102,12 +104,12 @@ export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: (
         {
             accessorKey: 'fileExt',
             header: t('table_columns.file_ext'),
-            cell: ({row}) => <div>{row.original.fileExt}</div>
+            cell: ({ row }) => <div>{row.original.fileExt}</div>
         },
         {
             accessorKey: 'size',
             header: t('table_columns.size'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground">
                     {formatBytes(row.original.size || row.original.parserFileSize || 0)}
                 </Badge>
@@ -116,12 +118,12 @@ export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: (
         {
             accessorKey: 'createdAt',
             header: t('table_columns.createdAt'),
-            cell: ({row}) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
+            cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
         },
         {
             id: 'actions',
             header: () => <div className="text-center">{t('table_columns.actions')}</div>,
-            cell: ({row}) => {
+            cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-2">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
@@ -136,12 +138,10 @@ export function useDocumentsTableColumns({mutateDocuments}: { mutateDocuments: (
                                 variant="ghost"
                                 className={'hover:cursor-pointer'}
                                 size="icon"
-                                onClick={() => {
-                                    router.push(`/project/${projectId}/graph?kid=${row.original.id}`);
-                                }}
+                                onClick={() => handelGraph(row.original.id)}
                                 aria-label="View"
                             >
-                                <Waypoints size={30}/>
+                                <Waypoints size={30} />
                             </Button>
                         )}
                         <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>

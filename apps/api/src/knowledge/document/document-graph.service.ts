@@ -1,5 +1,5 @@
-import {Injectable} from '@nestjs/common';
-import {PrismaService} from '@/common/prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@/common/prisma/prisma.service';
 
 interface EntityInput {
     id: string;
@@ -14,7 +14,7 @@ interface RelationInput {
 }
 
 @Injectable()
-export class DocumentChunkGraphService {
+export class DocumentGraphService {
 
     constructor(private readonly prisma: PrismaService) {
     }
@@ -77,27 +77,27 @@ export class DocumentChunkGraphService {
         });
     }
 
-    async getChunkGraph(projectId: string, fileIds?: string[], options = {limit: 1000}) {
+    async getChunkGraph(projectId: string, fileIds?: string[], options = { limit: 1000 }) {
         try {
             // 1. 查询 chunks，只获取需要的 chunkId 列表
             const chunkList = await this.prisma.chunks.findMany({
                 where: {
                     projectId,
-                    ...(fileIds?.length ? {documentId: {in: fileIds}} : {})
+                    ...(fileIds?.length ? { documentId: { in: fileIds } } : {})
                 },
-                select: {id: true}
+                select: { id: true }
             });
 
             const chunkIds = chunkList.map(chunk => chunk.id);
 
             if (chunkIds.length === 0) {
-                return {nodes: [], edges: []};
+                return { nodes: [], edges: [] };
             }
 
             // 2. 分页查询实体及其相关信息
             const entities = await this.prisma.chunkEntities.findMany({
                 where: {
-                    chunkId: {in: chunkIds}
+                    chunkId: { in: chunkIds }
                 },
                 take: options.limit,
                 include: {
@@ -118,7 +118,7 @@ export class DocumentChunkGraphService {
             // 4. 查询关系（包含完整的关系信息）
             const relations = await this.prisma.chunkRelation.findMany({
                 where: {
-                    OR: [{sourceEntityId: {in: entityDbIds}}, {targetEntityId: {in: entityDbIds}}]
+                    OR: [{ sourceEntityId: { in: entityDbIds } }, { targetEntityId: { in: entityDbIds } }]
                 },
                 include: {
                     sourceEntity: {
@@ -166,6 +166,48 @@ export class DocumentChunkGraphService {
                     }
                 }))
             };
+        } catch (error) {
+            console.error('Failed to fetch knowledge graph data:', error);
+            throw new Error('Knowledge graph query failed');
+        }
+    }
+
+
+    async checkGraph(projectId: string, fileIds?: string[]) {
+        try {
+            // 1. 查询 chunks，只获取需要的 chunkId 列表
+            const chunkList = await this.prisma.chunks.findMany({
+                where: {
+                    projectId,
+                    ...(fileIds?.length ? { documentId: { in: fileIds } } : {})
+                },
+                select: { id: true }
+            });
+
+            const chunkIds = chunkList.map(chunk => chunk.id);
+
+            if (chunkIds.length === 0) {
+                return { nodes: [], edges: [] };
+            }
+
+            // 2. 分页查询实体及其相关信息
+            const entities = await this.prisma.chunkEntities.findMany({
+                where: {
+                    chunkId: { in: chunkIds }
+                }, select: { id: true }
+            });
+
+            // 3. 获取相关实体ID（使用数据库ID而非normalizedValue）
+            const entityDbIds = entities.map(e => e.id);
+
+            // 4. 查询关系（包含完整的关系信息）
+            const relations = await this.prisma.chunkRelation.count({
+                where: {
+                    OR: [{ sourceEntityId: { in: entityDbIds } }, { targetEntityId: { in: entityDbIds } }]
+                }
+            });
+
+            return relations > 0;
         } catch (error) {
             console.error('Failed to fetch knowledge graph data:', error);
             throw new Error('Knowledge graph query failed');

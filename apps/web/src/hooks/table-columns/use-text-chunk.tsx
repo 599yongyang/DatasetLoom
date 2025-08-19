@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileQuestion, Hash, Tags, Trash2 } from 'lucide-react';
+import { FileQuestion, Hash, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
@@ -11,9 +11,6 @@ import React from 'react';
 import { ProjectRole } from '@repo/shared-types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChunkInfoSheet } from '@/components/chunks/chunk-info-sheet';
-import { useAtomValue } from 'jotai/index';
-import { selectedModelInfoAtom } from '@/atoms';
-import i18n from 'i18next';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { Chunks } from '@/types/interfaces';
 import apiClient from '@/lib/axios';
@@ -27,27 +24,6 @@ export function useTextChunkTableColumns({
 }) {
     const { t } = useTranslation('chunk');
     const { projectId }: { projectId: string } = useParams();
-    const model = useAtomValue(selectedModelInfoAtom);
-    const handleAnalysis = async (chunkId: string) => {
-        toast.promise(
-            apiClient.post(`/${projectId}/documentChunk/gen-tag-rel`, {
-                modelConfigId: model.id,
-                chunkId: chunkId,
-                language: i18n.language
-            }),
-            {
-                position: 'top-right',
-                loading: '分析分块内容中...',
-                success: _ => {
-                    mutateChunks();
-                    return '分析完成';
-                },
-                error: error => {
-                    return error.response?.data?.error || '处理失败';
-                }
-            }
-        );
-    };
 
     const handleDeleteChunk = async (chunkId: string) => {
         try {
@@ -235,9 +211,6 @@ export function useTextChunkTableColumns({
                 return (
                     <div className="flex flex-1 justify-center gap-1">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                            <Button variant="ghost" size="icon" onClick={() => handleAnalysis(row.original.id)}>
-                                <Tags />
-                            </Button>
                             <Button variant="ghost" size="icon" onClick={() => onOpenDialog?.(row.original)}>
                                 <FileQuestion />
                             </Button>

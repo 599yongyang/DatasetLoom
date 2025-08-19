@@ -45,6 +45,7 @@ export class ProjectMemberController {
     @Permission(ProjectRole.OWNER)
     async update(@Param('id') id: string, @Body() body: { role: string }) {
         const data = await this.projectMemberService.updateRole(id, body.role);
+        return ResponseUtil.success(data);
     }
 
     @Delete(':id')

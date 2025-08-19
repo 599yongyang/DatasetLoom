@@ -4,10 +4,6 @@ import { UpdateDocumentChunkDto } from './dto/update-document-chunk.dto';
 import { ResponseUtil } from '@/utils/response.util';
 import { QueryDocumentChunkDto } from '@/chunk/document-chunk/dto/query-document-chunk.dto';
 import { CreateDocumentChunkDto } from '@/chunk/document-chunk/dto/create-document-chunk.dto';
-import { GenTagRelDto } from '@/chunk/document-chunk/dto/gen-tag-rel.dto';
-import { ModelConfigService } from '@/setting/model-config/model-config.service';
-import { ProjectService } from '@/project/project.service';
-import { TagRelGenerator } from '@/chunk/document-chunk/generators/tag-rel.generator';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -16,10 +12,7 @@ import { AiGenDto } from '@/common/dto/ai-gen.dto';
 @ApiTags('文档分块')
 @Controller(':projectId/documentChunk')
 export class DocumentChunkController {
-    constructor(private readonly documentChunkService: DocumentChunkService,
-                private readonly modelConfigService: ModelConfigService,
-                private readonly projectService: ProjectService,
-                private readonly tagRelGenerator: TagRelGenerator) {
+    constructor(private readonly documentChunkService: DocumentChunkService) {
     }
 
 
@@ -78,8 +71,9 @@ export class DocumentChunkController {
     @Patch(':id')
     @ApiOperation({ summary: '更新文档分块' })
     @Permission(ProjectRole.EDITOR)
-    update(@Param('id') id: string, @Body() updateDocumentChunkDto: UpdateDocumentChunkDto) {
-        return this.documentChunkService.update(id, updateDocumentChunkDto);
+    async update(@Param('id') id: string, @Body() updateDocumentChunkDto: UpdateDocumentChunkDto) {
+        await this.documentChunkService.update(id, updateDocumentChunkDto);
+        return ResponseUtil.success();
     }
 
     @Delete('delete')
@@ -104,33 +98,5 @@ export class DocumentChunkController {
         const data = await this.documentChunkService.genQuestion(genQuestionDto);
         return ResponseUtil.success(data);
     }
-
-    @Post('gen-tag-rel')
-    @ApiOperation({ summary: '为文本块生成标签关系' })
-    @Permission(ProjectRole.EDITOR)
-    async genTagAndRel(@Param('projectId') projectId: string, @Body() genTagRelDto: GenTagRelDto) {
-        const { modelConfigId, chunkId, language } = genTagRelDto;
-
-        // 获取模型配置
-        const model = await this.modelConfigService.getModelConfigById(modelConfigId);
-        if (!model) {
-            return ResponseUtil.error('指定的模型配置不存在');
-        }
-
-        // 获取项目数据
-        const projectData = await this.projectService.getInfoById(projectId);
-        if (!projectData) {
-            return ResponseUtil.error('项目数据获取失败');
-        }
-        // 获取文本块内容
-        const chunk = await this.documentChunkService.getInfoById(chunkId);
-        if (!chunk) {
-            return ResponseUtil.error('文本块数据获取失败');
-        }
-
-        const data = await this.tagRelGenerator.generate(chunk, model, projectData, language);
-        return ResponseUtil.success(data);
-    }
-
 
 }

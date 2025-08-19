@@ -47,6 +47,7 @@ export const fileTypeOption = [
 ];
 
 export const promptTemplateTypeOptions = [
+    { value: PromptTemplateType.LABEL, label: '标签（用于图谱分析）' },
     { value: PromptTemplateType.QUESTION, label: '问题生成' },
     { value: PromptTemplateType.ANSWER, label: '答案生成' },
     { value: PromptTemplateType.OTHER, label: '其他' }

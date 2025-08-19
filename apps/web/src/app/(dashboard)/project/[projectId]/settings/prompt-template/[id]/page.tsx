@@ -24,6 +24,7 @@ import TooltipBtn from '@/components/ui/tooltip-btn';
 
 // 系统预置变量定义（不参与用户配置）
 const SYSTEM_REQUIRED_VARIABLES: Record<PromptTemplateType, string[]> = {
+    [PromptTemplateType.LABEL]: ['context'],
     [PromptTemplateType.QUESTION]: ['context'],
     [PromptTemplateType.ANSWER]: ['context', 'question'],
     [PromptTemplateType.OTHER]: []

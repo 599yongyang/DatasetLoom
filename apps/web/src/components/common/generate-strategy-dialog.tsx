@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAtomValue } from 'jotai';
-import { modelConfigListAtom } from '@/atoms';
+import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
 import { VariablesConfig } from '@/types/form';
 import { useDynamicForm } from '@/hooks/use-dynamic-form';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -29,7 +29,8 @@ export function GenerateStrategyDialog({ open, setOpen, promptTemplateType, hand
     const tProject = (key: string) => t(`project:${key}`);
     const tCommon = (key: string) => t(`common:${key}`);
     const modelList = useAtomValue(modelConfigListAtom);
-    const [modelValue, setModelValue] = useState('');
+    const selectModel = useAtomValue(selectedModelInfoAtom);
+    const [modelValue, setModelValue] = useState(selectModel.id);
     const { handleFormChange, handleValidityChange, getFormData } = useDynamicForm();
     const formRef = useRef<DynamicFormRef>(null);
     const { data: promptTemplates } = useGetPromptTemplateSelect({ projectId, type: promptTemplateType });

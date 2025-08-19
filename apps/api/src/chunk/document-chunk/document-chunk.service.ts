@@ -15,15 +15,14 @@ import { Cache } from 'cache-manager';
 import { CreateDocumentChunkDto } from '@/chunk/document-chunk/dto/create-document-chunk.dto';
 import { createHash } from 'crypto';
 import { DocumentService } from '@/knowledge/document/document.service';
-import { chunker } from '@/utils/chunker';
 import { nanoid } from 'nanoid';
 import { FileUtil } from '@/utils/file.util';
 import { PromptTemplateService } from '@/setting/prompt-template/prompt-template.service';
 import Handlebars from 'handlebars';
 import { questionSystemPrompt } from '@/common/ai/prompts/system';
 import { AiGenDto } from '@/common/dto/ai-gen.dto';
-import { QdrantService } from '@/common/rag/serivce/qdrant.service';
 import { RagService } from '@/common/rag/rag.service';
+import { ChunkerService } from '@/common/rag/serivce/chunker.service';
 
 @Injectable()
 export class DocumentChunkService {
@@ -35,7 +34,7 @@ export class DocumentChunkService {
                 private readonly modelConfigService: ModelConfigService,
                 private readonly promptTemplateService: PromptTemplateService,
                 private readonly questionService: QuestionService,
-                private readonly qdrantService: QdrantService,
+                private readonly chunkerService: ChunkerService,
                 private readonly ragService: RagService,
                 @Inject(CACHE_MANAGER) private cacheManager: Cache) {
     }
@@ -75,7 +74,7 @@ export class DocumentChunkService {
             if (!filePath) {
                 continue;
             }
-            const data = await chunker(filePath, strategy, { chunkSize, chunkOverlap, separators });
+            const data = await this.chunkerService.chunker(filePath, strategy, { chunkSize, chunkOverlap, separators });
             data.map((text, index) => {
                 chunkList.push({
                     id: nanoid(),
@@ -180,7 +179,6 @@ export class DocumentChunkService {
             throw error;
         }
     }
-
     update(id: string, updateDocumentChunkDto: UpdateDocumentChunkDto) {
         try {
             return this.prisma.chunks.update({

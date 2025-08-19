@@ -1,25 +1,27 @@
 'use client';
 
-import React, {useMemo, useState} from 'react';
-import {Button} from '@/components/ui/button';
-import {SquareSplitVertical, Trash2, Upload} from 'lucide-react';
-import {useParams, useRouter} from 'next/navigation';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {useTranslation} from 'react-i18next';
-import {Input} from '@/components/ui/input';
-import {DataTable} from '@/components/data-table/data-table';
-import {useDocuments} from '@/hooks/query/use-documents';
-import {ChunkStrategyDialog} from '@/components/chunks/chunk-strategy-dialog';
-import {toast} from 'sonner';
-import {ProjectRole} from '@repo/shared-types';
-import {WithPermission} from '@/components/common/permission-wrapper';
-import {useDocumentsTableColumns} from '@/hooks/table-columns/use-document';
-import apiClient from "@/lib/axios";
+import React, { useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { SquareSplitVertical, Trash2, Upload } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTranslation } from 'react-i18next';
+import { Input } from '@/components/ui/input';
+import { DataTable } from '@/components/data-table/data-table';
+import { useDocuments } from '@/hooks/query/use-documents';
+import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
+import { toast } from 'sonner';
+import { ProjectRole, PromptTemplateType } from '@repo/shared-types';
+import { WithPermission } from '@/components/common/permission-wrapper';
+import { useDocumentsTableColumns } from '@/hooks/table-columns/use-document';
+import apiClient from '@/lib/axios';
 import { fileTypeOption } from '@/constants/data-dictionary';
+import { GenerateStrategyDialog } from '@/components/common/generate-strategy-dialog';
+import { StrategyParamsType } from '@/types/generate';
 
 export default function Page() {
-    const {projectId}: { projectId: string } = useParams();
-    const {t} = useTranslation('knowledge');
+    const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('knowledge');
     const router = useRouter();
     const [fileName, setFileName] = useState('');
     const [fileExt, setFileExt] = useState('');
@@ -40,11 +42,30 @@ export default function Page() {
     });
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
-    const columns = useDocumentsTableColumns({mutateDocuments: refreshFiles});
+    const [graphPrompt, setGraphPrompt] = useState(false);
+    const [currentId, setCurrentId] = useState('');
+    const handelGraph = (id: string) => {
+        apiClient.get(`/${projectId}/document/check-graph?id=${id}`)
+            .then(res => {
+                if (res.data.data) {
+                    router.push(`/project/${projectId}/graph?kid=${id}`);
+                    return;
+                } else {
+                    setGraphPrompt(true);
+                    setCurrentId(id);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    };
+
+
+    const columns = useDocumentsTableColumns({ mutateDocuments: refreshFiles, handelGraph });
     const [fileIds, setFileIds] = useState<string[]>([]);
     const [open, setOpen] = useState(false);
     const handleBatchDeleteDocuments = () => {
-        toast.promise(apiClient.delete(`/${projectId}/document/delete`, {params: {ids: Object.keys(rowSelection).join(',')}}),
+        toast.promise(apiClient.delete(`/${projectId}/document/delete`, { params: { ids: Object.keys(rowSelection).join(',') } }),
             {
                 loading: '数据删除中',
                 success: _ => {
@@ -58,6 +79,29 @@ export default function Page() {
         );
     };
 
+    const handelGenGraph = async (strategyParams: StrategyParamsType) => {
+        setGraphPrompt(false);
+        const toastId = toast.loading('数据生成中', { position: 'top-right' });
+        try {
+            await apiClient.post(`/${projectId}/document/gen-tag-rel`, {
+                itemId: currentId,
+                ...strategyParams
+            });
+
+            toast.success('生成成功', {
+                id: toastId,
+                action: {
+                    label: '查看',
+                    onClick: () => {
+                        router.push(`/project/${projectId}/graph?kid=${currentId}`);
+                    }
+                }
+            });
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || '生成失败', { id: toastId });
+        }
+    };
+
     return (
         <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="sticky top-0 z-10 bg-background/80 s flex items-center justify-between gap-2">
@@ -67,7 +111,7 @@ export default function Page() {
                         value={fileName}
                         onChange={e => {
                             setFileName(e.target.value);
-                            setPagination({...pagination, pageIndex: 0});
+                            setPagination({ ...pagination, pageIndex: 0 });
                         }}
                         placeholder={t('search')}
                     />
@@ -75,11 +119,11 @@ export default function Page() {
                         value={fileExt}
                         onValueChange={value => {
                             setFileExt(value);
-                            setPagination({...pagination, pageIndex: 0});
+                            setPagination({ ...pagination, pageIndex: 0 });
                         }}
                     >
                         <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder={t('file_ext')}/>
+                            <SelectValue placeholder={t('file_ext')} />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">{t('file_ext_all')}</SelectItem>
@@ -92,7 +136,7 @@ export default function Page() {
                     </Select>
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                         <Button onClick={() => router.push(`/project/${projectId}/knowledge/document/upload`)}>
-                            <Upload size={30}/>
+                            <Upload size={30} />
                             {t('upload_btn')}
                         </Button>
                     </WithPermission>
@@ -123,7 +167,7 @@ export default function Page() {
                                     setOpen(true);
                                 }}
                             >
-                                <SquareSplitVertical size={30}/>
+                                <SquareSplitVertical size={30} />
                                 <span className="hidden lg:inline ">{t('chunk_btn')}</span>
                             </Button>
                         </ChunkStrategyDialog>
@@ -135,7 +179,7 @@ export default function Page() {
                             onClick={handleBatchDeleteDocuments}
                             className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
                         >
-                            <Trash2 size={30}/>
+                            <Trash2 size={30} />
                             <span className="hidden lg:inline ">{t('delete_btn')}</span>
                         </Button>
                     </WithPermission>
@@ -150,6 +194,10 @@ export default function Page() {
                 rowSelection={rowSelection}
                 setRowSelection={setRowSelection}
             />
+
+            {currentId && (<GenerateStrategyDialog open={graphPrompt} setOpen={setGraphPrompt}
+                                                   promptTemplateType={PromptTemplateType.LABEL}
+                                                   handleGenerate={handelGenGraph} />)}
         </div>
     );
 }
