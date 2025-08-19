@@ -1,20 +1,19 @@
 'use client';
 
-import { Fragment, useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { ModelIcon } from '@lobehub/icons';
-import type { ModelConfigType } from '@/lib/data-dictionary';
 import type { ModelConfig } from '@/types/interfaces';
-
 import { cn, onWheel } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
+import { modelConfigListAtom } from '@/atoms';
 import * as React from 'react';
 import { ModelTypeIconMap } from '@/components/icons';
+import { ModelConfigType } from '@repo/shared-types';
 
 interface ModelSelectProps {
     value: string;
@@ -31,7 +30,6 @@ export function ModelSelect({ value, setValue, showConfigButton = true, filter, 
     const [search, setSearch] = useState('');
 
     const modelConfigList = useAtomValue(modelConfigListAtom);
-    const selectedModelInfo = useAtomValue(selectedModelInfoAtom);
 
     // Filter models based on the filter prop
     const filteredModels = useMemo(() => {
@@ -53,11 +51,6 @@ export function ModelSelect({ value, setValue, showConfigButton = true, filter, 
         );
     }, [filteredModels]);
 
-    useEffect(() => {
-        if (!value && selectedModelInfo?.id) {
-            setValue(selectedModelInfo.id);
-        }
-    }, [value, selectedModelInfo, setValue]);
 
     const handleModelSelect = (currentId: string) => {
         setValue(currentId);

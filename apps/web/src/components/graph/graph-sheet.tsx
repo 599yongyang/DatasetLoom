@@ -4,8 +4,8 @@ import { Label } from '@/components/ui/label';
 import { useParams } from 'next/navigation';
 import { useGetChunkById } from '@/hooks/query/use-chunks';
 import { Badge } from '@/components/ui/badge';
-import { Markdown } from '@/components/chat/markdown';
 import type { ChunkEntities } from '@/types/interfaces';
+import { Response } from '@/components/ai-elements/response';
 
 export default function GraphSheet({
     open,
@@ -77,7 +77,7 @@ export default function GraphSheet({
                             <section>
                                 <Label>内容预览</Label>
                                 <div className="border border-dashed border-gray-500 mt-2 p-3  rounded-md font-mono text-sm">
-                                    <Markdown>{chunk?.content || '暂无内容'}</Markdown>
+                                    <Response>{chunk?.content || '暂无内容'}</Response>
                                 </div>
                             </section>
                         </div>

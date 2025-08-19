@@ -1,9 +1,9 @@
-import {Injectable} from '@nestjs/common';
-import type {LanguageModel} from 'ai';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {CryptoUtil} from "@/utils/crypto.util";
-import {createDeepSeek} from "@ai-sdk/deepseek";
-import {BaseAIProvider} from "@/common/ai/providers/base-ai-provider";
+import { Injectable } from '@nestjs/common';
+import type { LanguageModel } from 'ai';
+import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { CryptoUtil } from '@/utils/crypto.util';
+import { createDeepSeek } from '@ai-sdk/deepseek';
+import { BaseAIProvider } from '@/common/ai/providers/base-ai-provider';
 
 @Injectable()
 export class DeepseekProvider extends BaseAIProvider {
@@ -22,5 +22,9 @@ export class DeepseekProvider extends BaseAIProvider {
             throw new Error('Model ID is required');
         }
         return this.deepseek(this.config.modelId);
+    }
+
+    protected getEmbedModel() {
+        throw new Error('not support embed');
     }
 }

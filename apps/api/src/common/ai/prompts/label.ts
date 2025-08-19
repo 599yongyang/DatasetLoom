@@ -1,4 +1,3 @@
-import { languageMap } from '../constants/prompt-config.constant';
 
 export type Language = 'zh-CN' | 'en';
 
@@ -9,6 +8,11 @@ export interface LabelPromptOptions {
     domainTreePrompt?: string;
 }
 
+// 语言映射说明
+export const languageMap: Record<string, string> = {
+    'zh-CN': '中文',
+    en: '英文'
+};
 
 export function getLabelPrompt(options: LabelPromptOptions) {
     const { text, language = 'zh', globalPrompt, domainTreePrompt } = options;

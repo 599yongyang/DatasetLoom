@@ -1,8 +1,9 @@
-import {Injectable} from '@nestjs/common';
-import type {LanguageModel} from 'ai';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {createOllama} from 'ollama-ai-provider';
-import {BaseAIProvider} from "@/common/ai/providers/base-ai-provider";
+import { Injectable } from '@nestjs/common';
+import type { LanguageModel } from 'ai';
+import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { createOllama } from 'ollama-ai-provider';
+import { BaseAIProvider } from '@/common/ai/providers/base-ai-provider';
+
 
 @Injectable()
 export class OllamaProvider extends BaseAIProvider {
@@ -20,5 +21,12 @@ export class OllamaProvider extends BaseAIProvider {
             throw new Error('Model ID is required');
         }
         return this.ollama(this.config.modelId);
+    }
+
+    protected getEmbedModel() {
+        if (!this.config.modelId) {
+            throw new Error('Model ID is required');
+        }
+        return this.ollama.embedding(this.config.modelId);
     }
 }

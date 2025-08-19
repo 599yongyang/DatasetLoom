@@ -15,7 +15,7 @@ import {ProjectRole} from '@repo/shared-types';
 import {WithPermission} from '@/components/common/permission-wrapper';
 import {useDocumentsTableColumns} from '@/hooks/table-columns/use-document';
 import apiClient from "@/lib/axios";
-import { fileTypeOption } from '@/lib/data-dictionary';
+import { fileTypeOption } from '@/constants/data-dictionary';
 
 export default function Page() {
     const {projectId}: { projectId: string } = useParams();

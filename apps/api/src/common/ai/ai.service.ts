@@ -50,12 +50,17 @@ export class AIService {
         messages: UIMessage[],
         chatId: string,
         userMessage: UIMessage,
+        systemPrompt: string,
         options?: any
     ) {
         const provider = this.getProvider(config);
-        return provider.chatStream(messages, chatId, userMessage, options);
+        return provider.chatStream(messages, chatId, userMessage, systemPrompt, options);
     }
 
+    embedding(config: ModelConfigWithProvider, text: string) {
+        const provider = this.getProvider(config);
+        return provider.embedding(text);
+    }
 
     async generateTitle(config: ModelConfigWithProvider, message: Message): Promise<string> {
         const provider = this.getProvider(config);

@@ -1,7 +1,13 @@
-import {Injectable} from '@nestjs/common';
-import {PrismaService} from "@/common/prisma/prisma.service";
-import {Chat, ChatMessages} from '@prisma/client';
-import {ChatVisibilityType} from "@repo/shared-types";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@/common/prisma/prisma.service';
+import { Chat, ChatMessages } from '@prisma/client';
+import { ChatVisibilityType } from '@repo/shared-types';
+import { join } from 'path';
+import { tmpdir } from 'os';
+import { createWriteStream } from 'fs';
+import * as archiver from 'archiver';
+import { ExportUtil } from '@/utils/export.util';
+import fs from 'fs/promises';
 
 
 type PaginationParams = {
@@ -14,12 +20,12 @@ type PaginationParams = {
 
 @Injectable()
 export class ChatService {
-    constructor(private readonly prisma: PrismaService,) {
+    constructor(private readonly prisma: PrismaService) {
     }
 
     create(chat: Chat) {
         try {
-            return this.prisma.chat.create({data: chat});
+            return this.prisma.chat.create({ data: chat });
         } catch (error) {
             console.error('Failed to save chat in database');
             throw error;
@@ -29,7 +35,7 @@ export class ChatService {
 
     insertChatMessage(message: ChatMessages) {
         try {
-            return this.prisma.chatMessages.create({data: message});
+            return this.prisma.chatMessages.create({ data: message });
         } catch (error) {
             console.error('Failed to save messages in database', error);
             throw error;
@@ -38,7 +44,7 @@ export class ChatService {
 
     getMessagesByChatId(id: string) {
         try {
-            return this.prisma.chatMessages.findMany({where: {chatId: id}, orderBy: {createdAt: 'asc'}});
+            return this.prisma.chatMessages.findMany({ where: { chatId: id }, orderBy: { createdAt: 'asc' } });
         } catch (error) {
             console.error('Failed to get messages by chat id from database', error);
             throw error;
@@ -46,15 +52,15 @@ export class ChatService {
     }
 
 
-    async getChatsByUserId({id, projectId, limit, startingAfter, endingBefore}: PaginationParams) {
+    async getChatsByUserId({ id, projectId, limit, startingAfter, endingBefore }: PaginationParams) {
         try {
             const extendedLimit = limit + 1;
 
             // 公共查询条件
             const baseWhere = {
                 OR: [
-                    {userId: id, projectId},
-                    {visibility: ChatVisibilityType.PUBLIC, projectId}
+                    { userId: id, projectId },
+                    { visibility: ChatVisibilityType.PUBLIC, projectId }
                 ]
             };
 
@@ -62,7 +68,7 @@ export class ChatService {
 
             if (startingAfter) {
                 const cursorChat = await this.prisma.chat.findUnique({
-                    where: {id: startingAfter}
+                    where: { id: startingAfter }
                 });
 
                 if (!cursorChat) {
@@ -83,7 +89,7 @@ export class ChatService {
                 });
             } else if (endingBefore) {
                 const cursorChat = await this.prisma.chat.findUnique({
-                    where: {id: endingBefore}
+                    where: { id: endingBefore }
                 });
 
                 if (!cursorChat) {
@@ -128,7 +134,7 @@ export class ChatService {
 
     async getInfoById(id: string) {
         try {
-            return await this.prisma.chat.findUnique({where: {id}});
+            return await this.prisma.chat.findUnique({ where: { id } });
         } catch (error) {
             console.error('Failed to get chat by id from database');
             throw error;
@@ -137,22 +143,14 @@ export class ChatService {
 
     getVotesByChatId(id: string) {
         try {
-            return this.prisma.chatMessageVote.findMany({where: {chatId: id}});
+            return this.prisma.chatMessageVote.findMany({ where: { chatId: id } });
         } catch (error) {
             console.error('Failed to get votes by chat id from database', error);
             throw error;
         }
     }
 
-    async voteMessage({
-                          chatId,
-                          messageId,
-                          type
-                      }: {
-        chatId: string;
-        messageId: string;
-        type: 'up' | 'down';
-    }) {
+    async voteMessage({ chatId, messageId, type }: { chatId: string; messageId: string; type: 'up' | 'down' }) {
         try {
             const whereCondition = {
                 chatId_messageId: {
@@ -189,17 +187,58 @@ export class ChatService {
         }
     }
 
-    updateChatVisibleById({
-                              chatId,
-                              visibility
-                          }: {
-        chatId: string;
-        visibility: ChatVisibilityType;
-    }) {
+    updateChatVisibleById({ chatId, visibility }: { chatId: string; visibility: ChatVisibilityType }) {
         try {
-            return this.prisma.chat.update({data: {visibility}, where: {id: chatId}});
+            return this.prisma.chat.update({ data: { visibility }, where: { id: chatId } });
         } catch (error) {
             console.error('Failed to update chat visibility in database');
+            throw error;
+        }
+    }
+
+    async exportChatDataset(projectId: string, chatId: string) {
+        const filename = `DatasetLoom-${projectId}-${chatId}.zip`;
+        const zipPath = join(tmpdir(), filename);
+
+        const output = createWriteStream(zipPath);
+        const archive = archiver('zip', { zlib: { level: 9 } });
+        archive.pipe(output);
+
+        try {
+            // 获取对话记录
+            const chatData = await this.getMessagesByChatId(chatId);
+            // 格式化数据
+            const formattedData = chatData.map(item => {
+                const parts = JSON.parse(item.parts);
+                return {
+                    from: item.role === 'user' ? 'human' : 'gpt',
+                    value: parts.find(part => part.type === 'text').text
+                };
+            });
+
+            const dataset = { conversations: formattedData };
+            // 添加主数据集文件
+            const datasetFilename = `chat_${chatId}_dataset.json`;
+            await ExportUtil.addJsonToArchive(archive, datasetFilename, dataset);
+
+            // 添加数据集信息文件
+            const datasetInfo = {
+                DatasetLoom: {
+                    file_name: datasetFilename,
+                    formatting: 'sharegpt',
+                    columns: {
+                        messages: 'conversations'
+                    }
+                }
+            };
+            if (datasetInfo) {
+                await ExportUtil.addJsonToArchive(archive, 'dataset_info.json', datasetInfo);
+            }
+
+            await archive.finalize();
+            return { filePath: zipPath, filename };
+        } catch (error) {
+            await fs.unlink(zipPath).catch(() => null);
             throw error;
         }
     }
@@ -207,7 +246,7 @@ export class ChatService {
 
     remove(id: string) {
         try {
-            return this.prisma.chat.delete({where: {id}});
+            return this.prisma.chat.delete({ where: { id } });
         } catch (error) {
             console.error('Failed to delete chat by id from database');
             throw error;

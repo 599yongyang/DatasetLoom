@@ -11,9 +11,10 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { TagRelGenerator } from '@/chunk/document-chunk/generators/tag-rel.generator';
 import { DocumentChunkGraphService } from '@/chunk/document-chunk/document-chunk-graph.service';
 import { PromptTemplateService } from '@/setting/prompt-template/prompt-template.service';
+import { RagModule } from '@/common/rag/rag.module';
 
 @Module({
-    imports: [PrismaModule, AIModule, CacheModule.register()],
+    imports: [PrismaModule, AIModule, CacheModule.register(), RagModule],
     controllers: [DocumentChunkController],
     providers: [DocumentChunkService, ModelConfigService, QuestionService, ProjectService, PromptTemplateService, DocumentService, TagRelGenerator, DocumentChunkGraphService]
 })

@@ -7,7 +7,7 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import {useGetProjectMember, type ProjectMember} from '@/hooks/query/use-project';
 import {Button} from '@/components/ui/button';
 import React, {useEffect, useMemo, useState} from 'react';
-import {projectRoleColorMap, projectRoleMap} from '@/lib/data-dictionary';
+import {projectRoleColorMap, projectRoleMap} from '@/constants/data-dictionary';
 import {Badge} from '@/components/ui/badge';
 import {useThrottle} from '@/hooks/use-throttle';
 import {ProjectMemberDialog} from '@/components/settings/member/add-dialog';

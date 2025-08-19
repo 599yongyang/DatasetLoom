@@ -5,7 +5,7 @@ import {Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle} from '@/c
 import {Label} from '@/components/ui/label';
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
 import type {ProjectMember} from '@/hooks/query/use-project';
-import {availableRoles, projectRoleDescMap, projectRoleMap} from '@/lib/data-dictionary';
+import {availableRoles, projectRoleDescMap, projectRoleMap} from '@/constants/data-dictionary';
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {useParams} from 'next/navigation';

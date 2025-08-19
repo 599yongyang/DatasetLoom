@@ -5,7 +5,7 @@ import axios, {
     type InternalAxiosRequestConfig,
     type CancelTokenSource
 } from 'axios';
-import {getSession} from './session';
+import { getSession } from './session';
 
 class ApiClient {
     private axiosInstance: AxiosInstance;
@@ -13,7 +13,7 @@ class ApiClient {
     constructor() {
         this.axiosInstance = axios.create({
             baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
-            timeout: 30000,
+            timeout: 30000
         });
         // 请求拦截器 - 添加 token
         this.axiosInstance.interceptors.request.use(
@@ -36,6 +36,14 @@ class ApiClient {
         // 响应拦截器
         this.axiosInstance.interceptors.response.use(
             (response: AxiosResponse) => {
+                const isFileDownload = response.config.url?.includes('/export');
+                if (isFileDownload) {
+                    return response;
+                }
+                if (response.data.statusCode !== 200) {
+                    return Promise.reject(new Error(response.data.message || 'Request failed'));
+                }
+                // 成功响应直接返回
                 return response;
             },
             (error) => {

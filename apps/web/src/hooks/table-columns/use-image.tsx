@@ -13,7 +13,7 @@ import type {ImageFile} from '@/types/interfaces';
 import {IconCircleCheckFilled, IconLoader} from '@tabler/icons-react';
 import {Button} from '@/components/ui/button';
 import {SquareDashedMousePointer} from 'lucide-react';
-import {ParseStatusTypeMap, type UIParseStatusType} from '@/lib/data-dictionary';
+import {ParseStatusTypeMap, type UIParseStatusType} from '@/constants/data-dictionary';
 import {BACKEND_URL} from "@/constants/config";
 import apiClient from "@/lib/axios";
 

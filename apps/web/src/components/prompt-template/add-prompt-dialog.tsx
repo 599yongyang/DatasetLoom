@@ -16,7 +16,7 @@ import { PromptTemplateType } from '@repo/shared-types';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { promptTemplateTypeOptions } from '@/lib/data-dictionary';
+import { promptTemplateTypeOptions } from '@/constants/data-dictionary';
 import { PromptTemplate } from '@/types/interfaces/prompt';
 import { toast } from 'sonner';
 import apiClient from '@/lib/axios';

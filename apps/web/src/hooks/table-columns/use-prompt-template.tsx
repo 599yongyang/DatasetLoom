@@ -10,7 +10,7 @@ import { ProjectRole } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import apiClient from '@/lib/axios';
 import { PromptTemplate } from '@/types/interfaces/prompt';
-import { promptTemplateTypeOptions } from '@/lib/data-dictionary';
+import { promptTemplateTypeOptions } from '@/constants/data-dictionary';
 
 export function usePromptTemplateTableColumns({ refresh }: { refresh: () => void }) {
     const router = useRouter();

@@ -30,6 +30,7 @@ out/
 build
 dist
 /data
+/qdrant_data
 
 # Debug
 npm-debug.log*

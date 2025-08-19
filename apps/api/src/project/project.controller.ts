@@ -7,11 +7,13 @@ import { User } from '@/auth/decorators/user.decorator';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { QdrantService } from '@/common/rag/serivce/qdrant.service';
+import { ModelConfigService } from '@/setting/model-config/model-config.service';
 
 @ApiTags('项目')
 @Controller('project')
 export class ProjectController {
-    constructor(private readonly projectService: ProjectService) {
+    constructor(private readonly projectService: ProjectService, private readonly qdrantService: QdrantService, private readonly modelConfigService: ModelConfigService) {
     }
 
     @ApiOperation({ summary: '创建项目' })
@@ -44,11 +46,34 @@ export class ProjectController {
         return ResponseUtil.success(data);
     }
 
+    @Patch('setEmbedModel')
+    @ApiOperation({ summary: '设置默认嵌入模型' })
+    @Permission(ProjectRole.ADMIN)
+    async setDefault(@Body() body: { modelId: string, projectId: string }) {
+        await this.projectService.setEmbedModel(body.projectId, body.modelId);
+        return ResponseUtil.success();
+    }
+
     @Patch(':projectId')
-    @Permission(ProjectRole.EDITOR)
+    @Permission(ProjectRole.ADMIN)
     @ApiOperation({ summary: '更新项目信息' })
     async update(@Param('projectId') projectId: string, @Body() updateProjectDto: UpdateProjectDto) {
         try {
+
+            const project = await this.projectService.getInfoById(projectId);
+            if (!project) {
+                return ResponseUtil.notFound('项目不存在');
+            }
+            if (project.embedModelId !== '' && updateProjectDto.embedModelId !== project.embedModelId) {
+                console.log('project.embedModelId', project.embedModelId, updateProjectDto.embedModelId);
+                const model = await this.modelConfigService.getModelConfigById(project.embedModelId);
+                const exists = await this.qdrantService.collectionExists(projectId, model.modelId);
+                console.log('exists', exists);
+                if (exists) {
+                    return ResponseUtil.error('项目已关联向量库，暂时无法修改嵌入模型');
+                }
+            }
+
             await this.projectService.update(projectId, updateProjectDto);
             return ResponseUtil.success();
         } catch (error) {

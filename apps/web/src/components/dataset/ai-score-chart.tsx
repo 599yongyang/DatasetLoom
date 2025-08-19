@@ -21,7 +21,7 @@ import {useAtomValue} from 'jotai/index';
 import {selectedModelInfoAtom} from '@/atoms';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '../ui/tabs';
 import {ModelTag} from '@lobehub/icons';
-import type {UIContextType} from '@/lib/data-dictionary';
+import type {UIContextType} from '@/constants/data-dictionary';
 import apiClient from "@/lib/axios";
 
 export const AIScoreDashboard = ({dssId, contextType}: { dssId: string; contextType: UIContextType }) => {

@@ -7,11 +7,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Loader2, XCircle, CheckCircle} from 'lucide-react';
 import {chunkConfigHashAtom} from '@/atoms';
 import type {Chunks} from '@/types/interfaces';
-import {Markdown} from '@/components/chat/markdown';
 import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
 import {useSetAtom} from 'jotai';
 import type {UploadFormDataType} from '@/app/(dashboard)/project/[projectId]/knowledge/document/upload/page';
 import apiClient from "@/lib/axios";
+import { Response } from '@/components/ai-elements/response';
 
 type ParsingStatus = 'idle' | 'parsing' | 'chunking' | 'done' | 'error';
 
@@ -141,7 +141,7 @@ export default function StepThree({uploadFormData}: { uploadFormData: UploadForm
                                 <div className="text-xs text-gray-500">{chunk.content.length} characters</div>
                             </div>
                             <div className="whitespace-pre-wrap text-sm text-gray-800 mt-2">
-                                {showStyle === 'md' ? <Markdown>{chunk.content}</Markdown> : <>{chunk.content}</>}
+                                {showStyle === 'md' ? <Response>{chunk.content}</Response> : <>{chunk.content}</>}
                             </div>
                         </div>
                     ))}

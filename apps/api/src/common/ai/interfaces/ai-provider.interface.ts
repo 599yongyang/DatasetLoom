@@ -8,7 +8,9 @@ export interface IAIProvider {
 
     generateTitle(message: Message): Promise<string>;
 
-    chatStream(messages: UIMessage[], chatId: string, userMessage: UIMessage, options?: any);
+    chatStream(messages: UIMessage[], chatId: string, userMessage: UIMessage, systemPrompt: string, options?: any);
+
+    embedding(text: string);
 }
 
 export interface IAIProviderFactory {

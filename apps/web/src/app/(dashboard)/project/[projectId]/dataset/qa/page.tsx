@@ -21,7 +21,7 @@ import {ProjectRole} from '@repo/shared-types';
 import {WithPermission} from '@/components/common/permission-wrapper';
 import {useDatasetTableColumns} from '@/hooks/table-columns/use-dataset';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
-import {ContextTypeMap} from '@/lib/data-dictionary';
+import {ContextTypeMap} from '@/constants/data-dictionary';
 
 export default function Page() {
     const router = useRouter();

@@ -22,6 +22,8 @@ import { PromptTemplateService } from '@/setting/prompt-template/prompt-template
 import Handlebars from 'handlebars';
 import { questionSystemPrompt } from '@/common/ai/prompts/system';
 import { AiGenDto } from '@/common/dto/ai-gen.dto';
+import { QdrantService } from '@/common/rag/serivce/qdrant.service';
+import { RagService } from '@/common/rag/rag.service';
 
 @Injectable()
 export class DocumentChunkService {
@@ -33,6 +35,8 @@ export class DocumentChunkService {
                 private readonly modelConfigService: ModelConfigService,
                 private readonly promptTemplateService: PromptTemplateService,
                 private readonly questionService: QuestionService,
+                private readonly qdrantService: QdrantService,
+                private readonly ragService: RagService,
                 @Inject(CACHE_MANAGER) private cacheManager: Cache) {
     }
 
@@ -95,16 +99,26 @@ export class DocumentChunkService {
         // 获取缓存数据
         const cacheKey = `preview-chunks:${projectId}:${chunkConfigHash}`;
         const cachedChunks = await this.cacheManager.get<Chunks[]>(cacheKey);
+
         if (!cachedChunks || !Array.isArray(cachedChunks)) {
             throw new Error('缓存数据无效或已过期，请重新上传操作');
         }
+
         try {
-            return this.prisma.chunks.createMany({ data: cachedChunks });
+            //保存chunks到数据库
+            await this.prisma.chunks.createMany({ data: cachedChunks });
+            //插入向量数据
+            await this.ragService.insertVectorData(projectId, cachedChunks);
+            // 清除缓存
+            await this.cacheManager.del(cacheKey);
+
+
         } catch (error) {
-            console.error('Failed to create chunks in database');
-            throw error;
+            this.logger.error('Failed to save chunks and generate embeddings', error);
+            throw new Error(`保存chunks失败: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
+
 
     async getListPagination(queryDto: QueryDocumentChunkDto) {
         try {

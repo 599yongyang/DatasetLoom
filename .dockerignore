@@ -16,3 +16,4 @@ yarn-error.log*
 README.md
 Dockerfile
 .dockerignore
+apps/api/models

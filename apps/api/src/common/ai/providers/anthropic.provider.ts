@@ -23,4 +23,8 @@ export class AnthropicProvider extends BaseAIProvider {
         }
         return this.anthropic(this.config.modelId);
     }
+
+    protected getEmbedModel() {
+        throw new Error('not support embed');
+    }
 }

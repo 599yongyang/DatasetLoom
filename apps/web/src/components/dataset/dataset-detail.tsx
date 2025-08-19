@@ -6,12 +6,12 @@ import {Accordion, AccordionItem, AccordionTrigger, AccordionContent} from '@/co
 import {Badge} from '@/components/ui/badge';
 import {Star, Tag, Brain, Quote, FileText, Atom} from 'lucide-react';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '../ui/table';
-import {Markdown} from '@/components/chat/markdown';
 import type {DatasetSamples, PreferencePair} from '@/types/interfaces';
 import {AIScoreDashboard} from '@/components/dataset/ai-score-chart';
 import {ContextType} from '@repo/shared-types';
 import AnswerCard from '@/components/dataset/answer-card';
 import {BACKEND_URL} from "@/constants/config";
+import { Response } from '@/components/ai-elements/response';
 
 export default function DatasetDetail({
                                           questionInfo,
@@ -174,7 +174,7 @@ export default function DatasetDetail({
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground ps-7 pb-2">
                         {questionInfo.contextType === ContextType.TEXT && questionInfo.contextData && (
-                            <Markdown>{questionInfo.contextData}</Markdown>
+                            <Response>{questionInfo.contextData}</Response>
                         )}
                         {questionInfo.contextType === ContextType.IMAGE && questionInfo.contextId && (
                             <img

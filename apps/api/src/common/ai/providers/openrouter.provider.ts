@@ -1,9 +1,10 @@
-import {Injectable} from '@nestjs/common';
-import {createOpenRouter} from '@openrouter/ai-sdk-provider';
-import type {LanguageModel} from 'ai';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {CryptoUtil} from "@/utils/crypto.util";
-import {BaseAIProvider} from "@/common/ai/providers/base-ai-provider";
+import { Injectable } from '@nestjs/common';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import type { LanguageModel } from 'ai';
+import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { CryptoUtil } from '@/utils/crypto.util';
+import { BaseAIProvider } from '@/common/ai/providers/base-ai-provider';
+
 
 @Injectable()
 export class OpenRouterProvider extends BaseAIProvider {
@@ -22,5 +23,9 @@ export class OpenRouterProvider extends BaseAIProvider {
             throw new Error('Model ID is required');
         }
         return this.openrouter(this.config.modelId);
+    }
+
+    protected getEmbedModel() {
+        throw new Error('not support embed');
     }
 }

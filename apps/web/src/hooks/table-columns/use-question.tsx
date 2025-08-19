@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronDownIcon, ChevronRight, Drama, SquarePen, Wand } from 'lucide-react';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { toast } from 'sonner';
-import { ContextTypeMap, type UIContextType } from '@/lib/data-dictionary';
+import { ContextTypeMap, type UIContextType } from '@/constants/data-dictionary';
 import apiClient from '@/lib/axios';
 
 export function useQuestionTableColumns({ mutateQuestions, onOpenDialog, onOpenPPDialog }: {

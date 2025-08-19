@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res, Header, StreamableFile } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { ResponseUtil } from '@/utils/response.util';
@@ -13,11 +13,16 @@ import { SetChatVisibleDto } from '@/chat/dto/set-chat-visible.dto';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { RagService } from '@/common/rag/rag.service';
+import { ragSystemPrompt } from '@/common/ai/prompts/system';
+import { createReadStream } from 'node:fs';
 
 @ApiTags('模型对话')
 @Controller(':projectId/chat')
 export class ChatController {
-    constructor(private readonly chatService: ChatService, private readonly modelConfigService: ModelConfigService, private readonly aiService: AIService) {
+    constructor(private readonly chatService: ChatService, private readonly modelConfigService: ModelConfigService,
+                private readonly aiService: AIService,
+                private readonly ragService: RagService) {
     }
 
     @Post()
@@ -30,7 +35,7 @@ export class ChatController {
         @Res() res: Response
     ) {
         try {
-            const { messages, modelConfigId, id } = createChatDto;
+            const { messages, modelConfigId, id, isRAG } = createChatDto;
             const userMessage = MessageUtil.getMostRecentUserMessage(messages);
 
             // 验证逻辑
@@ -60,9 +65,17 @@ export class ChatController {
                 parts: JSON.stringify(userMessage.parts),
                 attachments: ''
             } as ChatMessages);
+            let systemPrompt = '';
+            if (isRAG) {
+                const data = await this.ragService.query(projectId, userMessage.content);
+                systemPrompt = ragSystemPrompt(data);
+            }
 
-            const stream = this.aiService.chatStream(modelConfig, messages, id, userMessage);
-            stream.pipeDataStreamToResponse(res);
+            const stream = this.aiService.chatStream(modelConfig, messages, id, userMessage, systemPrompt);
+            stream.pipeDataStreamToResponse(res, {
+                sendReasoning: true
+            });
+
 
         } catch (error) {
             console.error('Chat stream error:', error);
@@ -174,5 +187,31 @@ export class ChatController {
         }
         await this.chatService.remove(id);
         return ResponseUtil.success();
+    }
+
+    @Post('export')
+    @ApiOperation({ summary: '导出数据集' })
+    @Permission(ProjectRole.EDITOR)
+    @Header('Content-Type', 'application/zip')
+    @Header('Access-Control-Expose-Headers', 'Content-Disposition')
+    async export(@Param('projectId') projectId: string, @Body() body: {
+        chatId: string
+    }): Promise<StreamableFile | any> {
+        try {
+            console.log('export', body.chatId);
+            const result = await this.chatService.exportChatDataset(projectId, body.chatId);
+            if (result.filePath) {
+                const file = createReadStream(result.filePath);
+                // 设置文件名
+                return new StreamableFile(file, {
+                    type: 'application/zip',
+                    disposition: `attachment; filename=${result.filename}`
+                });
+            }
+
+        } catch (error) {
+            console.error('获取数据集失败:', error);
+            return ResponseUtil.error('获取数据集失败', error);
+        }
     }
 }

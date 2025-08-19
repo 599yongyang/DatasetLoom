@@ -36,11 +36,12 @@ model Projects {
   description      String
   owner            Users            @relation(fields: [ownerId], references: [id])
   ownerId          String
-  globalPrompt     String           @default("")
-  questionPrompt   String           @default("")
-  answerPrompt     String           @default("")
-  labelPrompt      String           @default("")
-  domainTreePrompt String           @default("")
+  globalPrompt     String           @default("") // 弃用
+  questionPrompt   String           @default("") // 弃用
+  answerPrompt     String           @default("") // 弃用
+  labelPrompt      String           @default("") // 弃用
+  domainTreePrompt String           @default("") // 弃用
+  embedModelId     String           @default("")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   members          ProjectMember[]

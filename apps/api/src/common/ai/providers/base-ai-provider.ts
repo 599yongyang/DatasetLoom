@@ -6,7 +6,7 @@ import {
     type LanguageModel,
     type Message,
     type CoreUserMessage,
-    appendResponseMessages
+    appendResponseMessages, embed
 } from 'ai';
 import { ModelConfigWithProvider } from '@/common/prisma/type';
 import { MessageUtil } from '@/common/ai/utils';
@@ -14,6 +14,7 @@ import { IAIProvider } from '../interfaces/ai-provider.interface';
 import { ChatMessages, ModelUsage } from '@prisma/client';
 import { ChatService } from '@/chat/chat.service';
 import { ModelUsageService } from '@/model-usage/model-usage.service';
+import { genTitleSystemPrompt } from '@/common/ai/prompts/system';
 
 @Injectable()
 export abstract class BaseAIProvider implements IAIProvider {
@@ -76,17 +77,18 @@ export abstract class BaseAIProvider implements IAIProvider {
         const model = this.getModel();
         const { text: title } = await generateText({
             model,
-            system: `Generate a short title (max 80 chars) based on the user's message. No quotes or colons.`,
+            system: genTitleSystemPrompt,
             prompt: JSON.stringify(message)
         });
         return title;
     }
 
-    chatStream(messages: UIMessage[], chatId: string, userMessage: UIMessage, options: any = {}) {
+    chatStream(messages: UIMessage[], chatId: string, userMessage: UIMessage, systemPrompt: string, options: any = {}) {
         const model = this.getModel();
         const chatStorageService = this.chatService;
         const result = streamText({
             model,
+            system: systemPrompt,
             messages,
             temperature: options.temperature ?? this.config.temperature ?? 0.7,
             maxTokens: options.maxTokens ?? this.config.maxTokens ?? 8192,
@@ -108,7 +110,6 @@ export abstract class BaseAIProvider implements IAIProvider {
                         messages: [userMessage],
                         responseMessages: response.messages
                     });
-
                     await chatStorageService.insertChatMessage({
                         id: assistantId,
                         chatId: chatId,
@@ -125,5 +126,20 @@ export abstract class BaseAIProvider implements IAIProvider {
     }
 
 
+    async embedding(text: string): Promise<any> {
+        const embeddingModel = this.getEmbedModel();
+        if (embeddingModel) {
+            const { embedding } = await embed({
+                model: embeddingModel,
+                value: text
+            });
+            return embedding;
+        }
+        throw new Error('Embedding not implemented for this provider');
+    }
+
+
     protected abstract getModel(): LanguageModel;
+
+    protected abstract getEmbedModel();
 }

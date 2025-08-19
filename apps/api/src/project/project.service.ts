@@ -109,6 +109,19 @@ export class ProjectService {
         }
     }
 
+    setEmbedModel(id: string, modelId: string) {
+        try {
+            return this.prisma.projects.update({
+                where: { id },
+                data: { embedModelId: modelId }
+            });
+        } catch (error) {
+            console.error('Failed to update project embedModelId in database');
+            throw error;
+        }
+
+    }
+
     async remove(id: string) {
         try {
             await this.prisma.projects.delete({ where: { id } });
@@ -131,6 +144,17 @@ export class ProjectService {
             console.error('Failed to get project by name in database');
             throw error;
         }
+    }
+
+    //检查是否设置嵌入模型
+    async checkEmbeddingModelIsSet(projectId: string) {
+        const project = await this.prisma.projects.findUnique({
+            where: { id: projectId },
+            select: {
+                embedModelId: true
+            }
+        });
+        return project?.embedModelId !== null && project?.embedModelId !== '';
     }
 
     async copyModelConfig(newProjectId: string, copyProjectId: string) {

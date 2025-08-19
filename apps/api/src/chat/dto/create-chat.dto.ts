@@ -1,4 +1,4 @@
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsString } from 'class-validator';
 import { UIMessage } from 'ai';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -14,4 +14,8 @@ export class CreateChatDto {
     @ApiProperty({ description: '模型配置ID' })
     @IsString()
     modelConfigId: string;
+
+    @ApiProperty({ description: '是否RAG' })
+    @IsBoolean()
+    isRAG: boolean;
 }

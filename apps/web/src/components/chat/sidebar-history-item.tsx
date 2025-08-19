@@ -11,21 +11,23 @@ import {
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { CheckCircleFillIcon, LockIcon, MoreHorizontalIcon, ShareIcon, TrashIcon } from './icons';
-import {memo, useState} from 'react';
+import { memo, useState } from 'react';
 import type { Chat } from '@/types/interfaces';
 import { useParams } from 'next/navigation';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import { ChatVisibilityType } from '@repo/shared-types';
-import { Users } from 'lucide-react';
-import * as React from "react";
-import {getSession, Session} from "@/lib/session";
+import { FileUp, Users } from 'lucide-react';
+import * as React from 'react';
+import { getSession, Session } from '@/lib/session';
+import apiClient from '@/lib/axios';
+import { toast } from 'sonner';
 
 const PureChatItem = ({
-    chat,
-    isActive,
-    onDelete,
-    setOpenMobile
-}: {
+                          chat,
+                          isActive,
+                          onDelete,
+                          setOpenMobile
+                      }: {
     chat: Chat;
     isActive: boolean;
     onDelete: (chatId: string) => void;
@@ -103,7 +105,13 @@ const PureChatItem = ({
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                         </DropdownMenuSub>
-
+                        <DropdownMenuItem
+                            className="cursor-pointer"
+                            onSelect={() => exportDatasetsLocal(projectId, chat.id)}
+                        >
+                            <FileUp className={'text-black'} />
+                            <span>导出</span>
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                             className="cursor-pointer text-destructive focus:bg-destructive/15 focus:text-destructive dark:text-red-500"
                             onSelect={() => onDelete(chat.id)}
@@ -116,6 +124,31 @@ const PureChatItem = ({
             )}
         </SidebarMenuItem>
     );
+};
+
+// 导出数据集到本地
+const exportDatasetsLocal = async (projectId: string, chatId: string) => {
+    try {
+        const res = await apiClient.post(
+            `/${projectId}/chat/export`,
+            { chatId }, { responseType: 'blob' }
+        );
+        const filename = res.headers['content-disposition']?.match(/filename="?(.+)"?/)?.[1] || 'data-export.zip';
+
+        const url = URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }, 100);
+    } catch (error) {
+        console.error('Download failed:', error);
+        toast.error('下载失败');
+    }
 };
 
 export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {

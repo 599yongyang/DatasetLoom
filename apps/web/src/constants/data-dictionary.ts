@@ -1,6 +1,6 @@
-import { PromptTemplateType } from '@repo/shared-types';
+import { ModelConfigType, PromptTemplateType, ProjectRole } from '@repo/shared-types';
+import type { Option } from '@/components/ui/multiselect';
 
-export type ProjectRole = 'OWNER' | 'ADMIN' | 'EDITOR' | 'VIEWER';
 export const projectRoleMap: Record<ProjectRole, string> = {
     OWNER: '所有者',
     ADMIN: '可管理',
@@ -28,7 +28,6 @@ export const ContextTypeMap: Record<UIContextType, string> = {
     IMAGE: '图像'
 };
 
-export type ModelConfigType = 'COT' | 'EMBED' | 'TEXT' | 'TOOL' | 'VISION' | 'ALL';
 
 export type DatasetExportType = 'LOCAL_GENERAL' | 'LLAMA_FACTORY' | 'HF';
 
@@ -52,3 +51,12 @@ export const promptTemplateTypeOptions = [
     { value: PromptTemplateType.ANSWER, label: '答案生成' },
     { value: PromptTemplateType.OTHER, label: '其他' }
 ];
+
+export const modelConfigTypeOptions: Option[] = [
+    { value: ModelConfigType.TEXT, label: '对话能力' },
+    { value: ModelConfigType.VISION, label: '视觉能力' },
+    { value: ModelConfigType.COT, label: '推理能力' },
+    { value: ModelConfigType.TOOL, label: '工具能力' },
+    { value: ModelConfigType.EMBED, label: '嵌入能力' }
+];
+

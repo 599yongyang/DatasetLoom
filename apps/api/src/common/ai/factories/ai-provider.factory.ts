@@ -34,7 +34,7 @@ export class AIProviderFactory implements IAIProviderFactory {
     }
 
     create(config: ModelConfigWithProvider): IAIProvider {
-        const providerType = config.provider?.interfaceType?.toLowerCase() || 'openai';
+        const providerType = config.provider?.interfaceType?.toLowerCase() || 'openAICompatible';
         const ProviderClass = this.providerMap[providerType] || OpenaiCompatibleProvider;
 
         const provider = new ProviderClass(config);

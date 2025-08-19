@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useInputList } from '@/hooks/use-input-list';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { availableRoles, projectRoleMap } from '@/lib/data-dictionary';
+import { availableRoles, projectRoleMap } from '@/constants/data-dictionary';
 import { ProjectRole } from '@repo/shared-types';
 import { SubmitButton } from '@/components/common/submit-button';
 import { toast } from 'sonner';

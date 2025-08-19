@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import { buildURL, fetcher } from '@/lib/utils';
 import { useMemo } from 'react';
 import type { ImageBlockWithImage } from '@/types/interfaces';
-import type { UIContextType } from '@/lib/data-dictionary';
+import type { UIContextType } from '@/constants/data-dictionary';
 import { ContextType } from '@repo/shared-types';
 
 interface Response {

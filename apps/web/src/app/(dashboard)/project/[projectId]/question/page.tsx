@@ -13,7 +13,7 @@ import { DataTable } from '@/components/questions/data-table';
 import { ContextType, ModelConfigType, ProjectRole, PromptTemplateType } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useQuestionTableColumns } from '@/hooks/table-columns/use-question';
-import { ContextTypeMap } from '@/lib/data-dictionary';
+import { ContextTypeMap } from '@/constants/data-dictionary';
 import apiClient from '@/lib/axios';
 import { usePagination } from '@/hooks/use-pagination';
 import { GenerateStrategyDialog } from '@/components/common/generate-strategy-dialog';

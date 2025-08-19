@@ -1,8 +1,8 @@
-import {Injectable} from '@nestjs/common';
-import {SaveModelConfigDto} from './dto/save-model-config.dto';
-import {PrismaService} from '@/common/prisma/prisma.service';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {nanoid} from "nanoid";
+import { Injectable } from '@nestjs/common';
+import { SaveModelConfigDto } from './dto/save-model-config.dto';
+import { PrismaService } from '@/common/prisma/prisma.service';
+import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class ModelConfigService {
@@ -17,7 +17,7 @@ export class ModelConfigService {
             return this.prisma.modelConfig.upsert({
                 create: modelConfigDto,
                 update: modelConfigDto,
-                where: {id: modelConfigDto.id}
+                where: { id: modelConfigDto.id }
             });
         } catch (error) {
             console.error('Failed to create modelConfig in database');
@@ -28,7 +28,7 @@ export class ModelConfigService {
     getList(projectId: string, providerId: string) {
         try {
             return this.prisma.modelConfig.findMany({
-                where: {projectId, providerId},
+                where: { projectId, providerId },
                 select: {
                     id: true,
                     modelId: true,
@@ -41,11 +41,11 @@ export class ModelConfigService {
                     provider: {
                         select: {
                             id: true,
-                            name: true,
-                        },
-                    },
+                            name: true
+                        }
+                    }
                 },
-                orderBy: [{isDefault: 'desc'}, {updatedAt: 'desc'}],
+                orderBy: [{ isDefault: 'desc' }, { updatedAt: 'desc' }]
             });
         } catch (error) {
             console.error('Failed to get modelConfig by projectId in database');
@@ -56,7 +56,7 @@ export class ModelConfigService {
     getAvailableList(projectId: string, status: boolean) {
         try {
             return this.prisma.modelConfig.findMany({
-                where: {projectId, status},
+                where: { projectId, status },
                 select: {
                     id: true,
                     modelId: true,
@@ -69,11 +69,11 @@ export class ModelConfigService {
                     provider: {
                         select: {
                             id: true,
-                            name: true,
-                        },
-                    },
+                            name: true
+                        }
+                    }
                 },
-                orderBy: [{isDefault: 'desc'}, {updatedAt: 'desc'}],
+                orderBy: [{ isDefault: 'desc' }, { updatedAt: 'desc' }]
             });
         } catch (error) {
             console.error('Failed to get modelConfig by projectId in database');
@@ -83,7 +83,7 @@ export class ModelConfigService {
 
     updateStatus(modelId: string, status: boolean) {
         try {
-            return this.prisma.modelConfig.update({where: {id: modelId}, data: {status}});
+            return this.prisma.modelConfig.update({ where: { id: modelId }, data: { status } });
         } catch (error) {
             console.error('Failed to create modelConfig in database');
             throw error;
@@ -92,13 +92,13 @@ export class ModelConfigService {
 
     async updateDefault(id: string) {
         try {
-            const model = await this.prisma.modelConfig.findUnique({where: {id}});
+            const model = await this.prisma.modelConfig.findUnique({ where: { id } });
             if (model) {
                 await this.prisma.modelConfig.updateMany({
-                    where: {providerId: model.providerId},
-                    data: {isDefault: false}
+                    where: { providerId: model.providerId },
+                    data: { isDefault: false }
                 });
-                return await this.prisma.modelConfig.update({where: {id}, data: {isDefault: true}});
+                return await this.prisma.modelConfig.update({ where: { id }, data: { isDefault: true } });
             }
         } catch (error) {
             console.error('Failed to create modelConfig in database');
@@ -109,8 +109,8 @@ export class ModelConfigService {
     async getModelConfigById(id: string): Promise<ModelConfigWithProvider> {
         try {
             const modelConfig = await this.prisma.modelConfig.findUnique({
-                where: {id},
-                include: {provider: true},
+                where: { id },
+                include: { provider: true }
             });
 
             if (!modelConfig) {
@@ -125,9 +125,35 @@ export class ModelConfigService {
     }
 
 
+    async getEmbedModelConfigByProjectId(projectId: string): Promise<ModelConfigWithProvider> {
+        try {
+            const project = await this.prisma.projects.findUnique({
+                where: { id: projectId },
+                select: {
+                    embedModelId: true
+                }
+            });
+            if (!project) {
+                throw new Error(`Project with id ${projectId} not found`);
+            }
+            const modelConfig = await this.prisma.modelConfig.findUnique({
+                where: { id: project.embedModelId },
+                include: { provider: true }
+            });
+            if (!modelConfig) {
+                throw new Error(`ModelConfig with id ${project.embedModelId} not found`);
+            }
+            return modelConfig;
+        } catch (error) {
+            console.error('Failed to get modelConfig by projectId in database');
+            throw error;
+        }
+    }
+
+
     remove(id: string) {
         try {
-            return this.prisma.modelConfig.delete({where: {id}});
+            return this.prisma.modelConfig.delete({ where: { id } });
         } catch (error) {
             console.error('Failed to delete modelConfig by id in database');
             throw error;

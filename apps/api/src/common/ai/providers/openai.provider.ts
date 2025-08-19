@@ -1,8 +1,8 @@
-import {Injectable} from '@nestjs/common';
-import {createOpenAI} from '@ai-sdk/openai';
-import type {LanguageModel} from 'ai';
-import {ModelConfigWithProvider} from '@/common/prisma/type';
-import {BaseAIProvider} from "@/common/ai/providers/base-ai-provider";
+import { Injectable } from '@nestjs/common';
+import { createOpenAI } from '@ai-sdk/openai';
+import type { LanguageModel } from 'ai';
+import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { BaseAIProvider } from '@/common/ai/providers/base-ai-provider';
 
 @Injectable()
 export class OpenAIProvider extends BaseAIProvider {
@@ -21,5 +21,12 @@ export class OpenAIProvider extends BaseAIProvider {
             throw new Error('Model ID is required');
         }
         return this.openai(this.config.modelId);
+    }
+
+    protected getEmbedModel() {
+        if (!this.config.modelId) {
+            throw new Error('Model ID is required');
+        }
+        return this.openai.embedding(this.config.modelId);
     }
 }

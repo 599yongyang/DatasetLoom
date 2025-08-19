@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { type Tag, TagInput } from 'emblor';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 import { useImageBlocksByImageId } from '@/hooks/query/use-image-block';
-import type { UIContextType } from '@/lib/data-dictionary';
+import type { UIContextType } from '@/constants/data-dictionary';
 import { ContextType } from '@repo/shared-types';
 import type { ImageBlock, QuestionsWithDatasetSample } from '@/types/interfaces';
 import apiClient from '@/lib/axios';

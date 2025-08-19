@@ -5,11 +5,12 @@ import { ResponseUtil } from '@/utils/response.util';
 import { Permission } from '@/auth/decorators/permission.decorator';
 import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ProjectService } from '@/project/project.service';
 
 @ApiTags('模型服务配置')
 @Controller(':projectId/model-config')
 export class ModelConfigController {
-    constructor(private readonly modelConfigService: ModelConfigService) {
+    constructor(private readonly modelConfigService: ModelConfigService, private readonly projectService: ProjectService) {
     }
 
 
@@ -18,8 +19,9 @@ export class ModelConfigController {
     @Permission(ProjectRole.EDITOR)
     async save(@Param('projectId') projectId: string, @Body() createModelConfigDto: SaveModelConfigDto) {
         createModelConfigDto.projectId = projectId;
-        const data = await this.modelConfigService.save(createModelConfigDto);
-        return ResponseUtil.success(data.id);
+        const modelConfig = await this.modelConfigService.save(createModelConfigDto);
+        const isSet = await this.projectService.checkEmbeddingModelIsSet(projectId);
+        return ResponseUtil.success({ id: modelConfig.id, isSet });
     }
 
     @Get('getListByProviderId')
