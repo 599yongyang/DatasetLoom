@@ -68,7 +68,7 @@ export default function UploadImageDialog({
             },
             error: error => {
                 console.error('Error:', error);
-                return error.response?.data?.message || '上传文件失败';
+                return error.message || '上传文件失败';
             }
         });
     };

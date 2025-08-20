@@ -14,9 +14,10 @@ import { Slider } from '@/components/ui/slider';
 import { DynamicConfigForm, DynamicFormRef } from '@/components/prompt-template/dynamic-form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetPromptTemplateSelect } from '@/hooks/query/use-prompt-template';
-import { PromptTemplateType } from '@repo/shared-types';
+import { ModelConfigType, PromptTemplateType } from '@repo/shared-types';
 import { ModelSelect } from '@/components/common/model-select';
 import { defaultStrategyConfig, StrategyParamsType } from '@/types/generate';
+import { toast } from 'sonner';
 
 export function GenerateStrategyDialog({ open, setOpen, promptTemplateType, handleGenerate }: {
     open: boolean;
@@ -30,7 +31,7 @@ export function GenerateStrategyDialog({ open, setOpen, promptTemplateType, hand
     const tCommon = (key: string) => t(`common:${key}`);
     const modelList = useAtomValue(modelConfigListAtom);
     const selectModel = useAtomValue(selectedModelInfoAtom);
-    const [modelValue, setModelValue] = useState(selectModel.id);
+    const [modelValue, setModelValue] = useState(selectModel?.type?.includes(ModelConfigType.EMBED) ? '' : selectModel.id);
     const { handleFormChange, handleValidityChange, getFormData } = useDynamicForm();
     const formRef = useRef<DynamicFormRef>(null);
     const { data: promptTemplates } = useGetPromptTemplateSelect({ projectId, type: promptTemplateType });
@@ -68,6 +69,10 @@ export function GenerateStrategyDialog({ open, setOpen, promptTemplateType, hand
         if (!isFormValid) {
             return;
         }
+        if (!modelValue) {
+            toast.warning('请选择模型');
+            return;
+        }
         handleGenerate({ ...strategy, variablesData: getFormData() });
     };
 
@@ -94,6 +99,7 @@ export function GenerateStrategyDialog({ open, setOpen, promptTemplateType, hand
                                 value={modelValue}
                                 setValue={setModelValue}
                                 className={'w-[350]'}
+                                exclude={ModelConfigType.EMBED}
                             />
                         </div>
 

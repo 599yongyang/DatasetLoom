@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Globe, Upload, X } from 'lucide-react';
-import { UploadFilesNew } from '@/components/documents/upload-files-new';
+import { UploadFiles } from '@/components/documents/upload-files';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -61,7 +61,7 @@ export default function StepOne({
                 </TabsList>
 
                 <TabsContent value="local" className="space-y-4">
-                    <UploadFilesNew
+                    <UploadFiles
                         setLocalFiles={files => handleChange('selectedFiles', files)}
                         options={uploadOptions}
                     />

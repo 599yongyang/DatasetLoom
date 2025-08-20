@@ -21,13 +21,13 @@ const nextConfig = {
     eslint: {
         ignoreDuringBuilds: true
     },
-    webpack(config, { dev }) {
-        config.externals.push({ canvas: 'commonjs canvas' });
-        if (config.cache && !dev) {
-            config.cache = Object.freeze({ type: 'memory' });
-        }
-        return config;
-    }
+    // webpack(config, { dev }) {
+    //     config.externals.push({ canvas: 'commonjs canvas' });
+    //     if (config.cache && !dev) {
+    //         config.cache = Object.freeze({ type: 'memory' });
+    //     }
+    //     return config;
+    // }
 };
 
 export default nextConfig;

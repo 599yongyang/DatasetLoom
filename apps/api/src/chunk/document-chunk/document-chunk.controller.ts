@@ -31,8 +31,8 @@ export class DocumentChunkController {
     @ApiOperation({ summary: '创建文档分块并保存' })
     async chunk(@Param('projectId') projectId: string, @Body() createDocumentChunkDto: CreateDocumentChunkDto) {
         createDocumentChunkDto.projectId = projectId;
-        const data = await this.documentChunkService.chunkAndSave(createDocumentChunkDto);
-        return ResponseUtil.success(data);
+        await this.documentChunkService.chunkAndSave(createDocumentChunkDto);
+        return ResponseUtil.success();
     }
 
     @Post('save')

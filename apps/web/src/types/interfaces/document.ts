@@ -14,6 +14,7 @@ export interface DocumentsWithCount {
     parserFilePath: string;
     parserFileExt: string;
     parserFileSize: number;
+    embedModelName: string;
     createdAt: Date;
     updatedAt: Date;
     _count: DocumentChunkCount;

@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Waypoints } from 'lucide-react';
+import { ChartScatter, VectorSquare, Waypoints } from 'lucide-react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
@@ -31,7 +31,24 @@ export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
                     return '删除成功';
                 },
                 error: error => {
-                    return error.response?.data?.message || '删除失败';
+                    return error.message || '删除失败';
+                }
+            }
+        );
+    };
+
+
+    const handelVector = (fileId: string) => {
+        toast.promise(apiClient.patch(`/${projectId}/document/vector?id=${fileId}`),
+            {
+                loading: '转换向量数据中',
+                position: 'top-right',
+                success: _ => {
+                    mutateDocuments();
+                    return '操作成功';
+                },
+                error: error => {
+                    return error.message || '操作失败';
                 }
             }
         );
@@ -116,6 +133,19 @@ export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
             )
         },
         {
+            accessorKey: 'embedModelName',
+            header: t('table_columns.embed'),
+            cell: ({ row }) => (
+                <>
+                    {row.original.embedModelName ? (
+                        <Badge variant="secondary" className="bg-blue-500 text-white dark:bg-blue-600">已完成</Badge>
+                    ) : (
+                        <Badge variant="secondary" className={'text-white bg-gray-500 dark:bg-gray-600'}>未进行</Badge>
+                    )}
+                </>
+            )
+        },
+        {
             accessorKey: 'createdAt',
             header: t('table_columns.createdAt'),
             cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
@@ -132,6 +162,14 @@ export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
                                 fileExt={row.original.fileExt ?? ''}
                                 refresh={mutateDocuments}
                             />
+                            {!row.original.embedModelName && row.original._count.Chunks > 0 && (
+                                <Button variant="ghost"
+                                        className={'hover:cursor-pointer'}
+                                        size="icon"
+                                        onClick={() => handelVector(row.original.id)}
+                                        aria-label="Vector">
+                                    <ChartScatter />
+                                </Button>)}
                         </WithPermission>
                         {row.original._count.Chunks > 0 && (
                             <Button

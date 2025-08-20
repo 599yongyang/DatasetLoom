@@ -12,7 +12,7 @@ export class CreateChatDto {
     messages: UIMessage[];
 
     @ApiProperty({ description: '模型配置ID' })
-    @IsString()
+    @IsString({ message: '请选择模型' })
     modelConfigId: string;
 
     @ApiProperty({ description: '是否RAG' })

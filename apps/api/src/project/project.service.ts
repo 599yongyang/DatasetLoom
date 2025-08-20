@@ -5,7 +5,7 @@ import { PrismaService } from '@/common/prisma/prisma.service';
 import { nanoid } from 'nanoid';
 import { ProjectRole } from '@repo/shared-types';
 import { DEFAULT_PROVIDERS } from '@/constants/model';
-import { InitPromptTemplate } from '@/common/init/prompt';
+import { InitPromptTemplate } from '@/common/ai/prompts/seed';
 
 @Injectable()
 export class ProjectService {

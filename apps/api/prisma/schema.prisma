@@ -87,6 +87,7 @@ model Documents {
   parserFilePath String?
   parserFileExt  String?
   parserFileSize Int?
+  embedModelName String   @default("")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   Chunks         Chunks[]

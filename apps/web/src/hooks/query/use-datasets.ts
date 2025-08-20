@@ -52,7 +52,7 @@ export function useDatasets(params: UseDatasetsParams) {
 }
 
 export function useDatasetsInfo({ projectId, questionId }: { projectId: string; questionId: string }) {
-    const { data, error, isLoading, mutate } = useSWR(`/${projectId}/qa-dataset/${questionId}`, fetcher);
+    const { data, error, isLoading, mutate } = useSWR(`/${projectId}/qa-dataset/getInfo/${questionId}`, fetcher);
 
     return {
         datasets: data?.data || {},

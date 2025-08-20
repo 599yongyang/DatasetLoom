@@ -7,9 +7,10 @@ import { DocumentGraphService } from '@/knowledge/document/document-graph.servic
 import { ModelConfigService } from '@/setting/model-config/model-config.service';
 import { TagRelGenerator } from '@/knowledge/document/generators/tag-rel.generator';
 import { PromptTemplateService } from '@/setting/prompt-template/prompt-template.service';
+import { RagModule } from '@/common/rag/rag.module';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, RagModule],
     controllers: [DocumentController],
     providers: [DocumentService, ParserConfigService, DocumentGraphService, ModelConfigService, TagRelGenerator, PromptTemplateService]
 })

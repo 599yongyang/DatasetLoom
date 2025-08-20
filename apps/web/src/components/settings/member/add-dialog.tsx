@@ -45,7 +45,7 @@ export function ProjectMemberDialog({
                     return '操作成功';
                 },
                 error: error => {
-                    return error.response?.data?.error || '操作失败';
+                    return error.message || '操作失败';
                 }
             }
         );

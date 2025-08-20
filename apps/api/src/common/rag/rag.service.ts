@@ -4,7 +4,7 @@ import { RerankerService, RerankResult } from '@/common/rag/serivce/reranker.ser
 import { randomUUID } from 'crypto';
 import { Chunks } from '@prisma/client';
 import { AIService } from '@/common/ai/ai.service';
-import { ModelConfigService } from '@/setting/model-config/model-config.service';
+import { ModelConfigWithProvider } from '@/common/prisma/type';
 
 
 // 定义搜索选项
@@ -22,18 +22,16 @@ export class RagService {
     constructor(
         private readonly aiService: AIService,
         private readonly qdrantService: QdrantService,
-        private readonly rerankerService: RerankerService,
-        private readonly modelConfigService: ModelConfigService
+        private readonly rerankerService: RerankerService
     ) {
     }
 
     /**
      * 存储文档到向量数据库
-     * @param projectId 项目Id
+     * @param modelConfig 嵌入模型配置
      * @param chunks 文档内容
      */
-    async insertVectorData(projectId: string, chunks: Chunks[]): Promise<void> {
-        const modelConfig = await this.modelConfigService.getEmbedModelConfigByProjectId(projectId);
+    async insertVectorData(modelConfig: ModelConfigWithProvider, chunks: Chunks[]): Promise<void> {
         // 1. 向量化数据
         const batchSize = 5; // 控制并发数量
         const vectorData: any = [];
@@ -55,7 +53,7 @@ export class RagService {
                         };
                     } catch (embeddingError) {
                         this.logger.error(`Failed to generate embedding for chunk ${chunk.id}:`, embeddingError);
-                        throw new Error(`Embedding generation failed for chunk ${chunk.id}`);
+                        throw new Error(`请检测嵌入模型服务是否正常`);
                     }
                 })
             );
@@ -67,37 +65,31 @@ export class RagService {
             return;
         }
         // 2. 存储向量化
-        await this.qdrantService.upsert(projectId, modelConfig.modelId, vectorData);
+        await this.qdrantService.upsert(modelConfig.projectId, modelConfig.modelId, vectorData);
     }
 
 
     /**
      * RAG 查询
-     * @param projectId 项目Id
+     * @param modelConfig 嵌入模型配置
      * @param query 查询文本
      * @param options 查询选项
      * @returns 查询结果
      */
-    async query(projectId: string, query: string, options: RagSearchOptions = {}): Promise<RerankResult[]> {
+    async query(modelConfig: ModelConfigWithProvider, query: string, options: RagSearchOptions = {}): Promise<RerankResult[]> {
 
         const { topK = 10, withRerank = true, rerankTopK = 3 } = options;
 
-        const modelConfig = await this.modelConfigService.getEmbedModelConfigByProjectId(projectId);
-
         // 1. 向量搜索
         const embedding = await this.aiService.embedding(modelConfig, query);
-        const results = await this.qdrantService.search(projectId, modelConfig.modelId, embedding, withRerank ? rerankTopK : topK);
+        const results = await this.qdrantService.search(modelConfig.projectId, modelConfig.modelId, embedding, withRerank ? rerankTopK : topK);
         // 2. 提取文档内容
         const documents = results.map(result =>
             result.payload?.content || ''
         ).filter(content => content && content.trim().length > 0);
 
         // 3. 重排序
-        const rerankedResults = await this.rerankerService.rerank(
-            query,
-            documents,
-            topK
-        );
+        const rerankedResults = await this.rerankerService.rerank(query, documents, topK);
         return rerankedResults;
 
     }

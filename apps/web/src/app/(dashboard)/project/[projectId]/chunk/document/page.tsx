@@ -88,7 +88,7 @@ export default function Page() {
                     return tCommon('messages.delete_success', { count: Object.keys(rowSelection).length });
                 },
                 error: error => {
-                    return error.response?.data?.message || tCommon('messages.delete_fail');
+                    return error.message || tCommon('messages.delete_fail');
                 }
             }
         );

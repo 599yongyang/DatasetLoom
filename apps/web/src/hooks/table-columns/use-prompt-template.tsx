@@ -24,7 +24,7 @@ export function usePromptTemplateTableColumns({ refresh }: { refresh: () => void
                     return '删除成功';
                 },
                 error: error => {
-                    return error.response?.data?.message || '删除失败';
+                    return error.message || '删除失败';
                 }
             }
         );
@@ -81,8 +81,7 @@ export function usePromptTemplateTableColumns({ refresh }: { refresh: () => void
             header: '内容',
             cell: ({ row }) => (
                 <div className={'text-left'}>
-                    {row.original.content ? (<div className={'truncate max-w-xl'}>{row.original.content}</div>) : (
-                        <Badge variant="destructive" className={'h-5'}>暂未设置</Badge>)}
+                    <div className={'truncate max-w-xl'}>{row.original.content}</div>
                 </div>
             )
         },

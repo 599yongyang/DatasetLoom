@@ -17,8 +17,7 @@ export class ImageDatasetGenerator {
     }
 
     async generate(createQaDto: AiGenDto, model: ModelConfigWithProvider, question: QuestionsWithDatasetSample) {
-        const prompt = genImageAnswerPrompt(question.realQuestion, question.contextData);
-
+        const prompt = genImageAnswerPrompt(question.realQuestion, JSON.stringify(JSON.parse(question.contextData)?.regions || []));
         const imageFile = await this.imagesService.getInfoById(question.contextId);
         if (!imageFile) throw new Error('Image file not found');
 

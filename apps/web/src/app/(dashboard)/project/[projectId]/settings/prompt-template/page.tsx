@@ -49,7 +49,7 @@ export default function Page() {
                     return `成功删除 ${Object.keys(rowSelection).length} 个提示词`;
                 },
                 error: error => {
-                    return error.response?.data?.message || '批量删除提示词失败';
+                    return error.message || '批量删除提示词失败';
                 }
             }
         );

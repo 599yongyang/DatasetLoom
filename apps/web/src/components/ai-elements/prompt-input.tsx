@@ -38,7 +38,7 @@ export type PromptInputTextareaProps = ComponentProps<typeof Textarea> & {
 export const PromptInputTextarea = ({
                                         onChange,
                                         className,
-                                        placeholder = 'What would you like to know?',
+                                        placeholder = '有什么可以帮您的吗?',
                                         minHeight = 48,
                                         maxHeight = 164,
                                         ...props
@@ -135,6 +135,7 @@ export const PromptInputButton = ({
 
 export type PromptInputSubmitProps = ComponentProps<typeof Button> & {
     status?: string;
+    stop: () => void;
 };
 
 export const PromptInputSubmit = ({
@@ -143,16 +144,32 @@ export const PromptInputSubmit = ({
                                       size = 'icon',
                                       status,
                                       children,
+                                      stop,
+                                      disabled,
                                       ...props
                                   }: PromptInputSubmitProps) => {
     let Icon = <SendIcon className="size-4" />;
-
     if (status === 'submitted') {
         Icon = <Loader2Icon className="size-4 animate-spin" />;
     } else if (status === 'streaming') {
         Icon = <SquareIcon className="size-4" />;
-    } else if (status === 'error') {
-        Icon = <XIcon className="size-4" />;
+    }
+
+    if (status === 'streaming') {
+        return (
+            <Button
+                className={cn('gap-1.5 rounded-lg', className)}
+                size={size}
+                variant={variant}
+                onClick={(e) => {
+                    e.preventDefault();
+                    stop();
+                }}
+                {...props}
+            >
+                {children ?? Icon}
+            </Button>
+        );
     }
 
     return (
@@ -161,12 +178,14 @@ export const PromptInputSubmit = ({
             size={size}
             type="submit"
             variant={variant}
+            disabled={disabled}
             {...props}
         >
             {children ?? Icon}
         </Button>
     );
 };
+
 
 export type PromptInputModelSelectProps = ComponentProps<typeof Select>;
 

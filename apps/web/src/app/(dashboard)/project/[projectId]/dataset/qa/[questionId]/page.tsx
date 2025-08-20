@@ -46,8 +46,8 @@ export default function Page() {
 
     const handleNavigate = async (direction: 'prev' | 'next') => {
         const response = await apiClient.get(`/${projectId}/qa-dataset/navigation/${qId}?operateType=${direction}`);
-        if (response.data.data) {
-            const data = response.data.data;
+        if (response.data.data.data) {
+            const data = response.data.data.data;
             setQid(data.id);
             setActiveAnswerId(data.DatasetSamples[0].id);
             router.replace(`/project/${projectId}/dataset/qa/${data.id}?dssId=${data.DatasetSamples[0].id}`);

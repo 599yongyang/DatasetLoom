@@ -29,7 +29,7 @@ export const getMenuConfig = (projectId: string, user: UserInfo): IMenu[] => {
         {
             title: 'knowledge.title',
             icon: FileText,
-            to: `/project/${projectId}/knowledge/document`,
+            to: `/project/${projectId}/knowledge`,
             role: ProjectRole.VIEWER,
             children: [
                 {
@@ -49,7 +49,7 @@ export const getMenuConfig = (projectId: string, user: UserInfo): IMenu[] => {
         {
             title: 'chunk.title',
             icon: SquareSplitVertical,
-            to: `/project/${projectId}/chunk/document`,
+            to: `/project/${projectId}/chunk`,
             role: ProjectRole.VIEWER,
             children: [
                 {
@@ -75,7 +75,7 @@ export const getMenuConfig = (projectId: string, user: UserInfo): IMenu[] => {
         {
             title: 'dataset.title',
             icon: Database,
-            to: `/project/${projectId}/dataset/qa`,
+            to: `/project/${projectId}/dataset`,
             role: ProjectRole.VIEWER,
             children: [
                 {

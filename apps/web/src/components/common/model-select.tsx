@@ -21,9 +21,10 @@ interface ModelSelectProps {
     showConfigButton?: boolean;
     filter?: ModelConfigType;
     className?: string;
+    exclude?: ModelConfigType;
 }
 
-export function ModelSelect({ value, setValue, showConfigButton = true, filter, className }: ModelSelectProps) {
+export function ModelSelect({ value, setValue, showConfigButton = true, filter, className, exclude }: ModelSelectProps) {
     const { projectId } = useParams();
     const router = useRouter();
     const [open, setOpen] = useState(false);
@@ -32,11 +33,13 @@ export function ModelSelect({ value, setValue, showConfigButton = true, filter, 
     const modelConfigList = useAtomValue(modelConfigListAtom);
 
     // Filter models based on the filter prop
-    const filteredModels = useMemo(() => {
-        return modelConfigList
-            .filter(modelConfig => !filter || modelConfig.type.includes(filter))
-            .filter(modelConfig => modelConfig.modelName.includes(search));
-    }, [modelConfigList, search, filter]);
+const filteredModels = useMemo(() => {
+    return modelConfigList
+        .filter(modelConfig => !filter || modelConfig.type.includes(filter))
+        .filter(modelConfig => modelConfig.modelName.includes(search))
+        .filter(modelConfig => !exclude || !modelConfig.type.includes(exclude));
+}, [modelConfigList, search, filter, exclude]);
+
 
     // Group models by provider
     const groupedModels = useMemo(() => {
@@ -92,7 +95,7 @@ export function ModelSelect({ value, setValue, showConfigButton = true, filter, 
                     <CommandInput value={search} placeholder="搜索模型..." onValueChange={setSearch} />
                     <CommandList>
                         <CommandEmpty>
-                            <p className="pb-1">未找到此模型</p>
+                            <p className="pb-1">未找到匹配模型</p>
                             {showConfigButton && (
                                 <Button
                                     variant="link"

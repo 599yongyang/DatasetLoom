@@ -105,7 +105,7 @@ export default function Page() {
                     return `成功删除 ${Object.keys(rowSelection).length} 个问题`;
                 },
                 error: error => {
-                    return error.response?.data?.message || '批量删除问题失败';
+                    return error.message || '批量删除问题失败';
                 }
             }
         );

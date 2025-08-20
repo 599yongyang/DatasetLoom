@@ -137,6 +137,11 @@ export default function ImageBlockList({ searchQuery }: { searchQuery: string })
                         </div>
                     );
                 })}
+                {data.length === 0 && (
+                    <div className="col-span-full flex flex-col items-center border rounded-lg justify-center py-12">
+                        <p className="text-sm text-muted-foreground">暂无数据</p>
+                    </div>
+                )}
             </div>
             <PaginationC pagination={pagination} setPagination={setPagination} pageCount={pageCount} />
             {currentBlock && (

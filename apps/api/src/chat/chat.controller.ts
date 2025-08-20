@@ -56,6 +56,12 @@ export class ChatController {
             } else if (chat.userId !== userId) {
                 return res.status(401).json({ error: 'Unauthorized' });
             }
+            const embedModelConfig = await this.modelConfigService.getEmbedModelConfig(projectId);
+
+            // 如果启用了RAG但没有找到嵌入模型配置，则返回错误
+            if (isRAG && !embedModelConfig) {
+                return res.status(500).json('项目暂未配置嵌入配置，无法使用RAG功能');
+            }
 
             // 保存用户消息
             await this.chatService.insertChatMessage({
@@ -66,8 +72,10 @@ export class ChatController {
                 attachments: ''
             } as ChatMessages);
             let systemPrompt = '';
+
+            // 如果启用了RAG并且找到了嵌入模型配置，则查询相关数据并生成系统提示
             if (isRAG) {
-                const data = await this.ragService.query(projectId, userMessage.content);
+                const data = await this.ragService.query(embedModelConfig!, userMessage.content);
                 systemPrompt = ragSystemPrompt(data);
             }
 

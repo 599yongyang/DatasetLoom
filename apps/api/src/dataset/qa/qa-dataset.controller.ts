@@ -69,7 +69,7 @@ export class QADatasetController {
         return ResponseUtil.success(data);
     }
 
-    @Get(':id')
+    @Get('getInfo/:id')
     @ApiOperation({ summary: '获取QA数据集详情' })
     @Permission(ProjectRole.VIEWER)
     async getInfo(@Param('projectId') projectId: string, @Param('id') id: string) {

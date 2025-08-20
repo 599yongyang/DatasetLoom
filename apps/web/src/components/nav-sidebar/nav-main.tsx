@@ -102,7 +102,8 @@ export function NavMain({ items, projectId }: { items: IMenu[]; projectId: strin
                                     tooltip={t(item.title)}
                                     data-active={item.children ? false : isPathActive(item.to)}
                                 >
-                                    <div className={'hover:cursor-pointer'} onClick={() => handleClick(item.to)}>
+                                    <div className={'hover:cursor-pointer'}
+                                         onClick={() => item.children ? handleToggle(item.title) : handleClick(item.to)}>
                                         <item.icon />
                                         <span>{t(item.title)}</span>
                                     </div>

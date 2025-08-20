@@ -1,9 +1,9 @@
-import {Injectable} from '@nestjs/common';
-import {CreateQuestionDto} from './dto/create-question.dto';
-import {QueryQuestionDto} from '@/question/dto/query-question.dto';
-import {PrismaService} from '@/common/prisma/prisma.service';
-import {Prisma, Questions} from '@prisma/client';
-import {ContextType} from '@repo/shared-types';
+import { Injectable } from '@nestjs/common';
+import { CreateQuestionDto } from './dto/create-question.dto';
+import { QueryQuestionDto } from '@/question/dto/query-question.dto';
+import { PrismaService } from '@/common/prisma/prisma.service';
+import { Prisma, Questions } from '@prisma/client';
+import { ContextType } from '@repo/shared-types';
 
 
 @Injectable()
@@ -14,7 +14,7 @@ export class QuestionService {
     }
 
     async create(createQuestionDto: CreateQuestionDto) {
-        const {projectId, questions, contextId, contextName, contextType} = createQuestionDto;
+        const { projectId, questions, contextId, contextName, contextType } = createQuestionDto;
         const questionList: Questions[] = await Promise.all(
             questions.map(async item => {
                 const question: Partial<Questions> = {
@@ -22,16 +22,22 @@ export class QuestionService {
                     question: item,
                     contextType,
                     contextId,
-                    contextName,
+                    contextName
                 };
 
                 if (contextType === ContextType.IMAGE) {
-                    const {realQuestion, regions, imageUrl} = await this.replaceMentionsWithCoordinates(item);
+                    console.log('imageUrl', item);
+                    const { realQuestion, regions } = await this.replaceMentionsWithCoordinates(item);
                     question.realQuestion = realQuestion;
-                    question.contextData = JSON.stringify({regions, imageUrl});
+                    const image = await this.prisma.imageFile.findUnique({
+                        where: {
+                            id: contextId
+                        }
+                    });
+                    question.contextData = JSON.stringify({ regions, imageUrl: image ? image.url : '' });
                 }
                 return question as Questions;
-            }),
+            })
         );
 
         // 保存
@@ -41,7 +47,7 @@ export class QuestionService {
 
     async insertQuestions(questions: Questions[]) {
         try {
-            return await this.prisma.questions.createMany({data: questions});
+            return await this.prisma.questions.createMany({ data: questions });
         } catch (error) {
             console.error('Failed to create questions in database');
             throw error;
@@ -50,37 +56,37 @@ export class QuestionService {
 
     async getListPagination(queryDto: QueryQuestionDto) {
         try {
-            const {projectId, page, pageSize, query, answered, contextType} = queryDto;
+            const { projectId, page, pageSize, query, answered, contextType } = queryDto;
             const whereClause: Prisma.QuestionsWhereInput = {
                 projectId,
                 ...(query && {
                     OR: [
-                        {question: {contains: query}},
-                        {label: {contains: query}},
-                    ],
+                        { question: { contains: query } },
+                        { label: { contains: query } }
+                    ]
                 }),
-                ...(answered !== undefined && {answered}),
-                ...(contextType && {contextType}),
+                ...(answered !== undefined && { answered }),
+                ...(contextType && { contextType })
             };
 
             const [data, total] = await Promise.all([
                 this.prisma.questions.findMany({
                     where: whereClause,
                     orderBy: {
-                        createdAt: 'desc',
+                        createdAt: 'desc'
                     },
                     include: {
-                        DatasetSamples: true,
+                        DatasetSamples: true
                     },
                     skip: (page - 1) * pageSize,
-                    take: pageSize,
+                    take: pageSize
                 }),
                 this.prisma.questions.count({
-                    where: whereClause,
-                }),
+                    where: whereClause
+                })
             ]);
 
-            return {data, total};
+            return { data, total };
         } catch (error) {
             console.error('Failed to get questions by projectId in database');
             throw error;
@@ -90,10 +96,10 @@ export class QuestionService {
     getInfoById(id: string) {
         try {
             return this.prisma.questions.findUnique({
-                where: {id},
+                where: { id },
                 include: {
-                    DatasetSamples: true,
-                },
+                    DatasetSamples: true
+                }
             });
         } catch (error) {
             console.error('Failed to get questions by name in database');
@@ -106,11 +112,11 @@ export class QuestionService {
             return this.prisma.questions.findMany({
                 where: {
                     contextType,
-                    projectId,
+                    projectId
                 },
                 select: {
                     // question: true,
-                    contextId: true,
+                    contextId: true
                 }
             });
         } catch (error) {
@@ -122,8 +128,8 @@ export class QuestionService {
     update(id: string, question: Questions) {
         try {
             return this.prisma.questions.update({
-                where: {id},
-                data: question,
+                where: { id },
+                data: question
             });
         } catch (error) {
             console.error('Failed to update questions in database');
@@ -136,9 +142,9 @@ export class QuestionService {
             return this.prisma.questions.deleteMany({
                 where: {
                     id: {
-                        in: ids,
-                    },
-                },
+                        in: ids
+                    }
+                }
             });
         } catch (error) {
             console.error('Failed to delete batch questions in database');
@@ -152,8 +158,8 @@ export class QuestionService {
             const total = await this.prisma.questions.count({
                 where: {
                     projectId,
-                    DatasetSamples: {some: {}},
-                },
+                    DatasetSamples: { some: {} }
+                }
             });
 
             // 获取已确认的数量
@@ -161,11 +167,11 @@ export class QuestionService {
                 where: {
                     projectId,
                     confirmed: true,
-                    DatasetSamples: {some: {}},
-                },
+                    DatasetSamples: { some: {} }
+                }
             });
 
-            return {total, confirmedCount};
+            return { total, confirmedCount };
         } catch (error) {
             console.error('Failed to get questions count in database', error);
             throw error;
@@ -174,35 +180,35 @@ export class QuestionService {
 
     async getNavigationItems(projectId: string, questionId: string, operateType: 'prev' | 'next') {
         const currentItem = await this.prisma.questions.findUnique({
-            where: {id: questionId},
-            select: {id: true, createdAt: true},
+            where: { id: questionId },
+            select: { id: true, createdAt: true }
         });
 
         if (!currentItem) {
             throw new Error('当前记录不存在');
         }
 
-        const {createdAt, id} = currentItem;
+        const { createdAt, id } = currentItem;
 
         if (operateType === 'next') {
             return this.prisma.questions.findFirst({
                 where: {
                     projectId,
-                    DatasetSamples: {some: {}},
-                    OR: [{createdAt: {gt: createdAt}}, {createdAt: createdAt, id: {gt: id}}],
+                    DatasetSamples: { some: {} },
+                    OR: [{ createdAt: { gt: createdAt } }, { createdAt: createdAt, id: { gt: id } }]
                 },
-                include: {DatasetSamples: true, PreferencePair: true},
-                orderBy: [{createdAt: 'asc'}, {id: 'asc'}],
+                include: { DatasetSamples: true, PreferencePair: true },
+                orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
             });
         } else {
             return this.prisma.questions.findFirst({
                 where: {
                     projectId,
-                    DatasetSamples: {some: {}},
-                    OR: [{createdAt: {lt: createdAt}}, {createdAt: createdAt, id: {lt: id}}],
+                    DatasetSamples: { some: {} },
+                    OR: [{ createdAt: { lt: createdAt } }, { createdAt: createdAt, id: { lt: id } }]
                 },
-                include: {DatasetSamples: true, PreferencePair: true},
-                orderBy: [{createdAt: 'desc'}, {id: 'desc'}],
+                include: { DatasetSamples: true, PreferencePair: true },
+                orderBy: [{ createdAt: 'desc' }, { id: 'desc' }]
             });
         }
     }
@@ -210,11 +216,11 @@ export class QuestionService {
     async getQuestionWithDatasetById(id: string) {
         try {
             return await this.prisma.questions.findUnique({
-                where: {id},
+                where: { id },
                 include: {
                     DatasetSamples: true,
-                    PreferencePair: true,
-                },
+                    PreferencePair: true
+                }
             });
         } catch (error) {
             console.error('Failed to get questions by name in database');
@@ -233,32 +239,28 @@ export class QuestionService {
 
         const regions: any[] = [];
         let replacedText = text;
-        let imageUrl = ''
         for (const match of matches) {
-            const [fullMatch, blockId] = match;
-
+            const [fullMatch, label, blockId] = match;
             if (!blockId) continue;
 
             // 获取坐标信息
             const coord = await this.prisma.imageBlock.findUnique({
-                where: {id: blockId},
-                select: {x: true, y: true, width: true, height: true, label: true, image: true}
+                where: { id: blockId },
+                select: { x: true, y: true, width: true, height: true, label: true }
             });
             if (!coord) continue;
             // 替换文本中的标注
             replacedText = replacedText.replace(fullMatch, `[x:${coord.x} y:${coord.y} w:${coord.width} h:${coord.height}]`);
-            imageUrl = coord.image.url
             // 收集区域信息
             regions.push({
                 ...coord,
-                id: blockId,
+                id: blockId
             });
         }
 
         return {
             realQuestion: replacedText,
-            regions,
-            imageUrl: imageUrl
+            regions
         };
     }
 

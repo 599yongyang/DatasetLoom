@@ -1,26 +1,26 @@
 'use client';
 
-import React, {useState, useMemo} from 'react';
-import {Button} from '@/components/ui/button';
-import {Trash2, Ruler, MessageSquarePlus, Tag, SquareDashedMousePointer} from 'lucide-react';
-import {useParams} from 'next/navigation';
-import {formatBytes} from '@/hooks/use-file-upload';
-import {Badge} from '@/components/ui/badge';
-import {useImages} from '@/hooks/query/use-images';
+import React, { useState, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { Trash2, Ruler, MessageSquarePlus, Tag, SquareDashedMousePointer } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { formatBytes } from '@/hooks/use-file-upload';
+import { Badge } from '@/components/ui/badge';
+import { useImages } from '@/hooks/query/use-images';
 import AddQuestionDialog from '@/components/images/add-question-dialog';
-import type {ImageWithImageBlock} from '@/types/interfaces';
+import type { ImageWithImageBlock } from '@/types/interfaces';
 import BlockHighlight from '@/components/image-block/block-highlight';
 import PaginationC from '@/components/ui/pagination';
 import BlockImageDialog from '@/components/images/block-dialog';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
-import {toast} from 'sonner';
-import {useTranslation} from 'react-i18next';
-import apiClient from "@/lib/axios";
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import apiClient from '@/lib/axios';
 
-export default function ImageAggregationList({searchQuery}: { searchQuery: string }) {
-    const {t: tCommon} = useTranslation('common');
+export default function ImageAggregationList({ searchQuery }: { searchQuery: string }) {
+    const { t: tCommon } = useTranslation('common');
 
-    const {projectId}: { projectId: string } = useParams();
+    const { projectId }: { projectId: string } = useParams();
     const [pagination, setPagination] = useState({
         pageIndex: 0,
         pageSize: 10
@@ -73,24 +73,24 @@ export default function ImageAggregationList({searchQuery}: { searchQuery: strin
                         >
                             {/* 图片预览 */}
                             <div className="aspect-video bg-gray-100 relative overflow-hidden">
-                                <BlockHighlight image={image}/>
+                                <BlockHighlight image={image} />
                                 <div className="absolute top-2 right-2">
                                     <Badge>{image.ImageBlock.length}个标注</Badge>
                                 </div>
                                 <div
                                     className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                     <Button size="sm" variant="secondary" onClick={() => handleCreateQuestions(image)}>
-                                        <MessageSquarePlus className="w-4 h-4"/>
+                                        <MessageSquarePlus className="w-4 h-4" />
                                     </Button>
                                     <Button size="sm" variant="secondary" onClick={() => handleBlockImage(image)}>
-                                        <SquareDashedMousePointer className="w-4 h-4"/>
+                                        <SquareDashedMousePointer className="w-4 h-4" />
                                     </Button>
                                     <ConfirmAlert
                                         title={'确认要删除此图像中的所有标注分块嘛？'}
                                         onConfirm={() => handleDelete(image)}
                                     >
                                         <Button size="sm" variant="secondary">
-                                            <Trash2 className="w-4 h-4 text-red-600"/>
+                                            <Trash2 className="w-4 h-4 text-red-600" />
                                         </Button>
                                     </ConfirmAlert>
                                 </div>
@@ -104,7 +104,7 @@ export default function ImageAggregationList({searchQuery}: { searchQuery: strin
 
                                 <div className=" flex justify-between text-xs text-gray-500 ">
                                     <div className="flex items-center gap-1">
-                                        <Ruler className="w-3 h-3"/>
+                                        <Ruler className="w-3 h-3" />
                                         {image.width} × {image.height}
                                     </div>
                                     <div className="flex items-center justify-between">
@@ -113,7 +113,7 @@ export default function ImageAggregationList({searchQuery}: { searchQuery: strin
                                 </div>
                                 {image.tags && (
                                     <div className={'flex items-center gap-2'}>
-                                        <Tag className="w-4 h-4"/>
+                                        <Tag className="w-4 h-4" />
                                         {image.tags.split(',').map((tag) => (
                                             <Badge key={tag} variant="outline" className="text-muted-foreground">
                                                 {tag}
@@ -125,8 +125,13 @@ export default function ImageAggregationList({searchQuery}: { searchQuery: strin
                         </div>
                     );
                 })}
+                {data.length === 0 && (
+                    <div className="col-span-full flex flex-col items-center  border rounded-lg justify-center py-12">
+                        <p className="text-sm text-muted-foreground">暂无数据</p>
+                    </div>
+                )}
             </div>
-            <PaginationC pagination={pagination} setPagination={setPagination} pageCount={pageCount}/>
+            <PaginationC pagination={pagination} setPagination={setPagination} pageCount={pageCount} />
             {currentImage && (
                 <AddQuestionDialog
                     questionDialog={questionDialog}

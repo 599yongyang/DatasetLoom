@@ -73,7 +73,7 @@ export class ModelConfigService {
                         }
                     }
                 },
-                orderBy: [{ isDefault: 'desc' }, { updatedAt: 'desc' }]
+                orderBy: [{ updatedAt: 'desc' }]
             });
         } catch (error) {
             console.error('Failed to get modelConfig by projectId in database');
@@ -125,7 +125,7 @@ export class ModelConfigService {
     }
 
 
-    async getEmbedModelConfigByProjectId(projectId: string): Promise<ModelConfigWithProvider> {
+    async getEmbedModelConfig(projectId: string): Promise<ModelConfigWithProvider | null> {
         try {
             const project = await this.prisma.projects.findUnique({
                 where: { id: projectId },
@@ -136,6 +136,11 @@ export class ModelConfigService {
             if (!project) {
                 throw new Error(`Project with id ${projectId} not found`);
             }
+
+            if (!project.embedModelId) {
+                return null;
+            }
+
             const modelConfig = await this.prisma.modelConfig.findUnique({
                 where: { id: project.embedModelId },
                 include: { provider: true }

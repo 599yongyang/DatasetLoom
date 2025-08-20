@@ -62,7 +62,7 @@ export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open
                 return '创建成功';
             },
             error: error => {
-                return error.response?.data?.error || '创建失败';
+                return error.message || '创建失败';
             }
         });
     }

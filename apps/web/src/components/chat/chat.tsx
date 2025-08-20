@@ -35,10 +35,10 @@ import { MessageActions } from '@/components/chat/message-actions';
 import { Action, Actions } from '../ai-elements/actions';
 
 export function Chat({
-                            id,
-                            initialMessages,
-                            isReadonly
-                        }: {
+                         id,
+                         initialMessages,
+                         isReadonly
+                     }: {
     id: string;
     initialMessages: Array<UIMessage>;
     isReadonly: boolean;
@@ -75,17 +75,29 @@ export function Chat({
 
             void mutate(unstable_serialize(getKey));
         },
-        onError: () => {
-            toast.error('An error occurred, please try again!');
+        onError: (error: any) => {
+            console.error('Error:', error.message);
+            toast.error(error.message ?? 'An error occurred, please try again!');
         }
     });
 
-    const { data: votes } = useSWR<Array<ChatMessageVote>>(
-        messages.length >= 2 && id ? `/${projectId}/chat/vote?chatId=${id}` : null,
-        fetcher
-    );
+    const onSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!model.id) {
+            toast.error('请选择模型');
+            return;
+        } else {
+            handleSubmit();
+        }
+    };
 
-    const [attachments, setAttachments] = useState<Array<Attachment>>([]);
+
+    // const { data: votes } = useSWR<Array<ChatMessageVote>>(
+    //     messages.length >= 2 && id ? `/${projectId}/chat/vote?chatId=${id}` : null,
+    //     fetcher
+    // );
+    //
+    // const [attachments, setAttachments] = useState<Array<Attachment>>([]);
 
     return (
         <div className="flex flex-col min-w-0 h-[87vh] p-5">
@@ -160,26 +172,27 @@ export function Chat({
                 </ConversationContent>
                 <ConversationScrollButton />
             </Conversation>
+            {!isReadonly && (
+                <PromptInput onSubmit={onSubmit} className="mt-4">
+                    <PromptInputTextarea
+                        onChange={(e) => setInput(e.target.value)}
+                        value={input}
+                    />
+                    <PromptInputToolbar>
+                        <PromptInputTools>
+                            <PromptInputButton
+                                variant={isRAG ? 'default' : 'ghost'}
+                                onClick={() => setIsRAG(!isRAG)}
+                            >
+                                <ScanSearch size={16} />
+                                <span>RAG</span>
+                            </PromptInputButton>
 
-            <PromptInput onSubmit={handleSubmit} className="mt-4">
-                <PromptInputTextarea
-                    onChange={(e) => setInput(e.target.value)}
-                    value={input}
-                />
-                <PromptInputToolbar>
-                    <PromptInputTools>
-                        <PromptInputButton
-                            variant={isRAG ? 'default' : 'ghost'}
-                            onClick={() => setIsRAG(!isRAG)}
-                        >
-                            <ScanSearch size={16} />
-                            <span>RAG</span>
-                        </PromptInputButton>
-
-                    </PromptInputTools>
-                    <PromptInputSubmit disabled={!input} status={status} />
-                </PromptInputToolbar>
-            </PromptInput>
+                        </PromptInputTools>
+                        <PromptInputSubmit disabled={!input} status={status} stop={stop} />
+                    </PromptInputToolbar>
+                </PromptInput>
+            )}
         </div>
     );
 }

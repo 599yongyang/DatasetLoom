@@ -41,7 +41,7 @@ class ApiClient {
                     return response;
                 }
                 if (response.data.statusCode !== 200) {
-                    return Promise.reject(new Error(response.data.message || 'Request failed'));
+                    return Promise.reject(response.data);
                 }
                 // 成功响应直接返回
                 return response;

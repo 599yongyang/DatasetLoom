@@ -11,6 +11,15 @@ export class QdrantService implements OnModuleInit {
         });
     }
 
+    async isHealthy(): Promise<boolean> {
+        try {
+            const response = await fetch(`${process.env.QDRANT_URL ?? 'http://localhost:6333'}/healthz`);
+            return response.ok;
+        } catch {
+            return false;
+        }
+    }
+
     async upsert(projectId: string, modelId: string, points: {
         id: string | number;
         vector: number[];
@@ -18,6 +27,9 @@ export class QdrantService implements OnModuleInit {
     }[], vectorConfig?: { distance?: 'Cosine' | 'Euclid' | 'Dot' }): Promise<void> {
         if (points.length === 0) {
             return;
+        }
+        if (!await this.isHealthy()) {
+            throw new Error('向量数据库状态不在线');
         }
 
         // 从实际向量中获取维度
@@ -86,7 +98,8 @@ export class QdrantService implements OnModuleInit {
 
     private formatCollectionName(projectId: string, modelId: string): string {
         // 使用双下划线替代冒号，保持可读性
-        return `${projectId}__${modelId}`.replace(/:/g, '__');
+        const safeModelId = modelId.replace(/[:/]/g, '__');
+        return `${projectId}__${safeModelId}`.replace(/:/g, '__');
     }
 
     async delete(collection: string, ids: string[]): Promise<void> {

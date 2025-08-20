@@ -116,7 +116,7 @@ export function QuestionDialog({
                 },
                 error: error => {
                     console.error('Error:', error);
-                    return error.response?.data?.error || '操作失败';
+                    return error.message || '操作失败';
                 }
             });
         } finally {

@@ -8,6 +8,7 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:/app/data/datasetloom.sqlite
+      - QDRANT_URL=http://qdrant:6333
     env_file:
       - ./.env
     volumes:

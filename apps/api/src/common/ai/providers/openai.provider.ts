@@ -3,6 +3,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { ModelConfigWithProvider } from '@/common/prisma/type';
 import { BaseAIProvider } from '@/common/ai/providers/base-ai-provider';
+import { CryptoUtil } from '@/utils/crypto.util';
 
 @Injectable()
 export class OpenAIProvider extends BaseAIProvider {
@@ -12,7 +13,7 @@ export class OpenAIProvider extends BaseAIProvider {
         super(config);
         this.openai = createOpenAI({
             baseURL: config.provider.apiUrl ?? 'https://api.openai.com/v1',
-            apiKey: config.provider.apiKey ?? ''
+            apiKey: config.provider.apiKey ? CryptoUtil.decrypt(config.provider.apiKey) : ''
         });
     }
 

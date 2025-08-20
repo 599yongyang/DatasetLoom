@@ -1,30 +1,20 @@
 import { AlertCircleIcon, FileUpIcon, XIcon } from 'lucide-react';
-import { type FileMetadata, formatBytes, useFileUpload } from '@/hooks/use-file-upload';
+import { type FileUploadOptions, formatBytes, useFileUpload } from '@/hooks/use-file-upload';
 import FileIcons from '@/components/common/file-icons';
 import { Button } from '@/components/ui/button';
-import React from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
-import apiClient from '@/lib/axios';
 
 export function UploadFiles({
-                                type,
-                                initialFiles,
-                                maxFiles,
-                                onClose,
-                                refreshFiles
-                            }: {
-    type: 'document' | 'workflow';
-    initialFiles?: FileMetadata[];
-    maxFiles: number;
-    onClose?: () => void;
-    refreshFiles?: () => void;
+    options,
+    setLocalFiles
+}: {
+    options: FileUploadOptions;
+    setLocalFiles: React.Dispatch<React.SetStateAction<File[]>>;
 }) {
-    const { projectId } = useParams();
     const { t } = useTranslation('knowledge');
     const maxSize = 100 * 1024 * 1024; // 10MB default
-
+    options.maxSize ??= maxSize;
     const [
         { files, isDragging, errors },
         {
@@ -37,13 +27,7 @@ export function UploadFiles({
             clearFiles,
             getInputProps
         }
-    ] = useFileUpload({
-        initialFiles,
-        multiple: true,
-        maxFiles,
-        maxSize,
-        accept: '.docx,.doc,.pdf,.md,.epub,.txt'
-    });
+    ] = useFileUpload(options);
 
     const handleRemoveFile = (id: string) => {
         removeFile(id);
@@ -53,37 +37,10 @@ export function UploadFiles({
         clearFiles();
     };
 
-    const handleUpload = async () => {
-        if (files.length === 0) {
-            toast.error('请先选择文件');
-            return;
-        }
+    useEffect(() => {
+        setLocalFiles(files.map(file => file.file as File));
+    }, [files]);
 
-        const formData = new FormData();
-        files.forEach(file => {
-            formData.append('files', file.file as File);
-        });
-
-        try {
-            toast.promise(apiClient.post(`/${projectId}/documents`, formData), {
-                loading: `上传文件中...`,
-                success: data => {
-                    if (type === 'document') {
-                        if (onClose) onClose();
-                        if (refreshFiles) refreshFiles();
-                    }
-
-                    return `成功上传 ${data.data.files.length} 个文件`;
-                },
-                error: error => {
-                    return error.response?.data?.message || '批量删除问题失败';
-                }
-            });
-        } catch (e) {
-            console.error(e);
-            toast.error('上传失败');
-        }
-    };
     return (
         <div>
             <div className="flex flex-col gap-2">
@@ -110,7 +67,10 @@ export function UploadFiles({
                         <p className="mb-1.5 text-sm font-medium">{t('upload_btn')}</p>
                         <p className="text-muted-foreground mb-2 text-xs">{t('upload_dialog.prompt')}</p>
                         <div className="text-muted-foreground/70 flex flex-wrap justify-center gap-1 text-xs">
-                            {t('upload_dialog.limitation', { maxFiles, maxSize: formatBytes(maxSize) })}
+                            {t('upload_dialog.limitation', {
+                                maxFiles: options.maxFiles,
+                                maxSize: formatBytes(options.maxSize)
+                            })}
                         </div>
                     </div>
                 </div>
@@ -131,8 +91,7 @@ export function UploadFiles({
                                 className="bg-background flex items-center justify-between gap-2 rounded-lg border p-2 pe-3"
                             >
                                 <div className="flex items-center gap-3 overflow-hidden">
-                                    <div
-                                        className="flex aspect-square size-10 shrink-0 items-center justify-center rounded border">
+                                    <div className="flex aspect-square size-10 shrink-0 items-center justify-center rounded border">
                                         <FileIcons file={file.file as File} />
                                     </div>
                                     <div className="flex min-w-0 flex-col gap-0.5">
@@ -167,10 +126,6 @@ export function UploadFiles({
                         )}
                     </div>
                 )}
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-                {type === 'document' && <Button onClick={onClose}>{t('upload_dialog.cancel_btn')}</Button>}
-                {files.length > 0 && <Button onClick={handleUpload}>{t('upload_dialog.confirm_upload_btn')}</Button>}
             </div>
         </div>
     );

@@ -3,6 +3,7 @@ import { fetcher } from '@/lib/utils';
 import { type ModelConfig } from '@/types/interfaces';
 import { useSetAtom } from 'jotai/index';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
+import { useEffect } from 'react';
 
 export function useGetModelConfig(projectId: string, providerName: string) {
     const shouldFetch = projectId && providerName;
@@ -27,13 +28,12 @@ export function useModelConfigSelect(projectId: string) {
         projectId ? `/${projectId}/model-config/getAvailableList` : null,
         fetcher
     );
-    if (data) {
-        setTimeout(() => {
-            setModelConfigList(data);
-            const selectedModelInfo = data.length > 0 ? data[0] : {};
-            setSelectedModelInfo(selectedModelInfo as ModelConfig);
-        }, 0);
-    }
+    useEffect(() => {
+        setModelConfigList(data || []);
+        const defaultModel = data?.find(item => item.isDefault);
+        setSelectedModelInfo(defaultModel || ({} as ModelConfig));
+    }, [data, setModelConfigList, setSelectedModelInfo]);
+
     return {
         data: data || [],
         isLoading: !error && !data,

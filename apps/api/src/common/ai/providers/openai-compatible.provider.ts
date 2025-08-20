@@ -3,6 +3,7 @@ import type { LanguageModel } from 'ai';
 import { ModelConfigWithProvider } from '@/common/prisma/type';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { BaseAIProvider } from '@/common/ai/providers/base-ai-provider';
+import { CryptoUtil } from '@/utils/crypto.util';
 
 @Injectable()
 export class OpenaiCompatibleProvider extends BaseAIProvider {
@@ -13,7 +14,7 @@ export class OpenaiCompatibleProvider extends BaseAIProvider {
         this.openAICompatible = createOpenAICompatible({
             baseURL: config.provider.apiUrl ?? 'https://api.example.com/v1', // 默认API 地址
             name: 'openAICompatible',
-            apiKey: config.provider.apiKey ?? ''
+            apiKey: config.provider.apiKey ? CryptoUtil.decrypt(config.provider.apiKey) : ''
         });
     }
 

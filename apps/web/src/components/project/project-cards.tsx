@@ -28,7 +28,7 @@ export function ProjectCards({ projects, getProjects }: { projects: ProjectsWith
                 return '删除成功';
             },
             error: error => {
-                return error.response?.data?.message || '删除失败';
+                return error.message || '删除失败';
             }
         });
     };

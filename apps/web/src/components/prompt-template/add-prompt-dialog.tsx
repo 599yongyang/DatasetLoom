@@ -63,7 +63,7 @@ export function AddPromptDialog({ item, open, setOpen }: {
                 return '创建成功';
             },
             error: error => {
-                return error.response?.data?.error || '创建失败';
+                return error.message || '创建失败';
             },
             finally: () => {
                 setIsSubmitting(false);

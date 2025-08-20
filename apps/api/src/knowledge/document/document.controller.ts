@@ -6,7 +6,7 @@ import {
     Param,
     Delete,
     UseInterceptors,
-    UploadedFiles, Query, ParseArrayPipe
+    UploadedFiles, Query, ParseArrayPipe, Patch
 } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -142,6 +142,18 @@ export class DocumentController {
             return ResponseUtil.error('指定的模型配置不存在');
         }
         const data = await this.tagRelGenerator.generate(genTagRelDto, model);
+        return ResponseUtil.success(data);
+    }
+
+    @Patch('vector')
+    @ApiOperation({ summary: '为文档生成向量数据' })
+    @Permission(ProjectRole.EDITOR)
+    async vector(@Param('projectId') projectId: string, @Query('id') id: string) {
+        const modelConfig = await this.modelConfigService.getEmbedModelConfig(projectId);
+        if (!modelConfig) {
+            return ResponseUtil.error('请先设置向量模型');
+        }
+        const data = await this.documentService.vector(modelConfig, id);
         return ResponseUtil.success(data);
     }
 

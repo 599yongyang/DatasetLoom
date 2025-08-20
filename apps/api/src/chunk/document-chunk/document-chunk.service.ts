@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@/common/prisma/prisma.service';
 import { QueryDocumentChunkDto } from '@/chunk/document-chunk/dto/query-document-chunk.dto';
 import { UpdateDocumentChunkDto } from '@/chunk/document-chunk/dto/update-document-chunk.dto';
@@ -60,7 +60,36 @@ export class DocumentChunkService {
 
     async chunkAndSave(createDocumentChunkDto: CreateDocumentChunkDto) {
         const chunkList = await this.genChunkData(createDocumentChunkDto);
-        return this.prisma.chunks.createMany({ data: chunkList });
+        if (chunkList.length == 0) {
+            throw ResponseUtil.badRequest('没有可处理的文件');
+        }
+
+        try {
+            //保存chunks到数据库
+            await this.prisma.chunks.createMany({ data: chunkList });
+        } catch (error) {
+            this.logger.error('Failed to save chunks', error);
+            throw ResponseUtil.badRequest(`保存chunks失败: ${error instanceof Error ? error.message : String(error)}`);
+        }
+
+        try {
+            const modelConfig = await this.modelConfigService.getEmbedModelConfig(createDocumentChunkDto.projectId);
+            if (modelConfig && chunkList.length > 0) {
+                await this.ragService.insertVectorData(modelConfig, chunkList);
+                await this.prisma.documents.update({
+                    data: { embedModelName: modelConfig.modelId },
+                    where: { id: chunkList[0].documentId }
+                });
+            }
+            // 全部操作成功
+            return ResponseUtil.success('Chunks保存成功，向量数据已生成');
+        } catch (error) {
+            this.logger.error('Failed to generate embeddings', error);
+            throw ResponseUtil.error(
+                `Chunks保存成功，但向量数据生成失败: ${error instanceof Error ? error.message : String(error)}`,
+                HttpStatus.MULTI_STATUS
+            );
+        }
     }
 
 
@@ -104,17 +133,34 @@ export class DocumentChunkService {
         }
 
         try {
-            //保存chunks到数据库
+            // 保存chunks到数据库
             await this.prisma.chunks.createMany({ data: cachedChunks });
-            //插入向量数据
-            await this.ragService.insertVectorData(projectId, cachedChunks);
             // 清除缓存
             await this.cacheManager.del(cacheKey);
-
-
         } catch (error) {
-            this.logger.error('Failed to save chunks and generate embeddings', error);
-            throw new Error(`保存chunks失败: ${error instanceof Error ? error.message : String(error)}`);
+            this.logger.error('Failed to save chunks', error);
+            throw ResponseUtil.badRequest(`保存chunks失败: ${error instanceof Error ? error.message : String(error)}`);
+        }
+
+        try {
+            const modelConfig = await this.modelConfigService.getEmbedModelConfig(projectId);
+            if (modelConfig && cachedChunks.length > 0) {
+                // 插入向量数据
+                await this.ragService.insertVectorData(modelConfig, cachedChunks);
+
+                await this.prisma.documents.update({
+                    data: { embedModelName: modelConfig.modelId },
+                    where: { id: cachedChunks[0].documentId }
+                });
+            }
+            // 全部操作成功
+            return ResponseUtil.success('Chunks保存成功，向量数据已生成');
+        } catch (error) {
+            this.logger.error('Failed to generate embeddings', error);
+            throw ResponseUtil.error(
+                `Chunks保存成功，但向量数据生成失败: ${error instanceof Error ? error.message : String(error)}`,
+                HttpStatus.MULTI_STATUS
+            );
         }
     }
 
@@ -179,6 +225,7 @@ export class DocumentChunkService {
             throw error;
         }
     }
+
     update(id: string, updateDocumentChunkDto: UpdateDocumentChunkDto) {
         try {
             return this.prisma.chunks.update({

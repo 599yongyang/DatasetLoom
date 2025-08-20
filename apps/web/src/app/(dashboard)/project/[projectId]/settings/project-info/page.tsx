@@ -55,7 +55,6 @@ export default function Page() {
         toast.promise(apiClient.patch(`/project/${values.id}`, values), {
             success: '保存成功',
             error: error => {
-                console.error('Error:', error.message);
                 return error.message || '保存失败';
             }
         });
