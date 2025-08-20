@@ -1,4 +1,4 @@
-# DatasetLoom — 多模态大模型训练数据智能构建平台
+# DatasetLoom - 多模态大模型训练数据智能构建平台
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=TypeScript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-black?logo=nextdotjs&logoColor=white)
@@ -24,13 +24,15 @@
 
 **DatasetLoom** 是一款高质量的 **多模态训练数据集构建平台**，专为 AI 工程师、研究人员和团队设计。
 
-基于 **Next.js + NestJS + Turborepo** 的现代化 Monorepo 架构，实现前后端解耦、高可维护性与灵活扩展。平台支持从文档解析、图像标注到模型评分、语料导出的完整数据流水线，助力高效构建用于 SFT、DPO、VQA、Image Captioning 等任务的训练数据。
+基于 **Next.js + NestJS + Turborepo** 的现代化 Monorepo 架构，实现前后端解耦、高可维护性与灵活扩展。平台支持从文档解析、图像标注到模型评分、语料导出的完整数据流水线，集成 RAG 能力，让大模型“基于真实知识”生成对话数据集，**进而**构建更专业、准确、可追溯的 SFT 与 DPO 训练数据。
 
 🎯 核心能力：
 - 监督微调（SFT）语料生成
 - 偏好对齐（DPO）数据集构建
 - 图文问答（VQA）与图像描述生成
 - 模型输出自动评分与对比
+- 基于上传文档与 RAG 生成真实、专业、有依据的对话数据集
+- 支持嵌入模型配置与 Qdrant 向量数据库
 - 支持 GPT-4V、LLaVA、Qwen-VL 等多模型接入
 - 多人协作与权限管理
 
@@ -45,6 +47,9 @@
 | **图像标注与生成** | 支持区域标注、图文问答、图像描述一键生成 |
 | **AI 自动评分系统** | 集成大模型对输出质量打分，支持多模型对比 |
 | **DPO/SFT 数据集构建** | 可配置策略生成偏好对或指令微调语料 |
+| **RAG 增强对话生成** | 结合向量数据库，**驱动模型**基于真实文档生成专业对话数据 |
+| **嵌入模型管理** | 支持 OpenAI、Hugging Face、本地部署的 Embedding 模型 |
+| **向量数据库集成** | 内建 **Qdrant** 支持，高性能向量存储与相似度检索 |
 | **用户与权限管理** | 支持角色控制（管理员、协作者、访客） |
 | **训练语料导出** | 支持 JSON、CSV、HuggingFace Dataset 等格式导出 |
 | **API 文档化** | 后端集成 Swagger，访问 `/api-docs` 即可调试 |
@@ -77,6 +82,7 @@
 | 前端 | Next.js App Router + React 18 + Tailwind CSS |
 | 后端 | NestJS + TypeScript + RESTful API + Swagger |
 | ORM | Prisma |
+| 向量数据库 | Qdrant |
 | 构建工具 | Turborepo + pnpm |
 | 数据库 | SQLite / MySQL / PostgreSQL / SQL Server |
 | 部署 | Docker + Docker Compose |
@@ -154,19 +160,24 @@ pnpm --filter=api dev
 cp .env.example .env
 ```
 
-> 根据需要可编辑 `.env` 文件，例如修改数据库连接地址。
+> 根据需要可编辑 `.env` 文件，例如修改数据库连接地址和向量数据库配置。
 
 ### 2. 构建并启动服务
 
 ```bash
 docker compose up -d --build
 ```
+启动服务包括：
+- `web`：Next.js 前端
+- `api`：NestJS 后端
+- `qdrant`：向量数据库（用于 RAG 检索）
 
 ### 3. 访问服务
 
 - 🌐 前端：[http://localhost:2088](http://localhost:2088)
 - 🔌 后端 API：[http://localhost:3088](http://localhost:3088)
 - 📄 API 文档：[http://localhost:3088/api-docs](http://localhost:3088/api-docs)
+- 🧠 Qdrant UI：[http://localhost:6333/dashboard](http://localhost:6333/dashboard)
 
 ---
 
@@ -217,7 +228,7 @@ DATABASE_URL="file:./dev.sqlite"
 | **模型评估与对比** | 对比 GPT-4V、LLaVA、Qwen-VL 等模型输出质量 |
 | **团队协作标注** | 支持多用户协作，权限控制清晰 |
 | **多模态内容理解** | 图像 + 文本联合处理，生成图文对齐语料 |
-
+| **RAG 驱动的对话数据生成** | 基于真实文档生成专业、准确、可追溯的 SFT/DPO 对话数据集 |
 ---
 
 ## 🤝 贡献指南
