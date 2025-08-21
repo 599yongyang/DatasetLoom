@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Patch, Inject } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -9,11 +9,15 @@ import { ProjectRole } from '@repo/shared-types';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { QdrantService } from '@/common/rag/serivce/qdrant.service';
 import { ModelConfigService } from '@/setting/model-config/model-config.service';
+import { PermissionsService } from '@/common/permissions/permissions.service';
 
 @ApiTags('项目')
 @Controller('project')
 export class ProjectController {
-    constructor(private readonly projectService: ProjectService, private readonly qdrantService: QdrantService, private readonly modelConfigService: ModelConfigService) {
+    constructor(private readonly projectService: ProjectService,
+                private readonly qdrantService: QdrantService,
+                private readonly permissionService: PermissionsService,
+                private readonly modelConfigService: ModelConfigService) {
     }
 
     @ApiOperation({ summary: '创建项目' })
@@ -21,10 +25,11 @@ export class ProjectController {
     async create(@Body() createProjectDto: CreateProjectDto, @User('id') userId: string) {
         // 验证项目名称是否已存在
         if (await this.projectService.checkNameIsUnique(createProjectDto.name, userId)) {
-            return Response.json({ error: '项目名称已存在' }, { status: 400 });
+            return ResponseUtil.error('项目名称已存在');
         }
         // 创建项目
         const newProject = await this.projectService.create(createProjectDto, userId);
+        await this.permissionService.refreshPermissions(userId);
         // 如果指定了要复用的项目配置
         if (createProjectDto.copyId) {
             await this.projectService.copyModelConfig(newProject.id, createProjectDto.copyId);

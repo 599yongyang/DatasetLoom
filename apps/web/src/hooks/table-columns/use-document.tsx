@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ChartScatter, VectorSquare, Waypoints } from 'lucide-react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
@@ -21,6 +21,7 @@ export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
     handelGraph: (id: string) => void;
 }) {
     const { t } = useTranslation('knowledge');
+    const router = useRouter();
     const { projectId }: { projectId: string } = useParams();
     const deleteDocument = (fileId: string) => {
         toast.promise(apiClient.delete(`/${projectId}/document/delete?ids=${fileId}`),
@@ -39,19 +40,24 @@ export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
 
 
     const handelVector = (fileId: string) => {
-        toast.promise(apiClient.patch(`/${projectId}/document/vector?id=${fileId}`),
-            {
-                loading: '转换向量数据中',
-                position: 'top-right',
-                success: _ => {
-                    mutateDocuments();
-                    return '操作成功';
-                },
-                error: error => {
-                    return error.message || '操作失败';
-                }
+        const toastId = toast.loading('转换向量数据中', { position: 'top-right' });
+        apiClient.patch(`/${projectId}/document/vector?id=${fileId}`).then(_ => {
+            toast.success('操作成功', { id: toastId });
+        }).catch(error => {
+            if (error.statusCode === 404) {
+                toast.warning(error.message, {
+                    id: toastId,
+                    action: {
+                        label: '立即配置',
+                        onClick: () => {
+                            router.push(`/project/${projectId}/settings/project-info`);
+                        }
+                    }
+                });
+            } else {
+                toast.error(error.message, { id: toastId });
             }
-        );
+        });
     };
 
     const columns: ColumnDef<DocumentsWithCount>[] = [

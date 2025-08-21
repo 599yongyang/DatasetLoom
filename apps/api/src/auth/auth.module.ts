@@ -10,7 +10,7 @@ import refreshConfig from './config/refresh.config';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionGuard } from '@/auth/guards/project-role/permission.guard';
-import { CacheModule } from '@nestjs/cache-manager';
+import { PermissionsModule } from '@/common/permissions/permissions.module';
 
 @Module({
     controllers: [AuthController],
@@ -21,11 +21,10 @@ import { CacheModule } from '@nestjs/cache-manager';
         provide: APP_GUARD,
         useClass: PermissionGuard
     }],
-    imports: [UsersModule,
+    imports: [UsersModule, PermissionsModule,
         JwtModule.registerAsync(jwtConfig.asProvider()),
         ConfigModule.forFeature(jwtConfig),
-        ConfigModule.forFeature(refreshConfig),
-        CacheModule.register()
+        ConfigModule.forFeature(refreshConfig)
     ]
 })
 export class AuthModule {

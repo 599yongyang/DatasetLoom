@@ -35,7 +35,7 @@ export default function Page() {
                 setIsSuccessful(true)
                 router.push('/login');
             }).catch(err => {
-                if (err.status === 409) {
+                if (err.statusCode === 409) {
                     toast.error('该邮件已被注册');
                     return;
                 } else {

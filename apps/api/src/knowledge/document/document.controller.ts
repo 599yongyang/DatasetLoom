@@ -151,7 +151,7 @@ export class DocumentController {
     async vector(@Param('projectId') projectId: string, @Query('id') id: string) {
         const modelConfig = await this.modelConfigService.getEmbedModelConfig(projectId);
         if (!modelConfig) {
-            return ResponseUtil.error('请先设置向量模型');
+            return ResponseUtil.error('请先设置嵌入模型', 404);
         }
         const data = await this.documentService.vector(modelConfig, id);
         return ResponseUtil.success(data);

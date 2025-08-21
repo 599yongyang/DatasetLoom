@@ -82,7 +82,7 @@ export function NavMain({ items, projectId }: { items: IMenu[]; projectId: strin
     };
     return (
         <>
-            <SidebarGroup className="flex flex-col gap-2">
+            <SidebarGroup className="flex flex-col gap-2 overflow-hidden">
                 <SidebarMenu>
                     <SidebarMenuItem className="flex items-center gap-2">
                         <ProjectSelect />

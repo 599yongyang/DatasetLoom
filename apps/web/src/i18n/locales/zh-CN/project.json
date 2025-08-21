@@ -20,6 +20,7 @@
     "project_info": {
         "id": "项目标识",
         "name": "项目名称",
+        "embed": "嵌入模型配置",
         "description": "项目描述",
         "btn": "保存"
     },

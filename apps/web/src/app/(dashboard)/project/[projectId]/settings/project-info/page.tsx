@@ -95,7 +95,7 @@ export default function Page() {
                         name="embedModelId"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{t('project_info.name')}</FormLabel>
+                                <FormLabel>{t('project_info.embed')}</FormLabel>
                                 <FormControl>
                                     <ModelSelect filter={ModelConfigType.EMBED} value={field.value ?? ''}
                                                  setValue={field.onChange} />
