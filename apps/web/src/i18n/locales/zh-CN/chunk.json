@@ -37,7 +37,7 @@
                 }
             }
         },
-        "separators": "自定义字符",
+        "separators": "文本分隔标识符",
         "chunk_size": "最大字符数",
         "chunk_overlap": "字符重叠数",
         "confirm_btn": "确定",

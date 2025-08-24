@@ -205,9 +205,11 @@ export function GenerateStrategyDialog({ open, setOpen, promptTemplateType, hand
                             {tCommon('cancel_btn')}
                         </Button>
                     </DialogClose>
-                    <Button type="button" onClick={handleGenerateQuestion}>
-                        {tCommon('confirm_btn')}
-                    </Button>
+                    <DialogClose asChild>
+                        <Button type="button" onClick={handleGenerateQuestion}>
+                            {tCommon('confirm_btn')}
+                        </Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

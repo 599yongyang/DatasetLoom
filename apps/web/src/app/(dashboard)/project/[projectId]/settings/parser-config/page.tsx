@@ -1,27 +1,27 @@
 'use client';
 
-import {useState} from 'react';
-import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
-import {Label} from '@/components/ui/label';
-import {useParams} from 'next/navigation';
-import {Globe, Shield, Key, AlertCircle} from 'lucide-react';
-import {ScrollArea} from '@/components/ui/scroll-area';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useParams } from 'next/navigation';
+import { Globe, Shield, Key } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import * as React from 'react';
-import {PARSER_SERVICE_LIST} from '@/constants/parser';
+import { PARSER_SERVICE_LIST } from '@/constants/parser';
 import PasswordInput from '@/components/ui/password-input';
-import {Separator} from '@/components/ui/separator';
-import type {ParserConfig} from '@/types/interfaces';
-import {Badge} from '@/components/ui/badge';
-import {useGetParserConfig} from '@/hooks/query/use-parser-config';
-import {toast} from 'sonner';
-import {useTranslation} from 'react-i18next';
-import apiClient from "@/lib/axios";
+import { Separator } from '@/components/ui/separator';
+import type { ParserConfig } from '@/types/interfaces';
+import { Badge } from '@/components/ui/badge';
+import { useParserConfigList } from '@/hooks/query/use-parser-config';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import apiClient from '@/lib/axios';
 
 export default function ServiceConfigPage() {
-    const {projectId}: { projectId: string } = useParams();
-    const {t} = useTranslation('knowledge');
-    const {data: parserConfigList, refresh} = useGetParserConfig(projectId);
+    const { projectId }: { projectId: string } = useParams();
+    const { t } = useTranslation('knowledge');
+    const { data: parserConfigList, refresh } = useParserConfigList(projectId);
     const defaultParser = parserConfigList.find(config => config.serviceId === PARSER_SERVICE_LIST[0]?.id);
     const [selectedParser, setSelectedParser] = useState(PARSER_SERVICE_LIST[0]);
     const [parserConfig, setParserConfig] = useState<ParserConfig>({
@@ -42,7 +42,7 @@ export default function ServiceConfigPage() {
         } as ParserConfig);
     };
     const handleChange = (field: string, value: string) => {
-        setParserConfig(prev => ({...prev, [field]: value}));
+        setParserConfig(prev => ({ ...prev, [field]: value }));
     };
     const getStatus = (id: string) => {
         const status = parserConfigList.find(config => config.serviceId === id);
@@ -74,7 +74,6 @@ export default function ServiceConfigPage() {
             .catch(error => {
                 toast.error('保存失败');
             });
-        console.log(parserConfig);
     };
 
     return (
@@ -94,7 +93,7 @@ export default function ServiceConfigPage() {
                                     onClick={() => handelChangeParser(service)}
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <service.icon/>
+                                        <service.icon />
                                         <span className="text-sm font-medium text-gray-700">{t(service.nameKey)}</span>
                                     </div>
                                     {/*<Switch/>*/}
@@ -111,7 +110,7 @@ export default function ServiceConfigPage() {
                             <div className="flex items-center space-x-3">
                                 {selectedParser && (
                                     <>
-                                        <selectedParser.icon className={'w-6 h-6 text-blue-500'}/>
+                                        <selectedParser.icon className={'w-6 h-6 text-blue-500'} />
                                         <h1 className="text-2xl font-bold text-gray-900">{t(selectedParser.nameKey)}</h1>
                                     </>
                                 )}
@@ -123,7 +122,7 @@ export default function ServiceConfigPage() {
                                 </Button>
                             </div>
                         </div>
-                        <Separator/>
+                        <Separator />
                         <div className="pt-4 pb-6 space-y-4 relative z-10">
                             {/* 基本配置 */}
                             <div className="space-y-6">
@@ -131,7 +130,7 @@ export default function ServiceConfigPage() {
                                     {/* API Key */}
                                     <div className="space-y-3">
                                         <Label className="text-base font-medium flex items-center gap-2">
-                                            <Key className="w-4 h-4"/>
+                                            <Key className="w-4 h-4" />
                                             API Key
                                         </Label>
                                         <PasswordInput
@@ -142,7 +141,7 @@ export default function ServiceConfigPage() {
                                     </div>
                                     <div className="space-y-3">
                                         <Label className="text-base font-medium flex items-center gap-2">
-                                            <Globe className="w-4 h-4"/>
+                                            <Globe className="w-4 h-4" />
                                             服务地址
                                         </Label>
                                         <Input
@@ -164,7 +163,7 @@ export default function ServiceConfigPage() {
                             <div className="space-y-4">
                                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                                     <h4 className="font-medium text-sm flex items-center gap-2 mb-2">
-                                        <Shield className="w-4 h-4 text-blue-600"/>
+                                        <Shield className="w-4 h-4 text-blue-600" />
                                         安全说明
                                     </h4>
                                     <p className="text-xs text-muted-foreground">

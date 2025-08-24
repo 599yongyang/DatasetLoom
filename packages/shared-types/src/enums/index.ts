@@ -10,6 +10,11 @@ export enum UserRole {
     ADMIN = 'ADMIN'
 }
 
+export enum DocumentScope {
+    QA = 'QA',
+    PRETRAIN = 'PRETRAIN'
+}
+
 export enum ChatVisibilityType {
     PUBLIC = 'PUBLIC',
     PRIVATE = 'PRIVATE'

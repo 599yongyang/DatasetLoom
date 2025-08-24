@@ -6,7 +6,7 @@ import { Trash2, Ruler, MessageSquarePlus, Tag, SquareDashedMousePointer } from 
 import { useParams } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import { Badge } from '@/components/ui/badge';
-import { useImages } from '@/hooks/query/use-images';
+import { useImageList } from '@/hooks/query/use-images';
 import AddQuestionDialog from '@/components/images/add-question-dialog';
 import type { ImageWithImageBlock } from '@/types/interfaces';
 import BlockHighlight from '@/components/image-block/block-highlight';
@@ -25,11 +25,7 @@ export default function ImageAggregationList({ searchQuery }: { searchQuery: str
         pageIndex: 0,
         pageSize: 10
     });
-    const {
-        data,
-        total,
-        refresh: refreshFiles
-    } = useImages({
+    const { data, total, refresh } = useImageList({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -44,7 +40,7 @@ export default function ImageAggregationList({ searchQuery }: { searchQuery: str
         apiClient.delete(`/${projectId}/image-chunk/deleteByImageId?imageId=${image.id}`)
             .then(() => {
                 toast.success(tCommon('messages.operate_success'));
-                void refreshFiles();
+                void refresh();
             })
             .catch(error => {
                 toast.error(tCommon('messages.operate_fail'));
@@ -145,7 +141,7 @@ export default function ImageAggregationList({ searchQuery }: { searchQuery: str
                     setOpen={setBlockImageDialog}
                     imageId={currentImage.id}
                     imageUrl={currentImage.url}
-                    refresh={refreshFiles}
+                    refresh={refresh}
                 />
             )}
         </div>

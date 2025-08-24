@@ -16,7 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import * as React from 'react';
-import { useGetProjects } from '@/hooks/query/use-project';
+import { useProjectList } from '@/hooks/query/use-project';
 import apiClient from '@/lib/axios';
 import { updateUserPermissions } from '@/lib/session';
 import { ProjectRole } from '@repo/shared-types';
@@ -34,7 +34,7 @@ const formSchema = z.object({
 export function ProjectDialog({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
     const router = useRouter();
     const { t } = useTranslation('project');
-    const { projects: projectList, refresh } = useGetProjects();
+    const { projects: projectList, refresh } = useProjectList();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {

@@ -61,3 +61,20 @@ export const modelConfigTypeOptions: Option[] = [
     { value: ModelConfigType.EMBED, label: '嵌入能力' }
 ];
 
+//分块策略
+export const chunkStrategyOptions = [
+    { value: 'auto', label: '自动', desc: '自动进行分块设置' },
+    { value: 'custom', label: '自定义', desc: '可自定义分块规则参数' }
+];
+
+//清洗规则
+export const cleanRuleOptions = [
+    { id: 'remove-extra-whitespace', name: '去除多余空白', description: '去除连续的空格和制表符' },
+    { id: 'remove-html-tags', name: '去除HTML标签', description: '移除所有的HTML标签' },
+    { id: 'remove-invisible-chars', name: '去除不可见字符', description: '去除控制字符（除了换行和制表符）' },
+    { id: 'normalize-unicode', name: 'Unicode标准化', description: '标准化Unicode字符' },
+    { id: 'remove-redundant-newlines', name: '去除多余换行', description: '限制连续换行数量' },
+    { id: 'remove-urls', name: '去除URL链接', description: '移除所有的URL链接' },
+    { id: 'remove-emails', name: '去除邮箱地址', description: '移除所有的邮箱地址' },
+    { id: 'full-width-to-half-width', name: '全角字符转换半角字符', description: '将全角字符转换为半角字符' }
+];

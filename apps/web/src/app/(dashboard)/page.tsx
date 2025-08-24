@@ -6,11 +6,11 @@ import { useState } from 'react';
 import * as React from 'react';
 import { ProjectDialog } from '@/components/project/project-dialog';
 import { useTranslation } from 'react-i18next';
-import { useGetProjects } from '@/hooks/query/use-project';
+import { useProjectList } from '@/hooks/query/use-project';
 
 export default function Page() {
     const { t } = useTranslation('project');
-    const { projects, refresh } = useGetProjects();
+    const { projects, refresh } = useProjectList();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     return (

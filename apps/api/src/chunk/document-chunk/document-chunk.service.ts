@@ -41,13 +41,24 @@ export class DocumentChunkService {
 
 
     async create(createDocumentChunkDto: CreateDocumentChunkDto) {
-        const { fileIds, strategy, separators, chunkSize, chunkOverlap, projectId } = createDocumentChunkDto;
-        const chunkConfigHash = this.generateChunkConfigHash({
+        const {
             fileIds,
             strategy,
             separators,
             chunkSize,
-            chunkOverlap
+            chunkOverlap,
+            projectId,
+            scope,
+            cleanRules
+        } = createDocumentChunkDto;
+        const chunkConfigHash = this.generateChunkConfigHash({
+            scope,
+            fileIds,
+            strategy,
+            separators,
+            chunkSize,
+            chunkOverlap,
+            cleanRules
         });
         const cachedChunks = await this.cacheManager.get<Chunks[]>(`preview-chunks:${projectId}:${chunkConfigHash}`);
         if (cachedChunks && cachedChunks.length > 0) {
@@ -94,7 +105,15 @@ export class DocumentChunkService {
 
 
     private async genChunkData(createDocumentChunkDto: CreateDocumentChunkDto) {
-        const { fileIds, strategy, separators, chunkSize, chunkOverlap, projectId } = createDocumentChunkDto;
+        const {
+            fileIds,
+            strategy,
+            separators,
+            chunkSize,
+            chunkOverlap,
+            projectId,
+            cleanRules
+        } = createDocumentChunkDto;
         const docs = await this.documentService.getByIds(fileIds);
         //将文件内容进行分块
         let chunkList: Chunks[] = [];
@@ -103,7 +122,11 @@ export class DocumentChunkService {
             if (!filePath) {
                 continue;
             }
-            const data = await this.chunkerService.chunker(filePath, strategy, { chunkSize, chunkOverlap, separators });
+            const data = await this.chunkerService.chunker(filePath, cleanRules, strategy, {
+                chunkSize,
+                chunkOverlap,
+                separators
+            });
             data.map((text, index) => {
                 chunkList.push({
                     id: nanoid(),
@@ -365,11 +388,13 @@ export class DocumentChunkService {
 
 
     private generateChunkConfigHash(config: {
+        scope: string;
         fileIds: string[];
         strategy: string;
         separators: string[];
         chunkSize: number;
         chunkOverlap: number;
+        cleanRules: string[]
     }): string {
         // 对数组排序确保顺序一致（避免 hash 不一致）
         const normalized = {
@@ -377,7 +402,8 @@ export class DocumentChunkService {
             strategy: config.strategy,
             separators: [...config.separators].sort(),
             chunkSize: config.chunkSize,
-            chunkOverlap: config.chunkOverlap
+            chunkOverlap: config.chunkOverlap,
+            cleanRules: [...config.cleanRules].sort()
         };
 
         // 序列化为 JSON 字符串（标准化格式）

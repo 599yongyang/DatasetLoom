@@ -142,7 +142,7 @@ export default function Page() {
 
 
     return (
-        <div className="container">
+        <div className="@container/main flex flex-1 flex-col gap-2">
             <Card className="shadow-lg h-[88vh]">
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

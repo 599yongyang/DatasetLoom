@@ -5,7 +5,7 @@ import { useSetAtom } from 'jotai/index';
 import { modelConfigListAtom, selectedModelInfoAtom } from '@/atoms';
 import { useEffect } from 'react';
 
-export function useGetModelConfig(projectId: string, providerName: string) {
+export function useModelConfigList(projectId: string, providerName: string) {
     const shouldFetch = projectId && providerName;
 
     const { data, error, isLoading, mutate } = useSWR<ModelConfig[]>(

@@ -2,7 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChartScatter, VectorSquare, Waypoints } from 'lucide-react';
+import { ChartScatter, Waypoints } from 'lucide-react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
@@ -15,33 +15,24 @@ import type { TFunction } from 'i18next';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import apiClient from '@/lib/axios';
 import { DocumentsWithCount } from '@/types/interfaces';
+import { useDelete } from '@/hooks/use-delete';
 
-export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
-    mutateDocuments: () => void,
+export function useDocumentsTableColumns({ refresh, handelGraph }: {
+    refresh: () => void,
     handelGraph: (id: string) => void;
 }) {
     const { t } = useTranslation('knowledge');
     const router = useRouter();
     const { projectId }: { projectId: string } = useParams();
-    const deleteDocument = (fileId: string) => {
-        toast.promise(apiClient.delete(`/${projectId}/document/delete?ids=${fileId}`),
-            {
-                loading: '数据删除中',
-                success: _ => {
-                    mutateDocuments();
-                    return '删除成功';
-                },
-                error: error => {
-                    return error.message || '删除失败';
-                }
-            }
-        );
+    const { deleteItems } = useDelete();
+    const handleDelete = async (id: string) => {
+        await deleteItems(`/${projectId}/document/delete`, [id], { onSuccess: refresh });
     };
-
 
     const handelVector = (fileId: string) => {
         const toastId = toast.loading('转换向量数据中', { position: 'top-right' });
         apiClient.patch(`/${projectId}/document/vector?id=${fileId}`).then(_ => {
+            refresh();
             toast.success('操作成功', { id: toastId });
         }).catch(error => {
             if (error.statusCode === 404) {
@@ -166,7 +157,7 @@ export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
                             <ChunkStrategyDialog
                                 fileIds={[row.original.id]}
                                 fileExt={row.original.fileExt ?? ''}
-                                refresh={mutateDocuments}
+                                refresh={refresh}
                             />
                             {!row.original.embedModelName && row.original._count.Chunks > 0 && (
                                 <Button variant="ghost"
@@ -192,7 +183,7 @@ export function useDocumentsTableColumns({ mutateDocuments, handelGraph }: {
                             <ConfirmAlert
                                 title={t('delete_title')}
                                 message={row.original.fileName}
-                                onConfirm={() => deleteDocument(row.original.id)}
+                                onConfirm={() => handleDelete(row.original.id)}
                             />
                         </WithPermission>
                     </div>

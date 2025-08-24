@@ -12,18 +12,20 @@ import { QuestionDialog } from '@/components/questions/question-dialog';
 import { Button } from '@/components/ui/button';
 import { ChevronDownIcon, ChevronRight, Drama, SquarePen, Wand } from 'lucide-react';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
-import { toast } from 'sonner';
 import { ContextTypeMap, type UIContextType } from '@/constants/data-dictionary';
-import apiClient from '@/lib/axios';
+import { useDelete } from '@/hooks/use-delete';
 
-export function useQuestionTableColumns({ mutateQuestions, onOpenDialog, onOpenPPDialog }: {
-    mutateQuestions: () => void,
+export function useQuestionTableColumns({ refresh, onOpenDialog, onOpenPPDialog }: {
+    refresh: () => void,
     onOpenDialog: (questions: Questions) => void;
     onOpenPPDialog: (questionId: string) => void;
 }) {
     const { t } = useTranslation('question');
     const { projectId }: { projectId: string } = useParams();
-
+    const { deleteItems } = useDelete();
+    const handleDelete = async (id: string) => {
+        await deleteItems(`/${projectId}/question/delete`, [id], { onSuccess: refresh });
+    };
     const columns: ColumnDef<QuestionsWithDatasetSample>[] = [
         {
             id: 'expander',
@@ -116,17 +118,10 @@ export function useQuestionTableColumns({ mutateQuestions, onOpenDialog, onOpenP
             cell: ({ row }) => (
                 <div className="flex flex-1 justify-center gap-2">
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                        <QuestionDialog item={row.original} refresh={mutateQuestions}>
-                            <Button variant="ghost" size="icon" aria-label="Edit">
-                                <SquarePen size={30} />
-                            </Button>
-                        </QuestionDialog>
-
                         <Button variant="ghost" size="icon" onClick={() => onOpenDialog(row.original)}
                                 aria-label="Generate Answer">
                             <Wand size={30} />
                         </Button>
-
                         {row.original.DatasetSamples.length > 1 && (
                             <Button
                                 variant="ghost"
@@ -137,13 +132,18 @@ export function useQuestionTableColumns({ mutateQuestions, onOpenDialog, onOpenP
                                 <Drama size={30} />
                             </Button>
                         )}
+                        <QuestionDialog item={row.original} refresh={refresh}>
+                            <Button variant="ghost" size="icon" aria-label="Edit">
+                                <SquarePen size={30} />
+                            </Button>
+                        </QuestionDialog>
                     </WithPermission>
 
                     <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                         <ConfirmAlert
                             title="确认删除"
                             message={row.original.question}
-                            onConfirm={() => deleteQuestion(row.original.id, projectId, mutateQuestions)}
+                            onConfirm={() => handleDelete(row.original.id)}
                         />
                     </WithPermission>
                 </div>
@@ -151,16 +151,4 @@ export function useQuestionTableColumns({ mutateQuestions, onOpenDialog, onOpenP
         }
     ];
     return columns;
-}
-
-
-function deleteQuestion(questionId: string, projectId: string, mutateQuestions: () => void) {
-    toast.promise(apiClient.delete(`/${projectId}/question/delete?ids=${questionId}`), {
-        loading: '删除中...',
-        success: () => {
-            mutateQuestions();
-            return '删除成功';
-        },
-        error: e => e.response?.data?.message || '删除失败'
-    });
 }

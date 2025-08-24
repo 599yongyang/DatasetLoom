@@ -21,6 +21,7 @@ import * as React from 'react';
 import { getSession, Session } from '@/lib/session';
 import apiClient from '@/lib/axios';
 import { toast } from 'sonner';
+import { downloadDataset } from '@/lib/utils';
 
 const PureChatItem = ({
                           chat,
@@ -128,27 +129,10 @@ const PureChatItem = ({
 
 // 导出数据集到本地
 const exportDatasetsLocal = async (projectId: string, chatId: string) => {
-    try {
-        const res = await apiClient.post(
-            `/${projectId}/chat/export`,
-            { chatId }, { responseType: 'blob' }
-        );
-        const filename = res.headers['content-disposition']?.match(/filename="?(.+)"?/)?.[1] || 'data-export.zip';
-
-        const url = URL.createObjectURL(new Blob([res.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
-    } catch (error) {
-        console.error('Download failed:', error);
-        toast.error('下载失败');
-    }
+    await downloadDataset({
+        url: `/${projectId}/chat/export`,
+        params: { chatId }
+    });
 };
 
 export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {

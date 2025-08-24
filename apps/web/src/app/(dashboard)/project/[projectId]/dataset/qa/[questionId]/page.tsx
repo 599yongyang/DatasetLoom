@@ -7,30 +7,25 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Loading } from '@/components/common/loading';
 import { useTranslation } from 'react-i18next';
-import { useDatasetsInfo } from '@/hooks/query/use-datasets';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import DatasetDetail from '@/components/dataset/dataset-detail';
 import { ProjectRole } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
 import apiClient from '@/lib/axios';
+import { useDelete } from '@/hooks/use-delete';
+import { useQADatasetInfo } from '@/hooks/query/use-qa-dataset';
 
 export default function Page() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { deleteItems } = useDelete();
     const { t } = useTranslation('dataset');
     const { projectId, questionId } = useParams<{ projectId: string; questionId: string }>();
     const dssId = searchParams.get('dssId');
     const [qId, setQid] = useState<string>(questionId as string);
     const [activeAnswerId, setActiveAnswerId] = useState<string>(dssId as string);
-    const {
-        datasets: data,
-        confirmedCount,
-        total,
-        isError,
-        isLoading,
-        refresh
-    } = useDatasetsInfo({
+    const { datasets: data, confirmedCount, total, isError, isLoading, refresh } = useQADatasetInfo({
         projectId,
         questionId: qId
     });
@@ -75,33 +70,48 @@ export default function Page() {
         if (!projectId || !qId) return;
 
         let nextDataset = null;
+
         try {
+            // 尝试获取下一个数据集
             const nextRes = await apiClient.get(`/${projectId}/qa-dataset/navigation/${qId}?operateType=next`);
-            nextDataset = nextRes.data;
+            if (nextRes.data?.data?.data) {
+                nextDataset = nextRes.data.data.data;
+            }
         } catch (err) {
-        }
-        if (!nextDataset) {
-            const prevRes = await apiClient.get(`/${projectId}/qa-dataset/navigation/${qId}?operateType=prev`);
-            nextDataset = prevRes.data;
+            console.warn('Failed to get next dataset:', err);
         }
 
-        toast.promise(apiClient.delete(`/${projectId}/question/delete?ids=${qId}`), {
-            loading: '删除中...',
-            success: () => {
-                if (nextDataset) {
-                    setQid(nextDataset.id);
-                    setActiveAnswerId(nextDataset.DatasetSamples[0].id);
-                    router.replace(
-                        `/project/${projectId}/dataset/qa/${nextDataset.id}?dssId=${nextDataset.DatasetSamples[0].id}`
-                    );
-                } else {
-                    router.push(`/project/${projectId}/dataset/qa`);
+        // 如果没有下一个，则尝试获取上一个
+        if (!nextDataset) {
+            try {
+                const prevRes = await apiClient.get(`/${projectId}/qa-dataset/navigation/${qId}?operateType=prev`);
+                if (prevRes.data?.data?.data) {
+                    nextDataset = prevRes.data.data.data;
                 }
-                return '删除成功';
-            },
-            error: e => e.response?.data?.message || '删除失败'
+            } catch (err) {
+                console.warn('Failed to get previous dataset:', err);
+            }
+        }
+
+        await deleteItems(`/${projectId}/question/delete`, [qId], {
+            onSuccess: () => {
+                if (nextDataset && nextDataset.DatasetSamples && nextDataset.DatasetSamples.length > 0) {
+                    // 确保数据结构安全后再访问
+                    const firstSample = nextDataset.DatasetSamples[0];
+                    if (firstSample && firstSample.id) {
+                        setQid(nextDataset.id);
+                        setActiveAnswerId(firstSample.id);
+                        router.replace(
+                            `/project/${projectId}/dataset/qa/${nextDataset.id}?dssId=${firstSample.id}`
+                        );
+                    }
+                }
+                // 如果没有下一个或上一个，或者数据结构有问题，返回列表页
+                router.push(`/project/${projectId}/dataset/qa`);
+            }
         });
     };
+
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl min-h-screen">

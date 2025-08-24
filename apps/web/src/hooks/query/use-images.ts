@@ -16,7 +16,7 @@ type ImagesParams = {
     block?: string;
 };
 
-export function useImages(params: ImagesParams) {
+export function useImageList(params: ImagesParams) {
     const url = useMemo(() => {
         if (!params.projectId) return null;
         const paramsObj = {

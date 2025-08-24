@@ -8,13 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Wand } from 'lucide-react';
 import { toast } from 'sonner';
 import { Questions } from '@/types/interfaces';
-import useQuestions from '@/hooks/query/use-questions';
 import { DataTable } from '@/components/questions/data-table';
 import { ContextType, ModelConfigType, ProjectRole, PromptTemplateType } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useQuestionTableColumns } from '@/hooks/table-columns/use-question';
 import { ContextTypeMap } from '@/constants/data-dictionary';
-import apiClient from '@/lib/axios';
 import { usePagination } from '@/hooks/use-pagination';
 import { GenerateStrategyDialog } from '@/components/common/generate-strategy-dialog';
 import { useGenerateDataset } from '@/hooks/generate/use-generate-dataset';
@@ -22,11 +20,14 @@ import { GenerateItem, StrategyParamsType } from '@/types/generate';
 import { PreferencePairDialog } from '@/components/preference-pair/preference-pair-dialog';
 import { useAtomValue } from 'jotai';
 import { selectedModelInfoAtom } from '@/atoms';
+import { useQuestionList } from '@/hooks/query/use-questions';
+import { useDelete } from '@/hooks/use-delete';
 
 export default function Page() {
     let { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('question');
     const { generateSingleDataset, generateMultipleDataset } = useGenerateDataset();
+    const { deleteItems } = useDelete();
     const [searchQuery, setSearchQuery] = useState('');
     const [answerFilter, setAnswerFilter] = useState('all');
     const [contextType, setContextType] = useState('all');
@@ -36,11 +37,7 @@ export default function Page() {
         resetDeps: [answerFilter, searchQuery, contextType]
     });
 
-    const {
-        questions,
-        total,
-        refresh: mutateQuestions
-    } = useQuestions({
+    const { questions, total, refresh } = useQuestionList({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -69,7 +66,7 @@ export default function Page() {
                     maxTokens: model.maxTokens
                 } as StrategyParamsType
             });
-            void mutateQuestions();
+            void refresh();
         } else {
             setOpen(true);
         }
@@ -84,32 +81,23 @@ export default function Page() {
     };
 
     const columns = useQuestionTableColumns({
-        mutateQuestions,
+        refresh,
         onOpenDialog: handleOpenDialog,
         onOpenPPDialog: handleOpenPPDialog
     });
 
 
-    /**
-     * 批量删除问题
-     */
-    const batchDeleteQuestions = async () => {
-        toast.promise(
-            apiClient.delete(`/${projectId}/question/delete`, {
-                params: { ids: Object.keys(rowSelection).join(',') }
-            }),
-            {
-                loading: `正在删除 ${Object.keys(rowSelection).length} 个问题...`,
-                success: _ => {
-                    mutateQuestions();
-                    return `成功删除 ${Object.keys(rowSelection).length} 个问题`;
-                },
-                error: error => {
-                    return error.message || '批量删除问题失败';
+    const batchDelete = async () => {
+        await deleteItems(`/${projectId}/question/delete`,
+            Object.keys(rowSelection), {
+                onSuccess: () => {
+                    setRowSelection({});
+                    refresh();
                 }
             }
         );
     };
+
 
     useEffect(() => {
         if (Object.keys(rowSelection).length > 0) {
@@ -134,7 +122,7 @@ export default function Page() {
         } else {
             await generateMultipleDataset(projectId, selectedItems, strategyParams);
         }
-        void mutateQuestions();
+        void refresh();
     };
 
 
@@ -192,17 +180,6 @@ export default function Page() {
                     {/*    <Plus size={30}/>*/}
                     {/*    <span className="hidden lg:inline ">创建问题</span>*/}
                     {/*</Button>*/}
-                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
-                        <Button
-                            variant="outline"
-                            onClick={batchDeleteQuestions}
-                            disabled={Object.keys(rowSelection).length == 0}
-                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
-                        >
-                            <Trash2 size={30} />
-                            <span className="hidden lg:inline ">{t('delete_btn')}</span>
-                        </Button>
-                    </WithPermission>
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                         <Button
                             variant="outline"
@@ -216,6 +193,17 @@ export default function Page() {
                             <span className="hidden lg:inline ">{t('gen_btn')}</span>
                         </Button>
                     </WithPermission>
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <Button
+                            variant="outline"
+                            onClick={batchDelete}
+                            disabled={Object.keys(rowSelection).length == 0}
+                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
+                        >
+                            <Trash2 size={30} />
+                            <span className="hidden lg:inline ">{t('delete_btn')}</span>
+                        </Button>
+                    </WithPermission>
                 </div>
             </div>
             <DataTable
@@ -226,7 +214,7 @@ export default function Page() {
                 rowSelection={rowSelection}
                 setRowSelection={setRowSelection}
                 columns={columns}
-                refresh={mutateQuestions}
+                refresh={refresh}
             />
             {selectedItems.length > 0 && (
                 <GenerateStrategyDialog open={open} setOpen={setOpen} promptTemplateType={PromptTemplateType.ANSWER}

@@ -1,35 +1,36 @@
 'use client';
 
-import {useParams} from 'next/navigation';
-import {Input} from '@/components/ui/input';
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
-import {useGetProjectMember, type ProjectMember} from '@/hooks/query/use-project';
-import {Button} from '@/components/ui/button';
-import React, {useEffect, useMemo, useState} from 'react';
-import {projectRoleColorMap, projectRoleMap} from '@/constants/data-dictionary';
-import {Badge} from '@/components/ui/badge';
-import {useThrottle} from '@/hooks/use-throttle';
-import {ProjectMemberDialog} from '@/components/settings/member/add-dialog';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
-import {Edit, Trash2} from 'lucide-react';
-import {toast} from 'sonner';
-import {ChangeMemberRoleDialog} from '@/components/settings/member/change-dialog';
-import {getSession, UserInfo} from "@/lib/session";
-import PaginationC from "@/components/ui/pagination";
-import apiClient from "@/lib/axios";
+import { useParams } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useGetProjectMember, type ProjectMember } from '@/hooks/query/use-project';
+import { Button } from '@/components/ui/button';
+import React, { useEffect, useMemo, useState } from 'react';
+import { projectRoleColorMap, projectRoleMap } from '@/constants/data-dictionary';
+import { Badge } from '@/components/ui/badge';
+import { ProjectMemberDialog } from '@/components/settings/member/add-dialog';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import { Edit, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { ChangeMemberRoleDialog } from '@/components/settings/member/change-dialog';
+import { getSession, UserInfo } from '@/lib/session';
+import PaginationC from '@/components/ui/pagination';
+import apiClient from '@/lib/axios';
+import { useDebounce } from '@/hooks/use-debounce';
+import { usePagination } from '@/hooks/use-pagination';
 
 export default function Page() {
-    const {projectId}: { projectId: string } = useParams();
+    const { projectId }: { projectId: string } = useParams();
     const [inputValue, setInputValue] = useState('');
-    const searchQuery = useThrottle(inputValue, 300);
+    const searchQuery = useDebounce(inputValue, 300);
 
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10
+    const { pagination, setPagination } = usePagination({
+        defaultPageSize: 10,
+        resetDeps: [searchQuery]
     });
 
-    const {data: projectMember, total, refresh} = useGetProjectMember({
+    const { data: projectMember, total, refresh } = useGetProjectMember({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize, query: searchQuery
@@ -54,7 +55,7 @@ export default function Page() {
     useEffect(() => {
         getSession().then(session => {
             setCurrentUser(session?.user || null);
-        })
+        });
     }, []);
 
     return (
@@ -119,7 +120,7 @@ export default function Page() {
                                                 variant="ghost"
                                                 size="icon"
                                             >
-                                                <Edit/>
+                                                <Edit />
                                             </Button>
                                             <ConfirmAlert
                                                 title={`确认要删除此【${member.user.name}】项目成员？`}
@@ -131,7 +132,7 @@ export default function Page() {
                                                     size="icon"
                                                     className="text-destructive hover:text-red-500"
                                                 >
-                                                    <Trash2/>
+                                                    <Trash2 />
                                                 </Button>
                                             </ConfirmAlert>
                                         </>
@@ -142,8 +143,8 @@ export default function Page() {
                     </TableBody>
                 </Table>
             </div>
-            <PaginationC pagination={pagination} setPagination={setPagination} pageCount={pageCount}/>
-            {open && <ProjectMemberDialog open={open} setOpen={setOpen} refresh={refresh}/>}
+            <PaginationC pagination={pagination} setPagination={setPagination} pageCount={pageCount} />
+            {open && <ProjectMemberDialog open={open} setOpen={setOpen} refresh={refresh} />}
             {changeRoleOpen && (
                 <ChangeMemberRoleDialog
                     open={changeRoleOpen}

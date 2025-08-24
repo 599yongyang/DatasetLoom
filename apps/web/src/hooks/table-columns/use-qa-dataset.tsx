@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Check, X, Eye, Trash2 } from 'lucide-react';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
-import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
@@ -13,21 +12,15 @@ import type { DatasetSamples } from '@/types/interfaces/dataset';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { ModelTag } from '@lobehub/icons';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
-import apiClient from '@/lib/axios';
+import { useDelete } from '@/hooks/use-delete';
 
-export function useDatasetTableColumns({ mutateDatasets }: { mutateDatasets: () => void }) {
+export function useDatasetTableColumns({ refresh }: { refresh: () => void }) {
     const { t } = useTranslation('dataset');
     const router = useRouter();
     const { projectId }: { projectId: string } = useParams();
-
-    const deleteDataset = async (id: string) => {
-        const res = await apiClient.delete(`/${projectId}/qa-dataset/delete?ids=${id}`);
-        if (res.status === 200) {
-            toast.success('删除成功');
-            void mutateDatasets();
-        } else {
-            toast.error('删除失败，请重试');
-        }
+    const { deleteItems } = useDelete();
+    const handleDelete = async (id: string) => {
+        await deleteItems(`/${projectId}/qa-dataset/delete`, [id], { onSuccess: refresh });
     };
 
     const columns: ColumnDef<DatasetSamples>[] = [
@@ -138,7 +131,7 @@ export function useDatasetTableColumns({ mutateDatasets }: { mutateDatasets: () 
                         <Eye size={30} />
                     </Button>
                     <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
-                        <ConfirmAlert title={'确认要删除此数据集嘛？'} onConfirm={() => deleteDataset(row.original.id)}>
+                        <ConfirmAlert title={'确认要删除此数据集嘛？'} onConfirm={() => handleDelete(row.original.id)}>
                             <Button
                                 variant="ghost"
                                 size="icon"

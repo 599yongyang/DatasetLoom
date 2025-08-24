@@ -4,10 +4,11 @@ import { RagService } from '@/common/rag/rag.service';
 import { RerankerService } from '@/common/rag/serivce/reranker.service';
 import { PrismaModule } from '@/common/prisma/prisma.module';
 import { ChunkerService } from '@/common/rag/serivce/chunker.service';
+import { CleanService } from '@/common/rag/serivce/clean.service';
 
 @Module({
     imports: [PrismaModule],
-    providers: [QdrantService, RagService, RerankerService, ChunkerService],
+    providers: [QdrantService, RagService, RerankerService, ChunkerService, CleanService],
     exports: [QdrantService, RagService, RerankerService, ChunkerService]
 })
 export class RagModule {

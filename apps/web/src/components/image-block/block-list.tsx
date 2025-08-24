@@ -7,27 +7,22 @@ import { useParams } from 'next/navigation';
 import { formatBytes } from '@/hooks/use-file-upload';
 import type { ImageBlockWithImage, ImageWithImageBlock, ImageBlock } from '@/types/interfaces';
 import AddQuestionDialog from '@/components/images/add-question-dialog';
-import { useImageBlocks } from '@/hooks/query/use-image-block';
+import { useImageBlockList } from '@/hooks/query/use-image-block';
 import PaginationC from '@/components/ui/pagination';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
-import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
-import apiClient from '@/lib/axios';
 import { BACKEND_URL } from '@/constants/config';
+import { usePagination } from '@/hooks/use-pagination';
+import { useDelete } from '@/hooks/use-delete';
 
 export default function ImageBlockList({ searchQuery }: { searchQuery: string }) {
-    const { t: tCommon } = useTranslation('common');
 
     const { projectId }: { projectId: string } = useParams();
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10
+    const { deleteItems } = useDelete();
+    const { pagination, setPagination } = usePagination({
+        defaultPageSize: 10,
+        resetDeps: [searchQuery]
     });
-    const {
-        data,
-        total,
-        refresh: refreshFiles
-    } = useImageBlocks({
+    const { data, total, refresh } = useImageBlockList({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -38,16 +33,9 @@ export default function ImageBlockList({ searchQuery }: { searchQuery: string })
     const [currentBlock, setCurrentBlock] = useState<ImageBlockWithImage>();
     const [questionDialog, setQuestionDialog] = useState(false);
 
-    const handleDelete = (block: ImageBlockWithImage) => {
-        apiClient.delete(`/${projectId}/image-chunk/delete?ids=${block.id}`)
-            .then(() => {
-                toast.success(tCommon('messages.operate_success'));
-                void refreshFiles();
-            })
-            .catch(error => {
-                toast.error(tCommon('messages.operate_fail'));
-                console.error(error);
-            });
+
+    const handleDelete = async (block: ImageBlockWithImage) => {
+        await deleteItems(`/${projectId}/image-chunk/delete`, [block.id], { onSuccess: refresh });
     };
 
     const handleCreateQuestions = (block: ImageBlockWithImage) => {

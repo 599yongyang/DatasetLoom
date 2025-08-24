@@ -1,33 +1,21 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
-import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams, useRouter } from 'next/navigation';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProjectRole } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
-import apiClient from '@/lib/axios';
 import { PromptTemplate } from '@/types/interfaces/prompt';
 import { promptTemplateTypeOptions } from '@/constants/data-dictionary';
+import { useDelete } from '@/hooks/use-delete';
 
 export function usePromptTemplateTableColumns({ refresh }: { refresh: () => void }) {
     const router = useRouter();
     const { projectId }: { projectId: string } = useParams();
-    const deleteDocument = (fileId: string) => {
-        toast.promise(apiClient.delete(`/${projectId}/prompt-template/delete?ids=${fileId}`),
-            {
-                loading: '数据删除中',
-                success: _ => {
-                    refresh();
-                    return '删除成功';
-                },
-                error: error => {
-                    return error.message || '删除失败';
-                }
-            }
-        );
+    const { deleteItems } = useDelete();
+    const handleDelete = async (id: string) => {
+        await deleteItems(`/${projectId}/prompt-template/delete`, [id], { onSuccess: refresh });
     };
 
     const columns: ColumnDef<PromptTemplate>[] = [
@@ -111,7 +99,7 @@ export function usePromptTemplateTableColumns({ refresh }: { refresh: () => void
                             <ConfirmAlert
                                 title={'删除'}
                                 message={row.original.name}
-                                onConfirm={() => deleteDocument(row.original.id)}
+                                onConfirm={() => handleDelete(row.original.id)}
                             />
                         </WithPermission>
                     </div>

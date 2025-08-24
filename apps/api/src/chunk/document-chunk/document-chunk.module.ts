@@ -6,12 +6,11 @@ import { ModelConfigService } from '@/setting/model-config/model-config.service'
 import { QuestionService } from '@/question/question.service';
 import { AIModule } from '@/common/ai/ai.module';
 import { DocumentService } from '@/knowledge/document/document.service';
-import { CacheModule } from '@nestjs/cache-manager';
 import { PromptTemplateService } from '@/setting/prompt-template/prompt-template.service';
 import { RagModule } from '@/common/rag/rag.module';
 
 @Module({
-    imports: [PrismaModule, AIModule, CacheModule.register(), RagModule],
+    imports: [PrismaModule, AIModule, RagModule],
     controllers: [DocumentChunkController],
     providers: [DocumentChunkService, ModelConfigService, QuestionService, PromptTemplateService, DocumentService]
 })

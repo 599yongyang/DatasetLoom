@@ -2,10 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { chunkConfigHashAtom } from '@/atoms';
 import { toast } from 'sonner';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import apiClient from '@/lib/axios';
+import { DocumentScope } from '@repo/shared-types';
 
 type ParsingStatus = 'idle' | 'processing' | 'done' | 'error';
 
@@ -13,6 +14,7 @@ export default function StepFour() {
     const { projectId } = useParams();
     const router = useRouter();
     const chunkConfigHash = useAtomValue(chunkConfigHashAtom);
+    const searchParams = useSearchParams();
     const [status, setStatus] = useState<ParsingStatus>('idle');
     const [error, setError] = useState<string | null>(null);
     const hasRun = useRef(false);
@@ -28,7 +30,8 @@ export default function StepFour() {
         const processChunks = async () => {
             setStatus('processing');
             setError(null);
-            await apiClient.post(`/${projectId}/documentChunk/save`, { chunkConfigHash }).then(res => {
+            const url = `/${projectId}/${searchParams.get('scope') === DocumentScope.PRETRAIN ? 'pretrain' : 'documentChunk'}/save`;
+            await apiClient.post(url, { chunkConfigHash }).then(res => {
                 toast.success('分块成功');
                 setStatus('done');
             }).catch(error => {
@@ -49,6 +52,12 @@ export default function StepFour() {
         void processChunks();
     }, [projectId, chunkConfigHash]);
 
+
+    const handelView = () => {
+        const url = `/project/${projectId}/${searchParams.get('scope') === DocumentScope.PRETRAIN ? 'dataset/pretrain' : 'knowledge/document'}`;
+        router.push(url);
+    };
+
     const renderStatus = () => {
         switch (status) {
             case 'processing':
@@ -66,12 +75,8 @@ export default function StepFour() {
                         <div className="text-lg font-medium">分块处理完成</div>
                         {error ? (<div className="text-sm text-red-500">{error}</div>) : (
                             <div className="text-sm text-gray-500">文档已成功分块并存储</div>)}
-                        <Button
-                            onClick={() => {
-                                router.push(`/project/${projectId}/chunk/document`);
-                            }}
-                        >
-                            查看分块列表
+                        <Button onClick={handelView}>
+                            查看结果
                         </Button>
                     </div>
                 );

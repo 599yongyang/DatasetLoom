@@ -1,53 +1,37 @@
-import type {ColumnDef} from '@tanstack/react-table';
-import {useTranslation} from 'react-i18next';
-import {Badge} from '@/components/ui/badge';
-import {toast} from 'sonner';
-import {Checkbox} from '@/components/ui/checkbox';
-import {useParams} from 'next/navigation';
-import {formatBytes} from '@/hooks/use-file-upload';
-import {ConfirmAlert} from '@/components/common/confirm-alert';
-import {ParseStatusType, ProjectRole} from '@repo/shared-types';
-import {WithPermission} from '@/components/common/permission-wrapper';
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
-import type {ImageFile} from '@/types/interfaces';
-import {IconCircleCheckFilled, IconLoader} from '@tabler/icons-react';
-import {Button} from '@/components/ui/button';
-import {SquareDashedMousePointer} from 'lucide-react';
-import {ParseStatusTypeMap, type UIParseStatusType} from '@/constants/data-dictionary';
-import {BACKEND_URL} from "@/constants/config";
-import apiClient from "@/lib/axios";
+import type { ColumnDef } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useParams } from 'next/navigation';
+import { formatBytes } from '@/hooks/use-file-upload';
+import { ConfirmAlert } from '@/components/common/confirm-alert';
+import { ParseStatusType, ProjectRole } from '@repo/shared-types';
+import { WithPermission } from '@/components/common/permission-wrapper';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import type { ImageFile } from '@/types/interfaces';
+import { IconCircleCheckFilled, IconLoader } from '@tabler/icons-react';
+import { Button } from '@/components/ui/button';
+import { SquareDashedMousePointer } from 'lucide-react';
+import { ParseStatusTypeMap, type UIParseStatusType } from '@/constants/data-dictionary';
+import { BACKEND_URL } from '@/constants/config';
+import { useDelete } from '@/hooks/use-delete';
 
-export function useImagesTableColumns({
-                                          mutateImages,
-                                          onOpenDialog
-                                      }: {
-    mutateImages: () => void;
+export function useImagesTableColumns({ refresh, onOpenDialog }: {
+    refresh: () => void;
     onOpenDialog?: (image: ImageFile) => void;
 }) {
-    const {t} = useTranslation('knowledge');
-    const {projectId}: { projectId: string } = useParams();
-    const deleteImage = (fileId: string) => {
-        toast.promise(
-            apiClient.delete(`/${projectId}/images/delete`, {
-                params: {ids: fileId},
-            }),
-            {
-                loading: '数据删除中',
-                success: _ => {
-                    mutateImages();
-                    return '删除成功';
-                },
-                error: error => {
-                    return error.message || '删除失败';
-                }
-            }
-        );
+    const { t } = useTranslation('knowledge');
+    const { projectId }: { projectId: string } = useParams();
+    const { deleteItems } = useDelete();
+    const handleDelete = async (id: string) => {
+        await deleteItems(`/${projectId}/images/delete`, [id], { onSuccess: refresh });
     };
+
 
     const columns: ColumnDef<ImageFile>[] = [
         {
             id: 'select',
-            header: ({table}) => (
+            header: ({ table }) => (
                 <div className="flex items-center justify-center">
                     <Checkbox
                         checked={
@@ -58,7 +42,7 @@ export function useImagesTableColumns({
                     />
                 </div>
             ),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className="flex items-center justify-center">
                     <Checkbox
                         checked={row.getIsSelected()}
@@ -72,7 +56,7 @@ export function useImagesTableColumns({
         {
             accessorKey: 'image',
             header: t('image_table_columns.image'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className={'w-10 h-10'}>
                     <img
                         src={`${BACKEND_URL}${row.original.url}`}
@@ -87,7 +71,7 @@ export function useImagesTableColumns({
         {
             accessorKey: 'image_name',
             header: t('image_table_columns.image_name'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className="text-foreground max-w-[30vw] px-0 text-left">
                     <TooltipProvider delayDuration={0}>
                         <Tooltip>
@@ -110,12 +94,12 @@ export function useImagesTableColumns({
         {
             accessorKey: 'size',
             header: t('image_table_columns.size'),
-            cell: ({row}) => <div>{formatBytes(row.original.size)}</div>
+            cell: ({ row }) => <div>{formatBytes(row.original.size)}</div>
         },
         {
             accessorKey: 'dimensions',
             header: t('image_table_columns.dimensions'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div>
                     {row.original.width} X {row.original.height}
                 </div>
@@ -124,7 +108,7 @@ export function useImagesTableColumns({
         {
             accessorKey: 'ocr',
             header: t('image_table_columns.ocr'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className="text-foreground max-w-[30vw] px-0 text-left">
                     <TooltipProvider delayDuration={0}>
                         <Tooltip>
@@ -146,7 +130,7 @@ export function useImagesTableColumns({
         {
             accessorKey: 'object',
             header: t('image_table_columns.object'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <div className={'space-x-1'}>
                     {row.original.tags !== '' &&
                         row.original.tags.split(',').map(tag => (
@@ -160,12 +144,12 @@ export function useImagesTableColumns({
         {
             accessorKey: 'status',
             header: t('image_table_columns.status'),
-            cell: ({row}) => (
+            cell: ({ row }) => (
                 <Badge variant="outline" className="text-muted-foreground px-1.5">
                     {row.original.status === ParseStatusType.DONE ? (
-                        <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400"/>
+                        <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
                     ) : (
-                        <IconLoader/>
+                        <IconLoader />
                     )}
                     {ParseStatusTypeMap[row.original.status as UIParseStatusType]}
                 </Badge>
@@ -174,17 +158,17 @@ export function useImagesTableColumns({
         {
             accessorKey: 'createdAt',
             header: t('image_table_columns.createdAt'),
-            cell: ({row}) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
+            cell: ({ row }) => <div className="w-32">{new Date(row.original.createdAt).toLocaleString('zh-CN')}</div>
         },
         {
             id: 'actions',
             header: () => <div className="text-center">{t('image_table_columns.actions')}</div>,
-            cell: ({row}) => {
+            cell: ({ row }) => {
                 return (
                     <div className="flex flex-1 justify-center gap-2">
                         <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                             <Button variant="ghost" onClick={() => onOpenDialog?.(row.original)}>
-                                <SquareDashedMousePointer/>
+                                <SquareDashedMousePointer />
                             </Button>
                         </WithPermission>
 
@@ -192,7 +176,7 @@ export function useImagesTableColumns({
                             <ConfirmAlert
                                 title={t('delete_title')}
                                 message={row.original.fileName}
-                                onConfirm={() => deleteImage(row.original.id)}
+                                onConfirm={() => handleDelete(row.original.id)}
                             />
                         </WithPermission>
                     </div>

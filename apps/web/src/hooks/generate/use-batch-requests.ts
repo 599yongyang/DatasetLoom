@@ -37,7 +37,7 @@ export async function baseRequestHandler(
             cancelToken: cancelSource.token
         });
 
-        toast.success('生成成功', { id: loadingToastId });
+        toast.success('生成成功', { id: loadingToastId, action: undefined });
         return response.data;
     } catch (error) {
         if (axios.isCancel(error)) {
@@ -47,7 +47,7 @@ export async function baseRequestHandler(
             });
         } else {
             const message = error instanceof Error ? error.message : '生成失败';
-            toast.error(message, { id: loadingToastId, position: 'top-right' });
+            toast.error(message, { id: loadingToastId, position: 'top-right', action: undefined });
         }
         throw error;
     }

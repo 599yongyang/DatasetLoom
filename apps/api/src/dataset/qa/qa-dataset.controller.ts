@@ -137,6 +137,14 @@ export class QADatasetController {
         return ResponseUtil.success();
     }
 
+    @Get('preference-pair')
+    @ApiOperation({ summary: '获取默认设置数据集偏好' })
+    @Permission(ProjectRole.VIEWER)
+    async getPreferencePair(@Param('projectId') projectId: string, @Query('questionId') questionId: string) {
+        const datasetSample = await this.qaService.getPreferencePair(projectId, questionId);
+        return ResponseUtil.success(datasetSample);
+    }
+
     @Post('preference-pair')
     @ApiOperation({ summary: '设置数据集偏好' })
     @Permission(ProjectRole.EDITOR)

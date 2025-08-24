@@ -19,12 +19,13 @@ import {CacheModule} from '@nestjs/cache-manager';
 import {DashboardModule} from './dashboard/dashboard.module';
 import {ChatModule} from './chat/chat.module';
 import { PromptTemplateModule } from '@/setting/prompt-template/prompt-template.module';
+import { PretrainModule } from '@/dataset/pretrain/pretrain.module';
 
 @Module({
-    imports: [CacheModule.register(), UsersModule, AuthModule, ConfigModule.forRoot({
+    imports: [CacheModule.register({ isGlobal: true }), UsersModule, AuthModule, ConfigModule.forRoot({
         envFilePath: '../../.env',
         isGlobal: true
-    }), DocumentChunkModule, ProjectModule, ModelConfigModule, ProvidersModule, DocumentModule, ImagesModule, QuestionModule, QaDatasetModule, ProjectMemberModule, ParserConfigModule, ImageChunkModule, DashboardModule, ChatModule, PromptTemplateModule],
+    }), DocumentChunkModule, ProjectModule, ModelConfigModule, ProvidersModule, DocumentModule, ImagesModule, QuestionModule, QaDatasetModule, ProjectMemberModule, ParserConfigModule, ImageChunkModule, DashboardModule, ChatModule, PromptTemplateModule, PretrainModule],
     controllers: [AppController],
     providers: [AppService],
 })

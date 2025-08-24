@@ -1,22 +1,22 @@
-import {Alert, AlertDescription} from '@/components/ui/alert';
-import {Badge} from '@/components/ui/badge';
-import {Button} from '@/components/ui/button';
-import {useParams} from 'next/navigation';
-import React, {useEffect, useRef, useState} from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useParams } from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
 
-import {Loader2, XCircle, CheckCircle} from 'lucide-react';
-import {chunkConfigHashAtom} from '@/atoms';
-import type {Chunks} from '@/types/interfaces';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
-import {useSetAtom} from 'jotai';
-import type {UploadFormDataType} from '@/app/(dashboard)/project/[projectId]/knowledge/document/upload/page';
-import apiClient from "@/lib/axios";
+import { Loader2, XCircle, CheckCircle } from 'lucide-react';
+import { chunkConfigHashAtom } from '@/atoms';
+import type { Chunks } from '@/types/interfaces';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useSetAtom } from 'jotai';
+import type { UploadFormDataType } from '@/app/(dashboard)/project/[projectId]/common/upload/page';
+import apiClient from '@/lib/axios';
 import { Response } from '@/components/ai-elements/response';
 
 type ParsingStatus = 'idle' | 'parsing' | 'chunking' | 'done' | 'error';
 
-export default function StepThree({uploadFormData}: { uploadFormData: UploadFormDataType }) {
-    const {projectId} = useParams();
+export default function StepThree({ uploadFormData }: { uploadFormData: UploadFormDataType }) {
+    const { projectId } = useParams();
 
     const [showStyle, setShowStyle] = useState('md');
     const [status, setStatus] = useState<ParsingStatus>('idle');
@@ -43,6 +43,7 @@ export default function StepThree({uploadFormData}: { uploadFormData: UploadForm
             formData.append('selectedService', uploadFormData.selectedService);
             formData.append('webFileUrls', JSON.stringify(uploadFormData.webFileUrls));
             formData.append('webUrls', JSON.stringify(uploadFormData.webUrls));
+            formData.append('scope', uploadFormData.scope);
 
             //解析文档
             const parseRes = await apiClient.post(`/${projectId}/document/parser`, formData);
@@ -60,7 +61,7 @@ export default function StepThree({uploadFormData}: { uploadFormData: UploadForm
 
             // 成功处理
             setStatus('done');
-            const {chunkList, hash} = chunkRes.data.data;
+            const { chunkList, hash } = chunkRes.data.data;
             setChunkData(chunkList || []);
             setChunkConfigHash(hash);
         } catch (err: any) {
@@ -76,21 +77,21 @@ export default function StepThree({uploadFormData}: { uploadFormData: UploadForm
             case 'parsing':
                 return (
                     <Alert className="flex items-center gap-3">
-                        <Loader2 className="h-5 w-5 animate-spin text-yellow-500"/>
+                        <Loader2 className="h-5 w-5 animate-spin text-yellow-500" />
                         <AlertDescription>正在解析你的文档...</AlertDescription>
                     </Alert>
                 );
             case 'chunking':
                 return (
                     <Alert className="flex items-center gap-3">
-                        <Loader2 className="h-5 w-5 animate-spin text-blue-500"/>
+                        <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
                         <AlertDescription>正在进行智能分块处理...</AlertDescription>
                     </Alert>
                 );
             case 'error':
                 return (
                     <Alert variant="destructive" className="flex items-center gap-3">
-                        <XCircle className="h-5 w-5 text-red-600"/>
+                        <XCircle className="h-5 w-5 text-red-600" />
                         <AlertDescription className="text-red-700">{error}</AlertDescription>
                     </Alert>
                 );
@@ -108,7 +109,7 @@ export default function StepThree({uploadFormData}: { uploadFormData: UploadForm
                 <>
                     <div className={'flex justify-between items-center'}>
                         <div className="flex items-center gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500"/>
+                            <CheckCircle className="w-5 h-5 text-green-500" />
                             解析完成 共{chunkData.length}个分块
                         </div>
                         <div className="inline-flex items-center gap-2">
@@ -120,12 +121,12 @@ export default function StepThree({uploadFormData}: { uploadFormData: UploadForm
                             >
                                 <label
                                     className="border-input has-data-[state=checked]:border-primary/50 has-focus-visible:border-ring has-focus-visible:ring-ring/50 relative flex cursor-pointer flex-col items-center gap-3 rounded-md border px-2 py-3 text-center shadow-xs transition-[color,box-shadow] outline-none has-focus-visible:ring-[3px] has-data-disabled:cursor-not-allowed has-data-disabled:opacity-50">
-                                    <RadioGroupItem value="md" className="sr-only after:absolute after:inset-0"/>
+                                    <RadioGroupItem value="md" className="sr-only after:absolute after:inset-0" />
                                     <p className="text-foreground text-sm leading-none font-medium">Markdown</p>
                                 </label>
                                 <label
                                     className="border-input has-data-[state=checked]:border-primary/50 has-focus-visible:border-ring has-focus-visible:ring-ring/50 relative flex cursor-pointer flex-col items-center gap-3 rounded-md border px-2 py-3 text-center shadow-xs transition-[color,box-shadow] outline-none has-focus-visible:ring-[3px] has-data-disabled:cursor-not-allowed has-data-disabled:opacity-50">
-                                    <RadioGroupItem value="text" className="sr-only after:absolute after:inset-0"/>
+                                    <RadioGroupItem value="text" className="sr-only after:absolute after:inset-0" />
                                     <p className="text-foreground text-sm leading-none font-medium">Text</p>
                                 </label>
                             </RadioGroup>

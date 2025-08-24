@@ -40,12 +40,8 @@ export class DocumentController {
     @ApiOperation({ summary: '解析文档' })
     @Permission(ProjectRole.EDITOR)
     @UseInterceptors(FilesInterceptor('localFiles'))
-    async previewChunks(
-        @Param('projectId') projectId: string,
-        @UploadedFiles() localFiles: Array<Express.Multer.File>,
-        @Body() parserDocumentDto: ParserDocumentDto
-    ) {
-        const { sourceType, selectedService, webUrls } = parserDocumentDto;
+    async previewChunks(@Param('projectId') projectId: string, @UploadedFiles() localFiles: Array<Express.Multer.File>, @Body() parserDocumentDto: ParserDocumentDto) {
+        const { sourceType, selectedService, webUrls, scope } = parserDocumentDto;
         // 验证输入参数
         if (sourceType === 'local' && (!localFiles || localFiles.length === 0)) {
             return ResponseUtil.badRequest('No files uploaded');
@@ -79,11 +75,11 @@ export class DocumentController {
             let ids: string[];
             // 处理本地文件上传
             if (sourceType === 'local') {
-                ids = await this.documentService.saveDocumentByLocalFile(projectId, localFiles, parser);
+                ids = await this.documentService.saveDocumentByLocalFile(projectId, localFiles, parser, scope);
             }
             // 处理网页 URL 解析
             else if (sourceType === 'webUrl') {
-                ids = await this.documentService.saveDocumentByWebUrl(projectId, parsedWebUrls, parser);
+                ids = await this.documentService.saveDocumentByWebUrl(projectId, parsedWebUrls, parser, scope);
             } else {
                 return ResponseUtil.badRequest('Invalid sourceType. Must be "local" or "webUrl"');
             }

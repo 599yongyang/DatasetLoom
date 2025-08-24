@@ -1,18 +1,18 @@
 'use client';
 
-import type {DatasetSamples, PreferencePair} from '@/types/interfaces';
-import {Badge} from '@/components/ui/badge';
-import {Edit, Save, Star, ThumbsDown, ThumbsUp, X} from 'lucide-react';
-import {toast} from 'sonner';
-import {nanoid} from 'nanoid';
-import {Textarea} from '@/components/ui/textarea';
-import {ModelTag} from '@lobehub/icons';
-import {WithPermission} from '@/components/common/permission-wrapper';
-import {ProjectRole} from '@repo/shared-types';
-import {Button} from '@/components/ui/button';
-import {useState} from 'react';
-import {cn} from '@/lib/utils';
-import apiClient from "@/lib/axios";
+import type { DatasetSamples, PreferencePair } from '@/types/interfaces';
+import { Badge } from '@/components/ui/badge';
+import { Edit, Save, Star, ThumbsDown, ThumbsUp, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { nanoid } from 'nanoid';
+import { Textarea } from '@/components/ui/textarea';
+import { ModelTag } from '@lobehub/icons';
+import { WithPermission } from '@/components/common/permission-wrapper';
+import { ProjectRole } from '@repo/shared-types';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
+import apiClient from '@/lib/axios';
 
 export default function AnswerCard({
                                        activeAnswer,
@@ -25,23 +25,31 @@ export default function AnswerCard({
     count: number;
     refresh: () => void;
 }) {
+
     const [isEditing, setIsEditing] = useState(false);
     const [answer, setAnswer] = useState(activeAnswer.answer);
     const [isSaving, setIsSaving] = useState(false);
     const [originalAnswer, setOriginalAnswer] = useState(activeAnswer.answer);
+
+
+    useEffect(() => {
+        setAnswer(activeAnswer.answer);
+        setOriginalAnswer(activeAnswer.answer);
+    }, [activeAnswer]);
+
 
     const getPreferenceBadge = (id: string) => {
         if (!pp) return null;
         if (id === pp.datasetChosenId) {
             return (
                 <Badge className="bg-green-500 hover:bg-green-600">
-                    <ThumbsUp className="w-3 h-3 mr-1"/> 偏好
+                    <ThumbsUp className="w-3 h-3 mr-1" /> 偏好
                 </Badge>
             );
         } else if (id === pp.datasetRejectId) {
             return (
                 <Badge variant="destructive">
-                    <ThumbsDown className="w-3 h-3 mr-1"/> 拒绝
+                    <ThumbsDown className="w-3 h-3 mr-1" /> 拒绝
                 </Badge>
             );
         }
@@ -54,7 +62,7 @@ export default function AnswerCard({
             return;
         }
 
-        const {projectId, questionId, question, id: answerId, answer} = activeAnswer;
+        const { projectId, questionId, question, id: answerId, answer } = activeAnswer;
 
         const newPP = {
             id: pp?.id ?? nanoid(),
@@ -128,7 +136,7 @@ export default function AnswerCard({
 
         setIsSaving(true);
         try {
-            await apiClient.patch(`/${activeAnswer.projectId}/qa-dataset/${activeAnswer.id}`, {answer});
+            await apiClient.patch(`/${activeAnswer.projectId}/qa-dataset/${activeAnswer.id}`, { answer });
             toast.success('修改成功');
             refresh();
             setIsEditing(false);
@@ -159,11 +167,11 @@ export default function AnswerCard({
                 <div className="flex flex-wrap gap-2">
                     {activeAnswer.isPrimaryAnswer && (
                         <Badge>
-                            <Star className="w-3 h-3 mr-1"/> 主答案
+                            <Star className="w-3 h-3 mr-1" /> 主答案
                         </Badge>
                     )}
                     {getPreferenceBadge(activeAnswer.id)}
-                    <ModelTag model={activeAnswer.model} type={'color'}/>
+                    <ModelTag model={activeAnswer.model} type={'color'} />
                     <p className="text-gray-500 text-sm">置信度: {activeAnswer.confidence * 100}%</p>
                 </div>
                 <WithPermission required={ProjectRole.EDITOR} projectId={activeAnswer.projectId}>
@@ -171,7 +179,7 @@ export default function AnswerCard({
                         {isEditing ? (
                             <>
                                 <Button size="sm" onClick={saveAnswer} className="gap-1" disabled={isSaving}>
-                                    <Save className="w-4 h-4"/>
+                                    <Save className="w-4 h-4" />
                                     {isSaving ? '保存中...' : '保存'}
                                 </Button>
                                 <Button
@@ -181,17 +189,17 @@ export default function AnswerCard({
                                     disabled={isSaving}
                                     className="gap-1"
                                 >
-                                    <X className="w-4 h-4"/> 取消
+                                    <X className="w-4 h-4" /> 取消
                                 </Button>
                             </>
                         ) : (
                             <>
                                 <Button variant="outline" size="sm" onClick={startEditing} className="gap-1">
-                                    <Edit className="w-4 h-4"/> 编辑
+                                    <Edit className="w-4 h-4" /> 编辑
                                 </Button>
                                 {count > 1 && !activeAnswer.isPrimaryAnswer && (
                                     <Button variant="outline" size="sm" onClick={handlePrimaryAnswer} className="gap-1">
-                                        <Star className="w-4 h-4"/> 设置为主答案
+                                        <Star className="w-4 h-4" /> 设置为主答案
                                     </Button>
                                 )}
                                 {pp?.datasetChosenId !== activeAnswer.id && (
@@ -201,7 +209,7 @@ export default function AnswerCard({
                                         onClick={() => handlePP('chosen')}
                                         className="gap-1 text-green-700 border-green-300 hover:bg-green-50"
                                     >
-                                        <ThumbsUp className="w-4 h-4"/> 标为偏好
+                                        <ThumbsUp className="w-4 h-4" /> 标为偏好
                                     </Button>
                                 )}
                                 {pp?.datasetRejectId !== activeAnswer.id && (
@@ -211,7 +219,7 @@ export default function AnswerCard({
                                         onClick={() => handlePP('rejected')}
                                         className="gap-1 text-red-700 border-red-300 hover:bg-red-50"
                                     >
-                                        <ThumbsDown className="w-4 h-4"/> 标为拒绝
+                                        <ThumbsDown className="w-4 h-4" /> 标为拒绝
                                     </Button>
                                 )}
                             </>

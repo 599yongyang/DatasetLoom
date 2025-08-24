@@ -20,7 +20,7 @@ interface DatasetListResponse {
     confirmedCount: number;
 }
 
-export function useDatasets(params: UseDatasetsParams) {
+export function useQADatasetList(params: UseDatasetsParams) {
     const url = useMemo(() => {
         if (!params.projectId) return null;
 
@@ -51,7 +51,7 @@ export function useDatasets(params: UseDatasetsParams) {
     };
 }
 
-export function useDatasetsInfo({ projectId, questionId }: { projectId: string; questionId: string }) {
+export function useQADatasetInfo({ projectId, questionId }: { projectId: string; questionId: string }) {
     const { data, error, isLoading, mutate } = useSWR(`/${projectId}/qa-dataset/getInfo/${questionId}`, fetcher);
 
     return {

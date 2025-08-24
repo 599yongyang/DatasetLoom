@@ -17,7 +17,7 @@ type ImagesParams = {
     label: string;
 };
 
-export function useImageBlocks(params: ImagesParams) {
+export function useImageBlockList(params: ImagesParams) {
     const url = useMemo(() => {
         if (!params.projectId) return null;
         const paramsObj = {

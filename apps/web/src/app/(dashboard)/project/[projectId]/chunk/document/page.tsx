@@ -6,7 +6,7 @@ import { FileQuestion, Trash2 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
-import { useChunks } from '@/hooks/query/use-chunks';
+import { useChunkList } from '@/hooks/query/use-chunks';
 import { toast } from 'sonner';
 import { DraggableMergeDataTable } from '@/components/data-table/draggable-merge-data-table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,19 +19,21 @@ import apiClient from '@/lib/axios';
 import { GenerateStrategyDialog } from '@/components/common/generate-strategy-dialog';
 import { usePagination } from '@/hooks/use-pagination';
 import { GenerateItem, StrategyParamsType } from '@/types/generate';
+import { useDelete } from '@/hooks/use-delete';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const { t: tCommon } = useTranslation('common');
     const { t: tChunk } = useTranslation('chunk');
     const { generateSingleQuestion, generateMultipleQuestion } = useGenerateQuestion();
+    const { deleteItems } = useDelete();
     const [fileName, setFileName] = useState('');
     const [status, setStatus] = useState('all');
     const { pagination, setPagination } = usePagination({
         defaultPageSize: 10,
         resetDeps: [status, fileName]
     });
-    const { chunks, total, refresh } = useChunks({
+    const { chunks, total, refresh } = useChunkList({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -48,7 +50,7 @@ export default function Page() {
         setSelectedChunks([{ id: chunk.id, name: chunk.name }]);
         setOpen(true);
     };
-    const columns = useTextChunkTableColumns({ mutateChunks: refresh, onOpenDialog: handleOpenDialog });
+    const columns = useTextChunkTableColumns({ refresh, onOpenDialog: handleOpenDialog });
 
     const handleMergeChunks = async (activeRow: Chunks, overRow: Chunks) => {
         const res = await apiClient.post(`/${projectId}/documentChunk/merge`, {
@@ -75,20 +77,14 @@ export default function Page() {
             );
         }
     }, [rowSelection]);
-    const batchDeleteChunks = async () => {
-        toast.promise(
-            apiClient.delete(`/${projectId}/documentChunk/delete`, {
-                params: { ids: Object.keys(rowSelection).join(',') }
-            }),
-            {
-                loading: tCommon('messages.delete_loading', { count: Object.keys(rowSelection).length }),
-                success: _ => {
+
+
+    const batchDelete = async () => {
+        await deleteItems(`/${projectId}/documentChunk/delete`,
+            Object.keys(rowSelection), {
+                onSuccess: () => {
                     setRowSelection({});
                     refresh();
-                    return tCommon('messages.delete_success', { count: Object.keys(rowSelection).length });
-                },
-                error: error => {
-                    return error.message || tCommon('messages.delete_fail');
                 }
             }
         );
@@ -134,17 +130,6 @@ export default function Page() {
                     </div>
                 </div>
                 <div className={'flex items-center gap-2'}>
-                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
-                        <Button
-                            variant="outline"
-                            disabled={Object.keys(rowSelection).length == 0}
-                            onClick={batchDeleteChunks}
-                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
-                        >
-                            <Trash2 size={30} />
-                            <span className="hidden lg:inline ">{tChunk('batch_delete_btn')}</span>
-                        </Button>
-                    </WithPermission>
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
                         <Button
                             variant="outline"
@@ -156,6 +141,17 @@ export default function Page() {
                         >
                             <FileQuestion size={30} />
                             <span className="hidden lg:inline ">{tChunk('gen_btn')}</span>
+                        </Button>
+                    </WithPermission>
+                    <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
+                        <Button
+                            variant="outline"
+                            disabled={Object.keys(rowSelection).length == 0}
+                            onClick={batchDelete}
+                            className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
+                        >
+                            <Trash2 size={30} />
+                            <span className="hidden lg:inline ">{tChunk('batch_delete_btn')}</span>
                         </Button>
                     </WithPermission>
                 </div>

@@ -8,42 +8,48 @@ import StepOne from '@/components/documents/step-one';
 import StepTwo from '@/components/documents/step-two';
 import StepThree from '@/components/documents/step-three';
 import StepFour from '@/components/documents/step-four';
-import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useGetParserConfig } from '@/hooks/query/use-parser-config';
+import React, { useState } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParserConfigList } from '@/hooks/query/use-parser-config';
 import { useAtomValue } from 'jotai/index';
 import { chunkConfigHashAtom } from '@/atoms';
 import { useTranslation } from 'react-i18next';
+import { DocumentScope } from '@repo/shared-types';
 
 export interface UploadFormDataType {
+    scope: string;
     sourceType: string;
     selectedFiles: File[];
     webFileUrls: string[];
     webUrls: string[];
     selectedService: string;
     strategy: string;
-    separators: string;
+    separators: string[];
     chunkSize: number;
     chunkOverlap: number;
+    cleanRules: string[];
 }
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('knowledge');
     const router = useRouter();
-    const { data: parserConfigList } = useGetParserConfig(projectId);
+    const searchParams = useSearchParams();
+    const { data: parserConfigList } = useParserConfigList(projectId);
     const chunkConfigHash = useAtomValue(chunkConfigHashAtom);
     const [currentStep, setCurrentStep] = useState(1);
     const [uploadFormData, setUploadFormData] = useState<UploadFormDataType>({
+        scope: searchParams.get('scope') ?? DocumentScope.QA,
         sourceType: 'local',
         selectedFiles: [],
         webFileUrls: [],
         webUrls: [],
         selectedService: '',
         strategy: 'auto',
-        separators: '',
+        separators: ['\n\n'],
         chunkSize: 3000,
-        chunkOverlap: 150
+        chunkOverlap: 150,
+        cleanRules: []
     });
 
     const steps = [
@@ -121,8 +127,8 @@ export default function Page() {
                                         currentStep > step.id
                                             ? 'bg-green-500 text-white'
                                             : currentStep === step.id
-                                              ? 'bg-primary text-primary-foreground'
-                                              : 'bg-muted text-muted-foreground'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'bg-muted text-muted-foreground'
                                     }`}
                                 >
                                     {currentStep > step.id ? <CheckCircle className="w-5 h-5" /> : step.id}
@@ -168,7 +174,7 @@ export default function Page() {
                 </Card>
 
                 {/* 导航按钮 */}
-                <footer className="sticky bottom-0 left-0 right-0 z-10  bg-white ">
+                <footer className="sticky bottom-0 left-0 right-0 z-10 ">
                     <div className=" flex justify-between px-10 ">
                         <div>
                             {currentStep !== 1 && (

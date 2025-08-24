@@ -57,6 +57,7 @@ model Projects {
   ImageFile        ImageFile[]
   ImageBlock       ImageBlock[]
   PromptTemplate   PromptTemplate[]
+  PretrainData     PretrainData[]
 }
 
 // 项目成员表
@@ -75,22 +76,24 @@ model ProjectMember {
 
 // 文档表
 model Documents {
-  id             String   @id @default(nanoid())
-  project        Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id             String         @id @default(nanoid())
+  project        Projects       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId      String
   fileName       String
   fileExt        String?
   path           String?
   size           Int?
   md5            String?
-  sourceType     String   @default("local")
+  sourceType     String         @default("local")
   parserFilePath String?
   parserFileExt  String?
   parserFileSize Int?
-  embedModelName String   @default("")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  embedModelName String         @default("")
+  scope          String         @default("QA")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
   Chunks         Chunks[]
+  PretrainData   PretrainData[]
 }
 
 // 文档分块表
@@ -390,4 +393,16 @@ model PromptTemplate {
   updatedAt   DateTime @updatedAt
   project     Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   String
+}
+
+// 预训练数据
+model PretrainData {
+  id         String    @id @default(nanoid())
+  project    Projects  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  String
+  document   Documents @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentId String
+  content    String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }

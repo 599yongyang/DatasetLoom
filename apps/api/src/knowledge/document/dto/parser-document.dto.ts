@@ -1,7 +1,13 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { DocumentScope } from '@repo/shared-types';
 
 export class ParserDocumentDto {
+
+    @ApiProperty({ description: '文档作用域' })
+    @IsEnum(DocumentScope)
+    scope: DocumentScope;
+
     @ApiProperty({ description: '数据源类型' })
     @IsString()
     sourceType: string;

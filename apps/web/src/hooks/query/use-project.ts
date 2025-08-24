@@ -21,12 +21,9 @@ interface Response {
     total: number;
 }
 
-export function useGetProjects() {
+export function useProjectList() {
     const { data, error, isLoading, mutate } = useSWR<ProjectsWithCounts[]>('/project', fetcher);
-    // const { update } = useSession();
-
     const prevProjectIds = useRef<string[]>([]);
-
     useEffect(() => {
         if (!data) return;
 
@@ -34,8 +31,6 @@ export function useGetProjects() {
         const hasProjectChanged = !arraysEqual(prevProjectIds.current, currentProjectIds);
 
         if (hasProjectChanged) {
-            // update({ refresh: true });
-            // 更新缓存值
             prevProjectIds.current = currentProjectIds;
         }
     }, [data]);

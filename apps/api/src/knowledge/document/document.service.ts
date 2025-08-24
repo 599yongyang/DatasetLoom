@@ -7,6 +7,8 @@ import { Parser } from '@/utils/parser/types';
 import { RagService } from '@/common/rag/rag.service';
 import { ResponseUtil } from '@/utils/response.util';
 import { ModelConfigWithProvider } from '@/common/prisma/type';
+import { DocumentScope } from '@repo/shared-types';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class DocumentService {
@@ -14,7 +16,7 @@ export class DocumentService {
     }
 
 
-    async saveDocumentByLocalFile(projectId: string, files: Array<Express.Multer.File>, parser: Parser) {
+    async saveDocumentByLocalFile(projectId: string, files: Array<Express.Multer.File>, parser: Parser, scope: DocumentScope) {
         // 确保上传目录存在
         await FileUtil.ensureDocumentDirectory();
         // 处理文件保存
@@ -61,7 +63,8 @@ export class DocumentService {
                     sourceType: 'local',
                     parserFilePath,
                     parserFileExt,
-                    parserFileSize
+                    parserFileSize,
+                    scope
                 }
             });
             savedFileIds.push(document.id);
@@ -69,7 +72,7 @@ export class DocumentService {
         return savedFileIds;
     }
 
-    async saveDocumentByWebUrl(projectId: string, webUrls: string[], parser: Parser) {
+    async saveDocumentByWebUrl(projectId: string, webUrls: string[], parser: Parser, scope: DocumentScope) {
         const savedFileIds: string[] = [];
         for (const url of webUrls) {
             try {
@@ -87,7 +90,8 @@ export class DocumentService {
                         sourceType: 'webUrl',
                         parserFilePath,
                         parserFileExt: '.md',
-                        parserFileSize: stats.size
+                        parserFileSize: stats.size,
+                        scope
                     }
                 });
                 savedFileIds.push(document.id);
@@ -100,16 +104,14 @@ export class DocumentService {
     }
 
     async getListPagination(queryDto: QueryDocumentDto) {
+        const { projectId, fileName, fileExt } = queryDto;
         try {
-            const whereClause: any = {
-                projectId: queryDto.projectId
+            const whereClause: Prisma.DocumentsWhereInput = {
+                projectId,
+                scope: DocumentScope.QA,
+                fileExt: fileExt ? { contains: fileExt } : undefined,
+                fileName: fileName ? { contains: fileName } : undefined
             };
-            if (queryDto.fileExt) {
-                whereClause.fileExt = { contains: queryDto.fileExt };
-            }
-            if (queryDto.fileName) {
-                whereClause.fileName = { contains: queryDto.fileName };
-            }
             const [data, total] = await Promise.all([
                 this.prisma.documents.findMany({
                     where: whereClause,

@@ -16,7 +16,7 @@ import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import PasswordInput from '@/components/ui/password-input';
 import { ModelDialog } from '@/components/settings/model-dialog';
-import { useGetModelConfig, useModelConfigSelect } from '@/hooks/query/use-model-config';
+import { useModelConfigList, useModelConfigSelect } from '@/hooks/query/use-model-config';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
 import { ProviderDialog } from '@/components/settings/provider-dialog';
 import { ModelTypeIconMap } from '@/components/icons';
@@ -32,7 +32,7 @@ export default function Page() {
     const [openProvider, setOpenProvider] = useState(false);
     const [model, setModel] = useState<ModelConfig>({} as ModelConfig);
 
-    const { data: modelConfig, refresh: refreshModelConfig } = useGetModelConfig(projectId, selectedProvider.id);
+    const { data: modelConfig, refresh: refreshModelConfig } = useModelConfigList(projectId, selectedProvider.id);
     const { refresh } = useModelConfigSelect(projectId);
     const getProvidersList = (initialProvider?: ModelProviders) => {
         apiClient.get(`/${projectId}/providers`).then(response => {

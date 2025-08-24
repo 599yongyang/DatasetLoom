@@ -1,33 +1,34 @@
 {
-    "search_project": "搜索项目...",
-    "no_found": "没有找到相关项目",
-    "quick_create": "创建新项目",
-    "dashboard": "Dashboard",
-    "knowledge": {
-        "title": "知识库",
-        "document": "文档库",
-        "image": "图片库"
-    },
-    "chunk": {
-        "title": "分块管理",
-        "document": "文档分块",
-        "image": "图片分块"
-    },
-    "question": "问题管理",
-    "dataset": {
-        "title": "数据集管理",
-        "qa": "QA数据集"
-    },
-    "settings": {
-        "title": "项目设置",
-        "project_info": "基本信息",
-        "project_member": "成员管理",
-        "parser_config": "解析服务配置",
-        "model_config": "模型配置",
-        "task_config": "任务配置",
-        "prompt_config": "提示词配置"
-    },
-    "dataset_square": "数据集广场",
-    "chat": "模型对话",
-    "workflow": "工作流(beta)"
+  "search_project": "搜索项目...",
+  "no_found": "没有找到相关项目",
+  "quick_create": "创建新项目",
+  "dashboard": "Dashboard",
+  "knowledge": {
+    "title": "知识库",
+    "document": "文档库",
+    "image": "图片库"
+  },
+  "chunk": {
+    "title": "分块管理",
+    "document": "文档分块",
+    "image": "图片分块"
+  },
+  "question": "问题管理",
+  "dataset": {
+    "title": "数据集管理",
+    "qa": "QA数据集",
+    "pretrain": "预训练语料"
+  },
+  "settings": {
+    "title": "项目设置",
+    "project_info": "基本信息",
+    "project_member": "成员管理",
+    "parser_config": "解析服务配置",
+    "model_config": "模型配置",
+    "task_config": "任务配置",
+    "prompt_config": "提示词配置"
+  },
+  "dataset_square": "数据集广场",
+  "chat": "模型对话",
+  "workflow": "工作流(beta)"
 }

@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import * as React from 'react';
 import apiClient from '@/lib/axios';
 import { ProjectRole } from '@repo/shared-types';
+import { toast } from 'sonner';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -86,4 +87,35 @@ export const hasPermission = (userRole: ProjectRole, requiredRole: ProjectRole):
         VIEWER: 1
     };
     return roleHierarchy[userRole] >= roleHierarchy[requiredRole];
+};
+
+export const downloadDataset = async ({
+                                        url,
+                                        params = {},
+                                        filename: customFilename
+                                    }: {
+    url: string;
+    params?: Record<string, any>;
+    filename?: string;
+}) => {
+    try {
+        const res = await apiClient.post(url, params, { responseType: 'blob' });
+        const filename = customFilename ||
+            res.headers['content-disposition']?.match(/filename="?(.+)"?/)?.[1] ||
+            'data-export.zip';
+
+        const urlObject = URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = urlObject;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(urlObject);
+        }, 100);
+    } catch (error) {
+        console.error('Download failed:', error);
+        toast.error('下载失败');
+    }
 };

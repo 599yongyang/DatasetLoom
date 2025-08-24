@@ -12,8 +12,8 @@ import { selectedProjectAtom } from '@/atoms';
 import { useTranslation } from 'react-i18next';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useModelConfigSelect } from '@/hooks/query/use-model-config';
-import { useEffect, useState, useMemo } from 'react';
-import { useGetProjects } from '@/hooks/query/use-project';
+import { useEffect, useMemo } from 'react';
+import { useProjectList } from '@/hooks/query/use-project';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ProjectDialog } from '@/components/project/project-dialog';
 
@@ -25,7 +25,7 @@ export function ProjectSelect() {
     const [open, setOpen] = React.useState(false);
     const [selectedProject, setSelectedProject] = useAtom(selectedProjectAtom);
     const { refresh } = useModelConfigSelect(selectedProject);
-    const { projects, isLoading } = useGetProjects();
+    const { projects, isLoading } = useProjectList();
     const [projectDialogOpen, setProjectDialogOpen] = React.useState(false);
 
     // 使用 useMemo 来避免不必要的重新计算

@@ -16,7 +16,7 @@ type UseDocumentsParams = {
     fileExt: string;
 };
 
-export function useDocuments(params: UseDocumentsParams) {
+export function useDocumentList(params: UseDocumentsParams) {
     const url = useMemo(() => {
         if (!params.projectId) return null;
         const paramsObj = {

@@ -8,32 +8,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { DataTable } from '@/components/data-table/data-table';
-import { useDocuments } from '@/hooks/query/use-documents';
+import { useDocumentList } from '@/hooks/query/use-documents';
 import { ChunkStrategyDialog } from '@/components/chunks/chunk-strategy-dialog';
 import { toast } from 'sonner';
-import { ProjectRole, PromptTemplateType } from '@repo/shared-types';
+import { DocumentScope, ProjectRole, PromptTemplateType } from '@repo/shared-types';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { useDocumentsTableColumns } from '@/hooks/table-columns/use-document';
 import apiClient from '@/lib/axios';
 import { fileTypeOption } from '@/constants/data-dictionary';
 import { GenerateStrategyDialog } from '@/components/common/generate-strategy-dialog';
 import { StrategyParamsType } from '@/types/generate';
+import { usePagination } from '@/hooks/use-pagination';
+import { useDelete } from '@/hooks/use-delete';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const { t } = useTranslation('knowledge');
     const router = useRouter();
+    const { deleteItems } = useDelete();
     const [fileName, setFileName] = useState('');
     const [fileExt, setFileExt] = useState('');
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10
+    const { pagination, setPagination } = usePagination({
+        defaultPageSize: 10,
+        resetDeps: [fileName, fileExt]
     });
-    const {
-        data,
-        total,
-        refresh: refreshFiles
-    } = useDocuments({
+    const { data, total, refresh } = useDocumentList({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -61,19 +60,16 @@ export default function Page() {
     };
 
 
-    const columns = useDocumentsTableColumns({ mutateDocuments: refreshFiles, handelGraph });
+    const columns = useDocumentsTableColumns({ refresh, handelGraph });
     const [fileIds, setFileIds] = useState<string[]>([]);
     const [open, setOpen] = useState(false);
-    const handleBatchDeleteDocuments = () => {
-        toast.promise(apiClient.delete(`/${projectId}/document/delete`, { params: { ids: Object.keys(rowSelection).join(',') } }),
-            {
-                loading: '数据删除中',
-                success: _ => {
-                    void refreshFiles();
-                    return '删除成功';
-                },
-                error: error => {
-                    return error.message || '删除失败';
+
+    const batchDelete = async () => {
+        await deleteItems(`/${projectId}/document/delete`,
+            Object.keys(rowSelection), {
+                onSuccess: () => {
+                    setRowSelection({});
+                    refresh();
                 }
             }
         );
@@ -109,18 +105,12 @@ export default function Page() {
                     <Input
                         className="w-1/3"
                         value={fileName}
-                        onChange={e => {
-                            setFileName(e.target.value);
-                            setPagination({ ...pagination, pageIndex: 0 });
-                        }}
+                        onChange={e => setFileName(e.target.value)}
                         placeholder={t('search')}
                     />
                     <Select
                         value={fileExt}
-                        onValueChange={value => {
-                            setFileExt(value);
-                            setPagination({ ...pagination, pageIndex: 0 });
-                        }}
+                        onValueChange={value => setFileExt(value)}
                     >
                         <SelectTrigger className="w-[200px]">
                             <SelectValue placeholder={t('file_ext')} />
@@ -135,7 +125,8 @@ export default function Page() {
                         </SelectContent>
                     </Select>
                     <WithPermission required={ProjectRole.EDITOR} projectId={projectId}>
-                        <Button onClick={() => router.push(`/project/${projectId}/knowledge/document/upload`)}>
+                        <Button
+                            onClick={() => router.push(`/project/${projectId}/common/upload?scope=${DocumentScope.QA}`)}>
                             <Upload size={30} />
                             {t('upload_btn')}
                         </Button>
@@ -156,7 +147,7 @@ export default function Page() {
                             fileExt={''}
                             open={open}
                             onOpenChange={setOpen}
-                            refresh={refreshFiles}
+                            refresh={refresh}
                         >
                             <Button
                                 variant="outline"
@@ -176,7 +167,7 @@ export default function Page() {
                         <Button
                             variant="outline"
                             disabled={Object.keys(rowSelection).length == 0}
-                            onClick={handleBatchDeleteDocuments}
+                            onClick={batchDelete}
                             className={'text-red-500 hover:cursor-pointer hover:text-red-500'}
                         >
                             <Trash2 size={30} />

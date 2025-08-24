@@ -17,7 +17,7 @@ interface Response {
     total: number;
 }
 
-export default function useQuestions(params: UseQuestionsParams) {
+export function useQuestionList(params: UseQuestionsParams) {
     const url = useMemo(() => {
         if (!params.projectId) return null;
 

@@ -16,7 +16,7 @@ type PromptTemplateParams = {
     name: string;
 };
 
-export function usePromptTemplate(params: PromptTemplateParams) {
+export function usePromptTemplateList(params: PromptTemplateParams) {
     const url = useMemo(() => {
         if (!params.projectId) return null;
         const paramsObj = {

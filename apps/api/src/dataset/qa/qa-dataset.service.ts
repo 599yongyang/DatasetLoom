@@ -1,14 +1,14 @@
-import {Injectable} from '@nestjs/common';
-import {QueryQaDatasetDto} from '@/dataset/qa/dto/query-qa-dataset.dto';
-import {DatasetSamples, Prisma, Questions} from '@prisma/client';
-import {PrismaService} from '@/common/prisma/prisma.service';
-import {ResponseUtil} from "@/utils/response.util";
-import {ContextType, EvalSourceType} from "@repo/shared-types";
-import {QuestionService} from "@/question/question.service";
-import {TextDatasetGenerator} from "@/dataset/qa/generators/text-dataset.generator";
-import {DatasetSampleWithQuestion, ModelConfigWithProvider, QuestionsWithDatasetSample} from "@/common/prisma/type";
-import {PreferencePairDto} from "@/dataset/qa/dto/preference-pair.dto";
-import {EvaluationGenerator} from "@/dataset/qa/generators/evaluation.generator";
+import { Injectable } from '@nestjs/common';
+import { QueryQaDatasetDto } from '@/dataset/qa/dto/query-qa-dataset.dto';
+import { DatasetSamples, Prisma, Questions } from '@prisma/client';
+import { PrismaService } from '@/common/prisma/prisma.service';
+import { ResponseUtil } from '@/utils/response.util';
+import { ContextType, EvalSourceType } from '@repo/shared-types';
+import { QuestionService } from '@/question/question.service';
+import { TextDatasetGenerator } from '@/dataset/qa/generators/text-dataset.generator';
+import { DatasetSampleWithQuestion, ModelConfigWithProvider, QuestionsWithDatasetSample } from '@/common/prisma/type';
+import { PreferencePairDto } from '@/dataset/qa/dto/preference-pair.dto';
+import { EvaluationGenerator } from '@/dataset/qa/generators/evaluation.generator';
 import { ImageDatasetGenerator } from '@/dataset/qa/generators/image-dataset.generator';
 import { AiGenDto } from '@/common/dto/ai-gen.dto';
 
@@ -35,9 +35,9 @@ export class QaDatasetService {
             }
 
             const datasetSample = await this.prisma.datasetSamples.create({
-                data: datasetSamples as DatasetSamples,
+                data: datasetSamples as DatasetSamples
             });
-            await this.questionService.update(createQaDto.itemId, {answered: true} as Questions);
+            await this.questionService.update(createQaDto.itemId, { answered: true } as Questions);
             return datasetSample;
 
         } catch (error) {
@@ -50,17 +50,17 @@ export class QaDatasetService {
         try {
             return this.prisma.$transaction([
                 this.prisma.datasetSamples.updateMany({
-                    where: {questionId},
+                    where: { questionId },
                     data: {
-                        isPrimaryAnswer: false,
-                    },
+                        isPrimaryAnswer: false
+                    }
                 }),
                 this.prisma.datasetSamples.update({
-                    where: {id, questionId},
+                    where: { id, questionId },
                     data: {
-                        isPrimaryAnswer: true,
-                    },
-                }),
+                        isPrimaryAnswer: true
+                    }
+                })
             ]);
         } catch (error) {
             console.error('Failed to update primary answer in database');
@@ -76,7 +76,7 @@ export class QaDatasetService {
             query = '',
             showType,
             contextType,
-            confirmed,
+            confirmed
         } = queryDto;
 
         try {
@@ -88,56 +88,56 @@ export class QaDatasetService {
             if (showType === 'dpo') {
                 const where: Prisma.PreferencePairWhereInput = {
                     projectId,
-                    prompt: {contains: query},
+                    prompt: { contains: query },
                     question: {
-                        ...(contextType && {contextType}),
-                        ...(confirmed !== undefined && {confirmed: confirmed === 'confirmed'}),
-                    },
+                        ...(contextType && { contextType }),
+                        ...(confirmed !== undefined && { confirmed: confirmed === 'confirmed' })
+                    }
                 };
 
                 const [data, total] = await Promise.all([
                     this.prisma.preferencePair.findMany({
                         where,
-                        orderBy: {createdAt: 'desc'},
+                        orderBy: { createdAt: 'desc' },
                         skip: (page - 1) * pageSize,
-                        take: pageSize,
+                        take: pageSize
                     }),
-                    this.prisma.preferencePair.count({where}),
+                    this.prisma.preferencePair.count({ where })
                 ]);
 
-                result = {data, total};
-                console.log('result', result)
+                result = { data, total };
+                console.log('result', result);
             } else {
                 const where: Prisma.DatasetSamplesWhereInput = {
                     projectId,
-                    question: {contains: query},
+                    question: { contains: query },
                     questions: {
-                        ...(contextType && {contextType}),
-                        ...(confirmed !== undefined && {confirmed: confirmed === 'confirmed'}),
+                        ...(contextType && { contextType }),
+                        ...(confirmed !== undefined && { confirmed: confirmed === 'confirmed' })
                     },
-                    ...(showType === 'sft' && {isPrimaryAnswer: true}),
+                    ...(showType === 'sft' && { isPrimaryAnswer: true })
                 };
 
                 const [data, total] = await Promise.all([
                     this.prisma.datasetSamples.findMany({
                         where,
-                        orderBy: {createdAt: 'desc'},
+                        orderBy: { createdAt: 'desc' },
                         skip: (page - 1) * pageSize,
-                        take: pageSize,
+                        take: pageSize
                     }),
-                    this.prisma.datasetSamples.count({where}),
+                    this.prisma.datasetSamples.count({ where })
                 ]);
 
-                result = {data, total};
+                result = { data, total };
             }
 
-            const {total} = result;
+            const { total } = result;
             return {
                 data: result.data,
                 total,
                 currentPage: page,
                 pageSize,
-                totalPages: Math.ceil(total / pageSize),
+                totalPages: Math.ceil(total / pageSize)
             };
         } catch (error) {
             throw new Error(`Failed to fetch dataset: ${error.message}`);
@@ -147,10 +147,17 @@ export class QaDatasetService {
     getInfoById(id: string) {
         try {
             return this.prisma.datasetSamples.findUnique({
-                where: {id},
+                where: { id },
                 include: {
-                    questions: {select: {contextType: true, contextData: true, realQuestion: true, contextId: true}},
-                },
+                    questions: {
+                        select: {
+                            contextType: true,
+                            contextData: true,
+                            realQuestion: true,
+                            contextId: true
+                        }
+                    }
+                }
             });
         } catch (error) {
             console.error('Failed to get datasets by id in database');
@@ -164,8 +171,8 @@ export class QaDatasetService {
             return this.prisma.datasetSamples.update({
                 data,
                 where: {
-                    id: data.id,
-                },
+                    id: data.id
+                }
             });
         } catch (error) {
             console.error('Failed to update datasets in database');
@@ -176,7 +183,7 @@ export class QaDatasetService {
     async removeBatch(ids: string[]) {
         try {
             return await this.prisma.datasetSamples.deleteMany({
-                where: {id: {in: ids}},
+                where: { id: { in: ids } }
             });
         } catch (error) {
             console.error('Failed to delete datasets in database');
@@ -218,12 +225,31 @@ export class QaDatasetService {
     getEvalList(sampleId: string, sampleType: string) {
         try {
             return this.prisma.datasetEvaluation.findMany({
-                where: {sampleId, sampleType}
+                where: { sampleId, sampleType }
             });
         } catch (error) {
             console.error('Failed to get datasets by id in database');
             throw error;
         }
+    }
+
+    async getPreferencePair(projectId: string, questionId: string) {
+        try {
+            return await this.prisma.datasetSamples.findMany({
+                where: {
+                    projectId,
+                    questionId
+                },
+                orderBy: {
+                    confidence: 'desc'
+                },
+                take: 2
+            });
+        } catch (error) {
+            console.error('Failed to save PreferencePair in database');
+            throw error;
+        }
+
     }
 
     async savePreferencePair(pairDto: PreferencePairDto) {
@@ -238,11 +264,11 @@ export class QaDatasetService {
                 return await this.prisma.preferencePair.update({
                     data: pairDto,
                     where: {
-                        id: pairDto.id
+                        id: check.id
                     }
                 });
             } else {
-                return await this.prisma.preferencePair.create({data: pairDto});
+                return await this.prisma.preferencePair.create({ data: pairDto });
             }
         } catch (error) {
             console.error('Failed to save PreferencePair in database');

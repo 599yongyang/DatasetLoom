@@ -1,7 +1,7 @@
 import useSWR from 'swr';
-import {buildURL, fetcher} from '@/lib/utils';
-import {useMemo} from 'react';
-import {Chunks} from "@/types/interfaces";
+import { buildURL, fetcher } from '@/lib/utils';
+import { useMemo } from 'react';
+import { Chunks } from '@/types/interfaces';
 
 interface Response {
     data: Chunks[];
@@ -17,21 +17,21 @@ type UseChunksParams = {
     query: string
 };
 
-export function useChunks(params: UseChunksParams) {
+export function useChunkList(params: UseChunksParams) {
     const url = useMemo(() => {
         if (!params.projectId) return null;
         const paramsObj = {
             page: params.pageIndex + 1,
             size: params.pageSize,
-            ...(params.fileIds && {fileIds: params.fileIds.join(',')}),
-            ...(params.status && {status: params.status}),
-            ...(params.query && {query: params.query})
+            ...(params.fileIds && { fileIds: params.fileIds.join(',') }),
+            ...(params.status && { status: params.status }),
+            ...(params.query && { query: params.query })
         };
         return buildURL(`/${params.projectId}/documentChunk`, paramsObj);
     }, [params]);
 
 
-    const {data, error, mutate} = useSWR<Response>(url, fetcher, {
+    const { data, error, mutate } = useSWR<Response>(url, fetcher, {
         keepPreviousData: true, // 切换分页时保持旧数据展示
         revalidateOnFocus: true
     });
@@ -45,11 +45,11 @@ export function useChunks(params: UseChunksParams) {
     };
 }
 
-export function useGetChunkById({projectId, chunkId}: { projectId: string; chunkId: string }) {
+export function useGetChunkById({ projectId, chunkId }: { projectId: string; chunkId: string }) {
     if (!chunkId) {
-        return {chunk: null};
+        return { chunk: null };
     }
-    const {data, error, isLoading, mutate} = useSWR(
+    const { data, error, isLoading, mutate } = useSWR(
         chunkId && `/${projectId}/documentChunk/getInfo/${chunkId}`,
         fetcher
     );

@@ -3,11 +3,7 @@ import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PreferencePairDto extends BaseDto {
-
-    @ApiProperty({ description: 'id' })
-    @IsString()
-    id: string;
-
+    
     @ApiProperty({ description: '问题标识' })
     @IsString()
     questionId: string;

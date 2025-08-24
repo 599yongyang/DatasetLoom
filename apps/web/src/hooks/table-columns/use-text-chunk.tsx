@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileQuestion, Hash, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useParams } from 'next/navigation';
 import { ConfirmAlert } from '@/components/common/confirm-alert';
@@ -13,28 +12,20 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ChunkInfoSheet } from '@/components/chunks/chunk-info-sheet';
 import { WithPermission } from '@/components/common/permission-wrapper';
 import { Chunks } from '@/types/interfaces';
-import apiClient from '@/lib/axios';
+import { useDelete } from '@/hooks/use-delete';
 
 export function useTextChunkTableColumns({
-                                             mutateChunks,
+                                             refresh,
                                              onOpenDialog
                                          }: {
-    mutateChunks: () => void;
+    refresh: () => void;
     onOpenDialog?: (chunk: Chunks) => void;
 }) {
     const { t } = useTranslation('chunk');
     const { projectId }: { projectId: string } = useParams();
-
-    const handleDeleteChunk = async (chunkId: string) => {
-        try {
-            const response = await apiClient.delete(`/${projectId}/documentChunk/delete?ids=${chunkId}`);
-            if (response.status === 200) {
-                toast.success('删除成功');
-                mutateChunks();
-            }
-        } catch (error) {
-            toast.error('删除失败');
-        }
+    const { deleteItems } = useDelete();
+    const handleDelete = async (id: string) => {
+        await deleteItems(`/${projectId}/documentChunk/delete`, [id], { onSuccess: refresh });
     };
     const columns: ColumnDef<Chunks>[] = [
         {
@@ -123,17 +114,9 @@ export function useTextChunkTableColumns({
                         {/* 文本块内容 */}
                         <div className="mb-4 w-full max-w-[60vw]">
                             <div
-                                className="text-gray-700 text-sm leading-relaxed break-words whitespace-normal"
-                                style={{
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    wordBreak: 'break-word'
-                                }}
-                            >
-                                {item.content}
+                                className="text-gray-700 text-sm leading-relaxed break-words whitespace-normal line-clamp-2"
+                                title={row.original.content}>
+                                {row.original.content}
                             </div>
                         </div>
 
@@ -214,13 +197,13 @@ export function useTextChunkTableColumns({
                             <Button variant="ghost" size="icon" onClick={() => onOpenDialog?.(row.original)}>
                                 <FileQuestion />
                             </Button>
-                            <ChunkInfoSheet item={row.original} refresh={mutateChunks} />
+                            <ChunkInfoSheet item={row.original} refresh={refresh} />
                         </WithPermission>
                         <WithPermission required={ProjectRole.ADMIN} projectId={projectId}>
                             <ConfirmAlert
                                 title={`确认要删除【${row.original.name}】此文本块嘛？`}
                                 message={'此操作不可逆，请谨慎操作！'}
-                                onConfirm={() => handleDeleteChunk(row.original.id)}
+                                onConfirm={() => handleDelete(row.original.id)}
                             >
                                 <Button variant="ghost" size="icon" className="text-destructive hover:text-red-500">
                                     <Trash2 />

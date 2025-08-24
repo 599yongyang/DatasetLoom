@@ -8,24 +8,20 @@ import { ProjectRole } from '@repo/shared-types';
 import { DataTable } from '@/components/data-table/data-table';
 import React, { useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { usePromptTemplate } from '@/hooks/query/use-prompt-template';
+import { usePromptTemplateList } from '@/hooks/query/use-prompt-template';
 import { usePromptTemplateTableColumns } from '@/hooks/table-columns/use-prompt-template';
 import { AddPromptDialog } from '@/components/prompt-template/add-prompt-dialog';
-import { toast } from 'sonner';
-import apiClient from '@/lib/axios';
+import { usePagination } from '@/hooks/use-pagination';
+import { useDelete } from '@/hooks/use-delete';
 
 export default function Page() {
     const { projectId }: { projectId: string } = useParams();
     const [name, setName] = useState('');
-    const [pagination, setPagination] = useState({
-        pageIndex: 0,
-        pageSize: 10
+    const { pagination, setPagination } = usePagination({
+        defaultPageSize: 10,
+        resetDeps: [name]
     });
-    const {
-        data,
-        total,
-        refresh: refresh
-    } = usePromptTemplate({
+    const { data, total, refresh } = usePromptTemplateList({
         projectId,
         pageIndex: pagination.pageIndex,
         pageSize: pagination.pageSize,
@@ -33,23 +29,16 @@ export default function Page() {
     });
     const pageCount = useMemo(() => Math.ceil(total / pagination.pageSize) || 0, [total, pagination.pageSize]);
     const [rowSelection, setRowSelection] = useState({});
-    const columns = usePromptTemplateTableColumns({ refresh: refresh });
+    const columns = usePromptTemplateTableColumns({ refresh });
     const [open, setOpen] = useState(false);
 
-
+    const { deleteItems } = useDelete();
     const batchDelete = async () => {
-        toast.promise(
-            apiClient.delete(`/${projectId}/prompt-template/delete`, {
-                params: { ids: Object.keys(rowSelection).join(',') }
-            }),
-            {
-                loading: `正在删除 ${Object.keys(rowSelection).length} 个提示词...`,
-                success: _ => {
+        await deleteItems(`/${projectId}/prompt-template/delete`,
+            Object.keys(rowSelection), {
+                onSuccess: () => {
+                    setRowSelection({});
                     refresh();
-                    return `成功删除 ${Object.keys(rowSelection).length} 个提示词`;
-                },
-                error: error => {
-                    return error.message || '批量删除提示词失败';
                 }
             }
         );

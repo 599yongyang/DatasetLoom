@@ -1,27 +1,28 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog';
-import {RadioGroup, RadioGroupItem} from '@/components/ui/radio-group';
-import {Label} from '@/components/ui/label';
-import {Button} from '@/components/ui/button';
-import {Checkbox} from '@/components/ui/checkbox';
-import {Card} from '@/components/ui/card';
-import {useParams} from 'next/navigation';
-import {toast} from 'sonner';
+import React, { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card } from '@/components/ui/card';
+import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {Input} from '../ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '../ui/input';
 import PasswordInput from '@/components/ui/password-input';
-import {type RemoteRepositoryData, uploadToHuggingFace} from '@/lib/utils/hugging-face';
-import {ContextTypeMap, type DatasetExportType} from '@/constants/data-dictionary';
-import {ContextType} from '@repo/shared-types';
-import {txtExampleData} from '@/constants/export-example/text';
-import {imageExampleData} from '@/constants/export-example/image';
-import apiClient from "@/lib/axios";
+import { type RemoteRepositoryData, uploadToHuggingFace } from '@/lib/utils/hugging-face';
+import { ContextTypeMap, type DatasetExportType } from '@/constants/data-dictionary';
+import { ContextType } from '@repo/shared-types';
+import { txtExampleData } from '@/constants/export-example/text';
+import { imageExampleData } from '@/constants/export-example/image';
+import apiClient from '@/lib/axios';
+import { downloadDataset } from '@/lib/utils';
 
-export function ExportDataDialog({open, onOpenChange}: { open: boolean; onOpenChange: (open: boolean) => void }) {
-    const {projectId} = useParams();
+export function ExportDataDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+    const { projectId } = useParams();
     const [fileFormat, setFileFormat] = useState('sharegpt');
     const [dataType, setDataType] = useState('raw');
     const [onlyExportConfirmed, setOnlyExportConfirmed] = useState(false);
@@ -68,35 +69,17 @@ export function ExportDataDialog({open, onOpenChange}: { open: boolean; onOpenCh
     const exportDatasetsLocal = async () => {
         try {
             setIsExporting(true);
-            const res = await apiClient.post(
-                `/${projectId}/qa-dataset/export`,
-                {
+            await downloadDataset({
+                url: `/${projectId}/qa-dataset/export`,
+                params: {
                     contextType,
                     fileFormat,
                     dataType,
                     confirmedOnly: onlyExportConfirmed,
                     includeCOT,
                     exportType
-                },
-                {
-                    responseType: 'blob'
                 }
-            );
-            const filename = res.headers['content-disposition']?.match(/filename="?(.+)"?/)?.[1] || 'data-export.zip';
-
-            const url = URL.createObjectURL(new Blob([res.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            setTimeout(() => {
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }, 100);
-        } catch (error) {
-            console.error('Download failed:', error);
-            toast.error('下载失败');
+            });
         } finally {
             setIsExporting(false);
         }
@@ -151,7 +134,7 @@ export function ExportDataDialog({open, onOpenChange}: { open: boolean; onOpenCh
                                     onValueChange={value => setContextType(value as ContextType)}
                                 >
                                     <SelectTrigger className={'w-full'}>
-                                        <SelectValue placeholder="Select Repository Type"/>
+                                        <SelectValue placeholder="Select Repository Type" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {Object.entries(ContextTypeMap).map(([key, value]) => (
@@ -166,25 +149,28 @@ export function ExportDataDialog({open, onOpenChange}: { open: boolean; onOpenCh
                                 <Label>数据类型</Label>
                                 <Select value={dataType} onValueChange={value => setDataType(value)}>
                                     <SelectTrigger className=" w-full">
-                                        <SelectValue placeholder="Choose a plan"/>
+                                        <SelectValue placeholder="Choose a plan" />
                                     </SelectTrigger>
                                     <SelectContent
                                         className=" [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
                                         <SelectItem value="raw">
                                             全部数据
-                                            <span className="text-muted-foreground block text-xs" data-desc>
+                                            <span className="text-muted-foreground block text-xs"
+                                                  data-desc={'包含所有原始QA对（含重复问题和不同答案）'}>
                                                 包含所有原始QA对（含重复问题和不同答案）
                                             </span>
                                         </SelectItem>
                                         <SelectItem value="sft">
                                             SFT 数据
-                                            <span className="text-muted-foreground  block text-xs" data-desc>
+                                            <span className="text-muted-foreground  block text-xs"
+                                                  data-desc={'每个问题仅保留主答案，适用于监督微调'}>
                                                 每个问题仅保留主答案，适用于监督微调
                                             </span>
                                         </SelectItem>
                                         <SelectItem value="dpo">
                                             DPO数据
-                                            <span className="text-muted-foreground block text-xs" data-desc>
+                                            <span className="text-muted-foreground block text-xs"
+                                                  data-desc={'包含偏好对比对（chosen/rejected answers）'}>
                                                 包含偏好对比对（chosen/rejected answers）
                                             </span>
                                         </SelectItem>
@@ -196,7 +182,7 @@ export function ExportDataDialog({open, onOpenChange}: { open: boolean; onOpenCh
                         <Label>导出目标</Label>
                         <Select value={exportType} onValueChange={value => setExportType(value as DatasetExportType)}>
                             <SelectTrigger className={'w-full'}>
-                                <SelectValue placeholder="Select Repository Type"/>
+                                <SelectValue placeholder="Select Repository Type" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value={'LOCAL_GENERAL'}>下载到本地</SelectItem>
@@ -273,7 +259,7 @@ export function ExportDataDialog({open, onOpenChange}: { open: boolean; onOpenCh
                         <Label>导出格式</Label>
                         <RadioGroup value={fileFormat} onValueChange={setFileFormat} className="flex gap-6">
                             <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="sharegpt" id="sharegpt"/>
+                                <RadioGroupItem value="sharegpt" id="sharegpt" />
                                 <Label htmlFor="sharegpt">Sharegpt</Label>
                             </div>
                             <div

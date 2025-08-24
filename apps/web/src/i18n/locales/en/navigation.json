@@ -1,33 +1,34 @@
 {
-    "search_project": "Search project...",
-    "no_found": "No related projects found",
-    "quick_create": "Create New Project",
-    "dashboard": "Dashboard",
-    "knowledge": {
-        "title": "Knowledge Base",
-        "document": "Document Library",
-        "image": "Image Library"
-    },
-    "chunk": {
-        "title": "Chunk Management",
-        "document": "Document Chunks",
-        "image": "Image Chunks"
-    },
-    "question": "Question Management",
-    "dataset": {
-        "title": "Dataset Management",
-        "qa": "QA Dataset"
-    },
-    "settings": {
-        "title": "Project Settings",
-        "project_info": "Basic Information",
-        "project_member": "Member Management",
-        "parser_config": "Parser Service Configuration",
-        "model_config": "Model Configuration",
-        "task_config": "Task Configuration",
-        "prompt_config": "Prompt Configuration"
-    },
-    "dataset_square": "Dataset Square",
-    "chat": "Model Chat",
-    "workflow": "Workflow (beta)"
+  "search_project": "Search project...",
+  "no_found": "No related projects found",
+  "quick_create": "Create New Project",
+  "dashboard": "Dashboard",
+  "knowledge": {
+    "title": "Knowledge Base",
+    "document": "Document Library",
+    "image": "Image Library"
+  },
+  "chunk": {
+    "title": "Chunk Management",
+    "document": "Document Chunks",
+    "image": "Image Chunks"
+  },
+  "question": "Question Management",
+  "dataset": {
+    "title": "Dataset Management",
+    "qa": "QA Dataset",
+    "pretrain": "Pretrain Dataset"
+  },
+  "settings": {
+    "title": "Project Settings",
+    "project_info": "Basic Information",
+    "project_member": "Member Management",
+    "parser_config": "Parser Service Configuration",
+    "model_config": "Model Configuration",
+    "task_config": "Task Configuration",
+    "prompt_config": "Prompt Configuration"
+  },
+  "dataset_square": "Dataset Square",
+  "chat": "Model Chat",
+  "workflow": "Workflow (beta)"
 }

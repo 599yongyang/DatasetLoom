@@ -1,11 +1,11 @@
-import {Button} from '@/components/ui/button';
-import React, {useEffect} from 'react';
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from '@/components/ui/dialog';
-import {useGetPreferencePair} from '@/hooks/query/use-preferencePair';
-import {useParams} from 'next/navigation';
-import {toast} from 'sonner';
+import { Button } from '@/components/ui/button';
+import React from 'react';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { usePreferencePairList } from '@/hooks/query/use-preferencePair';
+import { useParams } from 'next/navigation';
+import { toast } from 'sonner';
 import MentionsTextarea from '@/components/ui/mentions-textarea';
-import apiClient from "@/lib/axios";
+import apiClient from '@/lib/axios';
 
 export function PreferencePairDialog({
                                          open,
@@ -16,9 +16,9 @@ export function PreferencePairDialog({
     setOpen: (open: boolean) => void;
     questionId: string;
 }) {
-    const {projectId}: { projectId: string } = useParams();
+    const { projectId }: { projectId: string } = useParams();
 
-    const {data: preferencePair, isLoading} = useGetPreferencePair(projectId, questionId);
+    const { data: preferencePair, isLoading } = usePreferencePairList(projectId, questionId);
 
     const handleSubmit = async (preferenceIndex: 0 | 1) => {
         if (!preferencePair || !preferencePair[0] || !preferencePair[1]) {
@@ -80,7 +80,7 @@ export function PreferencePairDialog({
 
                 <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
                     <div className="text-center text-lg font-medium text-foreground">
-                        <MentionsTextarea value={preferencePair[0]?.question || ''} readOnly/>
+                        <MentionsTextarea value={preferencePair[0]?.question || ''} readOnly />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

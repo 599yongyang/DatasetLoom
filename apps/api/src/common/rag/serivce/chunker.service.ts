@@ -6,6 +6,7 @@ import { RecursiveCharacterTextSplitter, MarkdownTextSplitter } from '@langchain
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';
+import { CleanService } from '@/common/rag/serivce/clean.service';
 
 export interface LoaderOptions {
     splitPages?: boolean; // 用于 PDF 分页
@@ -89,9 +90,14 @@ const loaderMap: Record<string, LoaderFactory> = {
 export class ChunkerService {
     private readonly logger = new Logger(ChunkerService.name);
 
+
+    constructor(private readonly cleanService: CleanService) {
+    }
+
     /**
      * 文档分块处理主函数
      * @param filePath 文件路径
+     * @param cleanRules 清洗规则
      * @param strategy 分块策略 ('auto', 'page', 'chapter' 或其他自定义策略)
      * @param options 分块选项
      * @param loaderOptions 加载器选项
@@ -99,6 +105,7 @@ export class ChunkerService {
      */
     async chunker(
         filePath: string,
+        cleanRules: string[],
         strategy: ChunkStrategy = 'auto',
         options: ChunkOptions = {},
         loaderOptions: LoaderOptions = {}
@@ -126,12 +133,17 @@ export class ChunkerService {
             // 合并所有文档内容
             const allContent = docs.map(doc => doc.pageContent).join('\n\n');
 
+            let processedContent = allContent;
+            if (cleanRules.length > 0) {
+                const cleanResult = await this.cleanService.cleanText(allContent, cleanRules);
+                processedContent = cleanResult.cleaned;
+            }
             // 获取文件扩展名并选择合适分块函数
             const ext = this.getFileExtension(filePath);
             const chunkerFn = chunkerMap[ext] || defaultChunker;
 
             // 执行分块
-            const chunks = await chunkerFn(allContent, resolvedOptions);
+            const chunks = await chunkerFn(processedContent, resolvedOptions);
 
             this.logger.log({
                 message: 'Document chunking completed',
