@@ -5,7 +5,7 @@ CREATE TABLE "PretrainData" (
     "documentId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdBy" TEXT NOT NULL,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "PretrainData_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "PretrainData_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "Documents" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );

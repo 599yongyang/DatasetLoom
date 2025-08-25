@@ -15,7 +15,10 @@ import { Response } from '@/components/ai-elements/response';
 
 type ParsingStatus = 'idle' | 'parsing' | 'chunking' | 'done' | 'error';
 
-export default function StepThree({ uploadFormData }: { uploadFormData: UploadFormDataType }) {
+export default function StepThree({ uploadFormData, handleChange }: {
+    uploadFormData: UploadFormDataType,
+    handleChange: (field: string, value: any) => void;
+}) {
     const { projectId } = useParams();
 
     const [showStyle, setShowStyle] = useState('md');
@@ -33,29 +36,33 @@ export default function StepThree({ uploadFormData }: { uploadFormData: UploadFo
 
     const handleProcess = async () => {
         try {
-            setStatus('parsing');
-            const formData = new FormData();
+            let fileIds = uploadFormData.fileIds;
+            if (fileIds.length === 0) {
+                setStatus('parsing');
+                const formData = new FormData();
 
-            uploadFormData.selectedFiles.forEach(file => {
-                formData.append('localFiles', file);
-            });
-            formData.append('sourceType', uploadFormData.sourceType);
-            formData.append('selectedService', uploadFormData.selectedService);
-            formData.append('webFileUrls', JSON.stringify(uploadFormData.webFileUrls));
-            formData.append('webUrls', JSON.stringify(uploadFormData.webUrls));
-            formData.append('scope', uploadFormData.scope);
+                uploadFormData.selectedFiles.forEach(file => {
+                    formData.append('localFiles', file);
+                });
+                formData.append('sourceType', uploadFormData.sourceType);
+                formData.append('selectedService', uploadFormData.selectedService);
+                formData.append('webFileUrls', JSON.stringify(uploadFormData.webFileUrls));
+                formData.append('webUrls', JSON.stringify(uploadFormData.webUrls));
+                formData.append('scope', uploadFormData.scope);
 
-            //解析文档
-            const parseRes = await apiClient.post(`/${projectId}/document/parser`, formData);
+                //解析文档
+                const parseRes = await apiClient.post(`/${projectId}/document/parser`, formData);
 
-            if (!parseRes.data.data) throw new Error('文档解析失败');
+                if (!parseRes.data.data) throw new Error('文档解析失败');
+                handleChange('fileIds', parseRes.data.data);
+                fileIds = parseRes.data.data;
+            }
 
             // 开始分块
             setStatus('chunking');
-
             const chunkRes = await apiClient.post(`/${projectId}/documentChunk/create`, {
                 ...uploadFormData,
-                fileIds: parseRes.data.data
+                fileIds
             });
             if (!chunkRes.data.data) throw new Error('文档分块失败');
 

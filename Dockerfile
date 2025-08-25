@@ -25,6 +25,12 @@ COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        openssl \
+        ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 # 安装依赖
 RUN pnpm config set registry https://registry.npmmirror.com && pnpm install --frozen-lockfile --ignore-scripts
 
@@ -67,7 +73,7 @@ COPY --from=builder --chown=nestjs:nodejs /app/apps/api/prisma ./apps/api/prisma
 
 # 创建数据目录
 RUN mkdir -p /app/data && chown nestjs:nodejs /app/data
-
+RUN mkdir -p /app/models && chown nestjs:nodejs /app/models
 USER nestjs
 
 EXPOSE 3088

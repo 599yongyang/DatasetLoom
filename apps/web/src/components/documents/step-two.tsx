@@ -74,10 +74,7 @@ export default function StepTwo({
             handleChange('selectedService', getAvailableServices()[0]?.id);
         }
     }, [getAvailableServices().length]);
-
-    useEffect(() => {
-        console.log(uploadFormData.separators);
-    }, [uploadFormData.separators]);
+    
     return (
         <div className="space-y-4">
             <div className="grid gap-4">

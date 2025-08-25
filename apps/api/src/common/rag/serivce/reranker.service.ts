@@ -10,7 +10,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 env.remoteHost = 'https://hf-mirror.com';
-env.cacheDir = './models';
+const MODEL_CACHE_DIR = process.env.MODEL_CACHE_DIR ||
+    (process.env.NODE_ENV === 'production' ? '/app/models' : './models');
+env.cacheDir = MODEL_CACHE_DIR;
 
 export interface RerankResult {
     doc: string;
@@ -31,7 +33,7 @@ export class RerankerService implements OnModuleInit {
     private readonly modelName = 'cross-encoder/ms-marco-MiniLM-L-6-v2';
     private readonly batchSize = 8;
     private readonly logger = new Logger(RerankerService.name);
-    private readonly statusFile = path.join('./models', '.model_status.json');
+    private readonly statusFile = path.join(MODEL_CACHE_DIR, '.model_status.json');
 
     async onModuleInit(): Promise<void> {
         // 启动时异步尝试加载模型

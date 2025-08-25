@@ -28,6 +28,7 @@ export interface UploadFormDataType {
     chunkSize: number;
     chunkOverlap: number;
     cleanRules: string[];
+    fileIds: string[];
 }
 
 export default function Page() {
@@ -49,7 +50,8 @@ export default function Page() {
         separators: ['\n\n'],
         chunkSize: 3000,
         chunkOverlap: 150,
-        cleanRules: []
+        cleanRules: [],
+        fileIds: []
     });
 
     const steps = [
@@ -168,7 +170,7 @@ export default function Page() {
                         )}
 
                         {/* 步骤 3: 解析与结果 */}
-                        {currentStep === 3 && <StepThree uploadFormData={uploadFormData} />}
+                        {currentStep === 3 && <StepThree uploadFormData={uploadFormData} handleChange={handleChange} />}
                         {currentStep === 4 && <StepFour />}
                     </CardContent>
                 </Card>
