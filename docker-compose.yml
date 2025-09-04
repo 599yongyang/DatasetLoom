@@ -7,7 +7,7 @@ services:
       - "3088:3088"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:/app/data/datasetloom.sqlite
+      - DATABASE_URL=postgresql://datasetloom:datasetloom@postgres:5432/datasetloom?schema=public
       - QDRANT_URL=http://qdrant:6333
     env_file:
       - ./.env
@@ -19,7 +19,10 @@ services:
       timeout: 10s
       retries: 3
     depends_on:
-      - qdrant
+      db:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
 
   web:
     build:
@@ -33,6 +36,7 @@ services:
       - ./.env
     depends_on:
       - api
+
   qdrant:
     image: qdrant/qdrant:v1.7.4
     ports:
@@ -43,3 +47,24 @@ services:
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__SERVICE__HTTP_PORT=6333
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:6333/readyz" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: datasetloom
+      POSTGRES_PASSWORD: datasetloom
+      POSTGRES_DB: datasetloom
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U datasetloom -d datasetloom" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
