@@ -54,7 +54,7 @@ export default function StepFour() {
 
 
     const handelView = () => {
-        const url = `/project/${projectId}/${searchParams.get('scope') === DocumentScope.PRETRAIN ? 'dataset/pretrain' : 'knowledge/document'}`;
+        const url = `/project/${projectId}/${searchParams.get('scope') === DocumentScope.PRETRAIN ? 'dataset/pretrain' : 'chunk/document'}`;
         router.push(url);
     };
 

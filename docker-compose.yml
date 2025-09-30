@@ -19,7 +19,7 @@ services:
       timeout: 10s
       retries: 3
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       qdrant:
         condition: service_started
